@@ -1,0 +1,26 @@
+module PersonsToFamilies_All;
+create OUT : Families from IN : Persons;
+
+unique lazy rule Person2Member {
+  from p : Persons!Person
+  to   m : Families!Member (
+    firstName <- p.firstName,
+    age       <- p.age,
+    isMale    <- p.isMale
+  )
+}
+
+rule PersonsModel2FamiliesModel {
+  from src : Persons!PersonsModel
+  to   dst : Families!FamiliesModel (
+    families <- Persons!Person.allInstances()->collect(p | thisModule.Person2Family(p))
+  )
+}
+
+rule Person2Family {
+  from p : Persons!Person
+  to   f : Families!Family (
+    lastName <- p.lastName,
+    members  <- Sequence{ thisModule.Person2Member(p) }
+  )
+}

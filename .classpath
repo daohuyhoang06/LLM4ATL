@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Parser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Tests/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ETL_Parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ETL_Parser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ETL_Test/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/QVT-O_parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/QVT-O_parser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/QVT-O_parser/target/generated-sources/antlr4"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/QVT-O_Test/qvto-tests/actual/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ReactionParser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ReactionParser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Langauge_Parser/parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Language_Evaluate_Tests/viewtype/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Language_Evaluate_Tests/vsum/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Language_Tests/viewtype/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Language_Tests/vsum/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Language_Tests/vsum/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/ETL/ETL Parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/ETL/ETL Parser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/ETL/ETL Test/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O parser/src/main/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O parser/src/test/java"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O parser/target/generated-sources/antlr4"/>
+	<classpathentry kind="src" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/src/test/java"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Parser/target/atl-parser-demo-1.0.0.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Tests/target/atl-project-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ETL_Parser/target/etl-parser-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ETL_Test/target/etl-tests-1.0.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/QVT-O_parser/target/qvto-parser-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Langauge_Parser/parser/target/tools.vitruv.reactionsparser.parser-0.1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Langauge_Parser/parser/target/tools.vitruv.reactionsparser.parser-0.1.0-SNAPSHOT-all.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Reactions_Langauge_Parser/parser/target/tools.vitruv.reactionsparser.parser-0.1.0-SNAPSHOT-all-sources.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/ETL/ETL Parser/target/etl-parser-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/ETL/ETL Test/target/etl-tests-1.0.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O parser/target/qvto-parser-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.common.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.cst.parser.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.ecore.imperativeocl.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.emf.util.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.ocl.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.m2m.qvt.oml.runtime.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.ocl.common.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.ocl.ecore.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/lib/org.eclipse.ocl.jar"/>
+	<classpathentry kind="lib" path="LLM-based code generation for MTL/LLM-based code generation for MTL/Significant_Test/QVT-O/QVT-O Test/qvto-tests/target/qvto-tests-1.0.0.jar"/>
+	<classpathentry kind="output" path="LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Parser/target/classes"/>
+</classpath>

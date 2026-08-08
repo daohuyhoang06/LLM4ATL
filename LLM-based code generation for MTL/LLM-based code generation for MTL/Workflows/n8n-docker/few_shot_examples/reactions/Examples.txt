@@ -1,0 +1,60 @@
+import "edu.kit.ipd.sdq.metamodels.persons" as persons
+import "edu.kit.ipd.sdq.metamodels.families" as families
+
+reactions: personsToFamilies
+in reaction to changes in persons
+execute actions in families
+
+// =================================
+// Creation/ deletion of a registers
+// =================================
+reaction InsertedPersonRegister {
+	after element persons::PersonRegister inserted as root
+	call createFamilyRegister(newValue)
+}
+
+routine createFamilyRegister(persons::PersonRegister createdPersonRegister) {
+	match {
+		require absence of families::FamilyRegister corresponding to createdPersonRegister
+	}
+	create {
+		val newFamilyRegister = new families::FamilyRegister
+	}
+	update {
+		persistProjectRelative(createdPersonRegister, newFamilyRegister, "model/families.families")
+		addCorrespondenceBetween(newFamilyRegister, createdPersonRegister)
+	}
+}
+
+//=================================================================================
+// Deletion of a person and therefore of corresponding member and maybe also family
+//=================================================================================
+reaction DeletePerson {
+	after element persons::Person deleted
+	call deleteMember(affectedEObject)
+}
+
+routine deleteMember(persons::Person person) {
+	match {
+		val member = retrieve families::Member corresponding to person
+		val family = retrieve families::Family corresponding to person
+	}
+	update {
+		removeObject(member)
+		removeCorrespondenceBetween(person, family)
+		removeCorrespondenceBetween(person, member)
+		deleteFamilyIfEmpty(family)
+	}
+}
+
+routine deleteFamilyIfEmpty(families::Family family) {
+	match {
+		check family.father === null
+		check family.mother === null
+		check family.sons.empty
+		check family.daughters.empty
+	}
+	update {
+		removeObject(family)
+	}
+}

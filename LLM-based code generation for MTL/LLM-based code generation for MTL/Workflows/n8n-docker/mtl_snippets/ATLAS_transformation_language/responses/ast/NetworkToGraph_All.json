@@ -1,0 +1,203 @@
+{
+  "module": {
+    "type": "Module",
+    "name": "NetworkToGraph_All",
+    "input_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "IN",
+        "metamodel": "Network"
+      }
+    ],
+    "output_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "OUT",
+        "metamodel": "Graph"
+      }
+    ],
+    "elements": [
+      {
+        "type": "LazyMatchedRule",
+        "name": "Component2Entity",
+        "is_unique": true,
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "Network!Component"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "e",
+                "declared_type": "Graph!Entity"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "c"
+                    },
+                    "property_name": "name"
+                      }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "System2Root",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "Network!System"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "r",
+                "declared_type": "Graph!Root"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "entities",
+                  "value": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "components"
+                    },
+                    "iterator_type": "collect",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "c"
+                      }
+                    ],
+                    "body": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule"
+                      },
+                      "operation_name": "Component2Entity",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "c"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Link2Link",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "l",
+                "declared_type": "Network!Link"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "out",
+                "declared_type": "Graph!Link"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "Entitys",
+                  "value": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "l"
+                      },
+                      "property_name": "components"
+                    },
+                    "iterator_type": "collect",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "c"
+                      }
+                    ],
+                    "body": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule"
+                      },
+                      "operation_name": "Component2Entity",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "c"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

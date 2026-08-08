@@ -1,0 +1,557 @@
+{
+  "module": {
+    "type": "Module",
+    "name": "IEEE1471_2_MoDAF",
+    "input_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "IN",
+        "metamodel": "IEEE1471"
+      }
+    ],
+    "output_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "OUT",
+        "metamodel": "MoDAF"
+      }
+    ],
+    "elements": [
+      {
+        "type": "Helper",
+        "kind": "attribute",
+        "context_type": "IEEE1471!IEEE1471Model",
+        "name": "rationale",
+        "body": {
+          "type": "OperationCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "IEEE1471!Rationale"
+                },
+                "operation_name": "allInstances",
+                "arguments": []
+              },
+              "operation_name": "first",
+              "arguments": []
+            },
+            "property_name": "name"
+          },
+          "operation_name": "concat",
+          "arguments": [
+            {
+              "type": "PropertyCall",
+              "source": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "IEEE1471!Rationale"
+                  },
+                  "operation_name": "allInstances",
+                  "arguments": []
+                },
+                "operation_name": "first",
+                "arguments": []
+              },
+              "property_name": "content"
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "IEEE1471Model2MoDAFModel",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!IEEE1471Model"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!MoDAFModel"
+              },
+              "bindings": []
+            },
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "af",
+                "declared_type": "MoDAF!ArchitecturalFramework"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "viewpoints",
+                  "value": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "IEEE1471!Viewpoint"
+                    },
+                    "operation_name": "allInstances",
+                    "arguments": []
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "System2Enterprise",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!System"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Enterprise"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Environment2Environment",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Environment"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Environment"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Mission2OperationalMission",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Mission"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!OperationalMission"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Architecture2Architecture",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Architecture"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Architecture"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "AD2AD",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!AD"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!AD"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Stakeholder2Stakeholder",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Stakeholder"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Stakeholder"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Viewpoint2View",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Viewpoint"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!View"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "View2ArchitecturalProduct",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!View"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!ArchitecturalProduct"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Model2Element",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Model"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Element"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Concern2Concern",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Concern"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!Concern"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "LibraryViewpoint2ArchitecturalFramework",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!LibraryViewpoint"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "MoDAF!ArchitecturalFramework"
+              },
+              "bindings": []
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "StakeholderHasConcern",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "IEEE1471!Stakeholder"
+              }
+            },
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "IEEE1471!Concern"
+              }
+            }
+          ],
+          "filter": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "s"
+              },
+              "property_name": "concerns"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "c"
+              }
+            ]
+          }
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "shc",
+                "declared_type": "MoDAF!StakeholderHasConcern"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "stakeholder",
+                  "value": {
+                    "type": "Variable",
+                    "name": "s"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "concern",
+                  "value": {
+                    "type": "Variable",
+                    "name": "c"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "owner",
+                  "value": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "MoDAF!MoDAFModel"
+                      },
+                      "operation_name": "allInstances",
+                      "arguments": []
+                    },
+                    "operation_name": "first",
+                    "arguments": []
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

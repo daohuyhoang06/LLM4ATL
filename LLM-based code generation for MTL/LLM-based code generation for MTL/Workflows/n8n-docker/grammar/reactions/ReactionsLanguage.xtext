@@ -1,0 +1,197 @@
+grammar tools.vitruv.dsls.reactions.ReactionsLanguage with org.eclipse.xtext.xbase.Xbase
+hidden(WS, SL_COMMENT)
+
+generate language "http://vitruv.tools/dsls/reactions/language"
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://vitruv.tools/dsls/common/elements" as common
+import "http://vitruv.tools/dsls/reactions/language/toplevelelements" as toplevelelements
+
+ReactionsFile returns toplevelelements::ReactionsFile:
+	(namespaceImports=XImportSection)?
+	(metamodelImports+=MetamodelImport)*
+	(reactionsSegments+=ReactionsSegment)+;
+
+MetamodelImport returns common::MetamodelImport:
+	'import' package=[ecore::EPackage|STRING] 'as' name=ValidID (useQualifiedNames?='using' 'qualified' 'names')?;
+
+ReactionsSegment returns toplevelelements::ReactionsSegment:
+	'reactions:' name=ValidID
+	'in' 'reaction' 'to' 'changes' 'in' fromMetamodels+=[common::MetamodelImport] ('and'
+	fromMetamodels+=[common::MetamodelImport])*
+	'execute' 'actions' 'in' toMetamodels+=[common::MetamodelImport] ('and' toMetamodels+=[common::MetamodelImport])*
+	(reactionsImports+=ReactionsImport)*
+	(reactions+=Reaction |
+	routines+=Routine)*;
+
+ReactionsImport returns toplevelelements::ReactionsImport:
+	'import' (routinesOnly?='routines')? importedReactionsSegment=[toplevelelements::ReactionsSegment]
+	(useQualifiedNames?='using' 'qualified' 'names')?;
+
+// *********************************
+// *********** REACTIONS ***********
+// *********************************
+Reaction returns toplevelelements::Reaction:
+	(documentation=ML_COMMENT)?
+	'reaction' (overriddenReactionsSegment=[toplevelelements::ReactionsSegment] '::')? name=ValidID '{'
+	trigger=Trigger
+	callRoutine=RoutineCall
+	'}';
+
+RoutineCall returns toplevelelements::RoutineCall:
+	{toplevelelements::RoutineCall}
+	'call' code=XExpression;
+
+// *********** TRIGGER ***********
+Trigger returns toplevelelements::Trigger:
+	'after' (ArbitraryModelChange | ConcreteModelChange);
+
+ConcreteModelChange:
+	ModelElementChange | ModelAttributeChange;
+
+ModelElementChange:
+	{ModelElementChange}
+	'element' (elementType=UnnamedMetaclassReference)? changeType=ElementChangeType
+	('with' precondition=XExpression)?;
+
+ModelAttributeChange:
+	'attribute' ({ModelAttributeInsertedChange} 'inserted' 'in' |
+	{ModelAttributeRemovedChange} 'removed' 'from' |
+	{ModelAttributeReplacedChange} 'replaced' 'at')
+	feature=MetaclassEAttributeReference
+	('with' precondition=XExpression)?;
+
+ArbitraryModelChange:
+	{ArbitraryModelChange} 'anychange'
+	('with' precondition=XExpression)?;
+
+// *********** Atomic element changes ***********
+ElementExistenceChangeType returns ElementExistenceChangeType:
+	ElementCreationChangeType | ElementDeletionChangeType;
+
+ElementUsageChangeType returns ModelElementUsageChangeType:
+	ElementInsertionChangeType | ElementRemovalChangeType | ElementReplacementChangeType;
+
+ElementCreationChangeType returns ElementCreationChangeType:
+	'created' {ElementCreationChangeType};
+
+ElementDeletionChangeType returns ElementDeletionChangeType:
+	'deleted' {ElementDeletionChangeType};
+
+fragment ElementReferenceChangeType:
+	feature=MetaclassEReferenceReference;
+
+// This is just for a complete type hierarchy
+ElementRootChangeType returns ElementRootChangeType:
+	ElementInsertionAsRootChangeType | ElementRemovalAsRootChangeType;
+
+ElementInsertionChangeType:
+	(ElementInsertionInListChangeType | ElementInsertionAsRootChangeType);
+
+ElementInsertionInListChangeType:
+	'inserted' 'in' ElementReferenceChangeType;
+
+ElementInsertionAsRootChangeType:
+	{ElementInsertionAsRootChangeType} 'inserted' 'as' 'root';
+
+ElementRemovalChangeType:
+	(ElementRemovalAsRootChangeType | ElementRemovalFromListChangeType);
+
+ElementRemovalAsRootChangeType:
+	{ElementRemovalAsRootChangeType} 'removed' 'as' 'root';
+
+ElementRemovalFromListChangeType:
+	'removed' 'from' ElementReferenceChangeType;
+
+ElementReplacementChangeType:
+	'replaced' 'at' ElementReferenceChangeType;
+
+ElementChangeType returns ElementChangeType:
+	ElementExistenceChangeType | ElementUsageChangeType;
+
+// ***************************************
+// *********** REPAIR ROUTINES ***********
+// ***************************************
+Routine returns toplevelelements::Routine:
+	(documentation=ML_COMMENT)?
+	'routine' (overrideImportPath=RoutineOverrideImportPath '::')? name=ValidID input=RoutineInput '{'
+	matchBlock=MatchBlock?
+	createBlock=CreateBlock?
+	updateBlock=UpdateBlock?
+	'}';
+
+RoutineOverrideImportPath returns toplevelelements::RoutineOverrideImportPath:
+	reactionsSegment=[toplevelelements::ReactionsSegment] ({toplevelelements::RoutineOverrideImportPath.parent=current}
+	'.' reactionsSegment=[toplevelelements::ReactionsSegment])*;
+
+RoutineInput returns toplevelelements::RoutineInput:
+	{toplevelelements::RoutineInput}
+	'(' ((modelInputElements+=NamedMetaclassReference | "plain" javaInputElements+=NamedJavaElementReference)
+	(',' (modelInputElements+=NamedMetaclassReference | "plain" javaInputElements+=NamedJavaElementReference))*)? ')';
+
+// *********** MATCH ***********
+MatchBlock returns toplevelelements::MatchBlock:
+	{toplevelelements::MatchBlock}
+	'match' '{'
+	(matchStatements+=MatchStatement)+
+	'}';
+
+MatchStatement returns toplevelelements::MatchStatement:
+	RetrieveOrRequireAbscenceOfModelElement | MatchCheckStatement;
+
+RetrieveOrRequireAbscenceOfModelElement:
+	(RequireAbscenceOfModelElement | RetrieveModelElement);
+
+RequireAbscenceOfModelElement returns RequireAbscenceOfModelElement:
+	{RequireAbscenceOfModelElement}
+	'require' 'absence' 'of' elementType=UnnamedMetaclassReference
+	'corresponding' 'to' correspondenceSource=XExpression ('tagged' tag=XExpression)?
+	('with' precondition=XExpression)?;
+
+RetrieveModelElement:
+	{RetrieveModelElement}
+	('val' name=ValidID '=')?
+	'retrieve' retrievalType=RetrieveModelElementTypeStatement elementType=UnnamedMetaclassReference
+	'corresponding' 'to' correspondenceSource=XExpression ('tagged' tag=XExpression)?
+	('with' precondition=XExpression)?;
+
+RetrieveModelElementTypeStatement returns RetrieveModelElementType:
+	{RetrieveOneModelElement} (optional?='optional' | asserted?='asserted')? |
+	{RetrieveManyModelElements} 'many';
+
+MatchCheckStatement:
+	{MatchCheckStatement}
+	'check' (asserted?='asserted')? condition=XExpression;
+
+// *********** CREATE ***********
+CreateBlock returns toplevelelements::CreateBlock:
+	{toplevelelements::CreateBlock}
+	'create' '{'
+	createStatements+=CreateStatement*
+	'}';
+
+CreateStatement returns common::NamedMetaclassReference:
+	'val' name=ValidID '=' 'new' MetaclassReference;
+
+// *********** UPDATE ***********
+UpdateBlock returns toplevelelements::UpdateBlock:
+	'update' code=XExpression;
+
+// ****** CODE BLOCKS ******
+fragment MetaclassReference returns common::MetaclassReference:
+	(metamodel=[common::MetamodelImport] '::')? metaclass=[ecore::EClassifier|QualifiedName];
+
+UnnamedMetaclassReference returns common::MetaclassReference:
+	MetaclassReference;
+
+NamedMetaclassReference returns common::NamedMetaclassReference:
+	MetaclassReference name=ValidID;
+
+NamedJavaElementReference returns toplevelelements::NamedJavaElementReference:
+	type=JvmTypeReference 'as' name=ValidID;
+
+MetaclassEAttributeReference returns common::MetaclassEAttributeReference:
+	MetaclassReference '[' feature=[ecore::EAttribute|ValidID] ']';
+
+MetaclassEReferenceReference returns common::MetaclassEReferenceReference:
+	MetaclassReference '[' feature=[ecore::EReference|ValidID] ']';
+	

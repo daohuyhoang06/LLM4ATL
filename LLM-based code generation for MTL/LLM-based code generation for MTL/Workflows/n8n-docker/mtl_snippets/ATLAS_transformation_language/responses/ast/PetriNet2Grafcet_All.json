@@ -1,0 +1,488 @@
+{
+  "module": {
+    "type": "Module",
+    "name": "PetriNet2Grafcet",
+    "input_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "IN",
+        "metamodel": "PetriNet"
+      }
+    ],
+    "output_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "OUT",
+        "metamodel": "Grafcet"
+      }
+    ],
+    "elements": [
+      {
+        "type": "MatchedRule",
+        "name": "Grafcet",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "pn",
+                "declared_type": "PetriNet!PetriNet"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "g",
+                "declared_type": "Grafcet!Grafcet"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "location",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pn"
+                    },
+                    "property_name": "location"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pn"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "elements",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pn"
+                    },
+                    "property_name": "elements"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "connections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pn"
+                    },
+                    "property_name": "arcs"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Step",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "pl",
+                "declared_type": "PetriNet!Place"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s",
+                "declared_type": "Grafcet!Step"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "location",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pl"
+                    },
+                    "property_name": "location"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pl"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "grafcet",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pl"
+                    },
+                    "property_name": "grafcet"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "incomingConnections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pl"
+                    },
+                    "property_name": "incomingArc"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "outgoingConnections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "pl"
+                    },
+                    "property_name": "outgoingArc"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "isInitial",
+                  "value": {
+                    "type": "LiteralExpression",
+                    "value": false,
+                    "literal_type": "Boolean"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "isActive",
+                  "value": {
+                    "type": "LiteralExpression",
+                    "value": false,
+                    "literal_type": "Boolean"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Transition",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "PetriNet!Transition"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "gt",
+                "declared_type": "Grafcet!Transition"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "location",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t"
+                    },
+                    "property_name": "location"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "grafcet",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t"
+                    },
+                    "property_name": "grafcet"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "incomingConnections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t"
+                    },
+                    "property_name": "incomingArc"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "outgoingConnections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t"
+                    },
+                    "property_name": "outgoingArc"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "StepToTransition",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "p2t",
+                "declared_type": "PetriNet!PlaceToTransition"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "s2t",
+                "declared_type": "Grafcet!StepToTransition"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "location",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "p2t"
+                    },
+                    "property_name": "location"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "p2t"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "grafcet",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "p2t"
+                    },
+                    "property_name": "grafcet"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "from",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "p2t"
+                    },
+                    "property_name": "from"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "to",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "p2t"
+                    },
+                    "property_name": "to"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "TransitionToStep",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t2p",
+                "declared_type": "PetriNet!TransitionToPlace"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "t2s",
+                "declared_type": "Grafcet!TransitionToStep"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "location",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t2p"
+                    },
+                    "property_name": "location"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t2p"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "grafcet",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t2p"
+                    },
+                    "property_name": "grafcet"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "from",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t2p"
+                    },
+                    "property_name": "from"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "to",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "t2p"
+                    },
+                    "property_name": "to"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
