@@ -1,25 +1,25 @@
 {
   "module": {
     "type": "Module",
-    "name": "NetworkToGraph_All",
+    "name": "Document2Report_All",
     "input_models": [
       {
         "type": "ModelDeclaration",
         "alias": "IN",
-        "metamodel": "Network"
+        "metamodel": "Document"
       }
     ],
     "output_models": [
       {
         "type": "ModelDeclaration",
         "alias": "OUT",
-        "metamodel": "Graph"
+        "metamodel": "Report"
       }
     ],
     "elements": [
       {
         "type": "MatchedRule",
-        "name": "Component2Entity",
+        "name": "Document2Report",
         "in_pattern": {
           "type": "InPattern",
           "elements": [
@@ -27,8 +27,8 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "c",
-                "declared_type": "Component"
+                "name": "d",
+                "declared_type": "IN!Document"
               }
             }
           ]
@@ -40,20 +40,44 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "out",
-                "declared_type": "Entity"
+                "name": "r",
+                "declared_type": "OUT!Report"
               },
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "name",
+                  "property_name": "title",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "c"
+                      "name": "d"
                     },
-                    "property_name": "name"
+                    "property_name": "title"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "author",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "d"
+                    },
+                    "property_name": "author"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "sections",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "d"
+                    },
+                    "property_name": "sections"
                   }
                 }
               ]
@@ -63,7 +87,7 @@
       },
       {
         "type": "MatchedRule",
-        "name": "System2Root",
+        "name": "Section2Section",
         "in_pattern": {
           "type": "InPattern",
           "elements": [
@@ -72,7 +96,7 @@
               "variable": {
                 "type": "Variable",
                 "name": "s",
-                "declared_type": "System"
+                "declared_type": "IN!Section"
               }
             }
           ]
@@ -84,64 +108,44 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "out",
-                "declared_type": "Root"
+                "name": "t",
+                "declared_type": "OUT!Section"
               },
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "entities",
+                  "property_name": "title",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
                       "name": "s"
                     },
-                    "property_name": "components"
+                    "property_name": "title"
                   }
-                }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "type": "MatchedRule",
-        "name": "Link2Link",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "l",
-                "declared_type": "Link"
-              }
-            }
-          ]
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "out",
-                "declared_type": "Link"
-              },
-              "bindings": [
+                },
                 {
                   "type": "Binding",
-                  "property_name": "Entitys",
+                  "property_name": "content",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "l"
+                      "name": "s"
                     },
-                    "property_name": "components"
+                    "property_name": "content"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "order",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "order"
                   }
                 }
               ]

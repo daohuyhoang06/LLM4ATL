@@ -10,12 +10,12 @@
         -560
       ],
       "id": "7f67440e-9bda-41e1-b072-f2c517ef9ba4",
-      "name": "When clicking \u2018Execute workflow\u2019"
+      "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.system_prompt.replace('<INSERT_SCHEMA_HERE>', $json.schema) }}\n\n=== ECORE MODELS ===\n{{ $json.model }}\n\n=== TRANSFORMATION REQUEST ===\n{{ $json.prompt }}",
+        "text": "={{ $json.system_prompt.replace('<INSERT_SCHEMA_HERE>', $json.schema) }}\\n\\n=== ECORE MODELS ===\\n{{ $json.model }}\\n\\n=== TRANSFORMATION REQUEST ===\\n{{ $json.prompt }}\\n\\n{{ $json.validation_error ? \"=== PREVIOUS ATTEMPT FAILED WITH VALIDATION ERROR ===\\nFix the following schema errors:\\n\" + $json.validation_error : \"\" }}",
         "messages": {
           "messageValues": []
         },
@@ -25,7 +25,7 @@
       "typeVersion": 1.7,
       "position": [
         1600,
-        -50
+        -112
       ],
       "id": "3731a8c3-468d-42ea-825d-4124658ad40c",
       "name": "Generate AST JSON"
@@ -55,8 +55,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2000,
-        -50
+        2080,
+        -112
       ],
       "id": "d4a7bf27-e248-4d03-a4cd-0e7cfb7b6755",
       "name": "Write response to disk"
@@ -71,8 +71,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1800,
-        -50
+        1840,
+        -112
       ],
       "id": "ab03a891-818a-4c4f-88b7-6ec922ef1ed3",
       "name": "Convert response to File",
@@ -155,7 +155,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/data/snippets/ATLAS_transformation_language/prompts/*",
+        "fileSelector": "/data/snippets/ATLAS_transformation_language/prompts/additional_prompts/*.txt",
         "options": {
           "dataPropertyName": "data"
         }
@@ -184,36 +184,6 @@
       ],
       "id": "70d6bd66-e18c-40a3-b5d0-3cdd16f0db8f",
       "name": "Extract text from prompt file"
-    },
-    {
-      "parameters": {
-        "fileSelector": "=/data/models/*.ecore",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1,
-      "position": [
-        576,
-        -208
-      ],
-      "id": "245941d3-6ed4-4c0b-ba5d-66d269257054",
-      "name": "Read model files",
-      "alwaysOutputData": false
-    },
-    {
-      "parameters": {
-        "operation": "text",
-        "destinationKey": "model",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1,
-      "position": [
-        736,
-        -208
-      ],
-      "id": "fe1855f0-fadc-4bda-9474-03005041f893",
-      "name": "Extract text from model files"
     },
     {
       "parameters": {
@@ -262,34 +232,6 @@
     },
     {
       "parameters": {
-        "fieldsToSummarize": {
-          "values": [
-            {
-              "aggregation": "concatenate",
-              "field": "model",
-              "separateBy": "\n"
-            },
-            {
-              "aggregation": "concatenate",
-              "field": "model",
-              "includeEmpty": "=",
-              "separateBy": "\n"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.summarize",
-      "typeVersion": 1.1,
-      "position": [
-        912,
-        -208
-      ],
-      "id": "819d8bdc-4114-42c9-acd3-dd87d0f1e775",
-      "name": "Summarize"
-    },
-    {
-      "parameters": {
         "model": {
           "__rl": true,
           "value": "gpt-5",
@@ -327,7 +269,9 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "includeOtherFields": true
+        }
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -340,28 +284,39 @@
     },
     {
       "parameters": {
-        "fileSelector": "/data/snippets/ATLAS_transformation_language/responses/ast/{{ .baseName }}.json",
-        "options": {}
+        "mode": "runOnceForAllItems",
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\n// Đọc file mapping\nconst mappingPath = '/data/models/mapping.json';\nlet mapping = {};\ntry {\n  mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));\n} catch (e) {\n  throw new Error('Lỗi khi đọc file mapping.json: ' + e.message);\n}\n\nfor (const item of $input.all()) {\n  const baseName = item.json.baseName;\n  const modelFiles = mapping[baseName];\n  \n  if (!modelFiles) {\n    item.json.model = '// CẢNH BÁO: Không tìm thấy khai báo model nào trong mapping.json cho ' + baseName;\n    continue;\n  }\n  \n  let combinedModels = '';\n  for (const relativePath of modelFiles) {\n    const fullPath = path.join('/data/models', relativePath);\n    if (fs.existsSync(fullPath)) {\n      const content = fs.readFileSync(fullPath, 'utf8');\n      combinedModels += content + '\\n\\n';\n    } else {\n      combinedModels += '// CẢNH BÁO: Không tìm thấy file ' + fullPath + '\\n\\n';\n    }\n  }\n  item.json.model = combinedModels.trim();\n}\nreturn $input.all();"
       },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        -208
+      ],
+      "id": "read_mapped_models_id",
+      "name": "Select and Read Models"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "for (const item of $input.all()) {\n  try {\n    const fs = require('fs');\n    // Read baseName that was generated by Save file name node\n    const baseName = item.json.baseName;\n    \n    const filePath = '/data/snippets/ATLAS_transformation_language/responses/ast/' + baseName + '.json';\n    item.json.fileExists = fs.existsSync(filePath);\n  } catch (error) {\n    item.json.fileExists = false;\n    item.json.fsError = error.message;\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         1200,
         100
       ],
       "id": "check_file_exists_id",
       "name": "Check File Exists",
-      "settings": {
-        "continueOnFail": true
-      },
-      "onError": "continueRegularOutput"
+      "settings": {}
     },
     {
       "parameters": {
         "conditions": {
           "boolean": [
             {
-              "value1": "={{ .error != undefined }}",
+              "value1": "={{ $json.fileExists == false }}",
               "value2": true
             }
           ]
@@ -375,26 +330,151 @@
       ],
       "id": "skip_if_exists_id",
       "name": "Skip if exists"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst stateDir = '/data/snippets/ATLAS_transformation_language/responses/ast/.validation_state';\nlet base = {};\ntry { base = $node['Init Retry Counter'].json || {}; } catch (error) { base = {}; }\nlet baseName = base.baseName;\ntry { baseName = $node['Save file name'].json.baseName || baseName; } catch (error) {}\nconst statePath = path.join(stateDir, (baseName || 'unknown') + '.json');\n\nlet previousRetry = 0;\ntry {\n  if (fs.existsSync(statePath)) {\n    previousRetry = Number(JSON.parse(fs.readFileSync(statePath, 'utf8')).retry_count || 0);\n  }\n} catch (error) {}\n\nconst output = [];\nfor (const item of $input.all()) {\n  const stdout = item.json.stdout || '';\n  let result;\n  try {\n    result = JSON.parse(stdout);\n  } catch (error) {\n    result = {\n      valid: false,\n      error_type: 'ValidatorOutputError',\n      error: 'syntax check.py did not return JSON. stdout: ' + String(stdout).slice(0, 2000),\n      stderr: item.json.stderr || ''\n    };\n  }\n\n  const retryCount = previousRetry + 1;\n  const validationError = result.valid ? '' : String(result.error || JSON.stringify(result)).slice(0, 12000);\n  const nextJson = {\n    ...base,\n    retry_count: retryCount,\n    validation_valid: Boolean(result.valid),\n    validation_error: validationError,\n    validation_result: result,\n    validator_stdout: stdout,\n    validator_stderr: item.json.stderr || ''\n  };\n\n  try {\n    fs.mkdirSync(stateDir, { recursive: true });\n    fs.writeFileSync(statePath, JSON.stringify({\n      retry_count: retryCount,\n      validation_valid: nextJson.validation_valid,\n      validation_error: validationError\n    }, null, 2));\n  } catch (error) {\n    nextJson.validation_state_error = error.message;\n  }\n\n  output.push({ json: nextJson });\n}\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        -112
+      ],
+      "id": "check_result_increment_id",
+      "name": "Check Result & Increment",
+      "settings": {}
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "for (const item of $input.all()) {\n  item.json.retry_count = 0;\n  item.json.validation_error = \"\";\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        200
+      ],
+      "id": "init_retry_id",
+      "name": "Init Retry Counter"
+    },
+    {
+      "parameters": {
+        "command": "=python3 /data/neuro-symbolic/validate_layer1.py '/data/snippets/ATLAS_transformation_language/responses/ast/{{$json.baseName}}.json'"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        200
+      ],
+      "id": "validate_pydantic_id",
+      "name": "Validate Pydantic",
+      "settings": {
+        "continueOnFail": true
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "for (const item of $input.all()) {\n  try {\n    const result = JSON.parse(item.json.stdout);\n    item.json.validation_status = result.status;\n    item.json.validation_error = result.message || \"\";\n  } catch(e) {\n    item.json.validation_status = \"error\";\n    item.json.validation_error = item.json.stderr || item.json.stdout || \"Unknown execution error\";\n  }\n  item.json.retry_count = (item.json.retry_count || 0) + 1;\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        200
+      ],
+      "id": "check_result_id",
+      "name": "Check Result & Increment Retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [
+            {
+              "value1": "={{ $json.retry_count }}",
+              "operation": "smallerEqual",
+              "value2": 1
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.validation_status }}",
+              "value2": "error"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        200
+      ],
+      "id": "if_retry_id",
+      "name": "IF Retry needed?"
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking \u2018Execute workflow\u2019": {
+    "Read prompt files": {
       "main": [
         [
           {
-            "node": "Read prompt files",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Generate AST JSON": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Save file name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save file name": {
       "main": [
         [
           {
-            "node": "Convert response to File",
+            "node": "Extract text from prompt file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Select and Read Models",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read system prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract text from prompt file": {
+      "main": [
+        [
+          {
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -412,28 +492,6 @@
         ]
       ]
     },
-    "Convert response to File": {
-      "main": [
-        [
-          {
-            "node": "Write response to disk",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Check File Exists",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract text from system prompt": {
       "main": [
         [
@@ -441,49 +499,6 @@
             "node": "Merge",
             "type": "main",
             "index": 2
-          }
-        ]
-      ]
-    },
-    "Write response to disk": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Over Items": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Read model files",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Extract text from prompt file",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Save file name",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Read system prompt",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Read schema",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -510,67 +525,62 @@
         ]
       ]
     },
-    "Read prompt files": {
+    "Merge": {
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "Init Retry Counter",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract text from prompt file": {
+    "Generate AST JSON": {
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Convert response to File",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read model files": {
+    "Convert response to File": {
       "main": [
         [
           {
-            "node": "Extract text from model files",
+            "node": "Write response to disk",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract text from model files": {
+    "Write response to disk": {
       "main": [
         [
           {
-            "node": "Summarize",
+            "node": "Validate Pydantic",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
+    "When clicking ‘Execute workflow’": {
+      "main": [
         [
           {
-            "node": "Generate AST JSON",
-            "type": "ai_languageModel",
+            "node": "Read prompt files",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Anthropic Chat Model": {
-      "ai_languageModel": [
-        []
-      ]
-    },
-    "Summarize": {
+    "Select and Read Models": {
       "main": [
         [
           {
@@ -581,34 +591,40 @@
         ]
       ]
     },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        []
-      ]
-    },
-    "Save file name": {
+    "Init Retry Counter": {
       "main": [
         [
           {
-            "node": "Extract text from prompt file",
+            "node": "Generate AST JSON",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check File Exists": {
+    "Validate Pydantic": {
       "main": [
         [
           {
-            "node": "Skip if exists",
+            "node": "Check Result & Increment Retry",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Skip if exists": {
+    "Check Result & Increment": {
+      "main": [
+        [
+          {
+            "node": "IF Retry needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Retry needed?": {
       "main": [
         [
           {
@@ -620,6 +636,17 @@
         [
           {
             "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Result & Increment Retry": {
+      "main": [
+        [
+          {
+            "node": "IF Retry needed?",
             "type": "main",
             "index": 0
           }

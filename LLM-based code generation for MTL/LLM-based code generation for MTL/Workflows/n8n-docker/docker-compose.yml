@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8nio/n8n:latest
+    build: .
     ports:
       - "5678:5678"                  # host:container
     environment:                     # optional but recommended
@@ -8,6 +8,8 @@ services:
       - TZ=Europe/Berlin
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
       - N8N_RESTRICT_FILE_ACCESS_TO=
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
       # - N8N_BASIC_AUTH_ACTIVE=true
       # - N8N_BASIC_AUTH_USER=admin
       # - N8N_BASIC_AUTH_PASSWORD=supersecret

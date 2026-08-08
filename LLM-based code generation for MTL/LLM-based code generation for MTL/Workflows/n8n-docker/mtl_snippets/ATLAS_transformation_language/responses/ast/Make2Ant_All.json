@@ -27,7 +27,7 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "m",
+                "name": "makefile",
                 "declared_type": "Make!Makefile"
               }
             }
@@ -40,7 +40,7 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "p",
+                "name": "project",
                 "declared_type": "Ant!Project"
               },
               "bindings": [
@@ -51,7 +51,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m"
+                      "name": "makefile"
                     },
                     "property_name": "name"
                   }
@@ -63,7 +63,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m"
+                      "name": "makefile"
                     },
                     "property_name": "macros"
                   }
@@ -75,7 +75,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m"
+                      "name": "makefile"
                     },
                     "property_name": "rules"
                   }
@@ -84,12 +84,12 @@
                   "type": "Binding",
                   "property_name": "default",
                   "value": {
-                    "type": "CollectionOperation",
+                    "type": "OperationCall",
                     "source": {
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "m"
+                        "name": "makefile"
                       },
                       "property_name": "rules"
                     },
@@ -112,7 +112,7 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "m",
+                "name": "macro",
                 "declared_type": "Make!Macro"
               }
             }
@@ -125,7 +125,7 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "p",
+                "name": "property",
                 "declared_type": "Ant!PropertyValue"
               },
               "bindings": [
@@ -136,7 +136,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m"
+                      "name": "macro"
                     },
                     "property_name": "name"
                   }
@@ -148,7 +148,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m"
+                      "name": "macro"
                     },
                     "property_name": "value"
                   }
@@ -168,7 +168,7 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "r",
+                "name": "rule",
                 "declared_type": "Make!Rule"
               }
             }
@@ -181,7 +181,7 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "t",
+                "name": "target",
                 "declared_type": "Ant!Target"
               },
               "bindings": [
@@ -192,7 +192,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "r"
+                      "name": "rule"
                     },
                     "property_name": "name"
                   }
@@ -204,7 +204,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "r"
+                      "name": "rule"
                     },
                     "property_name": "shellLines"
                   }
@@ -213,12 +213,30 @@
                   "type": "Binding",
                   "property_name": "depends",
                   "value": {
-                    "type": "PropertyCall",
+                    "type": "IteratorExpression",
                     "source": {
-                      "type": "Variable",
-                      "name": "r"
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "rule"
+                      },
+                      "property_name": "dependencies"
                     },
-                    "property_name": "dependencies"
+                    "iterator_type": "collect",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "d"
+                      }
+                    ],
+                    "body": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "d"
+                      },
+                      "property_name": "rule"
+                    }
                   }
                 }
               ]
@@ -236,27 +254,18 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "s",
+                "name": "shellLine",
                 "declared_type": "Make!ShellLine"
               }
             }
           ],
           "filter": {
-            "type": "BinaryExpression",
-            "operator": "=",
-            "left": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "s"
-              },
-              "property_name": "display"
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "shellLine"
             },
-            "right": {
-              "type": "LiteralExpression",
-              "value": true,
-              "literal_type": "Boolean"
-            }
+            "property_name": "display"
           }
         },
         "out_pattern": {
@@ -272,26 +281,26 @@
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "s"
-                    },
-                    "property_name": "rule"
-                  }
-                },
-                {
-                  "type": "Binding",
                   "property_name": "message",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s"
+                      "name": "shellLine"
                     },
                     "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
                   }
                 }
               ]
@@ -306,26 +315,26 @@
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "s"
-                    },
-                    "property_name": "rule"
-                  }
-                },
-                {
-                  "type": "Binding",
                   "property_name": "executable",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s"
+                      "name": "shellLine"
                     },
                     "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
                   }
                 }
               ]
@@ -343,26 +352,21 @@
               "type": "InPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "s",
+                "name": "shellLine",
                 "declared_type": "Make!ShellLine"
               }
             }
           ],
           "filter": {
-            "type": "BinaryExpression",
-            "operator": "=",
-            "left": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
               "type": "PropertyCall",
               "source": {
                 "type": "Variable",
-                "name": "s"
+                "name": "shellLine"
               },
               "property_name": "display"
-            },
-            "right": {
-              "type": "LiteralExpression",
-              "value": false,
-              "literal_type": "Boolean"
             }
           }
         },
@@ -379,26 +383,26 @@
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "s"
-                    },
-                    "property_name": "rule"
-                  }
-                },
-                {
-                  "type": "Binding",
                   "property_name": "executable",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s"
+                      "name": "shellLine"
                     },
                     "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
                   }
                 }
               ]

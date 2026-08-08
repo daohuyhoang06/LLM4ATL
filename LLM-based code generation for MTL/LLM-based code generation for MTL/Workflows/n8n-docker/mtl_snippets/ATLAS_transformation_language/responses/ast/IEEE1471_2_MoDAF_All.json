@@ -22,47 +22,75 @@
         "kind": "attribute",
         "context_type": "IEEE1471!IEEE1471Model",
         "name": "rationale",
+        "return_type": "String",
         "body": {
-          "type": "OperationCall",
-          "source": {
-            "type": "PropertyCall",
+          "type": "LetExpression",
+          "variable": {
+            "type": "Variable",
+            "name": "r",
+            "declared_type": "IEEE1471!Rationale"
+          },
+          "value": {
+            "type": "IteratorExpression",
             "source": {
               "type": "OperationCall",
               "source": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "IEEE1471!Rationale"
-                },
-                "operation_name": "allInstances",
-                "arguments": []
+                "type": "Variable",
+                "name": "IEEE1471!Rationale"
               },
-              "operation_name": "first",
+              "operation_name": "allInstances",
               "arguments": []
             },
-            "property_name": "name"
-          },
-          "operation_name": "concat",
-          "arguments": [
-            {
-              "type": "PropertyCall",
-              "source": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "IEEE1471!Rationale"
-                  },
-                  "operation_name": "allInstances",
-                  "arguments": []
-                },
-                "operation_name": "first",
-                "arguments": []
-              },
-              "property_name": "content"
+            "iterator_type": "any",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "e"
+              }
+            ],
+            "body": {
+              "type": "LiteralExpression",
+              "value": true,
+              "literal_type": "Boolean"
             }
-          ]
+          },
+          "body": {
+            "type": "IfExpression",
+            "condition": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "r"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            },
+            "then_expression": {
+              "type": "LiteralExpression",
+              "value": "",
+              "literal_type": "String"
+            },
+            "else_expression": {
+              "type": "BinaryExpression",
+              "operator": "+",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "r"
+                },
+                "property_name": "name"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "r"
+                },
+                "property_name": "content"
+              }
+            }
+          }
         }
       },
       {
@@ -103,15 +131,38 @@
               "bindings": [
                 {
                   "type": "Binding",
-                  "property_name": "viewpoints",
+                  "property_name": "viewpoint",
                   "value": {
-                    "type": "OperationCall",
+                    "type": "IteratorExpression",
                     "source": {
-                      "type": "Variable",
-                      "name": "IEEE1471!Viewpoint"
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "IEEE1471!Viewpoint"
+                      },
+                      "operation_name": "allInstances",
+                      "arguments": []
                     },
-                    "operation_name": "allInstances",
-                    "arguments": []
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "vp"
+                      }
+                    ],
+                    "body": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "vp"
+                        },
+                        "property_name": "source"
+                      },
+                      "operation_name": "oclIsUndefined",
+                      "arguments": []
+                    }
                   }
                 }
               ]
@@ -491,7 +542,7 @@
                 "type": "Variable",
                 "name": "s"
               },
-              "property_name": "concerns"
+              "property_name": "concern"
             },
             "operation_name": "includes",
             "arguments": [
@@ -509,7 +560,7 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "shc",
+                "name": "link",
                 "declared_type": "MoDAF!StakeholderHasConcern"
               },
               "bindings": [
@@ -533,18 +584,28 @@
                   "type": "Binding",
                   "property_name": "owner",
                   "value": {
-                    "type": "OperationCall",
+                    "type": "IteratorExpression",
                     "source": {
                       "type": "OperationCall",
                       "source": {
                         "type": "Variable",
-                        "name": "MoDAF!MoDAFModel"
+                        "name": "IEEE1471!IEEE1471Model"
                       },
                       "operation_name": "allInstances",
                       "arguments": []
                     },
-                    "operation_name": "first",
-                    "arguments": []
+                    "iterator_type": "any",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "e"
+                      }
+                    ],
+                    "body": {
+                      "type": "LiteralExpression",
+                      "value": true,
+                      "literal_type": "Boolean"
+                    }
                   }
                 }
               ]

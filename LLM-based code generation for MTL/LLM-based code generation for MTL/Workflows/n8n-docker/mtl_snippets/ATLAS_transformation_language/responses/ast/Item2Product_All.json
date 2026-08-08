@@ -92,8 +92,7 @@
                 "type": "Variable",
                 "name": "s",
                 "declared_type": "item!Item"
-              },
-              "model": "IN"
+              }
             }
           ]
         },
@@ -107,7 +106,6 @@
                 "name": "t",
                 "declared_type": "product!Product"
               },
-              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -175,8 +173,7 @@
                       "type": "Variable",
                       "name": "s"
                     },
-                    "operation_name": "getCategory",
-                    "arguments": []
+                    "operation_name": "getCategory"
                   }
                 }
               ]

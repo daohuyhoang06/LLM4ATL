@@ -28,8 +28,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "g",
-                "declared_type": "Grafcet"
-              }
+                "declared_type": "Grafcet!Grafcet"
+              },
+              "model": "IN"
             }
           ]
         },
@@ -40,9 +41,10 @@
               "type": "SimpleOutPatternElement",
               "variable": {
                 "type": "Variable",
-                "name": "pn",
-                "declared_type": "PetriNet"
+                "name": "p",
+                "declared_type": "PetriNet!PetriNet"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -108,8 +110,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "s",
-                "declared_type": "Step"
-              }
+                "declared_type": "Grafcet!Step"
+              },
+              "model": "IN"
             }
           ]
         },
@@ -121,8 +124,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "p",
-                "declared_type": "Place"
+                "declared_type": "PetriNet!Place"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -157,12 +161,12 @@
                       "type": "Variable",
                       "name": "s"
                     },
-                    "property_name": "net"
+                    "property_name": "grafcet"
                   }
                 },
                 {
                   "type": "Binding",
-                  "property_name": "incomingArc",
+                  "property_name": "incoming",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
@@ -174,7 +178,7 @@
                 },
                 {
                   "type": "Binding",
-                  "property_name": "outgoingArc",
+                  "property_name": "outgoing",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
@@ -200,8 +204,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "t",
-                "declared_type": "Transition"
-              }
+                "declared_type": "Grafcet!Transition"
+              },
+              "model": "IN"
             }
           ]
         },
@@ -213,8 +218,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "pt",
-                "declared_type": "Transition"
+                "declared_type": "PetriNet!Transition"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -249,12 +255,12 @@
                       "type": "Variable",
                       "name": "t"
                     },
-                    "property_name": "net"
+                    "property_name": "grafcet"
                   }
                 },
                 {
                   "type": "Binding",
-                  "property_name": "incomingArc",
+                  "property_name": "incoming",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
@@ -266,7 +272,7 @@
                 },
                 {
                   "type": "Binding",
-                  "property_name": "outgoingArc",
+                  "property_name": "outgoing",
                   "value": {
                     "type": "PropertyCall",
                     "source": {
@@ -292,8 +298,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "s2t",
-                "declared_type": "StepToTransition"
-              }
+                "declared_type": "Grafcet!StepToTransition"
+              },
+              "model": "IN"
             }
           ]
         },
@@ -305,8 +312,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "p2t",
-                "declared_type": "PlaceToTransition"
+                "declared_type": "PetriNet!PlaceToTransition"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -341,7 +349,7 @@
                       "type": "Variable",
                       "name": "s2t"
                     },
-                    "property_name": "net"
+                    "property_name": "grafcet"
                   }
                 },
                 {
@@ -384,8 +392,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "t2s",
-                "declared_type": "TransitionToStep"
-              }
+                "declared_type": "Grafcet!TransitionToStep"
+              },
+              "model": "IN"
             }
           ]
         },
@@ -397,8 +406,9 @@
               "variable": {
                 "type": "Variable",
                 "name": "t2p",
-                "declared_type": "TransitionToPlace"
+                "declared_type": "PetriNet!TransitionToPlace"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",
@@ -433,7 +443,7 @@
                       "type": "Variable",
                       "name": "t2s"
                     },
-                    "property_name": "net"
+                    "property_name": "grafcet"
                   }
                 },
                 {

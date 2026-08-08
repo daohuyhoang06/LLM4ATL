@@ -22,8 +22,8 @@
         "kind": "operation",
         "context_type": "User!User",
         "name": "isActive",
-        "parameters": [],
         "return_type": "Boolean",
+        "parameters": [],
         "body": {
           "type": "BinaryExpression",
           "operator": "or",
@@ -75,7 +75,8 @@
                 "type": "Variable",
                 "name": "u",
                 "declared_type": "User!User"
-              }
+              },
+              "model": "IN"
             }
           ]
         },
@@ -89,6 +90,7 @@
                 "name": "a",
                 "declared_type": "Account!Account"
               },
+              "model": "OUT",
               "bindings": [
                 {
                   "type": "Binding",

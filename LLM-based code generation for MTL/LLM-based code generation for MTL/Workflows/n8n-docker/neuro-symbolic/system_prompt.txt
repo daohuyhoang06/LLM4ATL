@@ -118,6 +118,53 @@ Examples include:
 - LetExpression
 Never output raw OCL strings.
 Always construct the corresponding AST nodes.
+
+11.1 OCL SEMANTIC COMPLIANCE
+
+When constructing OCL expression AST nodes, strictly follow the supported OCL subset and its semantic rules.
+CRITICAL RULE:
+This verification pipeline operates on a decidable OCL subset. You MUST NOT generate constructs outside this subset, as they will trigger compilation errors. The supported constructs are strictly defined as follows:
+
+- **Types & Literals**: Integer, Real, Boolean, String, and Null.
+- **Logical Operators**: and, or, xor, not, implies.
+- **Relational & Arithmetic Operators**: =, <>, <, >, <=, >=, +, -, *, /, abs().
+- **Collection Types**: Set and Bag are the ONLY supported collection types. `Sequence` and `OrderedSet` are NOT supported.
+- **Iterators**: `forAll`, `exists`, `select`, `reject`, `collect`, `isUnique`.
+  * Note: `forAll`, `exists`, and `isUnique` support multi-variable iterator forms (e.g., `forAll(x, y | ...)`).
+  * Note: `select`, `reject`, and `collect` are restricted to single-variable forms only to preserve algebraic soundness.
+- **Collection Operations**: `size`, `isEmpty`, `notEmpty`, `includes`, `excludes`, `includesAll`, `excludesAll`, `sum`, `count`, `asSet`, `asBag`, `union`, `intersection`.
+- **Control Flow**: `if-then-else` expressions and `let-in` expressions.
+- **Null Safety**: `oclIsUndefined()` is the ONLY supported null-check operation. Null literal comparisons (e.g., `self.x = null`) are NOT supported.
+"""
+11.2 OCL AST NODE ENCODING
+Use the correct AST node for each expression.
+- Property navigation MUST use PropertyCall.
+- Standard dot operations MUST use OperationCall.
+- Collection operations MUST use CollectionOperation.
+- Literals MUST use LiteralExpression.
+- Binary operators MUST use BinaryExpression.
+- Unary operators MUST use UnaryExpression.
+- Iterators MUST use IteratorExpression.
+- Conditional expressions MUST use IfExpression.
+- let expressions MUST use LetExpression.
+Iterator variables MUST always be explicitly declared.
+Do NOT use implicit iterator shorthand.
+Example:
+WRONG:
+self.cells->isUnique(value)
+CORRECT:
+self.cells->isUnique(c | c.value)
+11.3 OCL MULTIPLICITY AND NULL SAFETY
+Strictly respect the multiplicities defined by the Ecore metamodel.
+- [1..1]&#58;   Direct property access is allowed.
+  Do NOT generate oclIsUndefined().
+- [0..1]&#58;   The property may be null.
+  When safe evaluation requires a null check, explicitly use oclIsUndefined().
+- Collections:
+  MUST use collection operations.
+  MUST NOT use oclIsUndefined().
+Do not use collection operations on single-valued properties.
+Do not use single-object navigation syntax for collection-valued properties.
 12. IDENTIFIERS
 Preserve all names supplied by the user.
 If names are omitted, generate concise CamelCase identifiers.
