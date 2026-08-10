@@ -75,7 +75,9 @@ class ATLSemanticChecker:
                 param.declared_type
                 for param in helper.parameters
             ],
-            return_type=helper.return_type
+            return_type=helper.return_type,
+            context_type=helper.context_type,
+            kind=helper.kind
         )
 
     @classmethod
@@ -167,7 +169,7 @@ class ATLSemanticChecker:
     @classmethod
     def _check_using(cls, declarations, env:TypeEnvironment, ablation_config=None):
         for decl in declarations:
-            value_type = OCLSemanticChecker.check(decl.value, env, ablation_config)
+            value_type = OCLSemanticChecker.check(decl.init_expression, env, ablation_config)
 
 
             declared_type = decl.variable.declared_type

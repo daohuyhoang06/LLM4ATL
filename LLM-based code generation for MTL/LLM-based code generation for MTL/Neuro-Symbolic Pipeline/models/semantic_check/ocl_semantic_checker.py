@@ -154,28 +154,50 @@ class OCLSemanticChecker:
         if op == "endsWith": return "Boolean"
         if op == "indexOf": return "Integer"
 
-        if source_type == "Module":
 
-            if op in env.helpers:
+        if op in env.helpers:
 
-                helper = env.helpers[op]
+            helper = env.helpers[op]
+            context_type = helper["context_type"]
 
-                cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=helper["parameter_types"], env=env, ablation_config=ablation_config)
+            if source_type == "Module":
+                if context_type is None:
+                    pass
 
-                return helper["return_type"]
+                else:
+                    raise SemanticError(
+                        f"Context helper '{op}' cannot be called "
+                        f"through thisModule"
+                    )
 
-            
-            if op in env.rules:
-                rule = env.rules[op]
+            else:
+                if context_type is None:
+                    raise SemanticError(
+                        f"Module helper '{op}' must be called through thisModule"
+                    )
 
-                cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=rule["parameter_types"], env=env, ablation_config=ablation_config)
+                if source_type != context_type:
+                    raise SemanticError(
+                        f"Helper '{op}' cannot be called on "
+                        f"'{source_type}', expected '{context_type}'"
+                    )
 
-                output_types = rule["output_types"]
+            cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=helper["parameter_types"], env=env, ablation_config=ablation_config)
 
-                if len(output_types) == 1:
-                    return output_types[0]
+            return helper["return_type"]
 
-                return "Unknown"
+        
+        if op in env.rules:
+            rule = env.rules[op]
+
+            cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=rule["parameter_types"], env=env, ablation_config=ablation_config)
+
+            output_types = rule["output_types"]
+
+            if len(output_types) == 1:
+                return output_types[0]
+
+            return "Unknown"
             
         raise SemanticError(
              f"Unknown helper or rule: '{op}'"

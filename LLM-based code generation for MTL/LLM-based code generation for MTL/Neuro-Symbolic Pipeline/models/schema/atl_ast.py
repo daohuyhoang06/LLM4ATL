@@ -2,11 +2,10 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Union, Annotated
 from typing import Literal as TypeLiteral 
 
-from ocl_ast import (
+from .ocl_ast import (
     OCLExpression,
     Variable
 )
-
 class ATLNode(BaseModel):
 
     type: str

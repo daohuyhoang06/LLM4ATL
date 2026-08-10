@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from errors import SemanticError
+from .errors import SemanticError
 
 class ATLEcoreRegistry:
     def __init__(self, ecore_file_path):
