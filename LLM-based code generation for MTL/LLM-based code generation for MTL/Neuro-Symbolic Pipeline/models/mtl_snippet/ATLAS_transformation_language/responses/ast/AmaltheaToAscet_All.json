@@ -1,0 +1,213 @@
+{
+  "type": "Module",
+  "name": "AmaltheaToAscet_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "amalthea"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "ascet"
+    }
+  ],
+  "elements": [
+    {
+      "type": "MatchedRule",
+      "name": "ComponentContainer2AscetModule",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!ComponentContainer"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!AscetModule"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "tasks",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "tasks"
+                  },
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "x"
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "operation_name": "Task2SoftwareTask",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "TaskRoot2SoftwareTask",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!Task"
+            }
+          }
+        ],
+        "filter": {
+          "type": "IteratorExpression",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "amalthea!ComponentContainer"
+            },
+            "operation_name": "allInstances",
+            "arguments": []
+          },
+          "iterator_type": "forAll",
+          "iterators": [
+            {
+              "type": "Variable",
+              "name": "c"
+            }
+          ],
+          "body": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "c"
+              },
+              "property_name": "tasks"
+            },
+            "operation_name": "excludes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "s"
+              }
+            ]
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!SoftwareTask"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "LazyMatchedRule",
+      "name": "Task2SoftwareTask",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!Task"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!SoftwareTask"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,415 @@
+{
+  "module": {
+    "type": "Module",
+    "name": "Make2Ant",
+    "input_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "IN",
+        "metamodel": "Make"
+      }
+    ],
+    "output_models": [
+      {
+        "type": "ModelDeclaration",
+        "alias": "OUT",
+        "metamodel": "Ant"
+      }
+    ],
+    "elements": [
+      {
+        "type": "MatchedRule",
+        "name": "Makefile2Project",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "makefile",
+                "declared_type": "Make!Makefile"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "project",
+                "declared_type": "Ant!Project"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "makefile"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "properties",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "makefile"
+                    },
+                    "property_name": "macros"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "targets",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "makefile"
+                    },
+                    "property_name": "rules"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "default",
+                  "value": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "makefile"
+                      },
+                      "property_name": "rules"
+                    },
+                    "operation_name": "first",
+                    "arguments": []
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Macro2Property",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "macro",
+                "declared_type": "Make!Macro"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "property",
+                "declared_type": "Ant!PropertyValue"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "macro"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "value",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "macro"
+                    },
+                    "property_name": "value"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "Rule2Target",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "rule",
+                "declared_type": "Make!Rule"
+              }
+            }
+          ]
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "target",
+                "declared_type": "Ant!Target"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "name",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "rule"
+                    },
+                    "property_name": "name"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "tasks",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "rule"
+                    },
+                    "property_name": "shellLines"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "depends",
+                  "value": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "rule"
+                      },
+                      "property_name": "dependencies"
+                    },
+                    "iterator_type": "collect",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "d"
+                      }
+                    ],
+                    "body": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "d"
+                      },
+                      "property_name": "rule"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "ShellLine2Task_Display",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "shellLine",
+                "declared_type": "Make!ShellLine"
+              }
+            }
+          ],
+          "filter": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "shellLine"
+            },
+            "property_name": "display"
+          }
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "echo",
+                "declared_type": "Ant!Echo"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "message",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "exec",
+                "declared_type": "Ant!Exec"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "executable",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "MatchedRule",
+        "name": "ShellLine2Task_NoDisplay",
+        "in_pattern": {
+          "type": "InPattern",
+          "elements": [
+            {
+              "type": "InPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "shellLine",
+                "declared_type": "Make!ShellLine"
+              }
+            }
+          ],
+          "filter": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "shellLine"
+              },
+              "property_name": "display"
+            }
+          }
+        },
+        "out_pattern": {
+          "type": "OutPattern",
+          "elements": [
+            {
+              "type": "SimpleOutPatternElement",
+              "variable": {
+                "type": "Variable",
+                "name": "exec",
+                "declared_type": "Ant!Exec"
+              },
+              "bindings": [
+                {
+                  "type": "Binding",
+                  "property_name": "executable",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "command"
+                  }
+                },
+                {
+                  "type": "Binding",
+                  "property_name": "target",
+                  "value": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "shellLine"
+                    },
+                    "property_name": "rule"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
