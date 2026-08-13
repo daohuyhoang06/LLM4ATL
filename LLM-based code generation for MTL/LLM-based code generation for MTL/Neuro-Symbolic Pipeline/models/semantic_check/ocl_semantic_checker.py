@@ -3,6 +3,7 @@ import re
 from schema.ocl_ast import OCLExpression
 from .type_environment import TypeEnvironment
 from .errors import SemanticError
+from .ecore_registry import ATLEcoreRegistry
 
 class OCLSemanticChecker:
 
@@ -22,6 +23,8 @@ class OCLSemanticChecker:
             return cls._check_collection_literal(expr)
 
         elif node_type == "Variable":
+            if "!" in expr.name:
+                return expr.name
             return env.lookup_variable(expr.name)
 
         elif node_type == "PropertyCall":
@@ -98,7 +101,7 @@ class OCLSemanticChecker:
                 f"Property '{prop_name}' not found in type '{source_type}'."
             )
 
-        if re.match(r'^(Set|Bag|Sequence|OrderedSet)\((\w+)\)$', raw_type):
+        if re.match(r'^(Set|Bag|Sequence|OrderedSet)\(([^)]+)\)$', raw_type):
             return raw_type
 
         clean_type = re.sub(r'\[.*\]$', '', raw_type).strip()
@@ -110,18 +113,26 @@ class OCLSemanticChecker:
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
         op = expr.operation_name
 
+        if op == "allInstances": return f"Set({source_type})"
         if op == "size": return "Integer"
         if op == "isEmpty": return "Boolean"
         if op == "notEmpty": return "Boolean"
         if op == "sum": return "Integer"
         if op == "flatten": return source_type
-        if op == "asSet": return "Set"
-        if op == "asBag": return "Bag"
-        if op == "asSequence": return "Sequence"
-        if op == "asOrderedSet": return "OrderedSet"
-        if op == "first": return "Unknown"
-        if op == "last": return "Unknown"
-        if op == "at": return "Unknown"
+        if op == "asSet": 
+            inner = cls._element_type(source_type)
+            return f"Set({inner})" if inner != "Unknown" else "Set"
+        if op == "asBag": 
+            inner = cls._element_type(source_type)
+            return f"Bag({inner})" if inner != "Unknown" else "Bag"
+        if op == "asSequence": 
+            inner = cls._element_type(source_type)
+            return f"Sequence({inner})" if inner != "Unknown" else "Sequence"
+        if op == "asOrderedSet": 
+            inner = cls._element_type(source_type)
+            return f"OrderedSet({inner})" if inner != "Unknown" else "OrderedSet"
+        if op in ("first", "last", "at"):
+            return cls._element_type(source_type)
         if op == "indexOf": return "Integer"
         if op == "count": return "Integer"
         if op == "includes": return "Boolean"
@@ -218,10 +229,10 @@ class OCLSemanticChecker:
             if actual_type == "Unknown" or expected_type is None:
                 continue
 
-            if expected_type not in cls._compatible_types(actual_type):
-                raise SemanticError(
-                    f"Argument type mismatch for '{name}': expected {expected_type}, got {actual_type}"
-                )
+            if not cls._is_type_compatible(actual_type, expected_type, env):
+                    raise SemanticError(
+                        f"Argument type mismatch for '{name}': expected {expected_type}, got {actual_type}"
+                    )
 
     @classmethod
     def _check_binary_expr(cls, expr, env, ablation_config=None) -> str:
@@ -242,15 +253,18 @@ class OCLSemanticChecker:
                             f"Can't compare: '{left_type}' {op} '{right_type}'"
                         )
             elif op in ('+', '-', '*', '/'):
-
-                if left_type not in ("Integer", "Real", "Unknown"):
-                    raise SemanticError(
-                        f" '{op}' can't be used for '{left_type}'"
-                    )
-                if right_type not in ("Integer", "Real", "Unknown"):
-                    raise SemanticError(
-                        f" '{op}' can't be used for '{right_type}'"
-                    )
+                
+                if op == '+' and left_type == "String" and right_type == "String":
+                    pass # String concatenation allowed
+                else:
+                    if left_type not in ("Integer", "Real", "Unknown", "String") or (left_type == "String" and op != '+'):
+                        raise SemanticError(
+                            f" '{op}' can't be used for '{left_type}'"
+                        )
+                    if right_type not in ("Integer", "Real", "Unknown", "String") or (right_type == "String" and op != '+'):
+                        raise SemanticError(
+                            f" '{op}' can't be used for '{right_type}'"
+                        )
             elif op in ('and', 'or', 'xor', 'implies'):
                 if left_type not in ("Boolean", "Unknown"):
                     raise SemanticError(
@@ -266,6 +280,8 @@ class OCLSemanticChecker:
         elif op in ('and', 'or', 'xor', 'implies'):
             return "Boolean"
         elif op in ('+', '-', '*', '/'):
+            if op == '+' and left_type == "String" and right_type == "String":
+                return "String"
             if left_type == "Real" or right_type == "Real":
                 return "Real"
             return "Integer"
@@ -341,7 +357,10 @@ class OCLSemanticChecker:
             return source_type
 
         elif iter_type == "collect":
-            return f"Bag({body_type})" if body_type != "Unknown" else "Bag"
+            if source_type.startswith("Sequence") or source_type.startswith("OrderedSet"):
+                return f"Sequence({body_type})" if body_type != "Unknown" else "Sequence"
+            else:
+                return f"Bag({body_type})" if body_type != "Unknown" else "Bag"
 
         elif iter_type == "isUnique":
             if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
@@ -353,9 +372,23 @@ class OCLSemanticChecker:
                     )
             return "Boolean"
 
+        elif iter_type == "sortedBy":
+            if source_type.startswith("Set"):
+                return f"OrderedSet({element_type})" if element_type != "Unknown" else "OrderedSet"
+            else:
+                return f"Sequence({element_type})" if element_type != "Unknown" else "Sequence"
+
+        elif iter_type == "any":
+            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+                pass
+            else:
+                if body_type not in ("Boolean", "Unknown"):
+                    raise SemanticError(f"Condition for 'any' must be Boolean, got {body_type}")
+            return element_type
+
         raise SemanticError(
-            f"Unknown iterator type '{iter_type}'"
-            f"So far only forAll, exists, select, reject, collect, isUnique are supported"
+            f"Unknown iterator type '{iter_type}'. "
+            f"So far only forAll, exists, select, reject, collect, isUnique, sortedBy, any are supported"
         )
 
 
@@ -374,8 +407,12 @@ class OCLSemanticChecker:
         if op in ("union", "intersection", "symmetricDifference"):
             return source_type
         if op == "flatten": return source_type
-        if op == "asSet": return "Set"
-        if op == "asBag": return "Bag"
+        if op == "asSet": 
+            inner = cls._element_type(source_type)
+            return f"Set({inner})" if inner != "Unknown" else "Set"
+        if op == "asBag": 
+            inner = cls._element_type(source_type)
+            return f"Bag({inner})" if inner != "Unknown" else "Bag"
         if op == "count": return "Integer"
 
         return "Unknown"
@@ -414,7 +451,7 @@ class OCLSemanticChecker:
         if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
             pass
         else:
-            if expr.variable.declared_type and expr.variable.declared_type not in cls._compatible_types(val_type):
+            if expr.variable.declared_type and val_type != "Unknown" and expr.variable.declared_type not in cls._compatible_types(val_type):
                 raise SemanticError(
                     f"Let declared '{expr.variable.name}' as {expr.variable.declared_type},"
                     f"but now it's {val_type}"
@@ -431,7 +468,7 @@ class OCLSemanticChecker:
     @classmethod
     def _element_type(cls, coll_type: str) -> str:
 
-        match = re.match(r'(Set|Bag|Sequence|OrderedSet)\((\w+)\)', coll_type)
+        match = re.match( r'(Set|Bag|Sequence|OrderedSet)\(([^)]+)\)', coll_type)
         if match:
             return match.group(2)
         return "Unknown"
@@ -451,3 +488,59 @@ class OCLSemanticChecker:
             "Boolean": {"Boolean"},
         }
         return compatibility_map.get(derived_type, {derived_type})
+    
+    @classmethod
+    def _is_type_compatible(cls, actual_type, expected_type, env):
+        if actual_type == expected_type:
+            return True
+
+        # Primitive compatibility
+        if expected_type in cls._compatible_types(actual_type):
+            return True
+
+        # Collection compatibility
+        src_match = re.match(
+            r'^(Set|Bag|Sequence|OrderedSet)\((.+)\)$',
+            actual_type
+        )
+        tgt_match = re.match(
+            r'^(Set|Bag|Sequence|OrderedSet)\((.+)\)$',
+            expected_type
+        )
+
+        if src_match and tgt_match:
+            src_collection = src_match.group(1)
+            tgt_collection = tgt_match.group(1)
+
+            if src_collection != tgt_collection:
+                return False
+
+            return cls._is_type_compatible(
+                src_match.group(2),
+                tgt_match.group(2),
+                env
+            )
+
+        # Một bên collection, một bên không
+        if src_match or tgt_match:
+            return False
+
+        # EClass inheritance
+        if env and env.registry:
+            src_base = actual_type.split("!")[-1]
+            tgt_base = expected_type.split("!")[-1]
+
+            current_class = src_base
+
+            while current_class:
+                if current_class == tgt_base:
+                    return True
+
+                class_info = env.registry.uml_context.get(current_class)
+
+                if not class_info:
+                    break
+
+                current_class = class_info.get("super_class")
+
+        return False

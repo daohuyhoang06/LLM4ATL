@@ -1,0 +1,158 @@
+module BibTeX2DocBook;
+create OUT : DocBook from IN : BibTeX;
+
+helper def: authorSet : Set(BibTeX!Author) =
+    BibTeX!Author.allInstances()->asSet();
+
+helper def: titledEntrySet : Set(BibTeX!TitledEntry) =
+    BibTeX!TitledEntry.allInstances()->asSet()->select(e | BibTeX!TitledEntry.allInstances()->asSet()->forAll(e2 | ((e2.title = e.title) implies (e.id <= e2.id))));
+
+helper def: articleSet : Set(BibTeX!Article) =
+    BibTeX!Article.allInstances()->asSet()->select(e | BibTeX!Article.allInstances()->asSet()->forAll(e2 | ((e2.journal = e.journal) implies (e.id <= e2.id))));
+
+helper context BibTeX!BibTeXEntry def: buildEntryPara() : String =
+    (((self.id + ': ') + if self.oclIsKindOf(BibTeX!Article) then
+        'Article'
+    else
+        'Entry'
+    endif) + if self.oclIsKindOf(BibTeX!TitledEntry) then
+        self.title
+    else
+        ''
+    endif);
+
+rule Main {
+    from
+        f : BibTeX!BibTeXFile
+    to
+        d : DocBook!DocBook (
+            books <- b
+        ),
+        b : DocBook!Book (
+            articles <- a
+        ),
+        a : DocBook!Article (
+            title <- 'BibTeXML to DocBook',
+            sections_1 <- Set{s1, s2, s3, s4}
+        ),
+        s1 : DocBook!Sect1 (
+            title <- 'References List',
+            paras <- f.entries
+        ),
+        s2 : DocBook!Sect1 (
+            title <- 'Authors list',
+            paras <- thisModule.authorSet
+        ),
+        s3 : DocBook!Sect1 (
+            title <- 'Titles List',
+            paras <- thisModule.titledEntrySet->collect(e | thisModule.resolveTemp(e, 'p_title'))
+        ),
+        s4 : DocBook!Sect1 (
+            title <- 'Journals List',
+            paras <- thisModule.articleSet->collect(e | thisModule.resolveTemp(e, 'p_journal'))
+        )
+}
+
+rule Author {
+    from
+        a : BibTeX!Author (
+            thisModule.authorSet->includes(a)
+        )
+    to
+        p : DocBook!Para (
+            content <- a.author
+        )
+}
+
+rule UntitledEntry {
+    from
+        e : BibTeX!BibTeXEntry (
+            not e.oclIsKindOf(BibTeX!TitledEntry)
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
+}
+
+rule TitledEntry_Title_NoArticle {
+    from
+        e : BibTeX!TitledEntry (
+            (not e.oclIsKindOf(BibTeX!Article) and thisModule.titledEntrySet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        p_title : DocBook!Para (
+            content <- e.title
+        )
+}
+
+rule TitledEntry_NoTitle_NoArticle {
+    from
+        e : BibTeX!TitledEntry (
+            (not e.oclIsKindOf(BibTeX!Article) and not thisModule.titledEntrySet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
+}
+
+rule Article_Title_Journal {
+    from
+        e : BibTeX!Article (
+            (thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        p_title : DocBook!Para (
+            content <- e.title
+        ),
+        p_journal : DocBook!Para (
+            content <- e.journal
+        )
+}
+
+rule Article_NoTitle_Journal {
+    from
+        e : BibTeX!Article (
+            (not thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        p_journal : DocBook!Para (
+            content <- e.journal
+        )
+}
+
+rule Article_Title_NoJournal {
+    from
+        e : BibTeX!Article (
+            (thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        p_title : DocBook!Para (
+            content <- e.title
+        )
+}
+
+rule Article_NoTitle_NoJournal {
+    from
+        e : BibTeX!Article (
+            (not thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
+}
+

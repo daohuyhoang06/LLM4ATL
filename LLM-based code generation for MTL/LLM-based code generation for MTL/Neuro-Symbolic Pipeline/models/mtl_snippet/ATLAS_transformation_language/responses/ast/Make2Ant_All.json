@@ -1,228 +1,301 @@
 {
-  "module": {
-    "type": "Module",
-    "name": "Make2Ant",
-    "input_models": [
-      {
-        "type": "ModelDeclaration",
-        "alias": "IN",
-        "metamodel": "Make"
-      }
-    ],
-    "output_models": [
-      {
-        "type": "ModelDeclaration",
-        "alias": "OUT",
-        "metamodel": "Ant"
-      }
-    ],
-    "elements": [
-      {
-        "type": "MatchedRule",
-        "name": "Makefile2Project",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "makefile",
-                "declared_type": "Make!Makefile"
-              }
+  "type": "Module",
+  "name": "Make2Ant",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "Make"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "Ant"
+    }
+  ],
+  "elements": [
+    {
+      "type": "MatchedRule",
+      "name": "Makefile2Project",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "m",
+              "declared_type": "Make!Makefile"
             }
-          ]
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "project",
-                "declared_type": "Ant!Project"
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "Ant!Project"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "m"
+                  },
+                  "property_name": "name"
+                }
               },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "name",
-                  "value": {
+              {
+                "type": "Binding",
+                "property_name": "properties",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "makefile"
+                      "name": "m"
                     },
-                    "property_name": "name"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "properties",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
+                    "property_name": "elements"
+                  },
+                  "iterator_type": "select",
+                  "iterators": [
+                    {
                       "type": "Variable",
-                      "name": "makefile"
-                    },
-                    "property_name": "macros"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "targets",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "makefile"
-                    },
-                    "property_name": "rules"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "default",
-                  "value": {
+                      "name": "e"
+                    }
+                  ],
+                  "body": {
                     "type": "OperationCall",
                     "source": {
-                      "type": "PropertyCall",
-                      "source": {
+                      "type": "Variable",
+                      "name": "e"
+                    },
+                    "operation_name": "oclIsKindOf",
+                    "arguments": [
+                      {
                         "type": "Variable",
-                        "name": "makefile"
-                      },
-                      "property_name": "rules"
-                    },
-                    "operation_name": "first",
-                    "arguments": []
+                        "name": "Make!Macro"
+                      }
+                    ]
                   }
                 }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "type": "MatchedRule",
-        "name": "Macro2Property",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "macro",
-                "declared_type": "Make!Macro"
-              }
-            }
-          ]
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "property",
-                "declared_type": "Ant!PropertyValue"
               },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "name",
-                  "value": {
+              {
+                "type": "Binding",
+                "property_name": "targets",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "macro"
+                      "name": "m"
                     },
-                    "property_name": "name"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "value",
-                  "value": {
-                    "type": "PropertyCall",
+                    "property_name": "elements"
+                  },
+                  "iterator_type": "select",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "e"
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "macro"
+                      "name": "e"
                     },
-                    "property_name": "value"
+                    "operation_name": "oclIsKindOf",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "Make!Rule"
+                      }
+                    ]
                   }
                 }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "type": "MatchedRule",
-        "name": "Rule2Target",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "rule",
-                "declared_type": "Make!Rule"
-              }
-            }
-          ]
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "target",
-                "declared_type": "Ant!Target"
               },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "name",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "rule"
-                    },
-                    "property_name": "name"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "tasks",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "rule"
-                    },
-                    "property_name": "shellLines"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "depends",
-                  "value": {
+              {
+                "type": "Binding",
+                "property_name": "default",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
                     "type": "IteratorExpression",
                     "source": {
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "rule"
+                        "name": "m"
+                      },
+                      "property_name": "elements"
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "e"
+                      }
+                    ],
+                    "body": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "e"
+                      },
+                      "operation_name": "oclIsKindOf",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "Make!Rule"
+                        }
+                      ]
+                    }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Macro2Property",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "m",
+              "declared_type": "Make!Macro"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "Ant!PropertyValue"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "m"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "value",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "m"
+                  },
+                  "property_name": "value"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Rule2Target",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "Make!Rule"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Ant!Target"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "r"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "tasks",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "r"
+                  },
+                  "property_name": "shellLines"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "depends",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "r"
                       },
                       "property_name": "dependencies"
                     },
-                    "iterator_type": "collect",
+                    "iterator_type": "select",
                     "iterators": [
                       {
                         "type": "Variable",
@@ -230,186 +303,217 @@
                       }
                     ],
                     "body": {
-                      "type": "PropertyCall",
+                      "type": "OperationCall",
                       "source": {
                         "type": "Variable",
                         "name": "d"
                       },
-                      "property_name": "rule"
+                      "operation_name": "oclIsKindOf",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "Make!RuleDep"
+                        }
+                      ]
                     }
+                  },
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "d"
+                    }
+                  ],
+                  "body": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "d"
+                      },
+                      "operation_name": "oclAsType",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "Make!RuleDep"
+                        }
+                      ]
+                    },
+                    "property_name": "ruledep"
                   }
                 }
-              ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "ShellLine2Task_Display",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "Make!ShellLine"
             }
-          ]
+          }
+        ],
+        "filter": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "Variable",
+            "name": "s"
+          },
+          "property_name": "display"
         }
       },
-      {
-        "type": "MatchedRule",
-        "name": "ShellLine2Task_Display",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "shellLine",
-                "declared_type": "Make!ShellLine"
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "echo",
+              "declared_type": "Ant!Echo"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "message",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "command"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
+                }
               }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "exec",
+              "declared_type": "Ant!Exec"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "executable",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "command"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "ShellLine2Task_NoDisplay",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "Make!ShellLine"
             }
-          ],
-          "filter": {
+          }
+        ],
+        "filter": {
+          "type": "UnaryExpression",
+          "operator": "not",
+          "expression": {
             "type": "PropertyCall",
             "source": {
               "type": "Variable",
-              "name": "shellLine"
+              "name": "s"
             },
             "property_name": "display"
           }
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "echo",
-                "declared_type": "Ant!Echo"
-              },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "message",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "command"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "rule"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "exec",
-                "declared_type": "Ant!Exec"
-              },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "executable",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "command"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "rule"
-                  }
-                }
-              ]
-            }
-          ]
         }
       },
-      {
-        "type": "MatchedRule",
-        "name": "ShellLine2Task_NoDisplay",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "shellLine",
-                "declared_type": "Make!ShellLine"
-              }
-            }
-          ],
-          "filter": {
-            "type": "UnaryExpression",
-            "operator": "not",
-            "expression": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "shellLine"
-              },
-              "property_name": "display"
-            }
-          }
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "exec",
-                "declared_type": "Ant!Exec"
-              },
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "executable",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "command"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "target",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "shellLine"
-                    },
-                    "property_name": "rule"
-                  }
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "exec",
+              "declared_type": "Ant!Exec"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "executable",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "command"
                 }
-              ]
-            }
-          ]
-        }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
+                }
+              }
+            ]
+          }
+        ]
       }
-    ]
-  }
+    }
+  ]
 }

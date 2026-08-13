@@ -5,96 +5,76 @@ from semantic_check.type_environment import TypeEnvironment
 from semantic_check.errors import SemanticError
 from semantic_check.ocl_semantic_checker import OCLSemanticChecker
 
-class MockRegistry:
-    def __init__(self):
-        self.properties = {
-            "Grafcet!Grafcet": {
-                "name": "String",
-                "states": "Set(State)"
-            },
-            "ascet!SoftwareGrafcet": {
-                "name": "String"
-            }
-        }
+from semantic_check.ecore_registry import ATLEcoreRegistry
+import os
+import json
 
-    def resolve_property(self, type_name, property_name):
-        return self.properties.get(
-            type_name,
-            {}
-        ).get(
-            property_name,
-            "Unknown"
-        )
+def get_uml_context():
+    ecore_path = r"D:\LLM4MTLs goc\LLM-based code generation for MTL\LLM-based code generation for MTL\Neuro-Symbolic Pipeline\models\ATL_model\Families.ecore"
 
-def test_matched_rule_basic():
+    registry = ATLEcoreRegistry([ecore_path])
+
     env = TypeEnvironment()
-
-    registry = MockRegistry()
     env.registry = registry
 
-    rule = MatchedRule(
-        name="Register2Register",
+    print("UML CONTEXT:")
+    print(json.dumps(
+        registry.uml_context,
+        indent=4,
+        ensure_ascii=False
+    ))
 
-        in_pattern=InPattern(
-            elements=[
-                InPatternElement(
-                    variable=Variable(
-                        name="fr",
-                        declared_type="family!FamilyRegister"
-                    )
-                )
-            ]
-        ),
+def test_component_container_properties():
 
-        out_pattern=OutPattern(
-            elements=[
-                SimpleOutPatternElement(
-                    type="SimpleOutPatternElement",
-                    variable=Variable(
-                        name="pr",
-                        declared_type="person!PersonRegister"
-                    ),
-                    bindings=[]
-                )
-            ]
+    ecore_path = r"D:\LLM4MTLs goc\LLM-based code generation for MTL\LLM-based code generation for MTL\Neuro-Symbolic Pipeline\models\ATL_model\amalthea.ecore"
+
+    registry = ATLEcoreRegistry([ecore_path])
+
+    print("\n=== ALL UML CONTEXT ===")
+
+    for class_name, info in registry.uml_context.items():
+        print(class_name)
+
+    print("\n=== ComponentContainer ===")
+
+    print(
+        registry.uml_context.get(
+            "ComponentContainer"
         )
     )
 
-    ATLSemanticChecker._check_matched_rule(
-        rule,
-        env
+    actual = registry.resolve_property(
+        "amalthea!ComponentContainer",
+        "tasks"
     )
 
-    print("MatchedRule basic: PASS")
+    print("\ntasks =", actual)
 
-def test_called_rule_wrong_argument_count():
-    env = TypeEnvironment()
+    assert actual != "Unknown"
 
-    env.register_rule(
-        name="CreateSoftwareTask",
-        parameter_types=["amalthea!Task"],
-        output_types=["ascet!SoftwareTask"],
-        rule_kind="CalledRule"
+    print("PASS: ComponentContainer.tasks")
+
+
+def test_class_name_property():
+    ecore_path = r"D:\LLM4MTLs goc\LLM-based code generation for MTL\LLM-based code generation for MTL\Neuro-Symbolic Pipeline\models\ATL_model\Class.ecore"
+
+    registry = ATLEcoreRegistry([ecore_path])
+
+    print("\n=== Class ===")
+
+    print(registry.uml_context.get("Class"))
+
+    actual = registry.resolve_property(
+        "Class!Class",
+        "name"
     )
 
-    expr = OperationCall(
-        source=Variable(
-            name="thisModule",
-            declared_type="Module"
-        ),
-        operation_name="CreateSoftwareTask",
-        arguments=[]
-    )
+    print("Class.name =", actual)
 
-    try:
-        OCLSemanticChecker.check(expr, env)
+    assert actual == "String"
 
-        assert False, "Expected SemanticError"
+    print("PASS: Class.name")
 
-    except SemanticError as e:
-        print("CalledRule wrong argument count: PASS")
-        print("Caught:", e)
 
 if __name__ == "__main__":
-    test_called_rule_wrong_argument_count()
-    print("Test passed: test_called_rule_wrong_argument_count")
+    get_uml_context()

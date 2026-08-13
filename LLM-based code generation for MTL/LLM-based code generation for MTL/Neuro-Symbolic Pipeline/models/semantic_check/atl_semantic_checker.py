@@ -94,7 +94,7 @@ class ATLSemanticChecker:
 
             body_type = OCLSemanticChecker.check(helper.body, env, ablation_config)
 
-            if helper.return_type is not None and body_type != "Unknown" and body_type != helper.return_type:
+            if helper.return_type is not None and body_type != "Unknown" and not cls._is_compatible_type(body_type, helper.return_type, env):
                 raise SemanticError(f"Helper '{helper.name}' return type mismatch: expected {helper.return_type}, got {body_type}")
 
         finally:
@@ -174,7 +174,7 @@ class ATLSemanticChecker:
 
             declared_type = decl.variable.declared_type
 
-            if declared_type is not None and value_type != "Unknown" and not cls._is_compatible_type(value_type, declared_type):
+            if declared_type is not None and value_type != "Unknown" and not cls._is_compatible_type(value_type, declared_type, env):
                 raise SemanticError(f"Using declaration '{decl.variable.name}' type mismatch: expected {declared_type}, got {value_type}")
 
             env.bind_variable(decl.variable.name,  declared_type or value_type)
@@ -195,17 +195,62 @@ class ATLSemanticChecker:
 
             property_type = env.registry.resolve_property(target_type, binding.property_name)
 
-            if value_type != "Unknown" and property_type != "Unknown" and not cls._is_compatible_type(value_type, property_type):
+            if value_type != "Unknown" and property_type != "Unknown" and not cls._is_compatible_type(value_type, property_type, env):
                 raise SemanticError(f"Binding for property '{binding.property_name}' type mismatch: expected {property_type}, got {value_type}")
 
     @classmethod
-    def _is_compatible_type(cls, source_type:str, target_type:str) -> bool:
+    def _is_compatible_type(cls, source_type:str, target_type:str, env:TypeEnvironment=None) -> bool:
         if source_type == target_type:
             return True
+        if source_type == "Unknown" or target_type == "Unknown":
+            return True
+        if source_type == "Null":
+            return True
 
-        # Kiểm tra các trường hợp đặc biệt
         if source_type == "Integer" and target_type == "Real":
             return True
+
+        import re
+        src_match = re.fullmatch(r'(Set|Bag|Sequence|OrderedSet)\((.+)\)', source_type)
+        tgt_match = re.fullmatch(r'(Set|Bag|Sequence|OrderedSet)\((.+)\)', target_type)
+
+        # Cả hai đều là collection
+        if src_match and tgt_match:
+            # Cho phép gán bất kỳ collection nào sang collection nào (Implicit Cast trong ATL)
+            return cls._is_compatible_type(src_match.group(2), tgt_match.group(2), env)
+        
+        # Nếu source là collection nhưng target không phải
+        if src_match and not tgt_match:
+            return False
+        
+        if source_type in ("Set", "Bag", "Sequence", "OrderedSet") and tgt_match:
+            return True
+
+        if tgt_match and not src_match:
+            # Nếu target là Collection nhưng gán 1 phần tử vào thì coi như hợp lệ
+            return cls._is_compatible_type(source_type, tgt_match.group(2), env)
+
+        # Kiểm tra tính kế thừa UML
+        if env and env.registry:
+            if "!" in source_type and "!" in target_type:
+                if source_type.split("!")[0] != target_type.split("!")[0]:
+                    # Cho phép Implicit Trace Resolution của ATL khi gán phần tử nguồn vào thuộc tính đích
+                    return True
+            
+            src_base = source_type.split("!")[-1]
+            tgt_base = target_type.split("!")[-1]
+            
+            current_class = source_type
+            if current_class not in env.registry.uml_context and "!" in current_class:
+                current_class = src_base
+
+            while current_class:
+                if current_class == target_type or current_class.split("!")[-1] == tgt_base:
+                    return True
+                if current_class in env.registry.uml_context:
+                    current_class = env.registry.uml_context[current_class].get("super_class")
+                else:
+                    break
 
         return False
 
@@ -224,7 +269,7 @@ class ATLSemanticChecker:
 
             target_type = OCLSemanticChecker.check(statement.target, env, ablation_config)
 
-            if value_type != "Unknown" and target_type != "Unknown" and not cls._is_compatible_type(value_type, target_type):
+            if value_type != "Unknown" and target_type != "Unknown" and not cls._is_compatible_type(value_type, target_type, env):
                 raise SemanticError(f"Binding statement type mismatch: expected {target_type}, got {value_type}")
 
         elif isinstance(statement, IfStatement):

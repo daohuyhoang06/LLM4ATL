@@ -3,26 +3,39 @@ from .errors import SemanticError
 
 class ATLEcoreRegistry:
     def __init__(self, ecore_file_path):
-        self.ecore_file_path = ecore_file_path
+        if isinstance(ecore_file_path, list):
+            self.ecore_file_paths = ecore_file_path
+        else:
+            self.ecore_file_paths = [ecore_file_path]
 
         self.packages = {}
         self.uml_context = {}
 
-        self._parse_ecore()
+        for path in self.ecore_file_paths:
+            self._parse_ecore(path)
 
-    def _parse_ecore(self):
-        tree = ET.parse(self.ecore_file_path)
+    def _parse_ecore(self, path):
+        tree = ET.parse(path)
         root = tree.getroot()
+
+        # print("ROOT TAG:", root.tag)
+        # print("ROOT ATTRIBUTES:", root.attrib)
 
         namespaces = {
             'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
             'ecore': 'http://www.eclipse.org/emf/2002/Ecore'
         }
 
-        for package in root.findall(
-            "./ecore:EPackage",
-            namespaces
-        ):
+        if root.tag == "{http://www.eclipse.org/emf/2002/Ecore}EPackage":
+            packages = [root]
+        else:
+            packages = root.findall(
+                ".//ecore:EPackage",
+                namespaces
+            )
+
+        for package in packages:
+
             package_name = package.get("name")
             ns_uri = package.get("nsURI")
             ns_prefix = package.get("nsPrefix")
@@ -33,12 +46,19 @@ class ATLEcoreRegistry:
                 "nsPrefix": ns_prefix,
             }
 
+            # print("PACKAGE:", package.tag, package.attrib)
+            # print(
+            #     "CLASSIFIERS:",
+            #     [(c.tag, c.attrib) for c in package.findall("./eClassifiers")]
+            # )   
+
             for classifier in package.findall("./eClassifiers"):
                 classifier_type = classifier.get("{http://www.w3.org/2001/XMLSchema-instance}type")
 
                 #Xử lý nếu là EClass
                 if classifier_type == "ecore:EClass":
                     class_name = classifier.get("name")
+                    full_class_name = f"{package_name}!{class_name}"
 
                     atributes = {}
                     associations = {}
@@ -47,8 +67,14 @@ class ATLEcoreRegistry:
                     super_class = None
                     super_types = classifier.get("eSuperTypes")
 
+                    if not super_types:
+                        super_type_node = classifier.find("./eSuperTypes")
+                        if super_type_node is not None:
+                            super_types = super_type_node.get("href")
+
                     if super_types:
-                        super_class = super_types.split("/")[-1]
+                        super_base = super_types.split("/")[-1]
+                        super_class = f"{package_name}!{super_base}"
 
                     # Xử lý các structural features (EAttributes và EReferences)
                     for feature in classifier.findall("./eStructuralFeatures"):
@@ -61,15 +87,17 @@ class ATLEcoreRegistry:
 
 
                         elif feature_type == "ecore:EReference":
-                            reference_name, reference_type = self._parse_reference(feature)
+                            reference_name, reference_type = self._parse_reference(feature, package_name)
 
                             associations[reference_name] = reference_type
 
-                    self.uml_context[class_name] = {
+                    self.uml_context[full_class_name] = {
                         "super_class": super_class,
                         "attributes": atributes,
                         "associations": associations,
                     }
+                    if class_name not in self.uml_context:
+                        self.uml_context[class_name] = self.uml_context[full_class_name]
 
     def _parse_attribute(self, feature):
         attribute_name = feature.get("name")
@@ -83,59 +111,60 @@ class ATLEcoreRegistry:
         if ecore_type is None:
             return "Unknown"
         
-        if ecore_type.endswith("/String"):
+        if "EString" in ecore_type:
             return "String"
-        
-        if ecore_type.endswith("/Integer"):
+
+        if "EInt" in ecore_type:
             return "Integer"
 
-        if ecore_type.endswith("/Real"):
+        if "EDouble" in ecore_type or "EFloat" in ecore_type:
             return "Real"
 
-        if ecore_type.endswith("/Boolean"):
+        if "EBoolean" in ecore_type:
             return "Boolean"
 
         return "Unknown"
         
-    def _parse_reference(self, feature):
+    def _parse_reference(self, feature, package_name):
         reference_name = feature.get("name")
+        ecore_type = feature.get("eType")
+
+        if ecore_type is None:
+            return reference_name, "Unknown"
+        
         ecore_type = feature.get("eType").split("/")[-1]  # Lấy tên class từ eType
+
+        qualified_type = f"{package_name}!{ecore_type}"
 
         lower_bound = feature.get("lowerBound", "0")
         upper_bound = feature.get("upperBound", "1")
         ordered = feature.get("ordered", "true").lower() == "true"
 
-        if upper_bound == "-1":
-            if ordered:
-                raise ValueError(
-                    f"Ordered collection '{reference_name}' "
-                    f"cannot be represented in the supported OCL subset."
-                )
+        if upper_bound == "-1" or int(upper_bound) > 1:
+            unique = feature.get("unique", "true").lower() == "true"
+            
+            if unique and ordered:
+                reference_type = f"OrderedSet({qualified_type})"
+            elif unique and not ordered:
+                reference_type = f"Set({qualified_type})"
+            elif not unique and ordered:
+                reference_type = f"Sequence({qualified_type})"
             else:
-                reference_type = f"Set({ecore_type})"
-
-        elif int(upper_bound) > 1:
-            if ordered:
-                raise ValueError(
-                    f"Ordered collection '{reference_name}' "
-                    f"cannot be represented in the supported OCL subset."
-                )
-            else:
-                reference_type = f"Set({ecore_type})"
+                reference_type = f"Bag({qualified_type})"
 
         elif lower_bound == "0" and upper_bound == "1":
-            reference_type = f"{ecore_type}[0..1]"
+            reference_type = f"{qualified_type}[0..1]"
 
         else:
-            reference_type = f"{ecore_type}[1..1]"
+            reference_type = f"{qualified_type}[1..1]"
 
         return reference_name, reference_type
 
     def resolve_property(self, class_name: str, property_name: str) -> str:
-        if "!" in class_name:
-           class_name = class_name.split("!")[-1]
-
         current_class = class_name
+        
+        if current_class not in self.uml_context and "!" in class_name:
+           current_class = class_name.split("!")[-1]
 
         while current_class:
             if current_class not in self.uml_context:

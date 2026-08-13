@@ -4,14 +4,14 @@
   "input_models": [
     {
       "type": "ModelDeclaration",
-      "alias": "IN",
+      "alias": "AMALTHEA",
       "metamodel": "amalthea"
     }
   ],
   "output_models": [
     {
       "type": "ModelDeclaration",
-      "alias": "OUT",
+      "alias": "ASCET",
       "metamodel": "ascet"
     }
   ],
@@ -27,7 +27,7 @@
             "variable": {
               "type": "Variable",
               "name": "s",
-              "declared_type": "amalthea!ComponentContainer"
+              "declared_type": "AMALTHEA!ComponentContainer"
             }
           }
         ]
@@ -40,7 +40,7 @@
             "variable": {
               "type": "Variable",
               "name": "t",
-              "declared_type": "ascet!AscetModule"
+              "declared_type": "ASCET!AscetModule"
             },
             "bindings": [
               {
@@ -60,7 +60,7 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "x"
+                      "name": "tsk"
                     }
                   ],
                   "body": {
@@ -73,7 +73,7 @@
                     "arguments": [
                       {
                         "type": "Variable",
-                        "name": "x"
+                        "name": "tsk"
                       }
                     ]
                   }
@@ -82,7 +82,10 @@
             ]
           }
         ]
-      }
+      },
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
@@ -95,46 +98,46 @@
             "variable": {
               "type": "Variable",
               "name": "s",
-              "declared_type": "amalthea!Task"
+              "declared_type": "AMALTHEA!Task"
             }
           }
         ],
         "filter": {
-          "type": "IteratorExpression",
+          "type": "CollectionOperation",
           "source": {
-            "type": "OperationCall",
+            "type": "IteratorExpression",
             "source": {
-              "type": "Variable",
-              "name": "amalthea!ComponentContainer"
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "AMALTHEA!ComponentContainer"
+              },
+              "operation_name": "allInstances",
+              "arguments": []
             },
-            "operation_name": "allInstances",
-            "arguments": []
-          },
-          "iterator_type": "forAll",
-          "iterators": [
-            {
-              "type": "Variable",
-              "name": "c"
-            }
-          ],
-          "body": {
-            "type": "CollectionOperation",
-            "source": {
+            "iterator_type": "collect",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "cc"
+              }
+            ],
+            "body": {
               "type": "PropertyCall",
               "source": {
                 "type": "Variable",
-                "name": "c"
+                "name": "cc"
               },
               "property_name": "tasks"
-            },
-            "operation_name": "excludes",
-            "arguments": [
-              {
-                "type": "Variable",
-                "name": "s"
-              }
-            ]
-          }
+            }
+          },
+          "operation_name": "excludes",
+          "arguments": [
+            {
+              "type": "Variable",
+              "name": "s"
+            }
+          ]
         }
       },
       "out_pattern": {
@@ -145,7 +148,7 @@
             "variable": {
               "type": "Variable",
               "name": "t",
-              "declared_type": "ascet!SoftwareTask"
+              "declared_type": "ASCET!SoftwareTask"
             },
             "bindings": [
               {
@@ -163,7 +166,10 @@
             ]
           }
         ]
-      }
+      },
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "LazyMatchedRule",
@@ -176,7 +182,7 @@
             "variable": {
               "type": "Variable",
               "name": "s",
-              "declared_type": "amalthea!Task"
+              "declared_type": "AMALTHEA!Task"
             }
           }
         ]
@@ -189,7 +195,7 @@
             "variable": {
               "type": "Variable",
               "name": "t",
-              "declared_type": "ascet!SoftwareTask"
+              "declared_type": "ASCET!SoftwareTask"
             },
             "bindings": [
               {
@@ -207,7 +213,11 @@
             ]
           }
         ]
-      }
+      },
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false,
+      "is_unique": false
     }
   ]
 }

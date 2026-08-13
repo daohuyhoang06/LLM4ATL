@@ -17,12 +17,13 @@ class TypeEnvironment:
             self.bind_variable("self", context_class)
 
     def bind_variable(self, name: str, type_name: str):
-        self.scopes[-1][name] = type_name
+        self.scopes[-1][name] = type_name if type_name is not None else "Unknown"
 
     def lookup_variable(self, name: str) -> str:
         for scope in reversed(self.scopes):
             if name in scope:
-                return scope[name]
+                val = scope[name]
+                return val if val is not None else "Unknown"
 
         raise SemanticError(
             f"Unknown variable: '{name}'"

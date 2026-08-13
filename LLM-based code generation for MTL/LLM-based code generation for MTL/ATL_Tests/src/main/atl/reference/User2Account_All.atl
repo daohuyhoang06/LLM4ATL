@@ -1,0 +1,30 @@
+module User2Account_All;
+create OUT : account from IN : user;
+
+helper context user!User def: isActive() : Boolean =
+  if self.status.oclIsUndefined() then
+    false
+  else
+    self.status = 'Active' or self.status = 'Enabled'
+  endif;
+
+rule UserModel2AccountModel {
+  from
+    um : user!UserModel
+  to
+    am : account!AccountModel (
+      accounts <- um.users
+    )
+}
+
+rule User2Account {
+  from
+    u : user!User
+  to
+    a : account!Account (
+      username <- u.username,
+      email <- u.email,
+      active <- u.isActive(),
+      createdDate <- u.registrationDate
+    )
+}

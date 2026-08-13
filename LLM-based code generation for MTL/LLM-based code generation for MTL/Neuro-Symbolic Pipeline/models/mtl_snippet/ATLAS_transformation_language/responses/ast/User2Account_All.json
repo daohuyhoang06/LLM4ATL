@@ -1,30 +1,49 @@
 {
-  "module": {
-    "type": "Module",
-    "name": "User2Account_All",
-    "input_models": [
-      {
-        "type": "ModelDeclaration",
-        "alias": "IN",
-        "metamodel": "User"
-      }
-    ],
-    "output_models": [
-      {
-        "type": "ModelDeclaration",
-        "alias": "OUT",
-        "metamodel": "Account"
-      }
-    ],
-    "elements": [
-      {
-        "type": "Helper",
-        "kind": "operation",
-        "context_type": "User!User",
-        "name": "isActive",
-        "return_type": "Boolean",
-        "parameters": [],
-        "body": {
+  "type": "Module",
+  "name": "User2Account_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "user"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "account"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "user!User",
+      "name": "isActive",
+      "parameters": [],
+      "return_type": "Boolean",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "OperationCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            },
+            "property_name": "status"
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        },
+        "then_expression": {
+          "type": "LiteralExpression",
+          "value": false,
+          "literal_type": "Boolean"
+        },
+        "else_expression": {
           "type": "BinaryExpression",
           "operator": "or",
           "left": {
@@ -62,90 +81,134 @@
             }
           }
         }
-      },
-      {
-        "type": "MatchedRule",
-        "name": "User2Account",
-        "in_pattern": {
-          "type": "InPattern",
-          "elements": [
-            {
-              "type": "InPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "u",
-                "declared_type": "User!User"
-              },
-              "model": "IN"
-            }
-          ]
-        },
-        "out_pattern": {
-          "type": "OutPattern",
-          "elements": [
-            {
-              "type": "SimpleOutPatternElement",
-              "variable": {
-                "type": "Variable",
-                "name": "a",
-                "declared_type": "Account!Account"
-              },
-              "model": "OUT",
-              "bindings": [
-                {
-                  "type": "Binding",
-                  "property_name": "username",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "u"
-                    },
-                    "property_name": "username"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "email",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "u"
-                    },
-                    "property_name": "email"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "createdDate",
-                  "value": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "u"
-                    },
-                    "property_name": "registrationDate"
-                  }
-                },
-                {
-                  "type": "Binding",
-                  "property_name": "active",
-                  "value": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "u"
-                    },
-                    "operation_name": "isActive",
-                    "arguments": []
-                  }
-                }
-              ]
-            }
-          ]
-        }
       }
-    ]
-  }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "UserModel2AccountModel",
+      "using": [],
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "um",
+              "declared_type": "user!UserModel"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "am",
+              "declared_type": "account!AccountModel"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "accounts",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "um"
+                  },
+                  "property_name": "users"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "User2Account",
+      "using": [],
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "u",
+              "declared_type": "user!User"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "account!Account"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "username",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "u"
+                  },
+                  "property_name": "username"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "email",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "u"
+                  },
+                  "property_name": "email"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "active",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "u"
+                  },
+                  "operation_name": "isActive",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "createdDate",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "u"
+                  },
+                  "property_name": "registrationDate"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

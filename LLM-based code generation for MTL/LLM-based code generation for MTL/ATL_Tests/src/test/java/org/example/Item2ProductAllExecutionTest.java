@@ -130,7 +130,8 @@ public class Item2ProductAllExecutionTest {
         boolean foundLaptop = false;
         boolean foundTShirt = false;
         boolean foundBook = false;
-        for (EObject obj : outRes.getContents()) {
+        for (TreeIterator<EObject> it = outRes.getAllContents(); it.hasNext(); ) {
+            EObject obj = it.next();
             if (productCls.isInstance(obj)) {
                 String name = (String) obj.eGet(productCls.getEStructuralFeature("name"));
                 String category = (String) obj.eGet(productCls.getEStructuralFeature("category"));

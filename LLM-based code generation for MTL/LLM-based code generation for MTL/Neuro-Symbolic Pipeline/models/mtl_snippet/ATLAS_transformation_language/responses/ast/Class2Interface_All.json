@@ -27,7 +27,7 @@
             "variable": {
               "type": "Variable",
               "name": "c",
-              "declared_type": "IN!Class"
+              "declared_type": "Class!Class"
             }
           }
         ]
@@ -40,7 +40,7 @@
             "variable": {
               "type": "Variable",
               "name": "i",
-              "declared_type": "OUT!Interface"
+              "declared_type": "Interface!Interface"
             },
             "bindings": [
               {
@@ -83,7 +83,7 @@
             "variable": {
               "type": "Variable",
               "name": "m",
-              "declared_type": "IN!Method"
+              "declared_type": "Class!Method"
             }
           }
         ]
@@ -95,8 +95,8 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "outM",
-              "declared_type": "OUT!Method"
+              "name": "im",
+              "declared_type": "Interface!Method"
             },
             "bindings": [
               {
@@ -151,7 +151,7 @@
             "variable": {
               "type": "Variable",
               "name": "p",
-              "declared_type": "IN!Parameter"
+              "declared_type": "Class!Parameter"
             }
           }
         ]
@@ -163,8 +163,8 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "outP",
-              "declared_type": "OUT!Parameter"
+              "name": "ip",
+              "declared_type": "Interface!Parameter"
             },
             "bindings": [
               {
