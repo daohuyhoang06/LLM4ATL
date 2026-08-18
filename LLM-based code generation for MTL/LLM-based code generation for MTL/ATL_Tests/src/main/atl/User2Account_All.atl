@@ -1,31 +1,26 @@
 module User2Account_All;
-create OUT : Account from IN : User;
+create OUT : ACCOUNT from IN : USER;
 
-helper context User!User def: isActive() : Boolean =
-    if self.status.oclIsUndefined() then
-        false
-    else
-        ((self.status = 'Active') or (self.status = 'Enabled'))
-    endif;
+helper context USER!User def: isActive() : Boolean =
+	self.status = 'Active' or self.status = 'Enabled';
 
 rule UserModel2AccountModel {
-    from
-        um : User!UserModel
-    to
-        am : Account!AccountModel (
-            accounts <- um.users
-        )
+	from
+		s : USER!UserModel
+	to
+		t : ACCOUNT!AccountModel (
+			accounts <- s.users
+		)
 }
 
 rule User2Account {
-    from
-        u : User!User
-    to
-        a : Account!Account (
-            username <- u.username,
-            email <- u.email,
-            active <- u.isActive(),
-            createdDate <- u.registrationDate
-        )
+	from
+		u : USER!User
+	to
+		a : ACCOUNT!Account (
+			username <- u.username,
+			email <- u.email,
+			createdDate <- u.registrationDate,
+			active <- u.isActive()
+		)
 }
-

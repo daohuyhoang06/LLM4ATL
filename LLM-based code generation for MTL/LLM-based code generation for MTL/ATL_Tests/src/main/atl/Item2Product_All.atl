@@ -1,36 +1,24 @@
 module Item2Product_All;
-create OUT : Product from IN : Item;
+create OUT : product from IN : item;
 
-helper context Item!Item def: getCategory() : String =
-    if (self.type = 'Electronics') then
-        'Tech'
-    else
-        if (self.type = 'Clothing') then
-        'Apparel'
-    else
-        'General'
-    endif
-    endif;
-
-rule ItemModel2ProductModel {
-    from
-        s : Item!ItemModel
-    to
-        t : Product!ProductModel (
-            products <- s.items
-        )
-}
+helper context item!Item def : getCategory() : String =
+	if self.type = 'Electronics' then
+		'Tech'
+	else if self.type = 'Clothing' then
+		'Apparel'
+	else
+		'General'
+	endif endif;
 
 rule Item2Product {
-    from
-        s : Item!Item
-    to
-        t : Product!Product (
-            name <- s.name,
-            price <- s.price,
-            description <- s.description,
-            category <- s.getCategory(),
-            inStock <- (s.quantity > 0)
-        )
+	from
+		i : item!Item
+	to
+		p : product!Product (
+			name <- i.name,
+			price <- i.price,
+			description <- i.description,
+			inStock <- i.quantity > 0,
+			category <- i.getCategory()
+		)
 }
-

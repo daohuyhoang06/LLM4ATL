@@ -1,0 +1,1297 @@
+{
+  "type": "Module",
+  "name": "DSL2KM3",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "DSL"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "KM3"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "DSL!Relationship",
+      "name": "needTurnOnClass",
+      "parameters": [],
+      "return_type": "Boolean",
+      "body": {
+        "type": "BinaryExpression",
+        "operator": "or",
+        "left": {
+          "type": "BinaryExpression",
+          "operator": "or",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              },
+              "property_name": "properties"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                },
+                "property_name": "superType"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          }
+        },
+        "right": {
+          "type": "BinaryExpression",
+          "operator": "or",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              },
+              "property_name": "subTypes"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          },
+          "right": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "DSL!Role"
+              },
+              "operation_name": "allInstances",
+              "arguments": []
+            },
+            "iterator_type": "exists",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "r"
+              }
+            ],
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "r"
+                  },
+                  "property_name": "type"
+                },
+                "property_name": "identity"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                },
+                "property_name": "identity"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": null,
+      "name": "getRoles",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "c",
+          "declared_type": "DSL!Class"
+        }
+      ],
+      "return_type": "Set(DSL!Role)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "DSL!Role"
+          },
+          "operation_name": "allInstances",
+          "arguments": []
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "r"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "r"
+                },
+                "property_name": "source"
+              },
+              "property_name": "identity"
+            },
+            "right": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "c"
+              },
+              "property_name": "identity"
+            }
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "r"
+                },
+                "property_name": "relation"
+              },
+              "operation_name": "needTurnOnClass",
+              "arguments": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "DSL!Role",
+      "name": "isEmbedding",
+      "parameters": [],
+      "return_type": "Boolean",
+      "body": {
+        "type": "PropertyCall",
+        "source": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "Variable",
+            "name": "self"
+          },
+          "property_name": "relation"
+        },
+        "property_name": "isEmbedding"
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Metamodel",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!DomainModel"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "m",
+              "declared_type": "KM3!Metamodel"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "contents",
+                "value": {
+                  "type": "CollectionLiteral",
+                  "collection_kind": "Set",
+                  "elements": [
+                    {
+                      "type": "Variable",
+                      "name": "p"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "p_prim"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "KM3!Package"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "contents",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "classifiers"
+                  },
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "types"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_prim",
+              "declared_type": "KM3!Package"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "PrimitiveTypes",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "contents",
+                "value": {
+                  "type": "CollectionLiteral",
+                  "collection_kind": "Set",
+                  "elements": [
+                    {
+                      "type": "Variable",
+                      "name": "dt_string"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "dt_int"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "dt_bool"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "dt_string",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "String",
+                  "literal_type": "String"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "dt_int",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Integer",
+                  "literal_type": "String"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "dt_bool",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Boolean",
+                  "literal_type": "String"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Class",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!Class"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Class"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isAbstract",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "isAbstract"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "supertypes",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "superType"
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
+                  },
+                  "then_expression": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": []
+                  },
+                  "else_expression": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s"
+                        },
+                        "property_name": "superType"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "structuralFeatures",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "properties"
+                  },
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule"
+                      },
+                      "operation_name": "getRoles",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "s"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Relation2Class",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!Relationship"
+            }
+          }
+        ],
+        "filter": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "s"
+          },
+          "operation_name": "needTurnOnClass",
+          "arguments": []
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Class"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isAbstract",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "isAbstract"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "supertypes",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "superType"
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
+                  },
+                  "then_expression": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": []
+                  },
+                  "else_expression": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s"
+                        },
+                        "property_name": "superType"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "structuralFeatures",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "properties"
+                  },
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "roles"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "SimpleReference",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!Role"
+            }
+          }
+        ],
+        "filter": {
+          "type": "UnaryExpression",
+          "operator": "not",
+          "expression": {
+            "type": "OperationCall",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "s"
+              },
+              "property_name": "relation"
+            },
+            "operation_name": "needTurnOnClass",
+            "arguments": []
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Reference"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "lower",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "min"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "upper",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "isUnbounded"
+                  },
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": -1,
+                    "literal_type": "Integer"
+                  },
+                  "else_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "max"
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isOrdered",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "isOrdered"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isUnique",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": true,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isContainer",
+                "value": {
+                  "type": "BinaryExpression",
+                  "operator": "and",
+                  "left": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "operation_name": "isEmbedding",
+                    "arguments": []
+                  },
+                  "right": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "max"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": 1,
+                      "literal_type": "Integer"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "type"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "opposite",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "relation"
+                    },
+                    "property_name": "roles"
+                  },
+                  "iterator_type": "any",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "op"
+                    }
+                  ],
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "<>",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "op"
+                      },
+                      "property_name": "identity"
+                    },
+                    "right": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "identity"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "ComplexReference",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!Role"
+            }
+          }
+        ],
+        "filter": {
+          "type": "OperationCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "s"
+            },
+            "property_name": "relation"
+          },
+          "operation_name": "needTurnOnClass",
+          "arguments": []
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Reference"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "lower",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "min"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "upper",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "isUnbounded"
+                  },
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": -1,
+                    "literal_type": "Integer"
+                  },
+                  "else_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "max"
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isOrdered",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "isOrdered"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isUnique",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": true,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isContainer",
+                "value": {
+                  "type": "BinaryExpression",
+                  "operator": "and",
+                  "left": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "operation_name": "isEmbedding",
+                    "arguments": []
+                  },
+                  "right": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "max"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": 1,
+                      "literal_type": "Integer"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "type"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Attribute",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!ValueProperty"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Attribute"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "lower",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": 1,
+                  "literal_type": "Integer"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "upper",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": 1,
+                  "literal_type": "Integer"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isOrdered",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": false,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isUnique",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": true,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "type"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Enumeration",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!Enumeration"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!Enumeration"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "literals",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "literals"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "EnumLiteral",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!EnumerationLiteral"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!EnumLiteral"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "DataType",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "DSL!SimpleType"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
