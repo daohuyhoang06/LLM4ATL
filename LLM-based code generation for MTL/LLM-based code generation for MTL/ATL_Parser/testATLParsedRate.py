@@ -1,326 +1,199 @@
 #!/usr/bin/env python3
-"""
-ATL Transformation Evaluation Script
+"""Evaluate ATL files from the direct ast2atl response folder.
 
-Evaluates LLM-generated ATL transformation files:
-1. ATL Parsed Rate - uses Eclipse ATL Parser to check syntax validity
-2. ATL CHRF Similarity - compares with reference ATL files
+This script reads:
+- Neuro-Symbolic Pipeline/pipeline/mtl_snippet/ATLAS_transformation_language/responses/ast2atl/*.atl
+- Neuro-Symbolic Pipeline/pipeline/mtl_snippet/ATLAS_transformation_language/references/*.atl
 
-Directory structure:
-- src/test/resources/<LLM>/<Strategy>/*.atl  -> LLM generated ATL transformations
-- src/test/resources/other_references/*.atl  -> Reference ATL transformations
+It writes:
+- atl_parser_chrf_results.csv
+- atl_parsed_rate.csv
+- atl_chrf_similarity.csv
 """
-import subprocess
-import os
-import glob
+
+from __future__ import annotations
+
 import csv
+import os
+import shutil
+import subprocess
+import tempfile
 from collections import defaultdict
+from pathlib import Path
 
-# Optional dependencies
 try:
     from fastchrf import aggregate_chrf
     FASTCHRF_AVAILABLE = True
 except ImportError:
     FASTCHRF_AVAILABLE = False
 
-# Configuration
-LLM_DIRS = ['claude-sonnet-4', 'gemini-2-5-pro', 'gpt-5']
-STRATEGY_DIRS = ['few_shot', 'few_shots_AND_grammar', 'grammar', 'only_prompt']
 
-# Paths
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-ATL_RESOURCES_PATH = os.path.join(SCRIPT_DIR, 'src', 'test', 'resources')
-ATL_REFERENCES_PATH = os.path.join(ATL_RESOURCES_PATH, 'other_references')
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_DIR = SCRIPT_DIR.parent
+PIPELINE_DIR = REPO_DIR / "Neuro-Symbolic Pipeline" / "pipeline"
+AST_RESPONSE_DIR = PIPELINE_DIR / "mtl_snippet" / "ATLAS_transformation_language" / "responses" / "ast2atl"
+ATL_REFERENCES_DIR = PIPELINE_DIR / "mtl_snippet" / "ATLAS_transformation_language" / "references"
+TEST_RESOURCES_DIR = SCRIPT_DIR / "src" / "test" / "resources"
 
+MERGED_CSV = SCRIPT_DIR / "atl_parser_chrf_results.csv"
+PARSED_CSV = SCRIPT_DIR / "atl_parsed_rate.csv"
+CHRF_CSV = SCRIPT_DIR / "atl_chrf_similarity.csv"
 
-def get_llm_generated_atl_files():
-    """Get all LLM-generated ATL transformation files.
-
-    Scans: src/test/resources/<LLM>/<Strategy>/*.atl
-
-    Returns:
-        list of dict: path, llm, strategy, filename
-    """
-    atl_files = []
-
-    for llm in LLM_DIRS:
-        for strategy in STRATEGY_DIRS:
-            atl_dir = os.path.join(ATL_RESOURCES_PATH, llm, strategy)
-            if os.path.exists(atl_dir):
-                for atl_path in glob.glob(os.path.join(atl_dir, '*.atl')):
-                    filename = os.path.splitext(os.path.basename(atl_path))[0]
-                    atl_files.append({
-                        'path': os.path.abspath(atl_path),
-                        'llm': llm,
-                        'strategy': strategy,
-                        'filename': filename
-                    })
-
-    return atl_files
+LLM_LABEL = "ast2atl"
+STRATEGY_LABEL = "direct"
 
 
-def get_atl_reference_files():
-    """Get reference ATL transformation files.
-
-    Scans: src/test/resources/other_references/*.atl
-
-    Returns:
-        dict: filename -> absolute path
-    """
-    references = {}
-
-    if os.path.exists(ATL_REFERENCES_PATH):
-        for atl_path in glob.glob(os.path.join(ATL_REFERENCES_PATH, '*.atl')):
-            filename = os.path.splitext(os.path.basename(atl_path))[0]
-            references[filename] = os.path.abspath(atl_path)
-
-    return references
+def get_response_files() -> list[Path]:
+    return sorted(AST_RESPONSE_DIR.glob("*.atl"))
 
 
-def check_atl_syntax(atl_file_path):
-    """Check ATL syntax using Eclipse ATL Parser (org.eclipse.m2m.atl.engine.parser.AtlParser).
+def get_reference_files() -> dict[str, Path]:
+    refs: dict[str, Path] = {}
+    if ATL_REFERENCES_DIR.exists():
+        for path in ATL_REFERENCES_DIR.glob("*.atl"):
+            refs[path.stem] = path
+    return refs
 
-    Uses ATLParserMain which follows the same pattern as AtlParserTest.
 
-    Args:
-        atl_file_path: Absolute path to ATL file
+def _copy_resource_files(files: list[Path]) -> tuple[Path, list[tuple[Path, Path | None]]]:
+    backup_dir = Path(tempfile.mkdtemp(prefix="atl_parser_backup_"))
+    restored: list[tuple[Path, Path | None]] = []
 
-    Returns:
-        tuple: (is_valid: bool, problem_count: int)
-    """
+    TEST_RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
+    for src in files:
+        dst = TEST_RESOURCES_DIR / src.name
+        backup = None
+        if dst.exists():
+            backup = backup_dir / dst.name
+            shutil.copy2(dst, backup)
+        shutil.copy2(src, dst)
+        restored.append((dst, backup))
+
+    return backup_dir, restored
+
+
+def _restore_resource_files(restore_plan: list[tuple[Path, Path | None]], backup_dir: Path) -> None:
+    for dst, backup in restore_plan:
+        if backup and backup.exists():
+            shutil.copy2(backup, dst)
+        elif dst.exists():
+            dst.unlink()
+
+    shutil.rmtree(backup_dir, ignore_errors=True)
+
+
+def _run_parser_test(files: list[Path]) -> dict[str, tuple[bool, int]]:
+    """Run AtlParserTest once against all response files and parse its output."""
+    backup_dir, restore_plan = _copy_resource_files(files)
     try:
-        use_shell = os.name == 'nt'
-        mvn_cmd = 'mvn.cmd' if os.name == 'nt' else 'mvn'
-
+        mvn_cmd = "mvn.cmd" if os.name == "nt" else "mvn"
         result = subprocess.run(
-            [mvn_cmd, '-q', 'exec:java',
-             '-Dexec.mainClass=com.example.atlparser.ATLParserMain',
-             f'-Dexec.args={atl_file_path}'],
+            [mvn_cmd, "-q", "test", "-Dtest=com.example.atlparser.AtlParserTest"],
             cwd=SCRIPT_DIR,
             capture_output=True,
             text=True,
-            timeout=60,
-            shell=use_shell
+            timeout=240,
+            shell=False,
         )
 
-        # Parse output: RESULT:OK:0 or RESULT:FAIL:N
-        problem_count = 0
-        for line in result.stdout.split('\n'):
-            if line.startswith('RESULT:'):
-                parts = line.split(':')
-                if len(parts) >= 3:
-                    problem_count = int(parts[2])
-                break
+        parsed_map: dict[str, tuple[bool, int]] = {}
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if line.startswith("OK: "):
+                file_name = line.removeprefix("OK: ").removesuffix(".atl").strip()
+                parsed_map[file_name] = (True, 0)
+            elif line.startswith("FAIL: "):
+                payload = line.removeprefix("FAIL: ").strip()
+                file_name, rest = payload.split(" (", 1)
+                problem_count = int(rest.split()[0])
+                parsed_map[file_name.removesuffix(".atl")] = (False, problem_count)
 
-        return (result.returncode == 0, problem_count)
-    except subprocess.TimeoutExpired:
-        return (False, -1)
-    except Exception as e:
-        print(f"Error: {e}")
-        return (False, -1)
+        if result.returncode != 0:
+            print(result.stdout)
+            print(result.stderr)
 
-
-def generate_atl_parsed_rate_csv(output_csv='atl_parsed_rate.csv'):
-    """Generate ATL parsed rate CSV.
-
-    Uses Eclipse ATL Parser to validate ATL syntax.
-    Output: LLM, Strategy, File, Parsed, ProblemCount
-    """
-    atl_files = get_llm_generated_atl_files()
-
-    if not atl_files:
-        print("Error: No ATL files found")
-        return None
-
-    print(f"Checking ATL syntax for {len(atl_files)} files...\n")
-
-    csv_data = []
-    total = len(atl_files)
-
-    for idx, atl in enumerate(atl_files, 1):
-        is_valid, problem_count = check_atl_syntax(atl['path'])
-
-        csv_data.append({
-            'LLM': atl['llm'],
-            'Strategy': atl['strategy'],
-            'File': atl['filename'],
-            'Parsed': is_valid,
-            'ProblemCount': problem_count
-        })
-
-        status = "OK" if is_valid else f"FAIL({problem_count})"
-        print(f"[{idx}/{total}] [{status}] {atl['llm']}/{atl['strategy']}/{atl['filename']}.atl")
-
-    # Write CSV
-    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['LLM', 'Strategy', 'File', 'Parsed', 'ProblemCount'])
-        writer.writeheader()
-        writer.writerows(csv_data)
-
-    print(f"\nCSV: {output_csv}")
-    print_atl_parsed_rate_summary(csv_data)
-
-    return output_csv
+        return parsed_map
+    finally:
+        _restore_resource_files(restore_plan, backup_dir)
 
 
-def print_atl_parsed_rate_summary(csv_data):
-    """Print ATL parsed rate summary."""
-    stats = defaultdict(lambda: {'total': 0, 'valid': 0, 'problems': 0})
-
-    for row in csv_data:
-        key = (row['LLM'], row['Strategy'])
-        stats[key]['total'] += 1
-        if row['Parsed']:
-            stats[key]['valid'] += 1
-        if row['ProblemCount'] > 0:
-            stats[key]['problems'] += row['ProblemCount']
-
-    print("\n" + "=" * 85)
-    print("ATL PARSED RATE SUMMARY")
-    print("=" * 85)
-    print(f"{'LLM':<20} {'Strategy':<25} {'Parsed Rate':<20} {'Total Problems':<15}")
-    print("-" * 85)
-
-    for (llm, strategy), s in sorted(stats.items()):
-        rate = s['valid'] / s['total'] * 100 if s['total'] > 0 else 0
-        print(f"{llm:<20} {strategy:<25} {rate:>6.1f}% ({s['valid']}/{s['total']})      {s['problems']:>5}")
-
-    total_valid = sum(s['valid'] for s in stats.values())
-    total_files = sum(s['total'] for s in stats.values())
-    total_problems = sum(s['problems'] for s in stats.values())
-    overall = total_valid / total_files * 100 if total_files > 0 else 0
-    print("-" * 85)
-    print(f"{'OVERALL':<46} {overall:>6.1f}% ({total_valid}/{total_files})      {total_problems:>5}")
-
-
-def generate_atl_chrf_csv(output_csv='atl_chrf_similarity.csv'):
-    """Generate ATL CHRF similarity CSV.
-
-    Compares LLM ATL with reference ATL in other_references/.
-    Output: LLM, Strategy, File, CHRF_Score
-    """
+def _chrf_score(generated: str, reference: str) -> float:
     if not FASTCHRF_AVAILABLE:
-        print("Error: pip install fastchrf")
-        return None
+        raise RuntimeError("fastchrf is not installed")
+    return float(aggregate_chrf([[generated]], [[reference]])[0][0])
 
-    atl_files = get_llm_generated_atl_files()
-    references = get_atl_reference_files()
 
-    if not atl_files:
-        print("Error: No ATL files found")
-        return None
+def generate_reports() -> None:
+    files = get_response_files()
+    if not files:
+        print(f"Error: no ATL files found in {AST_RESPONSE_DIR}")
+        return
 
-    if not references:
-        print("Error: No reference ATL files in other_references/")
-        return None
+    references = get_reference_files()
+    parsed_map = _run_parser_test(files)
 
-    print(f"CHRF: {len(atl_files)} ATL files vs {len(references)} references\n")
+    merged_rows = []
+    parsed_rows = []
+    chrf_rows = []
 
-    csv_data = []
-
-    for atl in atl_files:
-        if atl['filename'] not in references:
-            print(f"Warning: No reference for {atl['filename']}.atl")
+    for path in files:
+        stem = path.stem
+        parsed, problem_count = parsed_map.get(stem, (False, -1))
+        ref_path = references.get(stem)
+        if ref_path is None:
+            print(f"Warning: no reference found for {path.name}")
             continue
 
-        try:
-            with open(atl['path'], 'r', encoding='utf-8') as f:
-                generated = f.read()
-            with open(references[atl['filename']], 'r', encoding='utf-8') as f:
-                reference = f.read()
+        generated = path.read_text(encoding="utf-8")
+        reference = ref_path.read_text(encoding="utf-8")
+        chrf = round(_chrf_score(generated, reference), 4)
 
-            score = float(aggregate_chrf([[generated]], [[reference]])[0][0])
+        merged_rows.append({
+            "LLM": LLM_LABEL,
+            "Strategy": STRATEGY_LABEL,
+            "File": stem,
+            "Parsed": parsed,
+            "ProblemCount": problem_count,
+            "CHRF_Score": chrf,
+        })
+        parsed_rows.append({
+            "LLM": LLM_LABEL,
+            "Strategy": STRATEGY_LABEL,
+            "File": stem,
+            "Parsed": parsed,
+            "ProblemCount": problem_count,
+        })
+        chrf_rows.append({
+            "LLM": LLM_LABEL,
+            "Strategy": STRATEGY_LABEL,
+            "File": stem,
+            "CHRF_Score": chrf,
+        })
 
-            csv_data.append({
-                'LLM': atl['llm'],
-                'Strategy': atl['strategy'],
-                'File': atl['filename'],
-                'CHRF_Score': round(score, 4)
-            })
-
-            print(f"{atl['llm']}/{atl['strategy']}/{atl['filename']}.atl: {score:.2f}")
-
-        except Exception as e:
-            print(f"Error: {atl['filename']}: {e}")
-
-    if not csv_data:
-        print("No CHRF scores")
-        return None
-
-    # Write CSV
-    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['LLM', 'Strategy', 'File', 'CHRF_Score'])
+    with MERGED_CSV.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["LLM", "Strategy", "File", "Parsed", "ProblemCount", "CHRF_Score"])
         writer.writeheader()
-        writer.writerows(csv_data)
+        writer.writerows(merged_rows)
 
-    print(f"\nCSV: {output_csv}")
-    print_atl_chrf_summary(csv_data)
+    with PARSED_CSV.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["LLM", "Strategy", "File", "Parsed", "ProblemCount"])
+        writer.writeheader()
+        writer.writerows(parsed_rows)
 
-    return output_csv
+    with CHRF_CSV.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["LLM", "Strategy", "File", "CHRF_Score"])
+        writer.writeheader()
+        writer.writerows(chrf_rows)
 
+    total = len(merged_rows)
+    parsed_count = sum(1 for row in merged_rows if row["Parsed"])
+    mean_chrf = sum(float(row["CHRF_Score"]) for row in merged_rows) / total if total else 0.0
 
-def print_atl_chrf_summary(csv_data):
-    """Print ATL CHRF summary."""
-    stats = defaultdict(list)
-
-    for row in csv_data:
-        stats[(row['LLM'], row['Strategy'])].append(row['CHRF_Score'])
-
-    print("\n" + "=" * 75)
-    print("ATL CHRF SIMILARITY SUMMARY")
-    print("=" * 75)
-    print(f"{'LLM':<20} {'Strategy':<25} {'Avg':<10} {'Min':<10} {'Max':<10}")
-    print("-" * 75)
-
-    all_scores = []
-    for (llm, strategy), scores in sorted(stats.items()):
-        avg = sum(scores) / len(scores)
-        all_scores.extend(scores)
-        print(f"{llm:<20} {strategy:<25} {avg:>8.2f}   {min(scores):>8.2f}   {max(scores):>8.2f}")
-
-    if all_scores:
-        print("-" * 75)
-        print(f"{'OVERALL':<46} {sum(all_scores)/len(all_scores):>8.2f}   {min(all_scores):>8.2f}   {max(all_scores):>8.2f}")
+    print(f"\nCSV: {MERGED_CSV}")
+    print(f"Files: {total}")
+    print(f"Parsed: {parsed_count}/{total}")
+    print(f"Mean ChrF: {mean_chrf:.4f}")
 
 
 if __name__ == "__main__":
-    import sys
-
-    HELP = """
-ATL Transformation Evaluation Tool
-
-Usage: python testATLParsedRate.py <command>
-
-Commands:
-  parsed  - ATL syntax check (Eclipse ATL Parser)
-            Output: atl_parsed_rate.csv
-
-  chrf    - ATL CHRF similarity with references
-            Output: atl_chrf_similarity.csv
-
-  all     - Both reports
-"""
-
-    if len(sys.argv) < 2:
-        print(HELP)
-        sys.exit(0)
-
-    cmd = sys.argv[1].lower()
-
-    if cmd == "parsed":
-        generate_atl_parsed_rate_csv()
-    elif cmd == "chrf":
-        generate_atl_chrf_csv()
-    elif cmd == "all":
-        print("=" * 70)
-        print("ATL PARSED RATE")
-        print("=" * 70)
-        generate_atl_parsed_rate_csv()
-
-        print("\n\n" + "=" * 70)
-        print("ATL CHRF SIMILARITY")
-        print("=" * 70)
-        generate_atl_chrf_csv()
-    else:
-        print(f"Unknown: {cmd}")
-        print(HELP)
+    generate_reports()

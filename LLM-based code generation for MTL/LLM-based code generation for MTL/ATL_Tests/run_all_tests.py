@@ -14,18 +14,22 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections import defaultdict
+from pathlib import Path
 
 # Force unbuffered output
 sys.stdout.reconfigure(line_buffering=True)
 sys.stderr.reconfigure(line_buffering=True)
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-ATL_SRC_DIR = os.path.join(PROJECT_DIR, "src", "main", "atl")
-ATL_REF_DIR = os.path.join(ATL_SRC_DIR, "reference")
-INPUT_CSV = os.path.join(PROJECT_DIR, "atl_parser_chrf_results.csv")
-OUTPUT_CSV = os.path.join(PROJECT_DIR, "atl_test_results.csv")
-SUMMARY_CSV = os.path.join(PROJECT_DIR, "atl_pass_rate_summary.csv")
+PROJECT_DIR = Path(__file__).resolve().parent
+REPO_DIR = PROJECT_DIR.parent
+PIPELINE_DIR = REPO_DIR / "Neuro-Symbolic Pipeline" / "pipeline"
+AST_RESPONSE_DIR = PIPELINE_DIR / "mtl_snippet" / "ATLAS_transformation_language" / "responses" / "ast2atl"
+ATL_SRC_DIR = PROJECT_DIR / "src" / "main" / "atl"
+INPUT_CSV = REPO_DIR / "ATL_Parser" / "atl_parser_chrf_results.csv"
+OUTPUT_CSV = PROJECT_DIR / "atl_test_results.csv"
+SUMMARY_CSV = PROJECT_DIR / "atl_pass_rate_summary.csv"
 
 # Mapping from ATL file base name to JUnit test class (fully qualified)
 FILE_TO_TEST = {
@@ -49,7 +53,8 @@ FILE_TO_TEST = {
 
 def run_test(test_class: str) -> bool:
     """Run a single Maven test class. Returns True if the test passes."""
-    cmd = ["mvn", "test", f"-Dtest={test_class}", "-pl", ".", "-q", "--batch-mode"]
+    mvn_cmd = "mvn.cmd" if os.name == "nt" else "mvn"
+    cmd = [mvn_cmd, "test", f"-Dtest={test_class}", "-pl", ".", "-q", "--batch-mode"]
     try:
         result = subprocess.run(
             cmd,
@@ -57,7 +62,7 @@ def run_test(test_class: str) -> bool:
             capture_output=True,
             text=True,
             timeout=120,
-            shell=True,
+            shell=False,
         )
         return result.returncode == 0
     except subprocess.TimeoutExpired:
@@ -68,22 +73,32 @@ def run_test(test_class: str) -> bool:
         return False
 
 
-def copy_atl(llm: str, strategy: str, file_name: str) -> bool:
-    """Copy ATL file from reference/{llm}/{strategy}/ to src/main/atl/. Returns True if successful."""
-    src = os.path.join(ATL_REF_DIR, llm, strategy, f"{file_name}.atl")
-    dst = os.path.join(ATL_SRC_DIR, f"{file_name}.atl")
-    if not os.path.exists(src):
+def copy_atl(file_name: str) -> tuple[bool, Path | None]:
+    """Copy ATL file from responses/ast2atl to src/main/atl/. Returns (copied, backup_path)."""
+    src = AST_RESPONSE_DIR / f"{file_name}.atl"
+    dst = ATL_SRC_DIR / f"{file_name}.atl"
+    if not src.exists():
         print(f"    WARNING: ATL source not found: {src}")
-        return False
+        return False, None
+
+    backup_path = None
+    if dst.exists():
+        backup_dir = Path(tempfile.mkdtemp(prefix="atl_tests_backup_"))
+        backup_path = backup_dir / dst.name
+        shutil.copy2(dst, backup_path)
+
     shutil.copy2(src, dst)
-    return True
+    return True, backup_path
 
 
-def cleanup_atl(file_name: str):
-    """Remove the copied ATL file after testing."""
-    dst = os.path.join(ATL_SRC_DIR, f"{file_name}.atl")
-    if os.path.exists(dst):
-        os.remove(dst)
+def cleanup_atl(file_name: str, backup_path: Path | None):
+    """Restore or remove the copied ATL file after testing."""
+    dst = ATL_SRC_DIR / f"{file_name}.atl"
+    if backup_path is not None and backup_path.exists():
+        shutil.copy2(backup_path, dst)
+        shutil.rmtree(backup_path.parent, ignore_errors=True)
+    elif dst.exists():
+        dst.unlink()
 
 
 def write_summary_csv(results):
@@ -113,7 +128,7 @@ def write_summary_csv(results):
 
 def main():
     # Read input CSV
-    with open(INPUT_CSV, "r", newline="", encoding="utf-8") as f:
+    with INPUT_CSV.open("r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
 
@@ -140,7 +155,8 @@ def main():
             print(f"    -> False (parser failed)")
         else:
             # Parsed=True and test class exists: run the test
-            if not copy_atl(llm, strategy, file_name):
+            copied, backup_path = copy_atl(file_name)
+            if not copied:
                 test_pass = "False"
                 print(f"    -> False (ATL file not found)")
             else:
@@ -149,7 +165,7 @@ def main():
                 passed = run_test(test_class)
                 test_pass = "True" if passed else "False"
                 print(f"    -> {test_pass}")
-                cleanup_atl(file_name)
+                cleanup_atl(file_name, backup_path)
 
         result_row = dict(row)
         result_row["test_pass"] = test_pass
@@ -157,7 +173,7 @@ def main():
 
     # Write output CSV
     fieldnames = list(rows[0].keys()) + ["test_pass"]
-    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
+    with OUTPUT_CSV.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(results)

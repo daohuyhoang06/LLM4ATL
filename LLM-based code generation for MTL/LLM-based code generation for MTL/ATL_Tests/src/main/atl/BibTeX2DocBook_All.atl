@@ -1,144 +1,150 @@
 module BibTeX2DocBook;
 create OUT : DocBook from IN : BibTeX;
 
-helper context BibTeX!BibTeXFile def: authorSet : Set(BibTeX!Author) =
-	BibTeX!AuthoredEntry.allInstances().authors->flatten()->asSet();
-
-helper context BibTeX!BibTeXFile def: titledEntrySet : Set(BibTeX!TitledEntry) =
-	BibTeX!TitledEntry.allInstances()->asSet();
-
-helper context BibTeX!BibTeXFile def: articleSet : Set(BibTeX!Article) =
-	BibTeX!Article.allInstances()->select(a | not a.journal.oclIsUndefined())->asSet();
-
 helper context BibTeX!BibTeXEntry def: buildEntryPara() : String =
-	let fields : Sequence(String) = Sequence{}->including(
-		if self.oclIsKindOf(BibTeX!TitledEntry) and not self.title.oclIsUndefined() then 'title: ' + self.title else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!AuthoredEntry) and not self.authors->isEmpty() then 'authors: ' + self.authors->collect(a | a.author)->iterate(s; acc : String = '' | acc + if acc = '' then '' else ', ' endif + s) else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!DatedEntry) and not self.year.oclIsUndefined() then 'year: ' + self.year else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!BookTitledEntry) and not self.booktitle.oclIsUndefined() then 'booktitle: ' + self.booktitle else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!ThesisEntry) and not self.school.oclIsUndefined() then 'school: ' + self.school else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!Article) and not self.journal.oclIsUndefined() then 'journal: ' + self.journal else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!Unpublished) and not self.note.oclIsUndefined() then 'note: ' + self.note else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!Book) and not self.publisher.oclIsUndefined() then 'publisher: ' + self.publisher else OclUndefined endif
-	)->including(
-		if self.oclIsKindOf(BibTeX!InBook) and not self.chapter.oclIsUndefined() then 'chapter: ' + self.chapter.toString() else OclUndefined endif
-	)->select(s | not s.oclIsUndefined())
-	in self.id + ' (' + self.oclType().name + '): ' + fields->iterate(f; acc : String = '' | acc + if acc = '' then '' else '; ' endif + f);
+    ((('[' + self.id) + '] ') + self.oclType().name);
+
+helper def: authorSet : Set(BibTeX!Author) =
+    BibTeX!Author.allInstances()->asSet()->sortedBy(a | a.author);
+
+helper def: titledEntrySet : Set(BibTeX!TitledEntry) =
+    BibTeX!TitledEntry.allInstances()->asSet()->sortedBy(e | e.title);
+
+helper def: articleSet : Set(BibTeX!Article) =
+    BibTeX!Article.allInstances()->asSet()->sortedBy(e | e.journal);
 
 rule Main {
-	from s : BibTeX!BibTeXFile
-	to t : DocBook!DocBook (
-		books <- Sequence { book }
-	)
-	do {
-		book <- thisModule.createBook(s);
-	}
-}
-
-lazy rule createBook {
-	from s : BibTeX!BibTeXFile
-	to book : DocBook!Book (
-		articles <- Sequence { article }
-	),
-	article : DocBook!Article (
-		title <- 'BibTeXML to DocBook',
-		sections_1 <- Sequence {
-			references_list_section,
-			authors_list_section,
-			titles_list_section,
-			journals_list_section
-		}
-	),
-	references_list_section : DocBook!Sect1 (
-		title <- 'References List',
-		paras <- s.entries->sortedBy(e | e.id)
-	),
-	authors_list_section : DocBook!Sect1 (
-		title <- 'Authors list',
-		paras <- thisModule.authorSet->sortedBy(a | a.author)->collect(a |
-			thisModule.resolveTemp(a, 'authorPara')
-		)
-	),
-	titles_list_section : DocBook!Sect1 (
-		title <- 'Titles List',
-		paras <- thisModule.titledEntrySet->sortedBy(t | t.title)->collect(t |
-			thisModule.resolveTemp(t, 'titlePara')
-		)
-	),
-	journals_list_section : DocBook!Sect1 (
-		title <- 'Journals List',
-		paras <- thisModule.articleSet->sortedBy(a | a.journal)->collect(a |
-			thisModule.resolveTemp(a, 'journalPara')
-		)
-	)
+    from
+        bib : BibTeX!BibTeXFile
+    to
+        d : DocBook!DocBook (
+            books <- b
+        ),
+        b : DocBook!Book (
+            articles <- a
+        ),
+        a : DocBook!Article (
+            title <- 'BibTeXML to DocBook',
+            sections_1 <- Set{s1, s2, s3, s4}
+        ),
+        s1 : DocBook!Sect1 (
+            title <- 'References List',
+            paras <- BibTeX!BibTeXEntry.allInstances()->asSet()->sortedBy(e | e.id)
+        ),
+        s2 : DocBook!Sect1 (
+            title <- 'Authors list',
+            paras <- thisModule.authorSet
+        ),
+        s3 : DocBook!Sect1 (
+            title <- 'Titles List',
+            paras <- thisModule.titledEntrySet->collect(e | thisModule.resolveTemp(e, 't'))
+        ),
+        s4 : DocBook!Sect1 (
+            title <- 'Journals List',
+            paras <- thisModule.articleSet->collect(e | thisModule.resolveTemp(e, 't_j'))
+        )
 }
 
 rule Author {
-	from s : BibTeX!Author
-	to d : DocBook!Para (
-		content <- s.author
-	)
-	do {
-		thisModule.resolveTemp(s, 'authorPara', d);
-	}
+    from
+        a : BibTeX!Author (
+            thisModule.authorSet->includes(a)
+        )
+    to
+        p : DocBook!Para (
+            content <- a.author
+        )
 }
 
 rule UntitledEntry {
-	from s : BibTeX!BibTeXEntry (not s.oclIsKindOf(BibTeX!TitledEntry))
-	to d : DocBook!Para (
-		content <- s.buildEntryPara()
-	)
+    from
+        e : BibTeX!BibTeXEntry (
+            not e.oclIsKindOf(BibTeX!TitledEntry)
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
 }
 
 rule TitledEntry_Title_NoArticle {
-	from s : BibTeX!TitledEntry (not s.oclIsKindOf(BibTeX!Article))
-	to
-		entryPara : DocBook!Para (
-			content <- s.buildEntryPara()
-		),
-		titlePara : DocBook!Para (
-			content <- s.title
-		)
-	do {
-		thisModule.resolveTemp(s, 'titlePara', titlePara);
-	}
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!TitledEntry) and not e.oclIsKindOf(BibTeX!Article)) and thisModule.titledEntrySet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        t : DocBook!Para (
+            content <- e.title
+        )
+}
+
+rule TitledEntry_NoTitle_NoArticle {
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!TitledEntry) and not e.oclIsKindOf(BibTeX!Article)) and not thisModule.titledEntrySet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
 }
 
 rule Article_Title_Journal {
-	from s : BibTeX!Article (thisModule.articleSet->includes(s))
-	to
-		entryPara : DocBook!Para (
-			content <- s.buildEntryPara()
-		),
-		titlePara : DocBook!Para (
-			content <- s.title
-		),
-		journalPara : DocBook!Para (
-			content <- s.journal
-		)
-	do {
-		thisModule.resolveTemp(s, 'titlePara', titlePara);
-		thisModule.resolveTemp(s, 'journalPara', journalPara);
-	}
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!Article) and thisModule.titledEntrySet->includes(e)) and thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        t : DocBook!Para (
+            content <- e.title
+        ),
+        t_j : DocBook!Para (
+            content <- e.journal
+        )
+}
+
+rule Article_NoTitle_Journal {
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!Article) and not thisModule.titledEntrySet->includes(e)) and thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        t_j : DocBook!Para (
+            content <- e.journal
+        )
 }
 
 rule Article_Title_NoJournal {
-	from s : BibTeX!Article (not thisModule.articleSet->includes(s))
-	to
-		entryPara : DocBook!Para (
-			content <- s.buildEntryPara()
-		),
-		titlePara : DocBook!Para (
-			content <- s.title
-		)
-	do {
-		thisModule.resolveTemp(s, 'titlePara', titlePara);
-	}
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!Article) and thisModule.titledEntrySet->includes(e)) and not thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        ),
+        t : DocBook!Para (
+            content <- e.title
+        )
 }
+
+rule Article_NoTitle_NoJournal {
+    from
+        e : BibTeX!BibTeXEntry (
+            ((e.oclIsKindOf(BibTeX!Article) and not thisModule.titledEntrySet->includes(e)) and not thisModule.articleSet->includes(e))
+        )
+    to
+        p : DocBook!Para (
+            content <- e.buildEntryPara()
+        )
+}
+

@@ -187,7 +187,7 @@ rule LibraryViewpoint2ArchitecturalFramework {
 
 rule StakeholderHasConcern {
     from
-        sh : IEEE1471!Stakeholder
+        sh : IEEE1471!Stakeholder,
         c : IEEE1471!Concern (
             sh.has->includes(c)
         )

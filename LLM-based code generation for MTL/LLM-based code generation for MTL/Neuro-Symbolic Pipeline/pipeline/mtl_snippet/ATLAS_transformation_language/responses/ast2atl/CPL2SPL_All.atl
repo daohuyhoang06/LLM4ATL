@@ -9,7 +9,7 @@ helper context CPL!Element def: locations : Set(CPL!Location) =
 
 helper context CPL!Location def: locations : Set(CPL!Location) =
     let
-        parents = CPL!NodeContainer.allInstances()->select(nc | nc.contents->includes(self))
+        parents :  = CPL!NodeContainer.allInstances()->select(nc | nc.contents->includes(self))
     in
         if parents->isEmpty() then
         Set{self}

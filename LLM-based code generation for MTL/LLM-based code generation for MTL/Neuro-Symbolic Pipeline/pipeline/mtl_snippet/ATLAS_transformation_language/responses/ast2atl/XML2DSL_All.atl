@@ -1,195 +1,200 @@
 module XML2DSL;
 create OUT : DSL from IN : XML;
 
-helper context XML!Element def: getAttrVal(name : Parameter) : String =
-    self.children->XML!Node(c | (c.name = name))->XML!Node(c | c.value)->asBag()->sum();
+helper context XML!Element def: getAttrVal(name : String) : String =
+    self.children->asBag()->select(c | (c.oclIsTypeOf(XML!Attribute) and (c.name = name)))->any(c | true).value;
 
-helper context XML!Element def: getAttrBool(name : Parameter) : Boolean =
-    (self.getAttrVal(name) = 'true');
+helper context XML!Element def: getAttrBool(name : String) : Boolean =
+    if self.getAttrVal(name).oclIsUndefined() then
+        false
+    else
+        (self.getAttrVal(name) = 'true')
+    endif;
 
-helper context XML!Element def: get(name : Parameter) : None =
-    self.children->XML!Node(c | (c.name = name));
+helper context XML!Element def: get(name : String) : Bag(XML!Node) =
+    self.children->asBag()->select(c | (c.name = name));
 
-helper context XML!Element def: getType() : String =
-    self.getAttrVal('type');
+helper context XML!Element def: getSeq(name : String) : Bag(XML!Node) =
+    self.children->asBag()->select(c | (c.name = name));
 
-helper context XML!Element def: getEnumId() : String =
-    self.getAttrVal('enumId');
+helper context XML!Element def: hasAttr(name : String) : Boolean =
+    self.children->asBag()->select(c | (c.oclIsTypeOf(XML!Attribute) and (c.name = name)))->notEmpty();
+
+helper context XML!Element def: hasChildren(name : String) : Boolean =
+    self.children->asBag()->select(c | (c.oclIsTypeOf(XML!Element) and (c.name = name)))->notEmpty();
 
 helper context XML!Element def: getText() : String =
-    self.children->XML!Node(c | c.value)->asBag()->sum();
-
-helper context XML!Element def: getSeq(name : Parameter) : None =
-    self.children->XML!Node(c | (c.name = name));
-
-helper context XML!Element def: hasChildren(name : Parameter) : Boolean =
-    self.children->XML!Node(c | (c.name = name))->notEmpty();
-
-helper context XML!Element def: hasAttr(name : Parameter) : Boolean =
-    self.children->XML!Node(c | (c.name = name))->notEmpty();
+    let
+        textNode :  = self.children->asBag()->select(c | c.oclIsTypeOf(XML!Text))->any(c | true)
+    in
+        if textNode.oclIsUndefined() then
+        ''
+    else
+        textNode.value
+    endif;
 
 helper context XML!Element def: isAbstract() : Boolean =
     self.getAttrBool('isAbstract');
 
-helper def: dslElementsById(id : Parameter) : None =
-    XML!Element.allInstances()->XML!Element(e | (e.getAttrVal('identity') = id));
+helper context XML!Element def: getEnumId(name : String) : String =
+    self.getAttrVal(name);
 
-helper def: getSubTypes(classifierName : Parameter) : None =
-    XML!Element.allInstances()->XML!Element(e | (((e.name = 'Class') or (e.name = 'Relationship')) and (e.getAttrVal('superType') = classifierName)));
+helper context XML!Element def: getType(name : String) : DSL!Type =
+    thisModule.findType(name);
 
-helper def: findType(name : Parameter) : None =
-    if (name = 'String') then
-        XML!Element.allInstances()->XML!Element(e | (e.name = 'DomainModel'))->XML!Element(e | thisModule.resolveTemp(e, 'stringType'))
-    else
-        if (name = 'Integer') then
-        XML!Element.allInstances()->XML!Element(e | (e.name = 'DomainModel'))->XML!Element(e | thisModule.resolveTemp(e, 'integerType'))
-    else
-        if (name = 'Boolean') then
-        XML!Element.allInstances()->XML!Element(e | (e.name = 'DomainModel'))->XML!Element(e | thisModule.resolveTemp(e, 'booleanType'))
-    else
-        if (name = 'Real') then
-        XML!Element.allInstances()->XML!Element(e | (e.name = 'DomainModel'))->XML!Element(e | thisModule.resolveTemp(e, 'realType'))
-    else
-        XML!Element.allInstances()->XML!Element(e | ((e.name = 'Enumeration') and (e.getAttrVal('name') = name)))
-    endif
-    endif
-    endif
-    endif;
+helper def: dslElementsById(id : String) : XML!Element =
+    XML!Element.allInstances()->asBag()->select(e | (e.getAttrVal('identity') = id))->any(e | true);
+
+helper def: getSubTypes(name : String) : Bag(XML!Element) =
+    XML!Element.allInstances()->asBag()->select(e | ((e.name = 'Class') and (e.getAttrVal('superType') = name)));
+
+helper def: findType(name : String) : DSL!Type =
+    DSL!Type.allInstances()->asBag()->any(t | ((t.identity = name) or (t.name = name)));
 
 rule DomainModel {
     from
-        self : XML!Element (
-            (self.name = 'DomainModel')
+        s : XML!Root (
+            (s.name = 'DomainModel')
         )
     to
-        t : DSL!DomainModel (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            namespace <- self.getAttrVal('namespace'),
-            isLoaded <- self.getAttrBool('isLoaded'),
-            types <- self.children->XML!Node(c | (c.name = 'Enumeration'))->union(Set{stringType, integerType, booleanType, realType}),
-            classifiers <- self.children->XML!Node(c | ((c.name = 'Class') or (c.name = 'Relationship')))
+        dm : DSL!DomainModel (
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            namespace <- s.getAttrVal('namespace'),
+            isLoaded <- s.getAttrBool('isLoaded'),
+            classifiers <- XML!Element.allInstances()->asBag()->select(e | ((e.name = 'Class') or (e.name = 'Relationship'))),
+            types <- Bag{simpleTypeString, simpleTypeInteger, simpleTypeBoolean, simpleTypeReal}->union(XML!Element.allInstances()->asBag()->select(e | (e.name = 'Enumeration')))
         ),
-        stringType : DSL!SimpleType (
+        simpleTypeString : DSL!SimpleType (
             name <- 'String',
             identity <- 'String',
-            namespace <- 'PrimitiveTypes'
+            namespace <- s.getAttrVal('namespace')
         ),
-        integerType : DSL!SimpleType (
+        simpleTypeInteger : DSL!SimpleType (
             name <- 'Integer',
             identity <- 'Integer',
-            namespace <- 'PrimitiveTypes'
+            namespace <- s.getAttrVal('namespace')
         ),
-        booleanType : DSL!SimpleType (
+        simpleTypeBoolean : DSL!SimpleType (
             name <- 'Boolean',
             identity <- 'Boolean',
-            namespace <- 'PrimitiveTypes'
+            namespace <- s.getAttrVal('namespace')
         ),
-        realType : DSL!SimpleType (
+        simpleTypeReal : DSL!SimpleType (
             name <- 'Real',
             identity <- 'Real',
-            namespace <- 'PrimitiveTypes'
+            namespace <- s.getAttrVal('namespace')
         )
 }
 
 rule Class {
     from
-        self : XML!Element (
-            (self.name = 'Class')
+        s : XML!Element (
+            (s.name = 'Class')
         )
     to
         t : DSL!Class (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            namespace <- self.getAttrVal('namespace'),
-            isLoaded <- self.getAttrBool('isLoaded'),
-            isAbstract <- self.getAttrBool('isAbstract'),
-            domainModel <- self.parent,
-            properties <- self.children->XML!Node(c | (c.name = 'ValueProperty')),
-            superType <- thisModule.dslElementsById(self.getAttrVal('superType'))
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            namespace <- s.getAttrVal('namespace'),
+            isLoaded <- s.getAttrBool('isLoaded'),
+            isAbstract <- s.getAttrBool('isAbstract'),
+            properties <- s.children->asBag()->select(e | (e.name = 'ValueProperty')),
+            superType <- if s.getAttrVal('superType').oclIsUndefined() then
+    None
+else
+    thisModule.dslElementsById(s.getAttrVal('superType'))
+endif,
+            subTypes <- thisModule.getSubTypes(s.getAttrVal('identity')),
+            domainModel <- s.parent
         )
 }
 
 rule Relationship {
     from
-        self : XML!Element (
-            (self.name = 'Relationship')
+        s : XML!Element (
+            (s.name = 'Relationship')
         )
     to
         t : DSL!Relationship (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            namespace <- self.getAttrVal('namespace'),
-            isLoaded <- self.getAttrBool('isLoaded'),
-            isAbstract <- self.getAttrBool('isAbstract'),
-            isEmbedding <- self.getAttrBool('isEmbedding'),
-            domainModel <- self.parent,
-            properties <- self.children->XML!Node(c | (c.name = 'ValueProperty')),
-            superType <- thisModule.dslElementsById(self.getAttrVal('superType')),
-            roles <- self.children->XML!Node(c | (c.name = 'Role'))
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            namespace <- s.getAttrVal('namespace'),
+            isLoaded <- s.getAttrBool('isLoaded'),
+            isAbstract <- s.getAttrBool('isAbstract'),
+            isEmbedding <- s.getAttrBool('isEmbedding'),
+            properties <- s.children->asBag()->select(e | (e.name = 'ValueProperty')),
+            roles <- s.children->asBag()->select(e | (e.name = 'Role')),
+            superType <- if s.getAttrVal('superType').oclIsUndefined() then
+    None
+else
+    thisModule.dslElementsById(s.getAttrVal('superType'))
+endif,
+            subTypes <- thisModule.getSubTypes(s.getAttrVal('identity')),
+            domainModel <- s.parent
         )
 }
 
 rule Role {
     from
-        self : XML!Element (
-            (self.name = 'Role')
+        s : XML!Element (
+            (s.name = 'Role')
         )
     to
         t : DSL!Role (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            min <- self.getAttrVal('min').toInteger(),
-            max <- self.getAttrVal('max').toInteger(),
-            isUnbounded <- self.getAttrBool('isUnbounded'),
-            accepts <- self.getAttrVal('accepts'),
-            isOrdered <- self.getAttrBool('isOrdered'),
-            isNavigableFrom <- self.getAttrBool('isNavigableFrom'),
-            isPropertyGenerator <- self.getAttrBool('isPropertyGenerator'),
-            source <- thisModule.dslElementsById(self.getAttrVal('source')),
-            type <- thisModule.dslElementsById(self.getAttrVal('type')),
-            relation <- self.parent
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            min <- s.getAttrVal('min').toInteger(),
+            max <- s.getAttrVal('max').toInteger(),
+            isUnbounded <- s.getAttrBool('isUnbounded'),
+            accepts <- s.getAttrVal('accepts'),
+            isOrdered <- s.getAttrBool('isOrdered'),
+            isNavigableFrom <- s.getAttrBool('isNavigableFrom'),
+            isPropertyGenerator <- s.getAttrBool('isPropertyGenerator'),
+            source <- thisModule.dslElementsById(s.getAttrVal('source')),
+            type <- thisModule.dslElementsById(s.getAttrVal('type')),
+            relation <- s.parent
         )
 }
 
 rule ValueProperty {
     from
-        self : XML!Element (
-            (self.name = 'ValueProperty')
+        s : XML!Element (
+            (s.name = 'ValueProperty')
         )
     to
         t : DSL!ValueProperty (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            owner <- self.parent,
-            type <- thisModule.findType(self.getAttrVal('type'))
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            owner <- s.parent,
+            type <- thisModule.findType(s.getAttrVal('type'))
         )
 }
 
 rule Enumeration {
     from
-        self : XML!Element (
-            (self.name = 'Enumeration')
+        s : XML!Element (
+            (s.name = 'Enumeration')
         )
     to
         t : DSL!Enumeration (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            namespace <- self.getAttrVal('namespace'),
-            literals <- self.children->XML!Node(c | (c.name = 'EnumerationLiteral'))
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            namespace <- s.getAttrVal('namespace'),
+            literals <- s.children->asBag()->select(e | (e.name = 'EnumerationLiteral'))
         )
 }
 
 rule EnumerationLiteral {
     from
-        self : XML!Element (
-            (self.name = 'EnumerationLiteral')
+        s : XML!Element (
+            (s.name = 'EnumerationLiteral')
         )
     to
         t : DSL!EnumerationLiteral (
-            name <- self.getAttrVal('name'),
-            identity <- self.getAttrVal('identity'),
-            value <- self.getAttrVal('value').toInteger()
+            name <- s.getAttrVal('name'),
+            identity <- s.getAttrVal('identity'),
+            value <- s.getAttrVal('value').toInteger()
         )
 }
 

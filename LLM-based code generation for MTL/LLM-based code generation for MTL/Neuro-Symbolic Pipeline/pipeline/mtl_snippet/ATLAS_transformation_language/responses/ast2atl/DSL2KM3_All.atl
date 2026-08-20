@@ -4,7 +4,7 @@ create OUT : KM3 from IN : DSL;
 helper context DSL!Relationship def: needTurnOnClass() : Boolean =
     ((self.properties->notEmpty() or not self.superType.oclIsUndefined()) or (self.subTypes->notEmpty() or DSL!Role.allInstances()->exists(r | (r.type.identity = self.identity))));
 
-helper def: getRoles(c : Parameter) : Set(DSL!Role) =
+helper def: getRoles(c : DSL!Class) : Set(DSL!Role) =
     DSL!Role.allInstances()->select(r | ((r.source.identity = c.identity) and not r.relation.needTurnOnClass()));
 
 helper context DSL!Role def: isEmbedding() : Boolean =

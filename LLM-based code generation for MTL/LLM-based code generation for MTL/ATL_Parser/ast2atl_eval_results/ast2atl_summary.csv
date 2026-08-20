@@ -1,0 +1,2 @@
+Dataset,Total,Mean_CHRF,Parsed,Unparsed,Average_Unparsed_Rate,Pass@1
+ast2atl,15,56.0161,15,0,0.00%,86.67%

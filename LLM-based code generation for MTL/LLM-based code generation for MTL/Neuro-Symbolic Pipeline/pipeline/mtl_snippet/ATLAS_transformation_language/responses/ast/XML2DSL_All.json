@@ -30,66 +30,79 @@
       ],
       "return_type": "String",
       "body": {
-        "type": "CollectionOperation",
+        "type": "PropertyCall",
+        "property_name": "value",
         "source": {
-          "type": "CollectionOperation",
+          "type": "IteratorExpression",
+          "iterator_type": "any",
+          "iterators": [
+            {
+              "type": "Variable",
+              "name": "c"
+            }
+          ],
           "source": {
             "type": "IteratorExpression",
-            "source": {
-              "type": "IteratorExpression",
-              "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "self"
-                },
-                "property_name": "children"
-              },
-              "iterator_type": "XML!Node",
-              "iterators": [
-                {
-                  "type": "Variable",
-                  "name": "c"
-                }
-              ],
-              "body": {
-                "type": "BinaryExpression",
-                "operator": "=",
-                "left": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "c"
-                  },
-                  "property_name": "name"
-                },
-                "right": {
-                  "type": "Variable",
-                  "name": "name"
-                }
-              }
-            },
-            "iterator_type": "XML!Node",
+            "iterator_type": "select",
             "iterators": [
               {
                 "type": "Variable",
                 "name": "c"
               }
             ],
-            "body": {
-              "type": "PropertyCall",
+            "source": {
+              "type": "CollectionOperation",
+              "operation_name": "asBag",
               "source": {
-                "type": "Variable",
-                "name": "c"
+                "type": "PropertyCall",
+                "property_name": "children",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                }
+              }
+            },
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "and",
+              "left": {
+                "type": "OperationCall",
+                "operation_name": "oclIsTypeOf",
+                "source": {
+                  "type": "Variable",
+                  "name": "c"
+                },
+                "arguments": [
+                  {
+                    "type": "Variable",
+                    "name": "XML!Attribute"
+                  }
+                ]
               },
-              "property_name": "value"
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "=",
+                "left": {
+                  "type": "PropertyCall",
+                  "property_name": "name",
+                  "source": {
+                    "type": "Variable",
+                    "name": "c"
+                  }
+                },
+                "right": {
+                  "type": "Variable",
+                  "name": "name"
+                }
+              }
             }
           },
-          "operation_name": "asBag",
-          "arguments": []
-        },
-        "operation_name": "sum",
-        "arguments": []
+          "body": {
+            "type": "LiteralExpression",
+            "value": true,
+            "literal_type": "Boolean"
+          }
+        }
       }
     },
     {
@@ -106,26 +119,52 @@
       ],
       "return_type": "Boolean",
       "body": {
-        "type": "BinaryExpression",
-        "operator": "=",
-        "left": {
+        "type": "IfExpression",
+        "condition": {
           "type": "OperationCall",
+          "operation_name": "oclIsUndefined",
           "source": {
-            "type": "Variable",
-            "name": "self"
-          },
-          "operation_name": "getAttrVal",
-          "arguments": [
-            {
+            "type": "OperationCall",
+            "operation_name": "getAttrVal",
+            "source": {
               "type": "Variable",
-              "name": "name"
-            }
-          ]
+              "name": "self"
+            },
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "name"
+              }
+            ]
+          }
         },
-        "right": {
+        "then_expression": {
           "type": "LiteralExpression",
-          "value": "true",
-          "literal_type": "String"
+          "value": false,
+          "literal_type": "Boolean"
+        },
+        "else_expression": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "OperationCall",
+            "operation_name": "getAttrVal",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            },
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "name"
+              }
+            ]
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "true",
+            "literal_type": "String"
+          }
         }
       }
     },
@@ -141,130 +180,44 @@
           "declared_type": "String"
         }
       ],
-      "return_type": null,
+      "return_type": "Bag(XML!Node)",
       "body": {
         "type": "IteratorExpression",
-        "source": {
-          "type": "PropertyCall",
-          "source": {
-            "type": "Variable",
-            "name": "self"
-          },
-          "property_name": "children"
-        },
-        "iterator_type": "XML!Node",
+        "iterator_type": "select",
         "iterators": [
           {
             "type": "Variable",
             "name": "c"
           }
         ],
+        "source": {
+          "type": "CollectionOperation",
+          "operation_name": "asBag",
+          "source": {
+            "type": "PropertyCall",
+            "property_name": "children",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            }
+          }
+        },
         "body": {
           "type": "BinaryExpression",
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
               "name": "c"
-            },
-            "property_name": "name"
+            }
           },
           "right": {
             "type": "Variable",
             "name": "name"
           }
         }
-      }
-    },
-    {
-      "type": "Helper",
-      "kind": "operation",
-      "context_type": "XML!Element",
-      "name": "getType",
-      "parameters": [],
-      "return_type": "String",
-      "body": {
-        "type": "OperationCall",
-        "source": {
-          "type": "Variable",
-          "name": "self"
-        },
-        "operation_name": "getAttrVal",
-        "arguments": [
-          {
-            "type": "LiteralExpression",
-            "value": "type",
-            "literal_type": "String"
-          }
-        ]
-      }
-    },
-    {
-      "type": "Helper",
-      "kind": "operation",
-      "context_type": "XML!Element",
-      "name": "getEnumId",
-      "parameters": [],
-      "return_type": "String",
-      "body": {
-        "type": "OperationCall",
-        "source": {
-          "type": "Variable",
-          "name": "self"
-        },
-        "operation_name": "getAttrVal",
-        "arguments": [
-          {
-            "type": "LiteralExpression",
-            "value": "enumId",
-            "literal_type": "String"
-          }
-        ]
-      }
-    },
-    {
-      "type": "Helper",
-      "kind": "operation",
-      "context_type": "XML!Element",
-      "name": "getText",
-      "parameters": [],
-      "return_type": "String",
-      "body": {
-        "type": "CollectionOperation",
-        "source": {
-          "type": "CollectionOperation",
-          "source": {
-            "type": "IteratorExpression",
-            "source": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "self"
-              },
-              "property_name": "children"
-            },
-            "iterator_type": "XML!Node",
-            "iterators": [
-              {
-                "type": "Variable",
-                "name": "c"
-              }
-            ],
-            "body": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "c"
-              },
-              "property_name": "value"
-            }
-          },
-          "operation_name": "asBag",
-          "arguments": []
-        },
-        "operation_name": "sum",
-        "arguments": []
       }
     },
     {
@@ -279,38 +232,116 @@
           "declared_type": "String"
         }
       ],
-      "return_type": null,
+      "return_type": "Bag(XML!Node)",
       "body": {
         "type": "IteratorExpression",
-        "source": {
-          "type": "PropertyCall",
-          "source": {
-            "type": "Variable",
-            "name": "self"
-          },
-          "property_name": "children"
-        },
-        "iterator_type": "XML!Node",
+        "iterator_type": "select",
         "iterators": [
           {
             "type": "Variable",
             "name": "c"
           }
         ],
+        "source": {
+          "type": "CollectionOperation",
+          "operation_name": "asBag",
+          "source": {
+            "type": "PropertyCall",
+            "property_name": "children",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            }
+          }
+        },
         "body": {
           "type": "BinaryExpression",
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
               "name": "c"
-            },
-            "property_name": "name"
+            }
           },
           "right": {
             "type": "Variable",
             "name": "name"
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "hasAttr",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "Boolean",
+      "body": {
+        "type": "CollectionOperation",
+        "operation_name": "notEmpty",
+        "source": {
+          "type": "IteratorExpression",
+          "iterator_type": "select",
+          "iterators": [
+            {
+              "type": "Variable",
+              "name": "c"
+            }
+          ],
+          "source": {
+            "type": "CollectionOperation",
+            "operation_name": "asBag",
+            "source": {
+              "type": "PropertyCall",
+              "property_name": "children",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              }
+            }
+          },
+          "body": {
+            "type": "BinaryExpression",
+            "operator": "and",
+            "left": {
+              "type": "OperationCall",
+              "operation_name": "oclIsTypeOf",
+              "source": {
+                "type": "Variable",
+                "name": "c"
+              },
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "XML!Attribute"
+                }
+              ]
+            },
+            "right": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "property_name": "name",
+                "source": {
+                  "type": "Variable",
+                  "name": "c"
+                }
+              },
+              "right": {
+                "type": "Variable",
+                "name": "name"
+              }
+            }
           }
         }
       }
@@ -330,95 +361,153 @@
       "return_type": "Boolean",
       "body": {
         "type": "CollectionOperation",
+        "operation_name": "notEmpty",
         "source": {
           "type": "IteratorExpression",
-          "source": {
-            "type": "PropertyCall",
-            "source": {
-              "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "children"
-          },
-          "iterator_type": "XML!Node",
+          "iterator_type": "select",
           "iterators": [
             {
               "type": "Variable",
               "name": "c"
             }
           ],
+          "source": {
+            "type": "CollectionOperation",
+            "operation_name": "asBag",
+            "source": {
+              "type": "PropertyCall",
+              "property_name": "children",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              }
+            }
+          },
           "body": {
             "type": "BinaryExpression",
-            "operator": "=",
+            "operator": "and",
             "left": {
-              "type": "PropertyCall",
+              "type": "OperationCall",
+              "operation_name": "oclIsTypeOf",
               "source": {
                 "type": "Variable",
                 "name": "c"
               },
-              "property_name": "name"
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "XML!Element"
+                }
+              ]
             },
             "right": {
-              "type": "Variable",
-              "name": "name"
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "property_name": "name",
+                "source": {
+                  "type": "Variable",
+                  "name": "c"
+                }
+              },
+              "right": {
+                "type": "Variable",
+                "name": "name"
+              }
             }
           }
-        },
-        "operation_name": "notEmpty",
-        "arguments": []
+        }
       }
     },
     {
       "type": "Helper",
       "kind": "operation",
       "context_type": "XML!Element",
-      "name": "hasAttr",
-      "parameters": [
-        {
-          "type": "Parameter",
-          "name": "name",
-          "declared_type": "String"
-        }
-      ],
-      "return_type": "Boolean",
+      "name": "getText",
+      "parameters": [],
+      "return_type": "String",
       "body": {
-        "type": "CollectionOperation",
-        "source": {
+        "type": "LetExpression",
+        "variable": {
+          "type": "Variable",
+          "name": "textNode"
+        },
+        "value": {
           "type": "IteratorExpression",
-          "source": {
-            "type": "PropertyCall",
-            "source": {
-              "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "children"
-          },
-          "iterator_type": "XML!Node",
+          "iterator_type": "any",
           "iterators": [
             {
               "type": "Variable",
               "name": "c"
             }
           ],
-          "body": {
-            "type": "BinaryExpression",
-            "operator": "=",
-            "left": {
-              "type": "PropertyCall",
+          "source": {
+            "type": "IteratorExpression",
+            "iterator_type": "select",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "c"
+              }
+            ],
+            "source": {
+              "type": "CollectionOperation",
+              "operation_name": "asBag",
+              "source": {
+                "type": "PropertyCall",
+                "property_name": "children",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                }
+              }
+            },
+            "body": {
+              "type": "OperationCall",
+              "operation_name": "oclIsTypeOf",
               "source": {
                 "type": "Variable",
                 "name": "c"
               },
-              "property_name": "name"
-            },
-            "right": {
-              "type": "Variable",
-              "name": "name"
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "XML!Text"
+                }
+              ]
             }
+          },
+          "body": {
+            "type": "LiteralExpression",
+            "value": true,
+            "literal_type": "Boolean"
           }
         },
-        "operation_name": "notEmpty",
-        "arguments": []
+        "body": {
+          "type": "IfExpression",
+          "condition": {
+            "type": "OperationCall",
+            "operation_name": "oclIsUndefined",
+            "source": {
+              "type": "Variable",
+              "name": "textNode"
+            }
+          },
+          "then_expression": {
+            "type": "LiteralExpression",
+            "value": "",
+            "literal_type": "String"
+          },
+          "else_expression": {
+            "type": "PropertyCall",
+            "property_name": "value",
+            "source": {
+              "type": "Variable",
+              "name": "textNode"
+            }
+          }
+        }
       }
     },
     {
@@ -430,16 +519,72 @@
       "return_type": "Boolean",
       "body": {
         "type": "OperationCall",
+        "operation_name": "getAttrBool",
         "source": {
           "type": "Variable",
           "name": "self"
         },
-        "operation_name": "getAttrBool",
         "arguments": [
           {
             "type": "LiteralExpression",
             "value": "isAbstract",
             "literal_type": "String"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getEnumId",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "String",
+      "body": {
+        "type": "OperationCall",
+        "operation_name": "getAttrVal",
+        "source": {
+          "type": "Variable",
+          "name": "self"
+        },
+        "arguments": [
+          {
+            "type": "Variable",
+            "name": "name"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getType",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "DSL!Type",
+      "body": {
+        "type": "OperationCall",
+        "operation_name": "findType",
+        "source": {
+          "type": "Variable",
+          "name": "thisModule"
+        },
+        "arguments": [
+          {
+            "type": "Variable",
+            "name": "name"
           }
         ]
       }
@@ -456,47 +601,65 @@
           "declared_type": "String"
         }
       ],
-      "return_type": null,
+      "return_type": "XML!Element",
       "body": {
         "type": "IteratorExpression",
-        "source": {
-          "type": "OperationCall",
-          "source": {
-            "type": "Variable",
-            "name": "XML!Element"
-          },
-          "operation_name": "allInstances",
-          "arguments": []
-        },
-        "iterator_type": "XML!Element",
+        "iterator_type": "any",
         "iterators": [
           {
             "type": "Variable",
             "name": "e"
           }
         ],
-        "body": {
-          "type": "BinaryExpression",
-          "operator": "=",
-          "left": {
-            "type": "OperationCall",
-            "source": {
+        "source": {
+          "type": "IteratorExpression",
+          "iterator_type": "select",
+          "iterators": [
+            {
               "type": "Variable",
               "name": "e"
-            },
-            "operation_name": "getAttrVal",
-            "arguments": [
-              {
-                "type": "LiteralExpression",
-                "value": "identity",
-                "literal_type": "String"
+            }
+          ],
+          "source": {
+            "type": "CollectionOperation",
+            "operation_name": "asBag",
+            "source": {
+              "type": "OperationCall",
+              "operation_name": "allInstances",
+              "source": {
+                "type": "Variable",
+                "name": "XML!Element"
               }
-            ]
+            }
           },
-          "right": {
-            "type": "Variable",
-            "name": "id"
+          "body": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "OperationCall",
+              "operation_name": "getAttrVal",
+              "source": {
+                "type": "Variable",
+                "name": "e"
+              },
+              "arguments": [
+                {
+                  "type": "LiteralExpression",
+                  "value": "identity",
+                  "literal_type": "String"
+                }
+              ]
+            },
+            "right": {
+              "type": "Variable",
+              "name": "id"
+            }
           }
+        },
+        "body": {
+          "type": "LiteralExpression",
+          "value": true,
+          "literal_type": "Boolean"
         }
       }
     },
@@ -508,68 +671,50 @@
       "parameters": [
         {
           "type": "Parameter",
-          "name": "classifierName",
+          "name": "name",
           "declared_type": "String"
         }
       ],
-      "return_type": null,
+      "return_type": "Bag(XML!Element)",
       "body": {
         "type": "IteratorExpression",
-        "source": {
-          "type": "OperationCall",
-          "source": {
-            "type": "Variable",
-            "name": "XML!Element"
-          },
-          "operation_name": "allInstances",
-          "arguments": []
-        },
-        "iterator_type": "XML!Element",
+        "iterator_type": "select",
         "iterators": [
           {
             "type": "Variable",
             "name": "e"
           }
         ],
+        "source": {
+          "type": "CollectionOperation",
+          "operation_name": "asBag",
+          "source": {
+            "type": "OperationCall",
+            "operation_name": "allInstances",
+            "source": {
+              "type": "Variable",
+              "name": "XML!Element"
+            }
+          }
+        },
         "body": {
           "type": "BinaryExpression",
           "operator": "and",
           "left": {
             "type": "BinaryExpression",
-            "operator": "or",
+            "operator": "=",
             "left": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "e"
-                },
-                "property_name": "name"
-              },
-              "right": {
-                "type": "LiteralExpression",
-                "value": "Class",
-                "literal_type": "String"
+              "type": "PropertyCall",
+              "property_name": "name",
+              "source": {
+                "type": "Variable",
+                "name": "e"
               }
             },
             "right": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "e"
-                },
-                "property_name": "name"
-              },
-              "right": {
-                "type": "LiteralExpression",
-                "value": "Relationship",
-                "literal_type": "String"
-              }
+              "type": "LiteralExpression",
+              "value": "Class",
+              "literal_type": "String"
             }
           },
           "right": {
@@ -577,11 +722,11 @@
             "operator": "=",
             "left": {
               "type": "OperationCall",
+              "operation_name": "getAttrVal",
               "source": {
                 "type": "Variable",
                 "name": "e"
               },
-              "operation_name": "getAttrVal",
               "arguments": [
                 {
                   "type": "LiteralExpression",
@@ -592,7 +737,7 @@
             },
             "right": {
               "type": "Variable",
-              "name": "classifierName"
+              "name": "name"
             }
           }
         }
@@ -610,390 +755,61 @@
           "declared_type": "String"
         }
       ],
-      "return_type": null,
+      "return_type": "DSL!Type",
       "body": {
-        "type": "IfExpression",
-        "condition": {
-          "type": "BinaryExpression",
-          "operator": "=",
-          "left": {
+        "type": "IteratorExpression",
+        "iterator_type": "any",
+        "iterators": [
+          {
             "type": "Variable",
-            "name": "name"
-          },
-          "right": {
-            "type": "LiteralExpression",
-            "value": "String",
-            "literal_type": "String"
+            "name": "t"
           }
-        },
-        "then_expression": {
-          "type": "IteratorExpression",
+        ],
+        "source": {
+          "type": "CollectionOperation",
+          "operation_name": "asBag",
           "source": {
-            "type": "IteratorExpression",
-            "source": {
-              "type": "OperationCall",
-              "source": {
-                "type": "Variable",
-                "name": "XML!Element"
-              },
-              "operation_name": "allInstances",
-              "arguments": []
-            },
-            "iterator_type": "XML!Element",
-            "iterators": [
-              {
-                "type": "Variable",
-                "name": "e"
-              }
-            ],
-            "body": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "e"
-                },
-                "property_name": "name"
-              },
-              "right": {
-                "type": "LiteralExpression",
-                "value": "DomainModel",
-                "literal_type": "String"
-              }
-            }
-          },
-          "iterator_type": "XML!Element",
-          "iterators": [
-            {
-              "type": "Variable",
-              "name": "e"
-            }
-          ],
-          "body": {
             "type": "OperationCall",
+            "operation_name": "allInstances",
             "source": {
               "type": "Variable",
-              "name": "thisModule"
-            },
-            "operation_name": "resolveTemp",
-            "arguments": [
-              {
-                "type": "Variable",
-                "name": "e"
-              },
-              {
-                "type": "LiteralExpression",
-                "value": "stringType",
-                "literal_type": "String"
-              }
-            ]
+              "name": "DSL!Type"
+            }
           }
         },
-        "else_expression": {
-          "type": "IfExpression",
-          "condition": {
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "or",
+          "left": {
             "type": "BinaryExpression",
             "operator": "=",
             "left": {
-              "type": "Variable",
-              "name": "name"
+              "type": "PropertyCall",
+              "property_name": "identity",
+              "source": {
+                "type": "Variable",
+                "name": "t"
+              }
             },
             "right": {
-              "type": "LiteralExpression",
-              "value": "Integer",
-              "literal_type": "String"
+              "type": "Variable",
+              "name": "name"
             }
           },
-          "then_expression": {
-            "type": "IteratorExpression",
-            "source": {
-              "type": "IteratorExpression",
-              "source": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "XML!Element"
-                },
-                "operation_name": "allInstances",
-                "arguments": []
-              },
-              "iterator_type": "XML!Element",
-              "iterators": [
-                {
-                  "type": "Variable",
-                  "name": "e"
-                }
-              ],
-              "body": {
-                "type": "BinaryExpression",
-                "operator": "=",
-                "left": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "e"
-                  },
-                  "property_name": "name"
-                },
-                "right": {
-                  "type": "LiteralExpression",
-                  "value": "DomainModel",
-                  "literal_type": "String"
-                }
-              }
-            },
-            "iterator_type": "XML!Element",
-            "iterators": [
-              {
-                "type": "Variable",
-                "name": "e"
-              }
-            ],
-            "body": {
-              "type": "OperationCall",
+          "right": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "PropertyCall",
+              "property_name": "name",
               "source": {
                 "type": "Variable",
-                "name": "thisModule"
-              },
-              "operation_name": "resolveTemp",
-              "arguments": [
-                {
-                  "type": "Variable",
-                  "name": "e"
-                },
-                {
-                  "type": "LiteralExpression",
-                  "value": "integerType",
-                  "literal_type": "String"
-                }
-              ]
-            }
-          },
-          "else_expression": {
-            "type": "IfExpression",
-            "condition": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "Variable",
-                "name": "name"
-              },
-              "right": {
-                "type": "LiteralExpression",
-                "value": "Boolean",
-                "literal_type": "String"
+                "name": "t"
               }
             },
-            "then_expression": {
-              "type": "IteratorExpression",
-              "source": {
-                "type": "IteratorExpression",
-                "source": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "XML!Element"
-                  },
-                  "operation_name": "allInstances",
-                  "arguments": []
-                },
-                "iterator_type": "XML!Element",
-                "iterators": [
-                  {
-                    "type": "Variable",
-                    "name": "e"
-                  }
-                ],
-                "body": {
-                  "type": "BinaryExpression",
-                  "operator": "=",
-                  "left": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e"
-                    },
-                    "property_name": "name"
-                  },
-                  "right": {
-                    "type": "LiteralExpression",
-                    "value": "DomainModel",
-                    "literal_type": "String"
-                  }
-                }
-              },
-              "iterator_type": "XML!Element",
-              "iterators": [
-                {
-                  "type": "Variable",
-                  "name": "e"
-                }
-              ],
-              "body": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "thisModule"
-                },
-                "operation_name": "resolveTemp",
-                "arguments": [
-                  {
-                    "type": "Variable",
-                    "name": "e"
-                  },
-                  {
-                    "type": "LiteralExpression",
-                    "value": "booleanType",
-                    "literal_type": "String"
-                  }
-                ]
-              }
-            },
-            "else_expression": {
-              "type": "IfExpression",
-              "condition": {
-                "type": "BinaryExpression",
-                "operator": "=",
-                "left": {
-                  "type": "Variable",
-                  "name": "name"
-                },
-                "right": {
-                  "type": "LiteralExpression",
-                  "value": "Real",
-                  "literal_type": "String"
-                }
-              },
-              "then_expression": {
-                "type": "IteratorExpression",
-                "source": {
-                  "type": "IteratorExpression",
-                  "source": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "XML!Element"
-                    },
-                    "operation_name": "allInstances",
-                    "arguments": []
-                  },
-                  "iterator_type": "XML!Element",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e"
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "e"
-                      },
-                      "property_name": "name"
-                    },
-                    "right": {
-                      "type": "LiteralExpression",
-                      "value": "DomainModel",
-                      "literal_type": "String"
-                    }
-                  }
-                },
-                "iterator_type": "XML!Element",
-                "iterators": [
-                  {
-                    "type": "Variable",
-                    "name": "e"
-                  }
-                ],
-                "body": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "thisModule"
-                  },
-                  "operation_name": "resolveTemp",
-                  "arguments": [
-                    {
-                      "type": "Variable",
-                      "name": "e"
-                    },
-                    {
-                      "type": "LiteralExpression",
-                      "value": "realType",
-                      "literal_type": "String"
-                    }
-                  ]
-                }
-              },
-              "else_expression": {
-                "type": "IteratorExpression",
-                "source": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "XML!Element"
-                  },
-                  "operation_name": "allInstances",
-                  "arguments": []
-                },
-                "iterator_type": "XML!Element",
-                "iterators": [
-                  {
-                    "type": "Variable",
-                    "name": "e"
-                  }
-                ],
-                "body": {
-                  "type": "BinaryExpression",
-                  "operator": "and",
-                  "left": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "e"
-                      },
-                      "property_name": "name"
-                    },
-                    "right": {
-                      "type": "LiteralExpression",
-                      "value": "Enumeration",
-                      "literal_type": "String"
-                    }
-                  },
-                  "right": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "OperationCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "e"
-                      },
-                      "operation_name": "getAttrVal",
-                      "arguments": [
-                        {
-                          "type": "LiteralExpression",
-                          "value": "name",
-                          "literal_type": "String"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "type": "Variable",
-                      "name": "name"
-                    }
-                  }
-                }
-              }
+            "right": {
+              "type": "Variable",
+              "name": "name"
             }
           }
         }
@@ -1009,8 +825,8 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
-              "declared_type": "XML!Element"
+              "name": "s",
+              "declared_type": "XML!Root"
             }
           }
         ],
@@ -1019,11 +835,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -1039,7 +855,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "dm",
               "declared_type": "DSL!DomainModel"
             },
             "bindings": [
@@ -1048,11 +864,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1067,11 +883,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1086,11 +902,11 @@
                 "property_name": "namespace",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1105,11 +921,11 @@
                 "property_name": "isLoaded",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1121,91 +937,28 @@
               },
               {
                 "type": "Binding",
-                "property_name": "types",
-                "value": {
-                  "type": "CollectionOperation",
-                  "source": {
-                    "type": "IteratorExpression",
-                    "source": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "self"
-                      },
-                      "property_name": "children"
-                    },
-                    "iterator_type": "XML!Node",
-                    "iterators": [
-                      {
-                        "type": "Variable",
-                        "name": "c"
-                      }
-                    ],
-                    "body": {
-                      "type": "BinaryExpression",
-                      "operator": "=",
-                      "left": {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "c"
-                        },
-                        "property_name": "name"
-                      },
-                      "right": {
-                        "type": "LiteralExpression",
-                        "value": "Enumeration",
-                        "literal_type": "String"
-                      }
-                    }
-                  },
-                  "operation_name": "union",
-                  "arguments": [
-                    {
-                      "type": "CollectionLiteral",
-                      "collection_kind": "Set",
-                      "elements": [
-                        {
-                          "type": "Variable",
-                          "name": "stringType"
-                        },
-                        {
-                          "type": "Variable",
-                          "name": "integerType"
-                        },
-                        {
-                          "type": "Variable",
-                          "name": "booleanType"
-                        },
-                        {
-                          "type": "Variable",
-                          "name": "realType"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "classifiers",
                 "value": {
                   "type": "IteratorExpression",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self"
-                    },
-                    "property_name": "children"
-                  },
-                  "iterator_type": "XML!Node",
+                  "iterator_type": "select",
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "c"
+                      "name": "e"
                     }
                   ],
+                  "source": {
+                    "type": "CollectionOperation",
+                    "operation_name": "asBag",
+                    "source": {
+                      "type": "OperationCall",
+                      "operation_name": "allInstances",
+                      "source": {
+                        "type": "Variable",
+                        "name": "XML!Element"
+                      }
+                    }
+                  },
                   "body": {
                     "type": "BinaryExpression",
                     "operator": "or",
@@ -1214,11 +967,11 @@
                       "operator": "=",
                       "left": {
                         "type": "PropertyCall",
+                        "property_name": "name",
                         "source": {
                           "type": "Variable",
-                          "name": "c"
-                        },
-                        "property_name": "name"
+                          "name": "e"
+                        }
                       },
                       "right": {
                         "type": "LiteralExpression",
@@ -1231,11 +984,11 @@
                       "operator": "=",
                       "left": {
                         "type": "PropertyCall",
+                        "property_name": "name",
                         "source": {
                           "type": "Variable",
-                          "name": "c"
-                        },
-                        "property_name": "name"
+                          "name": "e"
+                        }
                       },
                       "right": {
                         "type": "LiteralExpression",
@@ -1245,6 +998,77 @@
                     }
                   }
                 }
+              },
+              {
+                "type": "Binding",
+                "property_name": "types",
+                "value": {
+                  "type": "CollectionOperation",
+                  "operation_name": "union",
+                  "source": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Bag",
+                    "elements": [
+                      {
+                        "type": "Variable",
+                        "name": "simpleTypeString"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "simpleTypeInteger"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "simpleTypeBoolean"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "simpleTypeReal"
+                      }
+                    ]
+                  },
+                  "arguments": [
+                    {
+                      "type": "IteratorExpression",
+                      "iterator_type": "select",
+                      "iterators": [
+                        {
+                          "type": "Variable",
+                          "name": "e"
+                        }
+                      ],
+                      "source": {
+                        "type": "CollectionOperation",
+                        "operation_name": "asBag",
+                        "source": {
+                          "type": "OperationCall",
+                          "operation_name": "allInstances",
+                          "source": {
+                            "type": "Variable",
+                            "name": "XML!Element"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BinaryExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "PropertyCall",
+                          "property_name": "name",
+                          "source": {
+                            "type": "Variable",
+                            "name": "e"
+                          }
+                        },
+                        "right": {
+                          "type": "LiteralExpression",
+                          "value": "Enumeration",
+                          "literal_type": "String"
+                        }
+                      }
+                    }
+                  ]
+                }
               }
             ]
           },
@@ -1252,7 +1076,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stringType",
+              "name": "simpleTypeString",
               "declared_type": "DSL!SimpleType"
             },
             "bindings": [
@@ -1278,9 +1102,19 @@
                 "type": "Binding",
                 "property_name": "namespace",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": "PrimitiveTypes",
-                  "literal_type": "String"
+                  "type": "OperationCall",
+                  "operation_name": "getAttrVal",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
                 }
               }
             ]
@@ -1289,7 +1123,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "integerType",
+              "name": "simpleTypeInteger",
               "declared_type": "DSL!SimpleType"
             },
             "bindings": [
@@ -1315,9 +1149,19 @@
                 "type": "Binding",
                 "property_name": "namespace",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": "PrimitiveTypes",
-                  "literal_type": "String"
+                  "type": "OperationCall",
+                  "operation_name": "getAttrVal",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
                 }
               }
             ]
@@ -1326,7 +1170,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "booleanType",
+              "name": "simpleTypeBoolean",
               "declared_type": "DSL!SimpleType"
             },
             "bindings": [
@@ -1352,9 +1196,19 @@
                 "type": "Binding",
                 "property_name": "namespace",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": "PrimitiveTypes",
-                  "literal_type": "String"
+                  "type": "OperationCall",
+                  "operation_name": "getAttrVal",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
                 }
               }
             ]
@@ -1363,7 +1217,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "realType",
+              "name": "simpleTypeReal",
               "declared_type": "DSL!SimpleType"
             },
             "bindings": [
@@ -1389,9 +1243,19 @@
                 "type": "Binding",
                 "property_name": "namespace",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": "PrimitiveTypes",
-                  "literal_type": "String"
+                  "type": "OperationCall",
+                  "operation_name": "getAttrVal",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
                 }
               }
             ]
@@ -1409,7 +1273,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -1419,11 +1283,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -1448,11 +1312,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1467,11 +1331,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1486,11 +1350,11 @@
                 "property_name": "namespace",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1505,11 +1369,11 @@
                 "property_name": "isLoaded",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1524,11 +1388,11 @@
                 "property_name": "isAbstract",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1540,46 +1404,38 @@
               },
               {
                 "type": "Binding",
-                "property_name": "domainModel",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self"
-                  },
-                  "property_name": "parent"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "properties",
                 "value": {
                   "type": "IteratorExpression",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self"
-                    },
-                    "property_name": "children"
-                  },
-                  "iterator_type": "XML!Node",
+                  "iterator_type": "select",
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "c"
+                      "name": "e"
                     }
                   ],
+                  "source": {
+                    "type": "CollectionOperation",
+                    "operation_name": "asBag",
+                    "source": {
+                      "type": "PropertyCall",
+                      "property_name": "children",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      }
+                    }
+                  },
                   "body": {
                     "type": "BinaryExpression",
                     "operator": "=",
                     "left": {
                       "type": "PropertyCall",
+                      "property_name": "name",
                       "source": {
                         "type": "Variable",
-                        "name": "c"
-                      },
-                      "property_name": "name"
+                        "name": "e"
+                      }
                     },
                     "right": {
                       "type": "LiteralExpression",
@@ -1593,20 +1449,17 @@
                 "type": "Binding",
                 "property_name": "superType",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "thisModule"
-                  },
-                  "operation_name": "dslElementsById",
-                  "arguments": [
-                    {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "operation_name": "oclIsUndefined",
+                    "source": {
                       "type": "OperationCall",
+                      "operation_name": "getAttrVal",
                       "source": {
                         "type": "Variable",
-                        "name": "self"
+                        "name": "s"
                       },
-                      "operation_name": "getAttrVal",
                       "arguments": [
                         {
                           "type": "LiteralExpression",
@@ -1615,7 +1468,78 @@
                         }
                       ]
                     }
+                  },
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": null,
+                    "literal_type": "Null"
+                  },
+                  "else_expression": {
+                    "type": "OperationCall",
+                    "operation_name": "dslElementsById",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "arguments": [
+                      {
+                        "type": "OperationCall",
+                        "operation_name": "getAttrVal",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s"
+                        },
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "superType",
+                            "literal_type": "String"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "subTypes",
+                "value": {
+                  "type": "OperationCall",
+                  "operation_name": "getSubTypes",
+                  "source": {
+                    "type": "Variable",
+                    "name": "thisModule"
+                  },
+                  "arguments": [
+                    {
+                      "type": "OperationCall",
+                      "operation_name": "getAttrVal",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "arguments": [
+                        {
+                          "type": "LiteralExpression",
+                          "value": "identity",
+                          "literal_type": "String"
+                        }
+                      ]
+                    }
                   ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "domainModel",
+                "value": {
+                  "type": "PropertyCall",
+                  "property_name": "parent",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  }
                 }
               }
             ]
@@ -1633,7 +1557,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -1643,11 +1567,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -1672,11 +1596,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1691,11 +1615,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1710,11 +1634,11 @@
                 "property_name": "namespace",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1729,11 +1653,11 @@
                 "property_name": "isLoaded",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1748,11 +1672,11 @@
                 "property_name": "isAbstract",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1767,11 +1691,11 @@
                 "property_name": "isEmbedding",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1783,46 +1707,38 @@
               },
               {
                 "type": "Binding",
-                "property_name": "domainModel",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self"
-                  },
-                  "property_name": "parent"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "properties",
                 "value": {
                   "type": "IteratorExpression",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self"
-                    },
-                    "property_name": "children"
-                  },
-                  "iterator_type": "XML!Node",
+                  "iterator_type": "select",
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "c"
+                      "name": "e"
                     }
                   ],
+                  "source": {
+                    "type": "CollectionOperation",
+                    "operation_name": "asBag",
+                    "source": {
+                      "type": "PropertyCall",
+                      "property_name": "children",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      }
+                    }
+                  },
                   "body": {
                     "type": "BinaryExpression",
                     "operator": "=",
                     "left": {
                       "type": "PropertyCall",
+                      "property_name": "name",
                       "source": {
                         "type": "Variable",
-                        "name": "c"
-                      },
-                      "property_name": "name"
+                        "name": "e"
+                      }
                     },
                     "right": {
                       "type": "LiteralExpression",
@@ -1834,26 +1750,125 @@
               },
               {
                 "type": "Binding",
-                "property_name": "superType",
+                "property_name": "roles",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "thisModule"
-                  },
-                  "operation_name": "dslElementsById",
-                  "arguments": [
+                  "type": "IteratorExpression",
+                  "iterator_type": "select",
+                  "iterators": [
                     {
-                      "type": "OperationCall",
+                      "type": "Variable",
+                      "name": "e"
+                    }
+                  ],
+                  "source": {
+                    "type": "CollectionOperation",
+                    "operation_name": "asBag",
+                    "source": {
+                      "type": "PropertyCall",
+                      "property_name": "children",
                       "source": {
                         "type": "Variable",
-                        "name": "self"
-                      },
+                        "name": "s"
+                      }
+                    }
+                  },
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "property_name": "name",
+                      "source": {
+                        "type": "Variable",
+                        "name": "e"
+                      }
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": "Role",
+                      "literal_type": "String"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "superType",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "operation_name": "oclIsUndefined",
+                    "source": {
+                      "type": "OperationCall",
                       "operation_name": "getAttrVal",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
                       "arguments": [
                         {
                           "type": "LiteralExpression",
                           "value": "superType",
+                          "literal_type": "String"
+                        }
+                      ]
+                    }
+                  },
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": null,
+                    "literal_type": "Null"
+                  },
+                  "else_expression": {
+                    "type": "OperationCall",
+                    "operation_name": "dslElementsById",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "arguments": [
+                      {
+                        "type": "OperationCall",
+                        "operation_name": "getAttrVal",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s"
+                        },
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "superType",
+                            "literal_type": "String"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "subTypes",
+                "value": {
+                  "type": "OperationCall",
+                  "operation_name": "getSubTypes",
+                  "source": {
+                    "type": "Variable",
+                    "name": "thisModule"
+                  },
+                  "arguments": [
+                    {
+                      "type": "OperationCall",
+                      "operation_name": "getAttrVal",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "arguments": [
+                        {
+                          "type": "LiteralExpression",
+                          "value": "identity",
                           "literal_type": "String"
                         }
                       ]
@@ -1863,40 +1878,13 @@
               },
               {
                 "type": "Binding",
-                "property_name": "roles",
+                "property_name": "domainModel",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "PropertyCall",
+                  "property_name": "parent",
                   "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self"
-                    },
-                    "property_name": "children"
-                  },
-                  "iterator_type": "XML!Node",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "c"
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "c"
-                      },
-                      "property_name": "name"
-                    },
-                    "right": {
-                      "type": "LiteralExpression",
-                      "value": "Role",
-                      "literal_type": "String"
-                    }
+                    "type": "Variable",
+                    "name": "s"
                   }
                 }
               }
@@ -1915,7 +1903,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -1925,11 +1913,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -1954,11 +1942,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1973,11 +1961,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -1992,13 +1980,14 @@
                 "property_name": "min",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "toInteger",
                   "source": {
                     "type": "OperationCall",
+                    "operation_name": "getAttrVal",
                     "source": {
                       "type": "Variable",
-                      "name": "self"
+                      "name": "s"
                     },
-                    "operation_name": "getAttrVal",
                     "arguments": [
                       {
                         "type": "LiteralExpression",
@@ -2006,9 +1995,7 @@
                         "literal_type": "String"
                       }
                     ]
-                  },
-                  "operation_name": "toInteger",
-                  "arguments": []
+                  }
                 }
               },
               {
@@ -2016,13 +2003,14 @@
                 "property_name": "max",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "toInteger",
                   "source": {
                     "type": "OperationCall",
+                    "operation_name": "getAttrVal",
                     "source": {
                       "type": "Variable",
-                      "name": "self"
+                      "name": "s"
                     },
-                    "operation_name": "getAttrVal",
                     "arguments": [
                       {
                         "type": "LiteralExpression",
@@ -2030,9 +2018,7 @@
                         "literal_type": "String"
                       }
                     ]
-                  },
-                  "operation_name": "toInteger",
-                  "arguments": []
+                  }
                 }
               },
               {
@@ -2040,11 +2026,11 @@
                 "property_name": "isUnbounded",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2059,11 +2045,11 @@
                 "property_name": "accepts",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2078,11 +2064,11 @@
                 "property_name": "isOrdered",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2097,11 +2083,11 @@
                 "property_name": "isNavigableFrom",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2116,11 +2102,11 @@
                 "property_name": "isPropertyGenerator",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrBool",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrBool",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2135,19 +2121,19 @@
                 "property_name": "source",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "dslElementsById",
                   "source": {
                     "type": "Variable",
                     "name": "thisModule"
                   },
-                  "operation_name": "dslElementsById",
                   "arguments": [
                     {
                       "type": "OperationCall",
+                      "operation_name": "getAttrVal",
                       "source": {
                         "type": "Variable",
-                        "name": "self"
+                        "name": "s"
                       },
-                      "operation_name": "getAttrVal",
                       "arguments": [
                         {
                           "type": "LiteralExpression",
@@ -2164,19 +2150,19 @@
                 "property_name": "type",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "dslElementsById",
                   "source": {
                     "type": "Variable",
                     "name": "thisModule"
                   },
-                  "operation_name": "dslElementsById",
                   "arguments": [
                     {
                       "type": "OperationCall",
+                      "operation_name": "getAttrVal",
                       "source": {
                         "type": "Variable",
-                        "name": "self"
+                        "name": "s"
                       },
-                      "operation_name": "getAttrVal",
                       "arguments": [
                         {
                           "type": "LiteralExpression",
@@ -2193,11 +2179,11 @@
                 "property_name": "relation",
                 "value": {
                   "type": "PropertyCall",
+                  "property_name": "parent",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
-                  },
-                  "property_name": "parent"
+                    "name": "s"
+                  }
                 }
               }
             ]
@@ -2215,7 +2201,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -2225,11 +2211,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -2254,11 +2240,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2273,11 +2259,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2292,11 +2278,11 @@
                 "property_name": "owner",
                 "value": {
                   "type": "PropertyCall",
+                  "property_name": "parent",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
-                  },
-                  "property_name": "parent"
+                    "name": "s"
+                  }
                 }
               },
               {
@@ -2304,19 +2290,19 @@
                 "property_name": "type",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "findType",
                   "source": {
                     "type": "Variable",
                     "name": "thisModule"
                   },
-                  "operation_name": "findType",
                   "arguments": [
                     {
                       "type": "OperationCall",
+                      "operation_name": "getAttrVal",
                       "source": {
                         "type": "Variable",
-                        "name": "self"
+                        "name": "s"
                       },
-                      "operation_name": "getAttrVal",
                       "arguments": [
                         {
                           "type": "LiteralExpression",
@@ -2343,7 +2329,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -2353,11 +2339,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -2382,11 +2368,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2401,11 +2387,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2420,11 +2406,11 @@
                 "property_name": "namespace",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2439,31 +2425,35 @@
                 "property_name": "literals",
                 "value": {
                   "type": "IteratorExpression",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self"
-                    },
-                    "property_name": "children"
-                  },
-                  "iterator_type": "XML!Node",
+                  "iterator_type": "select",
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "c"
+                      "name": "e"
                     }
                   ],
+                  "source": {
+                    "type": "CollectionOperation",
+                    "operation_name": "asBag",
+                    "source": {
+                      "type": "PropertyCall",
+                      "property_name": "children",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      }
+                    }
+                  },
                   "body": {
                     "type": "BinaryExpression",
                     "operator": "=",
                     "left": {
                       "type": "PropertyCall",
+                      "property_name": "name",
                       "source": {
                         "type": "Variable",
-                        "name": "c"
-                      },
-                      "property_name": "name"
+                        "name": "e"
+                      }
                     },
                     "right": {
                       "type": "LiteralExpression",
@@ -2488,7 +2478,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "self",
+              "name": "s",
               "declared_type": "XML!Element"
             }
           }
@@ -2498,11 +2488,11 @@
           "operator": "=",
           "left": {
             "type": "PropertyCall",
+            "property_name": "name",
             "source": {
               "type": "Variable",
-              "name": "self"
-            },
-            "property_name": "name"
+              "name": "s"
+            }
           },
           "right": {
             "type": "LiteralExpression",
@@ -2527,11 +2517,11 @@
                 "property_name": "name",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2546,11 +2536,11 @@
                 "property_name": "identity",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "getAttrVal",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "s"
                   },
-                  "operation_name": "getAttrVal",
                   "arguments": [
                     {
                       "type": "LiteralExpression",
@@ -2565,13 +2555,14 @@
                 "property_name": "value",
                 "value": {
                   "type": "OperationCall",
+                  "operation_name": "toInteger",
                   "source": {
                     "type": "OperationCall",
+                    "operation_name": "getAttrVal",
                     "source": {
                       "type": "Variable",
-                      "name": "self"
+                      "name": "s"
                     },
-                    "operation_name": "getAttrVal",
                     "arguments": [
                       {
                         "type": "LiteralExpression",
@@ -2579,9 +2570,7 @@
                         "literal_type": "String"
                       }
                     ]
-                  },
-                  "operation_name": "toInteger",
-                  "arguments": []
+                  }
                 }
               }
             ]

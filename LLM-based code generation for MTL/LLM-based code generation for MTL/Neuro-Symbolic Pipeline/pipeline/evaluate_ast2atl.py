@@ -17,7 +17,7 @@ except ImportError:
     print("WARNING: Cannot import fastchrf from ATL_Parser.")
 
 ATL_TESTS_DIR = os.path.join(PROJECT_ROOT, 'ATL_Tests')
-AST2ATL_DIR = r"D:\LLM4MTLs goc\LLM-based code generation for MTL\LLM-based code generation for MTL\Workflows\n8n-docker\mtl_snippets\ATLAS_transformation_language\responses\gemini-2-5-pro\few_shot"
+AST2ATL_DIR = r"D:\LLM4MTLs goc\LLM-based code generation for MTL\LLM-based code generation for MTL\Neuro-Symbolic Pipeline\pipeline\mtl_snippet\ATLAS_transformation_language\responses\ast2atl"
 REFERENCES_DIR = os.path.join(ATL_PARSER_DIR, 'src', 'test', 'resources', 'other_references')
 TEST_REF_DIR = os.path.join(ATL_TESTS_DIR, 'src', 'main', 'atl')
 

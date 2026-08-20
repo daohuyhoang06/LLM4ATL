@@ -109,7 +109,7 @@ class ATLGenerator:
             param_strs = []
             for p in params:
                 p_name = p.get("name", "")
-                p_type = normalize_alias(p.get("type", ""))
+                p_type = normalize_alias(p.get("declared_type", p.get("var_type", "")))
                 param_strs.append(f"{p_name} : {p_type}")
             name_with_params = f"{name}({', '.join(param_strs)})"
         else:
@@ -164,8 +164,10 @@ class ATLGenerator:
 
     def _visit_InPattern(self, node):
         lines = ["    from"]
-        for el in node.get("elements", []):
-            lines.append(f"        {self._visit(el)}")
+        elements = node.get("elements", [])
+        for i, el in enumerate(elements):
+            separator = "," if i < len(elements) - 1 else ""
+            lines.append(f"        {self._visit(el)}{separator}")
             
         filter_expr = node.get("filter")
         if filter_expr:
@@ -351,8 +353,7 @@ class ATLGenerator:
             v_type = normalize_alias(v.get("type", ""))
             v_init = self._visit(v.get("init_expression", {}))
             
-            type_decl = f" : {v_type}" if v_type else ""
-            lines.append(f"    {v_name}{type_decl} = {v_init}")
+            lines.append(f"    {v_name} : {v_type} = {v_init}")
             
             if i < len(variables) - 1:
                 lines[-1] += ","
