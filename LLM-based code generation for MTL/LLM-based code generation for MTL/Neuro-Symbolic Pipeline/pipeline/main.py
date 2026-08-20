@@ -5,6 +5,7 @@ import time
 import google.generativeai as genai
 from pydantic import ValidationError
 from dotenv import load_dotenv
+from ablation_config import AblationConfig
 from semantic_check.ecore_registry import ATLEcoreRegistry
 from semantic_check.type_environment import TypeEnvironment
 from semantic_check.atl_semantic_checker import ATLSemanticChecker
@@ -26,6 +27,7 @@ if not API_KEY or API_KEY == "your_api_key_here":
 
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel('gemini-3.5-flash')
+ABLATION_CONFIG = AblationConfig.from_env()
 
 # Paths
 BASE_DIR = os.path.abspath(os.path.join(current_dir, '..'))
@@ -66,7 +68,7 @@ def extract_json(response_text):
         text = text[:-3]
     return text.strip()
 
-def process_file(prompt_file_path):
+def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     basename = os.path.splitext(os.path.basename(prompt_file_path))[0]
     output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
     if os.path.exists(output_path):
@@ -116,14 +118,25 @@ def process_file(prompt_file_path):
             data = json.loads(raw_json)
             
             # Layer 1: Pydantic Validation
-            print(f"[{basename}] Đang kiểm tra Pydantic Validation (Layer 1)...")
-            ast_obj = Module(**data)
+            ast_obj = None
+            needs_typed_ast = ablation_config.is_enabled("enable_layer2_semantic")
+            if ablation_config.is_enabled("enable_layer1_schema"):
+                print(f"[{basename}] Đang kiểm tra Pydantic Validation (Layer 1)...")
+                ast_obj = Module(**data)
+            elif needs_typed_ast:
+                print(f"[{basename}] Layer 1 disabled as a validation gate; building typed AST for downstream checks.")
+                ast_obj = Module(**data)
+            else:
+                print(f"[{basename}] Skipping Pydantic Validation (Layer 1).")
             
             # Layer 2: Semantic Check
-            print(f"[{basename}] Đang kiểm tra Ngữ nghĩa (Layer 2)...")
-            registry = ATLEcoreRegistry(model_full_paths)
-            env = TypeEnvironment(registry=registry)
-            ATLSemanticChecker.check_module(ast_obj, env)
+            if ablation_config.is_enabled("enable_layer2_semantic"):
+                print(f"[{basename}] Đang kiểm tra Ngữ nghĩa (Layer 2)...")
+                registry = ATLEcoreRegistry(model_full_paths)
+                env = TypeEnvironment(registry=registry)
+                ATLSemanticChecker.check_module(ast_obj, env, ablation_config)
+            else:
+                print(f"[{basename}] Skipping semantic check (Layer 2).")
             
             # Nếu chạy đến đây tức là không bị văng lỗi (Validation Pass)
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
@@ -168,6 +181,20 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
+        "AmaltheaToAscet_All",
+        "BibTeX2DocBook_All",
+        "Class2Interface_All",
+        "CPL2SPL_All",
+        "Document2Report_All",
+        "DSL2KM3_All",
+        "FamiliesToPersons_All",
+        "Grafcet2PetriNet_All",
+        "IEEE1471_2_MoDAF_All",
+        "Item2Product_All",
+        "Make2Ant_All",
+        "NetworkToGraph_All",
+        "PetriNet2Grafcet_All",
+        "User2Account_All",
         "XML2DSL_All"
     ]
     prompt_by_case = {

@@ -1,5 +1,6 @@
 import re
 from schema.atl_ast import *
+from ablation_config import is_enabled
 from .type_environment import TypeEnvironment
 from .ocl_semantic_checker import OCLSemanticChecker
 from .errors import SemanticError
@@ -13,6 +14,8 @@ class ATLSemanticChecker:
 
     @classmethod
     def check_module(cls, module:Module, env:TypeEnvironment, ablation_config=None):
+        if not is_enabled(ablation_config, "enable_layer2_semantic"):
+            return
 
         # Kiểm tra tên module
         if not module.name:
@@ -95,7 +98,12 @@ class ATLSemanticChecker:
 
             body_type = OCLSemanticChecker.check(helper.body, env, ablation_config)
 
-            if helper.return_type is not None and body_type != "Unknown" and not cls._is_compatible_type(body_type, helper.return_type, env):
+            if (
+                is_enabled(ablation_config, "enable_layer2_type_check")
+                and helper.return_type is not None
+                and body_type != "Unknown"
+                and not cls._is_compatible_type(body_type, helper.return_type, env)
+            ):
                 raise SemanticError(f"Helper '{helper.name}' return type mismatch: expected {helper.return_type}, got {body_type}")
 
         finally:
@@ -164,7 +172,7 @@ class ATLSemanticChecker:
 
             filter_type = OCLSemanticChecker.check(in_pattern.filter, env, ablation_config)
 
-            if filter_type not in ["Boolean", "Unknown"]:
+            if is_enabled(ablation_config, "enable_layer2_type_check") and filter_type not in ["Boolean", "Unknown"]:
                 raise SemanticError(f"InPattern filter must be Boolean, got {filter_type}")
 
             cls._apply_filter_type_refinements(in_pattern.filter, env)
@@ -196,7 +204,12 @@ class ATLSemanticChecker:
 
             declared_type = decl.variable.declared_type
 
-            if declared_type is not None and value_type != "Unknown" and not cls._is_compatible_type(value_type, declared_type, env):
+            if (
+                is_enabled(ablation_config, "enable_layer2_type_check")
+                and declared_type is not None
+                and value_type != "Unknown"
+                and not cls._is_compatible_type(value_type, declared_type, env)
+            ):
                 raise SemanticError(f"Using declaration '{decl.variable.name}' type mismatch: expected {declared_type}, got {value_type}")
 
             env.bind_variable(decl.variable.name,  declared_type or value_type)
@@ -218,9 +231,26 @@ class ATLSemanticChecker:
         for binding in bindings:
             value_type = OCLSemanticChecker.check(binding.value, env, ablation_config)
 
-            property_type = env.registry.resolve_property(target_type, binding.property_name)
+            if env.registry is None:
+                if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                    raise SemanticError(
+                        "Registry is not set in the type environment."
+                    )
+                property_type = "Unknown"
+            else:
+                try:
+                    property_type = env.registry.resolve_property(target_type, binding.property_name)
+                except SemanticError:
+                    if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                        raise
+                    property_type = "Unknown"
 
-            if value_type != "Unknown" and property_type != "Unknown" and not cls._is_compatible_type(value_type, property_type, env):
+            if (
+                is_enabled(ablation_config, "enable_layer2_type_check")
+                and value_type != "Unknown"
+                and property_type != "Unknown"
+                and not cls._is_compatible_type(value_type, property_type, env)
+            ):
                 raise SemanticError(f"Binding for property '{binding.property_name}' type mismatch: expected {property_type}, got {value_type}")
 
     @classmethod
@@ -303,13 +333,18 @@ class ATLSemanticChecker:
 
             target_type = OCLSemanticChecker.check(statement.target, env, ablation_config)
 
-            if value_type != "Unknown" and target_type != "Unknown" and not cls._is_compatible_type(value_type, target_type, env):
+            if (
+                is_enabled(ablation_config, "enable_layer2_type_check")
+                and value_type != "Unknown"
+                and target_type != "Unknown"
+                and not cls._is_compatible_type(value_type, target_type, env)
+            ):
                 raise SemanticError(f"Binding statement type mismatch: expected {target_type}, got {value_type}")
 
         elif isinstance(statement, IfStatement):
             condition_type = OCLSemanticChecker.check(statement.condition, env, ablation_config)
 
-            if condition_type != "Boolean" and condition_type != "Unknown":
+            if is_enabled(ablation_config, "enable_layer2_type_check") and condition_type != "Boolean" and condition_type != "Unknown":
                 raise SemanticError(f"If statement condition must be Boolean, got {condition_type}")
 
             env.push_scope()

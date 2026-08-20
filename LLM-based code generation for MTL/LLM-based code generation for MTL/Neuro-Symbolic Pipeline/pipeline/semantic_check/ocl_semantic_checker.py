@@ -1,6 +1,7 @@
 from typing import Optional
 import re
 from schema.ocl_ast import OCLExpression
+from ablation_config import is_enabled
 from .type_environment import TypeEnvironment
 from .errors import SemanticError
 from .ecore_registry import ATLEcoreRegistry
@@ -11,7 +12,7 @@ class OCLSemanticChecker:
     def check(cls, expr: OCLExpression, env: TypeEnvironment,
               ablation_config=None) -> str:
 
-        if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_semantic"):
+        if not is_enabled(ablation_config, "enable_layer2_semantic"):
             return "Unknown"
 
         node_type = expr.type
@@ -78,15 +79,19 @@ class OCLSemanticChecker:
     @classmethod
     def _check_property_call(cls, expr, env, ablation_config=None) -> str:
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
-
-        if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_null_safety"):
-            pass
-
         prop_name = expr.property_name
+
         if prop_name in ("oclIsUndefined", "oclIsNew"):
             return "Boolean"
 
         if source_type == "Unknown":
+            return "Unknown"
+
+        if source_type == "Null":
+            if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                raise SemanticError(
+                    f"Cannot access property '{prop_name}' on Null."
+                )
             return "Unknown"
 
         if source_type == "OclType" and prop_name == "name":
@@ -102,16 +107,20 @@ class OCLSemanticChecker:
                     return helper["return_type"]
 
         if env.registry is None:
-            raise SemanticError(
-                "Registry is not set in the type environment."
-            )
+            if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                raise SemanticError(
+                    "Registry is not set in the type environment."
+                )
+            return "Unknown"
 
         try:
             raw_type = env.registry.resolve_property(source_type, prop_name)
         except SemanticError :
-            raise SemanticError(
-                f"Property '{prop_name}' not found in type '{source_type}'."
-            )
+            if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                raise SemanticError(
+                    f"Property '{prop_name}' not found in type '{source_type}'."
+                )
+            return "Unknown"
 
         if re.match(r'^(Set|Bag|Sequence|OrderedSet)\(([^)]+)\)$', raw_type):
             return raw_type
@@ -124,6 +133,13 @@ class OCLSemanticChecker:
     def _check_operation_call(cls, expr, env, ablation_config=None) -> str:
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
         op = expr.operation_name
+
+        if source_type == "Null" and op != "oclIsUndefined":
+            if is_enabled(ablation_config, "enable_layer2_existence_check"):
+                raise SemanticError(
+                    f"Cannot call operation '{op}' on Null."
+                )
+            return "Unknown"
 
         if op == "allInstances": return f"Set({source_type})"
         if op == "size": return "Integer"
@@ -184,7 +200,7 @@ class OCLSemanticChecker:
 
             cls.check(expr.arguments[0], env, ablation_config=ablation_config)
             target_name_type = cls.check(expr.arguments[1], env, ablation_config=ablation_config)
-            if target_name_type not in ("String", "Unknown"):
+            if is_enabled(ablation_config, "enable_layer2_type_check") and target_name_type not in ("String", "Unknown"):
                 raise SemanticError(f"resolveTemp target name must be String, got {target_name_type}")
             return "Unknown"
         if op == "toString": return "String"
@@ -250,9 +266,11 @@ class OCLSemanticChecker:
 
             return "Unknown"
             
-        raise SemanticError(
-             f"Unknown helper or rule: '{op}'"
-        )
+        if is_enabled(ablation_config, "enable_layer2_existence_check"):
+            raise SemanticError(
+                 f"Unknown helper or rule: '{op}'"
+            )
+        return "Unknown"
 
     @classmethod
     def _check_call_arguments(cls, name: str, arguments: list, parameter_types: list, env, ablation_config=None):
@@ -269,7 +287,7 @@ class OCLSemanticChecker:
             if actual_type == "Unknown" or expected_type is None:
                 continue
 
-            if not cls._is_type_compatible(actual_type, expected_type, env):
+            if is_enabled(ablation_config, "enable_layer2_type_check") and not cls._is_type_compatible(actual_type, expected_type, env):
                     raise SemanticError(
                         f"Argument type mismatch for '{name}': expected {expected_type}, got {actual_type}"
                     )
@@ -280,7 +298,7 @@ class OCLSemanticChecker:
         right_type = cls.check(expr.right, env, ablation_config=ablation_config)
         op = expr.operator
 
-        if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+        if not is_enabled(ablation_config, "enable_layer2_type_check"):
 
             pass
         else:
@@ -338,7 +356,7 @@ class OCLSemanticChecker:
 
         if op == "not":
 
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if operand_type not in ("Boolean", "Unknown"):
@@ -347,7 +365,7 @@ class OCLSemanticChecker:
                     )
             return "Boolean"
         elif op == "-":
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if operand_type not in ("Integer", "Real", "Unknown"):
@@ -377,7 +395,7 @@ class OCLSemanticChecker:
 
         if iter_type in ("forAll", "exists"):
 
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if body_type not in ("Boolean", "Unknown"):
@@ -387,7 +405,7 @@ class OCLSemanticChecker:
             return "Boolean"
 
         elif iter_type in ("select", "reject"):
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if body_type not in ("Boolean", "Unknown"):
@@ -407,7 +425,7 @@ class OCLSemanticChecker:
                 return f"Bag({body_type})" if body_type != "Unknown" else "Bag"
 
         elif iter_type == "isUnique":
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if cls.is_collection_type(body_type):
@@ -423,7 +441,7 @@ class OCLSemanticChecker:
                 return f"Sequence({element_type})" if element_type != "Unknown" else "Sequence"
 
         elif iter_type == "any":
-            if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+            if not is_enabled(ablation_config, "enable_layer2_type_check"):
                 pass
             else:
                 if body_type not in ("Boolean", "Unknown"):
@@ -451,7 +469,7 @@ class OCLSemanticChecker:
             if len(expr.arguments) != 1:
                 raise SemanticError("at expects exactly one argument")
             index_type = cls.check(expr.arguments[0], env, ablation_config=ablation_config)
-            if index_type not in ("Integer", "Unknown"):
+            if is_enabled(ablation_config, "enable_layer2_type_check") and index_type not in ("Integer", "Unknown"):
                 raise SemanticError(f"at index must be Integer, got {index_type}")
             return cls._element_type(source_type)
         if op == "includes": return "Boolean"
@@ -478,7 +496,7 @@ class OCLSemanticChecker:
         else_type = cls.check(expr.else_expression, env, ablation_config=ablation_config)
 
 
-        if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+        if not is_enabled(ablation_config, "enable_layer2_type_check"):
             pass
         else:
             if cond_type not in ("Boolean", "Unknown"):
@@ -501,7 +519,7 @@ class OCLSemanticChecker:
         val_type = cls.check(expr.value, env, ablation_config=ablation_config)
 
 
-        if ablation_config is not None and not ablation_config.is_enabled("enable_layer2_type_check"):
+        if not is_enabled(ablation_config, "enable_layer2_type_check"):
             pass
         else:
             if expr.variable.declared_type and val_type != "Unknown" and expr.variable.declared_type not in cls._compatible_types(val_type):
