@@ -190,9 +190,7 @@ class ATLEcoreRegistry:
                return cls_info["associations"][property_name]
 
             for super_cls in cls_info.get("super_classes", []):
-                # Remove the package name part if it exists for context lookup
-                super_base = super_cls.split("!")[-1] if "!" in super_cls else super_cls
-                queue.append(super_base)
+                queue.append(super_cls)
 
         raise SemanticError(
             f"Class '{class_name}' doesn't have "

@@ -294,15 +294,36 @@ class OCLSemanticChecker:
 
     @classmethod
     def _check_binary_expr(cls, expr, env, ablation_config=None) -> str:
-        left_type = cls.check(expr.left, env, ablation_config=ablation_config)
-        right_type = cls.check(expr.right, env, ablation_config=ablation_config)
         op = expr.operator
+        left_type = cls.check(expr.left, env, ablation_config=ablation_config)
+
+        if op == "and":
+            env.push_scope()
+            try:
+                cls._apply_guard_type_refinements(expr.left, env)
+                right_type = cls.check(expr.right, env, ablation_config=ablation_config)
+            finally:
+                env.pop_scope()
+        else:
+            right_type = cls.check(expr.right, env, ablation_config=ablation_config)
 
         if not is_enabled(ablation_config, "enable_layer2_type_check"):
 
             pass
         else:
-            if op in ('=', '<>', '<', '>', '<=', '>='):
+            if op in ('=', '<>'):
+
+                if left_type != right_type and left_type != "Unknown" and right_type != "Unknown":
+
+                    if (
+                        not ({left_type, right_type} <= {"Integer", "Real"})
+                        and not cls._is_type_compatible(left_type, right_type, env)
+                        and not cls._is_type_compatible(right_type, left_type, env)
+                    ):
+                        raise SemanticError(
+                            f"Can't compare: '{left_type}' {op} '{right_type}'"
+                        )
+            elif op in ('<', '>', '<=', '>='):
 
                 if left_type != right_type and left_type != "Unknown" and right_type != "Unknown":
 
@@ -347,6 +368,27 @@ class OCLSemanticChecker:
             return "Integer"
 
         return "Unknown"
+
+    @classmethod
+    def _apply_guard_type_refinements(cls, expr, env) -> None:
+        if expr is None:
+            return
+
+        if expr.type == "BinaryExpression" and expr.operator == "and":
+            cls._apply_guard_type_refinements(expr.left, env)
+            cls._apply_guard_type_refinements(expr.right, env)
+            return
+
+        if expr.type != "OperationCall" or expr.operation_name not in ("oclIsKindOf", "oclIsTypeOf"):
+            return
+
+        if len(expr.arguments) != 1:
+            return
+
+        source = expr.source
+        target = expr.arguments[0]
+        if source.type == "Variable" and target.type == "Variable" and "!" in target.name:
+            env.bind_variable(source.name, target.name)
 
 
     @classmethod
@@ -516,20 +558,24 @@ class OCLSemanticChecker:
 
     @classmethod
     def _check_let_expr(cls, expr, env, ablation_config=None) -> str:
-        val_type = cls.check(expr.value, env, ablation_config=ablation_config)
+        declared_type = expr.variable.declared_type
+        if not declared_type or not str(declared_type).strip():
+            raise SemanticError(f"Let variable '{expr.variable.name}' is missing declared type.")
+        declared_type = str(declared_type).strip()
 
+        val_type = cls.check(expr.value, env, ablation_config=ablation_config)
 
         if not is_enabled(ablation_config, "enable_layer2_type_check"):
             pass
         else:
-            if expr.variable.declared_type and val_type != "Unknown" and expr.variable.declared_type not in cls._compatible_types(val_type):
+            if val_type != "Unknown" and declared_type not in cls._compatible_types(val_type):
                 raise SemanticError(
-                    f"Let declared '{expr.variable.name}' as {expr.variable.declared_type},"
+                    f"Let declared '{expr.variable.name}' as {declared_type},"
                     f"but now it's {val_type}"
                 )
         env.push_scope()
         try:
-            env.bind_variable(expr.variable.name, val_type)
+            env.bind_variable(expr.variable.name, declared_type)
             body_type = cls.check(expr.body, env, ablation_config=ablation_config)
         finally:
             env.pop_scope()

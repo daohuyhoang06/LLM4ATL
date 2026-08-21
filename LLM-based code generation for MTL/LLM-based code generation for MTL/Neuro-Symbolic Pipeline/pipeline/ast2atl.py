@@ -179,6 +179,8 @@ class ATLGenerator:
         var = node.get("variable", {})
         var_name = var.get("name", "")
         type_name = normalize_alias(var.get("declared_type", ""))
+        if not type_name or not str(type_name).strip():
+            raise ValueError(f"InPattern variable '{var_name}' is missing type")
         return f"{var_name} : {type_name}"
 
     def _visit_SimpleInPatternElement(self, node):
@@ -203,6 +205,8 @@ class ATLGenerator:
         else:
             var_name = node.get("var_name", "")
             type_name = normalize_alias(node.get("type", ""))
+        if not type_name or not str(type_name).strip():
+            raise ValueError(f"OutPattern variable '{var_name}' is missing type")
             
         lines = [f"{var_name} : {type_name} ("]
         
@@ -351,6 +355,8 @@ class ATLGenerator:
         for i, v in enumerate(variables):
             v_name = v.get("name", "")
             v_type = normalize_alias(v.get("type", ""))
+            if not v_type or not str(v_type).strip():
+                raise ValueError(f"Let variable '{v_name}' is missing type")
             v_init = self._visit(v.get("init_expression", {}))
             
             lines.append(f"    {v_name} : {v_type} = {v_init}")

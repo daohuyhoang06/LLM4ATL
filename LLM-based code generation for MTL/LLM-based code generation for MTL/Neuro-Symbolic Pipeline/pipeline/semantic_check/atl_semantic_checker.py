@@ -122,10 +122,12 @@ class ATLSemanticChecker:
             ]
 
         elif isinstance(rule, (MatchedRule, LazyMatchedRule)):
-            parameter_types = [
-                element.variable.declared_type
-                for element in rule.in_pattern.elements
-            ]
+            parameter_types = []
+            for element in rule.in_pattern.elements:
+                variable = element.variable
+                if not variable.declared_type or not str(variable.declared_type).strip():
+                    raise SemanticError(f"InPattern variable '{variable.name}' is missing declared type.")
+                parameter_types.append(str(variable.declared_type).strip())
 
         else:
             raise SemanticError(f"Unknown rule type: {type(rule)}")
@@ -134,7 +136,10 @@ class ATLSemanticChecker:
 
         if rule.out_pattern is not None:
             for element in rule.out_pattern.elements:
-                output_types.append(element.variable.declared_type)
+                variable = element.variable
+                if not variable.declared_type or not str(variable.declared_type).strip():
+                    raise SemanticError(f"OutPattern variable '{variable.name}' is missing declared type.")
+                output_types.append(str(variable.declared_type).strip())
 
         env.register_rule(
             name=rule.name,
@@ -165,8 +170,10 @@ class ATLSemanticChecker:
     def _check_in_pattern(cls, in_pattern:InPattern, env:TypeEnvironment, ablation_config=None):
         for element in in_pattern.elements:
             variable = element.variable
+            if not variable.declared_type or not str(variable.declared_type).strip():
+                raise SemanticError(f"InPattern variable '{variable.name}' is missing declared type.")
 
-            env.bind_variable(variable.name, variable.declared_type)
+            env.bind_variable(variable.name, str(variable.declared_type).strip())
 
         if in_pattern.filter is not None:
 
@@ -218,13 +225,16 @@ class ATLSemanticChecker:
     def _check_out_pattern(cls, out_pattern:OutPattern, env:TypeEnvironment, ablation_config=None):
         for element in out_pattern.elements:
             variable = element.variable
+            if not variable.declared_type or not str(variable.declared_type).strip():
+                raise SemanticError(f"OutPattern variable '{variable.name}' is missing declared type.")
 
-            env.bind_variable(variable.name, variable.declared_type)
+            env.bind_variable(variable.name, str(variable.declared_type).strip())
 
         for element in out_pattern.elements:
             variable = element.variable
+            target_type = str(variable.declared_type).strip()
 
-            cls._check_bindings(element.bindings, variable.declared_type, env, ablation_config)
+            cls._check_bindings(element.bindings, target_type, env, ablation_config)
 
     @classmethod
     def _check_bindings(cls, bindings, target_type:str, env:TypeEnvironment, ablation_config=None):
@@ -297,18 +307,25 @@ class ATLSemanticChecker:
             
             src_base = source_type.split("!")[-1]
             tgt_base = target_type.split("!")[-1]
-            
             current_class = source_type
             if current_class not in env.registry.uml_context and "!" in current_class:
                 current_class = src_base
 
-            while current_class:
-                if current_class == target_type or current_class.split("!")[-1] == tgt_base:
+            queue = [current_class]
+            visited = set()
+            
+            while queue:
+                curr = queue.pop(0)
+                if curr in visited:
+                    continue
+                visited.add(curr)
+                
+                if curr == target_type or curr.split("!")[-1] == tgt_base:
                     return True
-                if current_class in env.registry.uml_context:
-                    current_class = env.registry.uml_context[current_class].get("super_class")
-                else:
-                    break
+                    
+                if curr in env.registry.uml_context:
+                    for super_cls in env.registry.uml_context[curr].get("super_classes", []):
+                        queue.append(super_cls)
 
         return False
 
