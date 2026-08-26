@@ -247,9 +247,18 @@ class ATLGenerator:
         return "\n".join(lines)
 
     def _visit_BinaryExpression(self, node):
-        left = self._visit(node.get("left", {}))
+        left_node = node.get("left", {})
+        right_node = node.get("right", {})
+        left = self._visit(left_node)
         op = node.get("operator", "")
-        right = self._visit(node.get("right", {}))
+        right = self._visit(right_node)
+
+        # ATL requires a let expression used as a binary operand to be grouped.
+        if isinstance(left_node, dict) and left_node.get("type") == "LetExpression":
+            left = f"({left})"
+        if isinstance(right_node, dict) and right_node.get("type") == "LetExpression":
+            right = f"({right})"
+
         return f"({left} {op} {right})"
 
     def _visit_UnaryExpression(self, node):

@@ -181,21 +181,8 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-        "AmaltheaToAscet_All",
-        "BibTeX2DocBook_All",
-        "Class2Interface_All",
-        "CPL2SPL_All",
-        "Document2Report_All",
-        "DSL2KM3_All",
         "FamiliesToPersons_All",
-        "Grafcet2PetriNet_All",
-        "IEEE1471_2_MoDAF_All",
-        "Item2Product_All",
-        "Make2Ant_All",
-        "NetworkToGraph_All",
-        "PetriNet2Grafcet_All",
-        "User2Account_All",
-        "XML2DSL_All"
+        "Class2Interface_All"
     ]
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p

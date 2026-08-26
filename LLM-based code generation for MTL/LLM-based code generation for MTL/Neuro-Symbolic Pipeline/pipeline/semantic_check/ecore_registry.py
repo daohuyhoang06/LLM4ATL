@@ -164,10 +164,7 @@ class ATLEcoreRegistry:
         return reference_name, reference_type
 
     def resolve_property(self, class_name: str, property_name: str) -> str:
-        current_class = class_name
-        
-        if current_class not in self.uml_context and "!" in class_name:
-           current_class = class_name.split("!")[-1]
+        current_class = self.resolve_class_name(class_name)
 
         queue = [current_class]
         visited = set()
@@ -197,3 +194,45 @@ class ATLEcoreRegistry:
             f"the attribute or association: '{property_name}' "
             f"in its inheritance hierarchy"
         )
+
+    def resolve_class_name(self, class_name: str) -> str:
+        """Resolve an ATL type name to the fully-qualified registered Ecore name.
+
+        ATL type names conventionally use a metamodel alias (``Graph!Link``),
+        whereas Ecore stores a package name (``graph!Link``).  A bare-class
+        fallback is unsafe when two metamodels declare the same class, so a
+        qualified name is always resolved before considering that fallback.
+        """
+        if "!" in class_name:
+            if class_name in self.uml_context:
+                return class_name
+
+            package_name, simple_name = class_name.split("!", 1)
+            for registered_name in self.uml_context:
+                if "!" not in registered_name:
+                    continue
+                registered_package, registered_simple_name = registered_name.split("!", 1)
+                if (
+                    registered_package.casefold() == package_name.casefold()
+                    and registered_simple_name == simple_name
+                ):
+                    return registered_name
+
+            # Do not redirect an unknown qualified type to a same-named class
+            # in another metamodel.
+            return class_name
+
+        candidates = [
+            registered_name
+            for registered_name in self.uml_context
+            if "!" in registered_name and registered_name.split("!", 1)[1] == class_name
+        ]
+        if len(candidates) == 1:
+            return candidates[0]
+        if len(candidates) > 1:
+            raise SemanticError(
+                f"Ambiguous class name '{class_name}'; use a qualified "
+                f"metamodel name. Candidates: {', '.join(candidates)}"
+            )
+
+        return class_name

@@ -103,7 +103,7 @@ class OCLSemanticChecker:
             if helper.get("kind") == "attribute":
                 if source_type == "Module" and context_type is None:
                     return helper["return_type"]
-                if source_type == context_type:
+                if context_type is not None and cls._is_type_compatible(source_type, context_type, env):
                     return helper["return_type"]
 
         if env.registry is None:
@@ -359,8 +359,10 @@ class OCLSemanticChecker:
         elif op in ('and', 'or', 'xor', 'implies'):
             return "Boolean"
         elif op in ('+', '-', '*', '/'):
-            if op == '+' and left_type == "String" and right_type == "String":
+            if op == '+' and (left_type == "String" or right_type == "String"):
                 return "String"
+            if left_type == "Unknown" or right_type == "Unknown":
+                return "Unknown"
             if left_type == "Real" or right_type == "Real":
                 return "Real"
             return "Integer"
@@ -534,9 +536,6 @@ class OCLSemanticChecker:
     @classmethod
     def _check_if_expr(cls, expr, env, ablation_config=None) -> str:
         cond_type = cls.check(expr.condition, env, ablation_config=ablation_config)
-        then_type = cls.check(expr.then_expression, env, ablation_config=ablation_config)
-        else_type = cls.check(expr.else_expression, env, ablation_config=ablation_config)
-
 
         if not is_enabled(ablation_config, "enable_layer2_type_check"):
             pass
@@ -546,6 +545,15 @@ class OCLSemanticChecker:
                     f"If condition should be Boolean but not {cond_type}"
                 )
 
+        env.push_scope()
+        try:
+            cls._apply_guard_type_refinements(expr.condition, env)
+            then_type = cls.check(expr.then_expression, env, ablation_config=ablation_config)
+        finally:
+            env.pop_scope()
+
+        else_type = cls.check(expr.else_expression, env, ablation_config=ablation_config)
+
         if then_type == else_type:
             return then_type
         if then_type == "Unknown": return else_type
@@ -553,6 +561,23 @@ class OCLSemanticChecker:
 
         if {then_type, else_type} <= {"Integer", "Real"}:
             return "Real"
+
+        if then_type == "Null":
+            return else_type
+        if else_type == "Null":
+            return then_type
+
+        if cls._is_type_compatible(then_type, else_type, env):
+            return else_type
+        if cls._is_type_compatible(else_type, then_type, env):
+            return then_type
+
+        if is_enabled(ablation_config, "enable_layer2_type_check"):
+            raise SemanticError(
+                "If-expression branch type mismatch: "
+                f"then {then_type}, else {else_type}"
+            )
+
         return then_type
 
 
@@ -670,10 +695,13 @@ class OCLSemanticChecker:
 
         # EClass inheritance
         if env and env.registry:
+            actual_type = env.registry.resolve_class_name(actual_type)
+            expected_type = env.registry.resolve_class_name(expected_type)
+
             src_base = actual_type.split("!")[-1]
             tgt_base = expected_type.split("!")[-1]
 
-            queue = [src_base]
+            queue = [actual_type]
             visited = set()
 
             while queue:
@@ -682,7 +710,10 @@ class OCLSemanticChecker:
                     continue
                 visited.add(current_class)
 
-                if current_class == tgt_base:
+                if (
+                    current_class == expected_type
+                    or current_class.split("!")[-1] == tgt_base
+                ):
                     return True
 
                 class_info = env.registry.uml_context.get(current_class)
@@ -691,8 +722,7 @@ class OCLSemanticChecker:
                     continue
 
                 for super_cls in class_info.get("super_classes", []):
-                    super_base = super_cls.split("!")[-1] if "!" in super_cls else super_cls
-                    queue.append(super_base)
+                    queue.append(super_cls)
 
         return False
 

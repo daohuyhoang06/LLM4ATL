@@ -5,6 +5,8 @@ import org.eclipse.m2m.atl.engine.parser.AtlParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,30 +14,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AtlParserTest {
 
-    private static final String[] ATL_FILES = {
-        "AmaltheaToAscet_All.atl",
-        "FamiliesToPersons_All.atl",
-        "BibTeX2DocBook_All.atl",
-        "CPL2SPL_All.atl",
-        "DSL2KM3_All.atl",
-        "Grafcet2PetriNet_All.atl",
-        "IEEE1471_2_MoDAF_All.atl",
-        "Make2Ant_All.atl",
-        "PetriNet2Grafcet_All.atl",
-        "XML2DSL_All.atl",
-        "NetworkToGraph_All.atl",
-        "User2Account_All.atl",
-        "Class2Interface_All.atl",
-        "Item2Product_All.atl",
-        "Document2Report_All.atl"
-    };
+    private static final Path TEST_RESOURCES_DIR = Path.of("src", "test", "resources");
+
+    private static List<String> getAtlFiles() throws Exception {
+        try (var files = Files.list(TEST_RESOURCES_DIR)) {
+            return files
+                    .filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    .filter(fileName -> fileName.endsWith(".atl"))
+                    .sorted()
+                    .toList();
+        }
+    }
 
     @Test
     void testParseAllAtlFiles() throws Exception {
         AtlParser parser = AtlParser.getDefault();
         List<String> failures = new ArrayList<>();
+        List<String> atlFiles = getAtlFiles();
 
-        for (String fileName : ATL_FILES) {
+        assertFalse(atlFiles.isEmpty(), "No ATL files found in " + TEST_RESOURCES_DIR);
+
+        for (String fileName : atlFiles) {
             try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
                 assertNotNull(input, "File not found: " + fileName);
 

@@ -72,6 +72,8 @@ class ATLSemanticChecker:
     def _register_helper(cls, helper:Helper, env:TypeEnvironment):
         if not helper.name:
             raise SemanticError("Helper name is missing.")
+        if not helper.return_type or not str(helper.return_type).strip():
+            raise SemanticError(f"Helper '{helper.name}' is missing return type.")
 
         env.register_helper(
             name=helper.name,
@@ -173,7 +175,14 @@ class ATLSemanticChecker:
             if not variable.declared_type or not str(variable.declared_type).strip():
                 raise SemanticError(f"InPattern variable '{variable.name}' is missing declared type.")
 
-            env.bind_variable(variable.name, str(variable.declared_type).strip())
+            declared_type = cls._validate_pattern_type(
+                variable.name,
+                variable.declared_type,
+                "InPattern",
+                env,
+                ablation_config,
+            )
+            env.bind_variable(variable.name, declared_type)
 
         if in_pattern.filter is not None:
 
@@ -228,13 +237,46 @@ class ATLSemanticChecker:
             if not variable.declared_type or not str(variable.declared_type).strip():
                 raise SemanticError(f"OutPattern variable '{variable.name}' is missing declared type.")
 
-            env.bind_variable(variable.name, str(variable.declared_type).strip())
+            declared_type = cls._validate_pattern_type(
+                variable.name,
+                variable.declared_type,
+                "OutPattern",
+                env,
+                ablation_config,
+            )
+            env.bind_variable(variable.name, declared_type)
 
         for element in out_pattern.elements:
             variable = element.variable
             target_type = str(variable.declared_type).strip()
 
             cls._check_bindings(element.bindings, target_type, env, ablation_config)
+
+    @classmethod
+    def _validate_pattern_type(
+        cls,
+        variable_name,
+        declared_type,
+        pattern_kind,
+        env:TypeEnvironment,
+        ablation_config=None,
+    ) -> str:
+        declared_type = str(declared_type).strip()
+        if not is_enabled(ablation_config, "enable_layer2_existence_check"):
+            return declared_type
+
+        if env.registry is None:
+            raise SemanticError("Registry is not set in the type environment.")
+
+        resolved_type = env.registry.resolve_class_name(declared_type)
+        if resolved_type not in env.registry.uml_context:
+            raise SemanticError(
+                f"{pattern_kind} variable '{variable_name}' has unknown declared "
+                f"type '{declared_type}'. Use an Ecore metamodel-qualified type "
+                "instead of a model alias such as 'IN' or 'OUT'."
+            )
+
+        return resolved_type
 
     @classmethod
     def _check_bindings(cls, bindings, target_type:str, env:TypeEnvironment, ablation_config=None):
@@ -300,6 +342,9 @@ class ATLSemanticChecker:
 
         # Kiểm tra tính kế thừa UML
         if env and env.registry:
+            source_type = env.registry.resolve_class_name(source_type)
+            target_type = env.registry.resolve_class_name(target_type)
+
             if "!" in source_type and "!" in target_type:
                 if source_type.split("!")[0] != target_type.split("!")[0]:
                     # Cho phép Implicit Trace Resolution của ATL khi gán phần tử nguồn vào thuộc tính đích
@@ -308,8 +353,6 @@ class ATLSemanticChecker:
             src_base = source_type.split("!")[-1]
             tgt_base = target_type.split("!")[-1]
             current_class = source_type
-            if current_class not in env.registry.uml_context and "!" in current_class:
-                current_class = src_base
 
             queue = [current_class]
             visited = set()

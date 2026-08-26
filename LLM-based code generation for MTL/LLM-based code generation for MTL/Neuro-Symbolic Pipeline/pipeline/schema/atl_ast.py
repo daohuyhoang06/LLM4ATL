@@ -38,7 +38,7 @@ class Helper(ModuleElement):
     context_type: Optional[str] = None
     name: str
     parameters: List[Parameter] = Field(default_factory=list)
-    return_type: Optional[str] = None
+    return_type: str
     body: OCLExpression
 
 class Rule(ModuleElement):
