@@ -23,7 +23,7 @@ Prompt + Ecore metamodel + ATL schema
         2. Schema - Pydantic
         3. Semantic - Ecore/UML
                  |
-          Chỉ khi PASS
+                PASS
                  |
                  v
             ast2atl.py
