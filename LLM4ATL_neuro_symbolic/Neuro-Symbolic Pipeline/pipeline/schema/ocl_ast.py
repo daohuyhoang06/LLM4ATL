@@ -31,6 +31,11 @@ class LiteralExpression(OCLNode):
     literal_type: TypeLiteral["String", "Integer", "Real", "Boolean", "Null"]
 
 
+class OclUndefined(OCLNode):
+
+    type: TypeLiteral["OclUndefined"] = "OclUndefined"
+
+
 class EnumLiteral(OCLNode):
 
     type: TypeLiteral["EnumLiteral"] = "EnumLiteral"
@@ -108,6 +113,7 @@ class LetExpression(OCLNode):
 OCLExpression = Annotated[
     Union[
         LiteralExpression,
+        OclUndefined,
         EnumLiteral,
         CollectionLiteral,
         Variable,

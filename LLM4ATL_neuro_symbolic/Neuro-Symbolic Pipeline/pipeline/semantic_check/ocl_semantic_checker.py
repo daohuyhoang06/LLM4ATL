@@ -20,10 +20,20 @@ class OCLSemanticChecker:
         if node_type == "LiteralExpression":
             return cls._check_literal(expr)
 
+        elif node_type == "OclUndefined":
+            return "Null"
+
+        elif node_type == "EnumLiteral":
+            return "Unknown"
+
         elif node_type == "CollectionLiteral":
             return cls._check_collection_literal(expr)
 
         elif node_type == "Variable":
+            # Backward compatibility for ASTs generated before OclUndefined had
+            # its own node type.
+            if expr.name == "OclUndefined":
+                return "Null"
             if "!" in expr.name:
                 return expr.name
             return env.lookup_variable(expr.name)
@@ -71,9 +81,16 @@ class OCLSemanticChecker:
     @classmethod
     def _check_collection_literal(cls, expr) -> str:
         kind = expr.collection_kind
-        if kind == "Set": return "Set"
-        if kind == "Bag": return "Bag"
-        raise SemanticError(f"Unknown collection kind: {kind}")
+        if kind not in ("Set", "Bag"):
+            raise SemanticError(f"Unknown collection kind: {kind}")
+
+        # An empty collection has no element from which to infer its type.
+        # Keep that uncertainty explicit so it can be unified with the other
+        # branch of an if-expression (e.g. Set {} with Set(CPL!Location)).
+        if not expr.elements:
+            return f"{kind}(Unknown)"
+
+        return kind
 
 
     @classmethod
@@ -151,6 +168,11 @@ class OCLSemanticChecker:
                 raise SemanticError(
                     f"Cannot call operation '{op}' on Null."
                 )
+            return "Unknown"
+
+        if op == "refImmediateComposite":
+            if len(expr.arguments) != 0:
+                raise SemanticError("refImmediateComposite expects no arguments")
             return "Unknown"
 
         if op == "allInstances": return f"Set({source_type})"
@@ -780,6 +802,11 @@ class OCLSemanticChecker:
         expected_type = cls._normalize_type(expected_type)
 
         if actual_type == expected_type:
+            return True
+
+        # Unknown is a wildcard used when a type cannot be inferred yet,
+        # including the element type of an empty collection literal.
+        if actual_type == "Unknown" or expected_type == "Unknown":
             return True
 
         # Primitive compatibility

@@ -1,6 +1,7 @@
 import os
 import json
 import glob
+import re
 
 # Mappings to normalize model aliases (case-sensitive)
 ALIAS_MAPPING = {
@@ -30,6 +31,17 @@ ALIAS_MAPPING = {
     "network": "Network",
     "graph": "Graph"
 }
+
+# These tokens cannot appear unquoted after `#` because the ATL lexer treats
+# them as keywords rather than enum-literal names.
+ATL_RESERVED_WORDS = frozenset({
+    "and", "create", "def", "distinct", "do", "else", "endif", "entrypoint",
+    "false", "for", "foreach", "from", "helper", "if", "implies", "in", "lazy",
+    "let", "module", "not", "or", "rule", "then", "to", "true", "unique", "using",
+    "xor",
+})
+
+ATL_IDENTIFIER_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 
 def normalize_alias(type_str):
     if not type_str:
@@ -333,8 +345,12 @@ class ATLGenerator:
         return "true" if node.get("value") else "false"
         
     def _visit_EnumLiteral(self, node):
-        val = node.get("value", "")
-        return f"#{val}"
+        val = str(node.get("value", ""))
+        if ATL_IDENTIFIER_RE.fullmatch(val) and val not in ATL_RESERVED_WORDS:
+            return f"#{val}"
+
+        escaped_val = val.replace('"', '\\"')
+        return f'#"{escaped_val}"'
         
     def _visit_OclUndefined(self, node):
         return "OclUndefined"
