@@ -5,7 +5,7 @@ ast2atl,direct,Class2Interface_All,62.7906
 ast2atl,direct,CPL2SPL_All,46.2516
 ast2atl,direct,Document2Report_All,57.7197
 ast2atl,direct,DSL2KM3_All,35.8866
-ast2atl,direct,FamiliesToPersons_All,86.5018
+ast2atl,direct,FamiliesToPersons_All,86.4325
 ast2atl,direct,Grafcet2PetriNet_All,36.0859
 ast2atl,direct,IEEE1471_2_MoDAF_All,56.3814
 ast2atl,direct,Item2Product_All,68.5691

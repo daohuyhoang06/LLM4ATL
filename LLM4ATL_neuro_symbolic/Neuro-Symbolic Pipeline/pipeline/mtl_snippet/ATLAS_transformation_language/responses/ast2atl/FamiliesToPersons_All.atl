@@ -28,7 +28,7 @@ rule Member2Male {
             m.isMale()
         )
     to
-        res : Persons!Male (
+        p : Persons!Male (
             fullName <- ((m.firstName + ' ') + m.familyLastName())
         )
 }
@@ -39,7 +39,7 @@ rule Member2Female {
             m.isFemale()
         )
     to
-        res : Persons!Female (
+        p : Persons!Female (
             fullName <- ((m.firstName + ' ') + m.familyLastName())
         )
 }

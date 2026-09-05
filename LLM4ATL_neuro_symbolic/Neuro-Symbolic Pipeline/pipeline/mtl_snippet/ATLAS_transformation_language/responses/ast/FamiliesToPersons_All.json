@@ -236,7 +236,8 @@
               "type": "Variable",
               "name": "m",
               "declared_type": "families!Member"
-            }
+            },
+            "model": "IN"
           }
         ],
         "filter": {
@@ -256,7 +257,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "res",
+              "name": "p",
               "declared_type": "persons!Male"
             },
             "bindings": [
@@ -294,7 +295,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "model": "OUT"
           }
         ]
       }
@@ -311,7 +313,8 @@
               "type": "Variable",
               "name": "m",
               "declared_type": "families!Member"
-            }
+            },
+            "model": "IN"
           }
         ],
         "filter": {
@@ -331,7 +334,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "res",
+              "name": "p",
               "declared_type": "persons!Female"
             },
             "bindings": [
@@ -369,7 +372,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "model": "OUT"
           }
         ]
       }
