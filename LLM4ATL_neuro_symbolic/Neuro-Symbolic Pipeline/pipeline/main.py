@@ -1,6 +1,7 @@
 import os
 import glob
 import json
+import tempfile
 import time
 import google.generativeai as genai
 from pydantic import ValidationError
@@ -10,6 +11,9 @@ from semantic_check.ecore_registry import ATLEcoreRegistry
 from semantic_check.type_environment import TypeEnvironment
 from semantic_check.atl_semantic_checker import ATLSemanticChecker
 from semantic_check.errors import SemanticError
+
+from ast2atl import ATLGenerator
+from tract_validation.atl_compiler_client import AtlCompileResult, AtlCompilerClient
 
 # Load schema
 import sys
@@ -34,11 +38,13 @@ BASE_DIR = os.path.abspath(os.path.join(current_dir, '..'))
 MODELS_DIR = current_dir
 PROMPTS_DIR = os.path.join(MODELS_DIR, 'mtl_snippet', 'ATLAS_transformation_language', 'prompts', 'additional_prompts')
 RESPONSES_DIR = os.path.join(MODELS_DIR, 'mtl_snippet', 'ATLAS_transformation_language', 'responses', 'ast')
+ATL_RESPONSES_DIR = os.path.join(MODELS_DIR, 'mtl_snippet', 'ATLAS_transformation_language', 'responses', 'ast2atl')
 SYSTEM_PROMPT_PATH = os.path.join(MODELS_DIR, 'system_prompt.txt')
 MAPPING_PATH = os.path.join(MODELS_DIR, 'mapping.json')
 
 # Ensure output directory exists
 os.makedirs(RESPONSES_DIR, exist_ok=True)
+os.makedirs(ATL_RESPONSES_DIR, exist_ok=True)
 
 # Load System Prompt
 with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
@@ -55,7 +61,7 @@ with open(MAPPING_PATH, 'r', encoding='utf-8') as f:
 def build_prompt(prompt_content, model_content, validation_error=""):
     prompt = f"{system_prompt}\n\n=== ECORE MODELS ===\n{model_content}\n\n=== TRANSFORMATION REQUEST ===\n{prompt_content}"
     if validation_error:
-        prompt += f"\n\n=== PREVIOUS ATTEMPT FAILED WITH VALIDATION ERROR ===\nFix the following schema errors:\n{validation_error}"
+        prompt += f"\n\n=== PREVIOUS ATTEMPT FAILED ===\nFix the following errors and return the complete corrected JSON only:\n{validation_error}"
     return prompt
 
 def extract_json(response_text):
@@ -67,6 +73,53 @@ def extract_json(response_text):
     if text.endswith('```'):
         text = text[:-3]
     return text.strip()
+
+
+class AtlCompilationError(Exception):
+    """A generated ATL module failed compilation and can be repaired by the LLM."""
+
+    def __init__(self, result: AtlCompileResult):
+        self.result = result
+        super().__init__(result.message)
+
+
+class AtlCompilerInfrastructureError(Exception):
+    """The compiler environment failed, so retrying the LLM would not help."""
+
+    def __init__(self, result: AtlCompileResult):
+        self.result = result
+        super().__init__(result.message)
+
+
+def format_compiler_error(result: AtlCompileResult) -> str:
+    """Format compiler diagnostics for the LLM auto-fix prompt."""
+    lines = [f"ATL compiler error: {result.message}"]
+    for diagnostic in result.diagnostics:
+        location = f" at {diagnostic.location}" if diagnostic.location else ""
+        lines.append(
+            f"[{diagnostic.severity or 'error'}{location}] "
+            f"{diagnostic.description or 'Unknown compiler diagnostic'}"
+        )
+        if diagnostic.source_line:
+            lines.append(f"Source: {diagnostic.source_line}")
+            if diagnostic.column_marker:
+                lines.append(f"        {diagnostic.column_marker}")
+    return "\n".join(lines)
+
+
+def compile_atl_candidate(
+    basename: str,
+    ast_data: dict,
+    compiler_client: AtlCompilerClient,
+) -> tuple[str, AtlCompileResult]:
+    """Generate and compile ATL without first publishing it as a response."""
+    atl_code = ATLGenerator(ast_data).generate()
+    with tempfile.TemporaryDirectory(prefix="atl-layer3-") as temporary_dir:
+        candidate_path = os.path.join(temporary_dir, f"{basename}.atl")
+        with open(candidate_path, "w", encoding="utf-8") as candidate_file:
+            candidate_file.write(atl_code)
+        compile_result = compiler_client.compile(candidate_path)
+    return atl_code, compile_result
 
 def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     basename = os.path.splitext(os.path.basename(prompt_file_path))[0]
@@ -101,6 +154,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     MAX_RETRIES = 3
     validation_error = ""
     data = None
+    compiler_client = AtlCompilerClient()
     
     for attempt in range(MAX_RETRIES + 1):
         if attempt > 0:
@@ -138,12 +192,28 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             else:
                 print(f"[{basename}] Skipping semantic check (Layer 2).")
             
-            # Nếu chạy đến đây tức là không bị văng lỗi (Validation Pass)
+            atl_code = None
+            if ablation_config.is_enabled("enable_layer3_generation"):
+                print(f"[{basename}] Checking ATL compilation (Layer 3)...")
+                atl_code, compile_result = compile_atl_candidate(
+                    basename, data, compiler_client
+                )
+                if not compile_result.is_success:
+                    if compile_result.status == "COMPILE_ERROR":
+                        raise AtlCompilationError(compile_result)
+                    raise AtlCompilerInfrastructureError(compile_result)
+            else:
+                print(f"[{basename}] Skipping ATL compilation (Layer 3).")
+
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
             with open(output_path, 'w', encoding='utf-8') as out_f:
                 json.dump(data, out_f, indent=2, ensure_ascii=False)
+            if atl_code is not None:
+                atl_output_path = os.path.join(ATL_RESPONSES_DIR, f"{basename}.atl")
+                with open(atl_output_path, "w", encoding="utf-8") as atl_file:
+                    atl_file.write(atl_code)
             print(f"[Thành công] {basename} đã qua kiểm duyệt và được lưu.")
-            return # Thoát vòng lặp
+            return
             
         except json.JSONDecodeError as e:
             validation_error = f"JSONDecodeError: {str(e)}\n\nLưu ý: Bạn phải trả về ĐÚNG chuẩn JSON, không chứa text thừa."
@@ -154,10 +224,18 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         except SemanticError as e:
             validation_error = f"SemanticError: {str(e)}\n\nLưu ý: Sửa lỗi ngữ nghĩa liên quan đến Type Environment và UML constraints."
             print(f"[Lỗi Ngữ nghĩa Layer 2] {str(e)}")
+        except AtlCompilationError as e:
+            validation_error = format_compiler_error(e.result)
+            print(f"[Layer 3 ATL compilation error] {e.result.message}")
+            for diagnostic in e.result.diagnostics:
+                location = f" ({diagnostic.location})" if diagnostic.location else ""
+                print(f"  - {diagnostic.severity or 'error'}{location}: {diagnostic.description}")
+        except AtlCompilerInfrastructureError as e:
+            print(f"[Layer 3 infrastructure error] {e.result.message}")
+            break
         except Exception as e:
             validation_error = f"Unexpected Error: {str(e)}"
             err_str = str(e)
-            # Nếu là lỗi do API Key hoặc Rate Limit, in lỗi ngắn gọn và chuyển sang file kế tiếp
             if "API_KEY" in err_str or "API key" in err_str or "400" in err_str or "429" in err_str or "Quota" in err_str:
                 print(f"[Lỗi API] {err_str.splitlines()[0] if str(e) else 'Lỗi kết nối API'}")
                 break
@@ -181,21 +259,7 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-       "Class2Interface_All",
-        "Document2Report_All",
-        "Item2Product_All",
-        "User2Account_All",
-        "NetworkToGraph_All",
-        "FamiliesToPersons_All",
-        "AmaltheaToAscet_All",
-        "BibTeX2DocBook_All",
-        "XML2DSL_All",
-        "PetriNet2Grafcet_All",
-        "Grafcet2PetriNet_All",
-        "DSL2KM3_All",
-        "IEEE1471_2_MoDAF_All",
-        "Make2Ant_All",
-        "CPL2SPL_All"
+       "FamiliesToPersons_All",
 
     ]
     prompt_by_case = {
