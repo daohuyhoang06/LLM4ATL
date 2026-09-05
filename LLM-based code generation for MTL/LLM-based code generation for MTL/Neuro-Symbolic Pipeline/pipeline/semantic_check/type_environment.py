@@ -41,17 +41,26 @@ class TypeEnvironment:
         self.scopes.pop()
 
     def register_helper(self, name: str, parameter_types: List[str], return_type: str, context_type: str = None, kind: str = "operation"):
-        if name in self.helpers:
-            raise SemanticError(
-                f"Duplicate helper name: '{name}'"
-            )
-
-        self.helpers[name] = {
+        signature = {
             "parameter_types": parameter_types,
             "return_type": return_type,
             "context_type": context_type,
             "kind": kind
         }
+
+        overloads = self.helpers.setdefault(name, [])
+        for existing in overloads:
+            if (
+                existing["parameter_types"] == parameter_types
+                and existing["context_type"] == context_type
+                and existing["kind"] == kind
+            ):
+                raise SemanticError(
+                    f"Duplicate helper signature: '{name}' "
+                    f"for context '{context_type or 'Module'}'"
+                )
+
+        overloads.append(signature)
 
     def lookup_helper(self, name: str):
         if name not in self.helpers:

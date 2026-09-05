@@ -98,13 +98,25 @@ class OCLSemanticChecker:
             return "String"
 
         if prop_name in env.helpers:
-            helper = env.helpers[prop_name]
-            context_type = helper["context_type"]
-            if helper.get("kind") == "attribute":
-                if source_type == "Module" and context_type is None:
-                    return helper["return_type"]
-                if context_type is not None and cls._is_type_compatible(source_type, context_type, env):
-                    return helper["return_type"]
+            applicable_helpers = cls._applicable_helpers(
+                env.helpers[prop_name], source_type, env
+            )
+            attribute_helpers = [
+                helper
+                for helper in applicable_helpers
+                if helper.get("kind") == "attribute"
+            ]
+            if attribute_helpers:
+                helper = cls._select_most_specific_helper(
+                    prop_name, attribute_helpers, source_type, env
+                )
+                return helper["return_type"]
+            if applicable_helpers:
+                raise SemanticError(
+                    f"Helper '{prop_name}' is declared as operation but called "
+                    "as an attribute via PropertyCall. Use OperationCall with "
+                    f"operation_name='{prop_name}' and arguments=[]."
+                )
 
         if env.registry is None:
             if is_enabled(ablation_config, "enable_layer2_existence_check"):
@@ -223,31 +235,35 @@ class OCLSemanticChecker:
 
 
         if op in env.helpers:
+            helpers = env.helpers[op]
+            applicable_helpers = cls._applicable_helpers(helpers, source_type, env)
+            operation_helpers = [
+                helper
+                for helper in applicable_helpers
+                if helper.get("kind") == "operation"
+            ]
 
-            helper = env.helpers[op]
-            context_type = helper["context_type"]
+            if not applicable_helpers:
+                cls._raise_helper_context_error(op, helpers, source_type)
 
-            if source_type == "Module":
-                if context_type is None:
-                    pass
+            if not operation_helpers:
+                raise SemanticError(
+                    f"Helper '{op}' is declared as attribute but called as an "
+                    "operation via OperationCall. Use PropertyCall with "
+                    f"property_name='{op}'."
+                )
 
-                else:
-                    raise SemanticError(
-                        f"Context helper '{op}' cannot be called "
-                        f"through thisModule"
-                    )
-
-            else:
-                if context_type is None:
-                    raise SemanticError(
-                        f"Module helper '{op}' must be called through thisModule"
-                    )
-
-                if source_type != "Unknown" and not cls._is_type_compatible(source_type, context_type, env):
-                    raise SemanticError(
-                        f"Helper '{op}' cannot be called on "
-                        f"'{source_type}', expected '{context_type}'"
-                    )
+            arity_matches = [
+                helper
+                for helper in operation_helpers
+                if len(helper["parameter_types"]) == len(expr.arguments)
+            ]
+            helper = cls._select_most_specific_helper(
+                op,
+                arity_matches or operation_helpers,
+                source_type,
+                env,
+            )
 
             cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=helper["parameter_types"], env=env, ablation_config=ablation_config)
 
@@ -291,6 +307,110 @@ class OCLSemanticChecker:
                     raise SemanticError(
                         f"Argument type mismatch for '{name}': expected {expected_type}, got {actual_type}"
                     )
+
+    @classmethod
+    def _helper_context_distance(cls, helper: dict, source_type: str, env) -> Optional[int]:
+        context_type = helper.get("context_type")
+
+        if source_type == "Module":
+            return 0 if context_type is None else None
+
+        if context_type is None:
+            return None
+
+        if source_type == "Unknown":
+            return 0
+
+        actual_type = cls._normalize_type(source_type)
+        expected_type = cls._normalize_type(context_type)
+        if env.registry is not None:
+            actual_type = env.registry.resolve_class_name(actual_type)
+            expected_type = env.registry.resolve_class_name(expected_type)
+
+        if actual_type == expected_type:
+            return 0
+
+        if env.registry is not None:
+            queue = [(actual_type, 0)]
+            visited = set()
+            while queue:
+                current_type, distance = queue.pop(0)
+                if current_type in visited:
+                    continue
+                visited.add(current_type)
+
+                if current_type == expected_type:
+                    return distance
+
+                class_info = env.registry.uml_context.get(current_type, {})
+                for super_type in class_info.get("super_classes", []):
+                    queue.append((super_type, distance + 1))
+
+        if cls._is_type_compatible(source_type, context_type, env):
+            return 1
+
+        return None
+
+    @classmethod
+    def _applicable_helpers(cls, helpers: list, source_type: str, env) -> list:
+        return [
+            helper
+            for helper in helpers
+            if cls._helper_context_distance(helper, source_type, env) is not None
+        ]
+
+    @classmethod
+    def _select_most_specific_helper(
+        cls,
+        name: str,
+        helpers: list,
+        source_type: str,
+        env,
+    ) -> dict:
+        ranked_helpers = [
+            (cls._helper_context_distance(helper, source_type, env), helper)
+            for helper in helpers
+        ]
+        best_distance = min(distance for distance, _ in ranked_helpers)
+        best_helpers = [
+            helper
+            for distance, helper in ranked_helpers
+            if distance == best_distance
+        ]
+
+        if len(best_helpers) > 1:
+            contexts = sorted(
+                {helper.get("context_type") or "Module" for helper in best_helpers}
+            )
+            raise SemanticError(
+                f"Ambiguous helper call '{name}' on '{source_type}': matching "
+                f"contexts are {', '.join(contexts)}."
+            )
+
+        return best_helpers[0]
+
+    @staticmethod
+    def _raise_helper_context_error(name: str, helpers: list, source_type: str) -> None:
+        contexts = sorted(
+            {helper.get("context_type") or "Module" for helper in helpers}
+        )
+        expected = ", ".join(contexts)
+
+        if source_type == "Module":
+            raise SemanticError(
+                f"Context helper '{name}' cannot be called through thisModule; "
+                f"expected context: {expected}."
+            )
+
+        if contexts == ["Module"]:
+            raise SemanticError(
+                f"Module helper '{name}' must be called through thisModule."
+            )
+
+        raise SemanticError(
+            f"Helper '{name}' cannot be called on '{source_type}', expected one "
+            f"of: {expected}."
+        )
 
     @classmethod
     def _check_binary_expr(cls, expr, env, ablation_config=None) -> str:
