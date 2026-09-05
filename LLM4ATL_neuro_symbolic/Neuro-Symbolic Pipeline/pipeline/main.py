@@ -138,12 +138,11 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             else:
                 print(f"[{basename}] Skipping semantic check (Layer 2).")
             
-            # Nếu chạy đến đây tức là không bị văng lỗi (Validation Pass)
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
             with open(output_path, 'w', encoding='utf-8') as out_f:
                 json.dump(data, out_f, indent=2, ensure_ascii=False)
             print(f"[Thành công] {basename} đã qua kiểm duyệt và được lưu.")
-            return # Thoát vòng lặp
+            return
             
         except json.JSONDecodeError as e:
             validation_error = f"JSONDecodeError: {str(e)}\n\nLưu ý: Bạn phải trả về ĐÚNG chuẩn JSON, không chứa text thừa."
