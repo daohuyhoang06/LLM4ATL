@@ -2,9 +2,9 @@
 
 Repository này tập trung vào pipeline neuro-symbolic sinh mã ATL từ đặc tả ngôn ngữ tự nhiên. Các thư mục đang được sử dụng trực tiếp là:
 
-- `LLM-based code generation for MTL/LLM-based code generation for MTL/Neuro-Symbolic Pipeline/`: sinh, kiểm tra AST và chuyển AST sang ATL.
-- `LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Parser/`: kiểm tra cú pháp ATL.
-- `LLM-based code generation for MTL/LLM-based code generation for MTL/ATL_Tests/`: chạy ATL trên XMI mẫu và kiểm tra model output bằng JUnit.
+- `LLM4ATL_neuro_symbolic/Neuro-Symbolic Pipeline/`: sinh, kiểm tra AST và chuyển AST sang ATL.
+- `LLM4ATL_neuro_symbolic/ATL_Parser/`: kiểm tra cú pháp ATL.
+- `LLM4ATL_neuro_symbolic/ATL_Tests/`: chạy ATL trên XMI mẫu và kiểm tra model output bằng JUnit.
 
 Các thư mục còn lại là mã nguồn, thí nghiệm hoặc artifact của bài báo trước đây; chúng được giữ lại để tham khảo và không thuộc luồng chạy chính dưới đây.
 
@@ -44,12 +44,11 @@ AST chỉ được dùng để sinh ATL khi phản hồi LLM hợp lệ về JSO
 Từ đây, các đường dẫn trong bảng được tính tương đối từ thư mục `pipeline`:
 
 ```text
-LLM-based code generation for MTL/
-└── LLM-based code generation for MTL/
-    ├── Neuro-Symbolic Pipeline/
-    │   └── pipeline/                 # Pipeline chính
-    ├── ATL_Parser/                   # Syntax parser cho ATL
-    └── ATL_Tests/                    # JUnit execution tests
+LLM4ATL_neuro_symbolic/
+├── Neuro-Symbolic Pipeline/
+│   └── pipeline/                 # Pipeline chính
+├── ATL_Parser/                   # Syntax parser cho ATL
+└── ATL_Tests/                    # JUnit execution tests
 ```
 
 | Thành phần                    | Đường dẫn                                                             | Vai trò                                                            |
@@ -95,7 +94,7 @@ mvn -version
 Từ thư mục gốc repository:
 
 ```powershell
-cd ".\LLM-based code generation for MTL\LLM-based code generation for MTL\Neuro-Symbolic Pipeline\pipeline"
+cd ".\LLM4ATL_neuro_symbolic\Neuro-Symbolic Pipeline\pipeline"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -139,23 +138,14 @@ Script chuyển toàn bộ `responses/ast/*.json` sang `responses/ast2atl/*.atl`
 
 ### 1. Kiểm tra cú pháp bằng ATL_Parser
 
-Từ thư mục `pipeline`:
+Từ thư mục `pipeline`, chạy script Python của module:
 
 ```powershell
 cd "..\..\ATL_Parser"
-mvn -q test
+python testATLParsedRate.py
 ```
 
-Để parse một ATL do pipeline sinh ra, ví dụ `FamiliesToPersons_All.atl`:
-
-```powershell
-$atl = (Resolve-Path "..\Neuro-Symbolic Pipeline\pipeline\mtl_snippet\ATLAS_transformation_language\responses\ast2atl\FamiliesToPersons_All.atl").Path
-mvn -q exec:java `
-  "-Dexec.mainClass=com.example.atlparser.ATLParserMain" `
-  "-Dexec.args=$atl"
-```
-
-Kết quả cú pháp hợp lệ:
+Script sẽ đọc các file ATL trong `../Neuro-Symbolic Pipeline/pipeline/.../responses/ast2atl/`, gọi ATL parser và tạo các báo cáo CSV trong `ATL_Parser/`. Với file hợp lệ, kết quả parser là:
 
 ```text
 RESULT:OK:0
@@ -163,20 +153,9 @@ RESULT:OK:0
 
 ### 2. Chạy biến đổi bằng ATL_Tests
 
-Các test cần ATL cần kiểm tra nằm tại `ATL_Tests/src/main/atl/`. Copy ATL sinh ra vào đây rồi chạy JUnit:
+Chạy script Python của module để tự động lấy kết quả parser, chép từng ATL vào `src/main/atl/`, chạy test tương ứng và tạo báo cáo:
 
 ```powershell
 cd "..\ATL_Tests"
-Copy-Item `
-  "..\Neuro-Symbolic Pipeline\pipeline\mtl_snippet\ATLAS_transformation_language\responses\ast2atl\FamiliesToPersons_All.atl" `
-  ".\src\main\atl\FamiliesToPersons_All.atl" `
-  -Force
-
-mvn -q test "-Dtest=org.example.FamiliesToPersonsAllExecutionTest"
-```
-
-Chạy toàn bộ test:
-
-```powershell
-mvn -q test
+python run_all_tests.py
 ```
