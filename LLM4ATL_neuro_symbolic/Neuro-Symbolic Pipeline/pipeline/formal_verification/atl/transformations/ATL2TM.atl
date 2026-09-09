@@ -56,6 +56,66 @@ helper def : originalOclDetails(
         ->flatten()
         ->asSequence();
 
+-- ================================================================
+-- Provenance metadata
+-- ================================================================
+
+-- Namespace used by the Converter.  Keeping provenance in a dedicated
+-- annotation avoids mixing it with the Ecore validation/OCL annotations.
+helper def : provenanceSource : String =
+    'urn:llm4atl:provenance';
+
+-- EClass/EEnum/EDataType classifiers are copied from either the source or
+-- target package.  This helper is deliberately package-based rather than
+-- name-based so that equal names in the two metamodels remain distinguishable.
+helper def : classifierOrigin(
+    c : ECORE!EClassifier
+) : String =
+
+    if ECORE!EPackage.allInstancesFrom('SRC')->includes(c.ePackage) then
+        'source'
+    else
+        if ECORE!EPackage.allInstancesFrom('TGT')->includes(c.ePackage) then
+            'target'
+        else
+            'unknown'
+        endif
+    endif;
+
+-- A classifier can participate in more than one matched/creator rule, hence
+-- the plural form of this metadata field.  The list uses the same
+-- space-separated encoding as the constraint lists.
+helper def : matchedRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+            if acc = '' then
+                r.name
+            else
+                acc + ' ' + r.name
+            endif
+        );
+
+helper def : creatorRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.creatorsOf(c)
+        ->collect(o | o.outPattern.rule.name)
+        ->iterate(
+            n;
+            acc : String = '' |
+            if acc = '' then
+                n
+            else
+                acc + ' ' + n
+            endif
+        );
+
 -- Ghép tên constraint gốc với creator constraint của Step 3.
 helper def : targetConstraintNames(
     c : ECORE!EClass
@@ -2729,6 +2789,200 @@ helper def : sourceConstraintNames(
 -- Rule tạo transformation model
 -- ================================================================
 
+-- Root-level provenance record.  The Converter can use the schema version
+-- to evolve its reader without confusing old transformation models.
+unique lazy rule TransformationProvenanceAnnotation {
+    from
+        m : ATL!Module
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                schemaDetail,
+                moduleDetail,
+                encodingDetail
+            }
+        ),
+
+        schemaDetail : ECORE!EStringToStringMapEntry (
+            key <- 'schemaVersion',
+            value <- '1'
+        ),
+
+        moduleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlModule',
+            value <- m.name
+        ),
+
+        encodingDetail : ECORE!EStringToStringMapEntry (
+            key <- 'constraintLists',
+            value <- 'space-separated-names'
+        )
+}
+
+-- Provenance attached to copied source/target classifiers.  Constraint names
+-- are grouped by role instead of being encoded in the OCL annotation itself:
+-- this keeps USE/OCL consumers from trying to parse metadata as OCL details.
+unique lazy rule EClassProvenanceAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                nameDetail,
+                ruleDetail,
+                preDetail,
+                postDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(c)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- c.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.matchedRuleNamesFor(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creatorRuleNamesFor(c)
+                    else
+                        ''
+                    endif
+                endif
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.originalConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.originalConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.generatedSourceConstraintNames(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creationConstraintName(c)
+                    else
+                        ''
+                    endif
+                endif
+        )
+}
+
+-- EEnum and custom EDataType do not own ATL/OCL constraints, but still need
+-- an origin marker so the Converter can distinguish source and target types.
+unique lazy rule EDataTypeProvenanceAnnotation {
+    from
+        d : ECORE!EDataType
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                nameDetail,
+                ruleDetail,
+                preDetail,
+                postDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(d)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- d.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <- ''
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <- ''
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <- ''
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- ''
+        )
+}
+
+-- Provenance attached to a trace class generated from one matched rule.
+unique lazy rule TraceProvenanceAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                ruleDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- 'trace'
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRule',
+            value <- r.name
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
 -- Tạo EPackage gốc và cấu hình validation của TM.
 rule Module2EPackage {
     from 
@@ -2778,7 +3032,8 @@ rule Module2EPackage {
                         ->select(e | e.oclIsKindOf(ATL!MatchedRule))
                 ),
             eAnnotations <- Sequence {
-                validationAnnotation
+                validationAnnotation,
+                thisModule.TransformationProvenanceAnnotation(m)
             }
         ),
 
@@ -2829,19 +3084,23 @@ rule SourceEClass2Eclass {
             eSuperTypes <- c.eSuperTypes,
 
             eAnnotations <-
+                Sequence {
+                    thisModule.EClassProvenanceAnnotation(c)
+                }
+                ->union(
+                    if thisModule.hasSourceConstraints(c) then
 
-                if thisModule.hasSourceConstraints(c) then
+                        Sequence {
+                            thisModule.MatchingConstraintNamesAnnotation(c),
+                            thisModule.MatchingOclAnnotation(c)
+                        }
 
-                    Sequence {
-                        thisModule.MatchingConstraintNamesAnnotation(c),
-                        thisModule.MatchingOclAnnotation(c)
-                    }
+                    else
 
-                else
+                        Sequence {}
 
-                    Sequence {}
-
-                endif
+                    endif
+                )
 
         )
 }
@@ -2873,6 +3132,7 @@ rule TargetEClass2EClass {
             eSuperTypes <- c.eSuperTypes,
 
             eAnnotations <- Sequence {
+                thisModule.EClassProvenanceAnnotation(c),
                 thisModule.CreationConstraintNamesAnnotation(c),
                 thisModule.CreationOclAnnotation(c)
             }
@@ -2941,7 +3201,10 @@ rule EEnum2EEnum {
             name <- e.name,
             instanceClassName <- e.instanceClassName,
             serializable <- e.serializable,
-            eLiterals <- e.eLiterals
+            eLiterals <- e.eLiterals,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(e)
+            }
         )
 }
 
@@ -2977,7 +3240,10 @@ rule CustomEDataType2EDataType {
         out : ECORE!EDataType (
             name <- d.name,
             instanceClassName <- d.instanceClassName,
-            serializable <- d.serializable
+            serializable <- d.serializable,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(d)
+            }
         )
 }
 
@@ -3018,15 +3284,20 @@ rule MatchRule2EClass {
                 ), 
 
             eAnnotations <-
-                if thisModule.hasTraceConstraints(r)
-                then
-                    Sequence {
-                        thisModule.TraceConstraintNamesAnnotation(r),
-                        thisModule.TraceOclAnnotation(r)
-                    }
-                else
-                    Sequence {}
-                endif
+                Sequence {
+                    thisModule.TraceProvenanceAnnotation(r)
+                }
+                ->union(
+                    if thisModule.hasTraceConstraints(r)
+                    then
+                        Sequence {
+                            thisModule.TraceConstraintNamesAnnotation(r),
+                            thisModule.TraceOclAnnotation(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
         )
 }
 

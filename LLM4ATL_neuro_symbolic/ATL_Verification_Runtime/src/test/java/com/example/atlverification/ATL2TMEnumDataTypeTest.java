@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
@@ -40,6 +42,13 @@ class ATL2TMEnumDataTypeTest {
 
         EPackage transformationModel = new EcoreModelLoader().load(output);
 
+        EAnnotation modelProvenance = annotation(
+                transformationModel,
+                "urn:llm4atl:provenance"
+        );
+        assertEquals("1", modelProvenance.getDetails().get("schemaVersion"));
+        assertEquals("EnumDataType", modelProvenance.getDetails().get("atlModule"));
+
         EEnum sourceKind = assertInstanceOf(
                 EEnum.class,
                 transformationModel.getEClassifier("SourceKind")
@@ -66,8 +75,90 @@ class ATL2TMEnumDataTypeTest {
                 sourceCode,
                 source.getEStructuralFeature("code").getEType()
         );
+        assertEquals(
+                "source",
+                annotation(source, "urn:llm4atl:provenance")
+                        .getDetails().get("origin")
+        );
+        assertEquals(
+                "sourceInvariant",
+                annotation(source, "urn:llm4atl:provenance")
+                        .getDetails().get("preConstraints")
+        );
+        assertEquals(
+                "Source2Result",
+                annotation(source, "urn:llm4atl:provenance")
+                        .getDetails().get("atlRules")
+        );
+        assertEquals(
+                "match_Source2Result",
+                annotation(source, "urn:llm4atl:provenance")
+                        .getDetails().get("semConstraints")
+        );
 
-        assertNotNull(transformationModel.getEClassifier("TargetKind"));
-        assertNotNull(transformationModel.getEClassifier("TargetCode"));
+        EEnum targetKind = assertInstanceOf(
+                EEnum.class,
+                transformationModel.getEClassifier("TargetKind")
+        );
+        assertEquals(
+                "target",
+                annotation(targetKind, "urn:llm4atl:provenance")
+                        .getDetails().get("origin")
+        );
+
+        EClass result = assertInstanceOf(
+                EClass.class,
+                transformationModel.getEClassifier("Result")
+        );
+        assertEquals(
+                "targetInvariant",
+                annotation(result, "urn:llm4atl:provenance")
+                        .getDetails().get("postConstraints")
+        );
+        assertEquals(
+                "Source2Result",
+                annotation(result, "urn:llm4atl:provenance")
+                        .getDetails().get("atlRules")
+        );
+        assertEquals(
+                "create_Result",
+                annotation(result, "urn:llm4atl:provenance")
+                        .getDetails().get("semConstraints")
+        );
+
+        EDataType targetCode = assertInstanceOf(
+                EDataType.class,
+                transformationModel.getEClassifier("TargetCode")
+        );
+        assertEquals(
+                "target",
+                annotation(targetCode, "urn:llm4atl:provenance")
+                        .getDetails().get("origin")
+        );
+
+        EClass trace = assertInstanceOf(
+                EClass.class,
+                transformationModel.getEClassifier("Source2Result")
+        );
+        EAnnotation traceProvenance = annotation(
+                trace,
+                "urn:llm4atl:provenance"
+        );
+        assertEquals("trace", traceProvenance.getDetails().get("origin"));
+        assertEquals("Source2Result", traceProvenance.getDetails().get("atlRule"));
+
+        assertNotNull(targetCode);
+    }
+
+    private static EAnnotation annotation(
+            org.eclipse.emf.ecore.EModelElement element,
+            String source
+    ) {
+        return element.getEAnnotations().stream()
+                .filter(a -> Objects.equals(source, a.getSource()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        "Missing annotation: " + source
+                ));
     }
 }

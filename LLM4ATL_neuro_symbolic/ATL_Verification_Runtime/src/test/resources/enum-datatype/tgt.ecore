@@ -13,6 +13,12 @@
   <eClassifiers xsi:type="ecore:EDataType" name="TargetCode"
       instanceClassName="java.lang.String" serializable="true"/>
   <eClassifiers xsi:type="ecore:EClass" name="Result">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="targetInvariant"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="targetInvariant" value="true"/>
+    </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="kind"
         lowerBound="1" eType="#//TargetKind"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="code"
