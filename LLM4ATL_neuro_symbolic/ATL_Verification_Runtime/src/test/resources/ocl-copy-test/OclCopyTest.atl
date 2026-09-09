@@ -1,0 +1,10 @@
+module OclCopyTest;
+
+create OUT : TGT from IN : SRC;
+
+rule A2B {
+    from
+        a : SRC!A
+    to
+        b : TGT!B
+}

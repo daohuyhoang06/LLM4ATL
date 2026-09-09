@@ -1,0 +1,14 @@
+module A2BCC;
+
+create OUT : TGT from IN : SRC;
+
+rule A2BCC {
+    from
+        a : SRC!A
+    to
+        b : TGT!B (
+            children <- Sequence { c1, c2 }
+        ),
+        c1 : TGT!C,
+        c2 : TGT!C
+}

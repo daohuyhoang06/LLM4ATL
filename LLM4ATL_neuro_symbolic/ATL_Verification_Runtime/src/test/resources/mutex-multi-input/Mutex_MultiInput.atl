@@ -1,0 +1,19 @@
+module Mutex_MultiInput;
+
+create OUT : TGT from IN : SRC;
+
+rule R1 {
+    from
+        a : SRC!A,
+        b : SRC!B
+    to
+        t1 : TGT!T
+}
+
+rule R2 {
+    from
+        x : SRC!A,
+        y : SRC!B
+    to
+        t2 : TGT!T
+}

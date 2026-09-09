@@ -1,0 +1,13 @@
+module AB2C;
+
+create OUT : TGT from IN : SRC;
+
+rule AB2C {
+    from
+        a : SRC!A,
+        b : SRC!B (
+            a.b = b
+        )
+    to
+        c : TGT!C
+}

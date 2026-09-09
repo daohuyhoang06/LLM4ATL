@@ -1,0 +1,18 @@
+module Mutex_DifferentArity;
+
+create OUT : TGT from IN : SRC;
+
+rule R1 {
+    from
+        a : SRC!A
+    to
+        t1 : TGT!T
+}
+
+rule R2 {
+    from
+        a : SRC!A,
+        b : SRC!B
+    to
+        t2 : TGT!T
+}

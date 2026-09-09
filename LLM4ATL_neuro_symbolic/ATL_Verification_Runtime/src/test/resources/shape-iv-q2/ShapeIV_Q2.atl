@@ -1,0 +1,30 @@
+module ShapeIV_Q2;
+
+create OUT : TGT from IN : SRC;
+
+rule A2B1 {
+    from
+        a : SRC!A (
+            a.kind = 'x'
+        )
+    to
+        b1 : TGT!B
+}
+
+rule A2B2 {
+    from
+        a : SRC!A (
+            a.kind = 'y'
+        )
+    to
+        b2 : TGT!B
+}
+
+rule Holder2D {
+    from
+        h : SRC!Holder
+    to
+        d : TGT!D (
+            linkedB <- h.a
+        )
+}

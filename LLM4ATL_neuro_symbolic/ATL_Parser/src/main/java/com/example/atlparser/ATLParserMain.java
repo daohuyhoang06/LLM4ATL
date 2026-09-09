@@ -1,55 +1,71 @@
 package com.example.atlparser;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.m2m.atl.engine.parser.AtlParser;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.nio.file.Path;
 
-/**
- * ATL Parser Main - same logic as AtlParserTest
- *
- * Output format: RESULT:OK:0 or RESULT:FAIL:problemCount
- */
 public class ATLParserMain {
 
     public static void main(String[] args) {
+
         if (args.length < 1) {
-            System.err.println("Usage: ATLParserMain <atl-file>");
+            System.err.println(
+                    "Usage: ATLParserMain <atl-file>"
+            );
             System.exit(1);
         }
 
-        String atlFilePath = args[0];
+        Path atlPath = Path.of(args[0]);
+
+        ATLModelLoader loader =
+                new ATLModelLoader();
 
         try {
-            AtlParser parser = AtlParser.getDefault();
+            EObject atlModel =
+                    loader.load(atlPath);
 
-            try (InputStream input = new FileInputStream(atlFilePath)) {
-                EObject[] result = parser.parseWithProblems(input);
+            // System.out.println("=== MODULE FEATURES ===");
 
-                if (result == null || result[0] == null) {
-                    System.out.println("RESULT:FAIL:-1");
-                    System.exit(1);
-                }
+            // for (var feature : atlModel.eClass().getEAllStructuralFeatures()) {
 
-                // Same logic as AtlParserTest
-                int problemCount = result.length - 1;
+            //     Object value = atlModel.eGet(feature);
 
-                if (problemCount > 0) {
-                    System.out.println("RESULT:FAIL:" + problemCount);
-                    System.err.println("FAIL: " + atlFilePath + " (" + problemCount + " errors)");
-                    for (int i = 1; i < result.length; i++) {
-                        System.err.println("  - " + result[i]);
-                    }
-                    System.exit(1);
-                } else {
-                    System.out.println("RESULT:OK:0");
-                    System.exit(0);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("RESULT:FAIL:-1");
-            System.err.println("ERROR: " + e.getMessage());
+            //     System.out.println(
+            //         feature.getName()
+            //         + " : "
+            //         + feature.getEType().getName()
+            //         + " many="
+            //         + feature.isMany()
+            //         + " value="
+            //         + value
+            //     );
+            // }
+
+            ATLModelInspector.print(atlModel);
+
+            System.out.println("RESULT:OK:0");
+
+            System.err.println(
+                    "ATL root type: "
+                    + atlModel.eClass().getName()
+            );
+
+        } catch (ATLParseException e) {
+
+            System.out.println(
+                    "RESULT:FAIL:"
+                    + e.getProblemCount()
+            );
+
+            System.err.println(
+                    "FAIL: "
+                    + atlPath
+            );
+
+            System.err.println(
+                    e.getMessage()
+            );
+
             System.exit(1);
         }
     }

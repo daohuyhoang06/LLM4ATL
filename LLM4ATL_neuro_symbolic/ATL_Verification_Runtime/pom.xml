@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="
+            http://maven.apache.org/POM/4.0.0
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>atl-parser-demo</artifactId>
+    <artifactId>atl-verification-runtime</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-
-    <name>ATL Parser Demo</name>
-    <description>Demo project for using Eclipse ATL Parser</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
         <atl.version>4.12.0</atl.version>
         <junit.version>5.10.0</junit.version>
     </properties>
@@ -29,45 +30,43 @@
     </repositories>
 
     <dependencies>
-        <!-- ATL Engine - Contains AtlParser -->
-        <dependency>
-            <groupId>org.eclipse.m2m.atl</groupId>
-            <artifactId>org.eclipse.m2m.atl.engine</artifactId>
-            <version>${atl.version}</version>
-        </dependency>
 
-        <!-- ATL Common -->
-        <dependency>
-            <groupId>org.eclipse.m2m.atl</groupId>
-            <artifactId>org.eclipse.m2m.atl.common</artifactId>
-            <version>${atl.version}</version>
-        </dependency>
-
-        <!-- ATL Core -->
         <dependency>
             <groupId>org.eclipse.m2m.atl</groupId>
             <artifactId>org.eclipse.m2m.atl.core</artifactId>
             <version>${atl.version}</version>
         </dependency>
 
-        <!-- ATL Core EMF -->
         <dependency>
             <groupId>org.eclipse.m2m.atl</groupId>
             <artifactId>org.eclipse.m2m.atl.core.emf</artifactId>
             <version>${atl.version}</version>
         </dependency>
 
-        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>org.eclipse.m2m.atl</groupId>
+            <artifactId>org.eclipse.m2m.atl.engine</artifactId>
+            <version>${atl.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>atl-parser-demo</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -84,13 +83,23 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+
                 <configuration>
-                    <mainClass>com.example.atlparser.ATLParserMain</mainClass>
-                    <includeProjectDependencies>true</includeProjectDependencies>
-                    <classpathScope>runtime</classpathScope>
+                    <mainClass>
+                        com.example.atlverification.ATL2TMRunnerMain
+                    </mainClass>
+
+                    <includeProjectDependencies>
+                        true
+                    </includeProjectDependencies>
+
+                    <classpathScope>
+                        runtime
+                    </classpathScope>
                 </configuration>
             </plugin>
 
         </plugins>
     </build>
+
 </project>

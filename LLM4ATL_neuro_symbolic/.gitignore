@@ -6,6 +6,8 @@ __pycache__/
 # Bỏ qua file chứa API key
 .env
 
+docs
+
 # C extensions
 *.so
 

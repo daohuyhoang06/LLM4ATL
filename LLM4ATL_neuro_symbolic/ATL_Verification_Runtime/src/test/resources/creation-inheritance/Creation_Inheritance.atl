@@ -1,0 +1,10 @@
+module Creation_Inheritance;
+
+create OUT : TGT from IN : SRC;
+
+rule A2Male {
+    from
+        a : SRC!A
+    to
+        m : TGT!Male
+}

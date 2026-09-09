@@ -1,0 +1,20 @@
+module AB2C_StringIfPlus;
+
+create OUT : TGT from IN : SRC;
+
+helper context SRC!A def : label() : String =
+    if self.b.oclIsUndefined() then
+        'missing'
+    else
+        'has-' + 'b'
+    endif;
+
+rule AB2C {
+    from
+        a : SRC!A,
+        b : SRC!B (
+            a.label() = 'has-b' and a.b = b
+        )
+    to
+        c : TGT!C
+}
