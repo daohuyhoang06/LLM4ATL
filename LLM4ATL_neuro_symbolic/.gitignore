@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+docssss/
+
 # Bỏ qua file chứa API key
 .env
 
