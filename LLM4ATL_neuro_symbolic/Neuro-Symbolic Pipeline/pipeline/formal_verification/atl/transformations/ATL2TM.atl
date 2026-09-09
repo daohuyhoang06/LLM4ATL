@@ -2740,8 +2740,40 @@ rule Module2EPackage {
             nsURI <- 'http://example.org/transformationModel',
 
             eClassifiers <-
-                ECORE!EClass.allInstances()
+                -- Chỉ đưa các classifier thuộc package nguồn/đích vào TM.
+                -- Không dùng ECORE!EClass.allInstances() ở đây vì biểu thức đó
+                -- có thể kéo theo classifier của các model Ecore khác.
+                ECORE!EClass.allInstancesFrom('SRC')
                 ->union(
+                    ECORE!EClass.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('SRC')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('SRC')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('SRC')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('TGT')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('TGT')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    -- Các trace class được sinh từ matched rules.
+                    -- Giữ union này để không thay đổi semantics hiện tại.
                     m.elements
                         ->select(e | e.oclIsKindOf(ATL!MatchedRule))
                 ),
@@ -2897,6 +2929,55 @@ rule EReference2EReference {
             resolveProxies <- r.resolveProxies,
             eOpposite <- r.eOpposite,
             eKeys <- r.eKeys
+        )
+}
+
+-- Step 1: copy EEnum và các literal của nó.
+rule EEnum2EEnum {
+    from
+        e : ECORE!EEnum
+    to
+        out : ECORE!EEnum (
+            name <- e.name,
+            instanceClassName <- e.instanceClassName,
+            serializable <- e.serializable,
+            eLiterals <- e.eLiterals
+        )
+}
+
+rule EEnumLiteral2EEnumLiteral {
+    from
+        l : ECORE!EEnumLiteral
+    to
+        out : ECORE!EEnumLiteral (
+            name <- l.name,
+            value <- l.value,
+            literal <- l.literal
+        )
+}
+
+-- Step 1: copy custom EDataType.  EEnum is also an EDataType, therefore it
+-- is excluded here and handled by EEnum2EEnum above.  The ePackage guard
+-- prevents Ecore built-in datatypes (EString, EInt, ...) from being copied
+-- into the transformation-model package.
+rule CustomEDataType2EDataType {
+    from
+        d : ECORE!EDataType (
+            not d.oclIsKindOf(ECORE!EEnum)
+            and
+            (
+                ECORE!EPackage.allInstancesFrom('SRC')
+                    ->includes(d.ePackage)
+                or
+                ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(d.ePackage)
+            )
+        )
+    to
+        out : ECORE!EDataType (
+            name <- d.name,
+            instanceClassName <- d.instanceClassName,
+            serializable <- d.serializable
         )
 }
 

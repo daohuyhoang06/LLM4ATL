@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="src"
+    nsURI="http://example.org/enum-datatype/src"
+    nsPrefix="src">
+  <eClassifiers xsi:type="ecore:EEnum" name="SourceKind">
+    <eLiterals name="FIRST" value="0" literal="first"/>
+    <eLiterals name="SECOND" value="1" literal="second"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="SourceCode"
+      instanceClassName="java.lang.String" serializable="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Source">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="kind"
+        lowerBound="1" eType="#//SourceKind"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="code"
+        lowerBound="1" eType="#//SourceCode"/>
+  </eClassifiers>
+</ecore:EPackage>

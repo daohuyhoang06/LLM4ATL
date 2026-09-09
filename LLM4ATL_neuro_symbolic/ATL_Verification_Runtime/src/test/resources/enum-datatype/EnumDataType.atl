@@ -1,0 +1,12 @@
+module EnumDataType;
+
+create OUT : TGT
+from IN : SRC;
+
+rule Source2Result {
+    from s : SRC!Source
+    to t : TGT!Result (
+        kind <- s.kind,
+        code <- s.code
+    )
+}
