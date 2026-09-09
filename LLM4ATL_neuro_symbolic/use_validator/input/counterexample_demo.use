@@ -1,0 +1,27 @@
+-- Manual "counterexample" demo.
+--
+-- Suspected property P:  every employee earns less than their manager.
+--     context Employee inv P: self.manager.oclIsUndefined() or self.salary < self.manager.salary
+--
+-- To look for a counterexample to P we assert its NEGATION as the invariant and
+-- ask the validator for an instance.  A SATISFIABLE result = a counterexample:
+-- an object model where some employee earns >= their manager.
+model CounterexampleDemo
+
+class Employee
+attributes
+  name : String
+  salary : Integer
+end
+
+association Manages between
+  Employee[0..1] role manager
+  Employee[*]    role reports
+end
+
+constraints
+
+-- negation of P, existentially quantified at model level
+context Employee inv NOT_P:
+  Employee.allInstances->exists(e |
+    not (e.manager.oclIsUndefined() or e.salary < e.manager.salary))

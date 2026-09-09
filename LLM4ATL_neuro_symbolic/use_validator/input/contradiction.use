@@ -1,0 +1,15 @@
+-- Trivially unsatisfiable once one A is required: n cannot be both > 0 and < 0.
+model Contradiction
+
+class A
+attributes
+  n : Integer
+end
+
+constraints
+
+context A inv positive:
+  self.n > 0
+
+context A inv negative:
+  self.n < 0
