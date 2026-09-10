@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="EFinder headless runtime" sequenceNumber="1">
+  <locations>
+    <location includeAllPlatforms="false" includeConfigurePhase="true"
+              includeMode="planner" includeSource="false" type="InstallableUnit">
+      <repository location="https://download.eclipse.org/releases/2023-09/"/>
+      <unit id="org.eclipse.core.runtime" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.app" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.launcher" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.emf.ecore" version="0.0.0"/>
+      <unit id="org.eclipse.emf.ecore.xmi" version="0.0.0"/>
+      <unit id="org.eclipse.jdt.annotation" version="0.0.0"/>
+      <unit id="javax.annotation" version="0.0.0"/>
+      <unit id="org.eclipse.ocl.pivot" version="0.0.0"/>
+      <unit id="org.eclipse.ocl.ecore" version="0.0.0"/>
+      <unit id="org.eclipse.ocl.xtext.base" version="0.0.0"/>
+      <unit id="org.eclipse.ocl.xtext.essentialocl" version="0.0.0"/>
+      <unit id="org.eclipse.ocl.xtext.completeocl" version="0.0.0"/>
+    </location>
+  </locations>
+</target>

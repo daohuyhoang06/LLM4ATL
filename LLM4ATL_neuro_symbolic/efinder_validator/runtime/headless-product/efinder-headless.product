@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<product name="EFinder headless validator" uid="org.llm4atl.efinder.headless"
+         id="org.llm4atl.efinder.headless" application="org.llm4atl.efinder.runner"
+         version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+  <configIni use="default">
+  </configIni>
+  <launcher name="efinder-validator">
+  </launcher>
+  <configurations>
+    <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2"/>
+    <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="3"/>
+    <plugin id="org.eclipse.core.contenttype" autoStart="true" startLevel="3"/>
+    <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4"/>
+    <plugin id="org.llm4atl.efinder.runner" autoStart="true" startLevel="4"/>
+  </configurations>
+  <plugins>
+    <plugin id="org.eclipse.equinox.app"/>
+    <plugin id="org.eclipse.core.runtime"/>
+    <plugin id="org.llm4atl.efinder.runner"/>
+    <plugin id="efinder.core"/>
+    <plugin id="efinder.emfocl"/>
+    <plugin id="efinder.usemv"/>
+  </plugins>
+</product>
