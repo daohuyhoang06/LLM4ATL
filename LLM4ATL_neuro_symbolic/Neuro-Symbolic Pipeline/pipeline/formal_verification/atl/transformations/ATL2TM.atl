@@ -191,6 +191,27 @@ helper def : replacementOf(
         varNames->size()
     );
 
+-- A refinement is kept in the ordinary rendering environment under a
+-- reserved marker.  This keeps subtype knowledge lexical: an inner iterator
+-- with the same variable name shadows the refinement of an outer iterator.
+helper def : refinedTypeMarker(name : String) : String =
+
+    '__ATL2TM_REFINED_TYPE__' + name;
+
+helper def : refinedTypeOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    let marker : String = thisModule.refinedTypeMarker(name)
+    in
+    if varNames->includes(marker) then
+        thisModule.replacementOf(marker, varNames, replacements)
+    else
+        ''
+    endif;
+
 -- Helper feature có thể là Operation (có parameter) hoặc Attribute (arity 0).
 helper def : helperArity(h : ATL!Helper) : Integer =
 
@@ -274,6 +295,26 @@ helper def : helperReceiverTypeName(
 
     endif;
 
+-- A navigation receiver may not carry a resolved ATL type in the AST model
+-- (for example, s.relation in s.relation.needTurnOnClass()). If the helper
+-- name and arity identify exactly one context helper, ATL's type checker has
+-- already made the call unambiguous, so it is safe to inline that helper.
+-- If several context helpers share the same signature, keep the call
+-- unresolved and let the caller report it as unsupported rather than
+-- generating an OCL operation that EFinder cannot resolve.
+helper def : uniqueUnknownContextHelper(
+    name : String,
+    arity : Integer
+) : Boolean =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and thisModule.helperArity(h) = arity
+            and not h.definition.context_.oclIsUndefined()
+        )
+        ->size() = 1;
+
 -- Resolve helper theo name + receiver/context type + arity.
 helper def : helperCallCandidates(
     e : ATL!OperationCallExp,
@@ -303,7 +344,125 @@ helper def : helperCallCandidates(
                     moduleReceiver
                 else
                     not moduleReceiver
-                    and receiverType = thisModule.helperContextTypeName(h)
+                    and (
+                        receiverType = thisModule.helperContextTypeName(h)
+                        or
+                        (
+                            receiverType = ''
+                            and thisModule.uniqueUnknownContextHelper(
+                                e.operationName,
+                                e.arguments->size()
+                            )
+                        )
+                    )
+                endif
+            )
+        )
+        ->asSequence();
+
+-- Resolve a module-level helper attribute such as thisModule.authorSet.
+helper def : helperAttributeCandidates(
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and h.definition.context_.oclIsUndefined()
+        )
+        ->asSequence();
+
+-- Check source-metaclass conformance in the direction needed for a context
+-- helper: a CPL!Proxy receiver may use a helper declared on CPL!Element.
+-- Keep the lookup defensive because an expression can also have a target or
+-- otherwise unknown type, which must not make ATL2TM crash.
+helper def : sourceTypeConformsTo(
+    actualTypeName : String,
+    contextTypeName : String
+) : Boolean =
+
+    let actuals : Sequence(ECORE!EClass) =
+        ECORE!EClass.allInstancesFrom('SRC')
+            ->select(c | c.name = actualTypeName)
+            ->asSequence()
+
+    in
+
+    if actuals->isEmpty() then
+        false
+    else
+
+        let contexts : Sequence(ECORE!EClass) =
+            ECORE!EClass.allInstancesFrom('SRC')
+                ->select(c | c.name = contextTypeName)
+                ->asSequence()
+
+        in
+
+        if contexts->isEmpty() then
+            false
+        else
+            actuals->first() = contexts->first()
+            or actuals->first().eAllSuperTypes->includes(contexts->first())
+        endif
+    endif;
+
+-- Resolve an attribute helper used through an object receiver, such as
+-- p.locations. The AST represents this as a NavigationOrAttributeCallExp,
+-- even though locations is not an Ecore structural feature.
+helper def : helperAttributeCallCandidates(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : Sequence(ATL!Helper) =
+
+    let receiverType : String =
+        thisModule.helperReceiverTypeName(
+            e.source,
+            varNames,
+            replacements
+        )
+
+    in
+
+    let moduleReceiver : Boolean =
+        thisModule.isModuleReceiver(e.source)
+
+    in
+
+    let contextMatches : Sequence(ATL!Helper) =
+        ATL!Helper.allInstancesFrom('IN')
+            ->select(h |
+                h.definition.feature.name = e.name
+                and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+                and not h.definition.context_.oclIsUndefined()
+            )
+            ->asSequence()
+
+    in
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = e.name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and
+            (
+                if h.definition.context_.oclIsUndefined() then
+                    moduleReceiver
+                else
+                    not moduleReceiver
+                    and
+                    (
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
+                        or (
+                            receiverType = ''
+                            and contextMatches->size() = 1
+                        )
+                    )
                 endif
             )
         )
@@ -311,6 +470,47 @@ helper def : helperCallCandidates(
 
 -- Marker được mang trong substitution environment để phát hiện recursion
 -- trực tiếp và gián tiếp khi inline helper body.
+-- Attribute helpers also participate in source-type analysis. Their OCL
+-- return type, rather than an EStructuralFeature, determines both whether
+-- a navigation is a collection and which source EClass it yields.
+helper def : contextHelperAttributeCandidates(
+    receiverTypeName : String,
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and not h.definition.context_.oclIsUndefined()
+            and thisModule.sourceTypeConformsTo(
+                receiverTypeName,
+                thisModule.helperContextTypeName(h)
+            )
+        )
+        ->asSequence();
+
+helper def : helperAttributeIsCollection(
+    h : ATL!Helper
+) : Boolean =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    attribute.type.oclIsKindOf(ATL!CollectionType);
+
+helper def : helperAttributeElementTypeName(
+    h : ATL!Helper
+) : String =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    if attribute.type.oclIsKindOf(ATL!CollectionType) then
+        let collectionType : ATL!CollectionType = attribute.type
+        in collectionType.elementType.name
+    else
+        ''
+    endif;
+
 helper def : helperMarker(h : ATL!Helper) : String =
 
     '__atl2tm_active_helper__'
@@ -381,11 +581,15 @@ helper def : renderCollectionElements(
 
         in
 
-        if acc = ''
-        then
-            rendered
+        if rendered = '' then
+            acc
         else
-            acc + ', ' + rendered
+            if acc = ''
+            then
+                rendered
+            else
+                acc + ', ' + rendered
+            endif
         endif
     );
 
@@ -472,6 +676,85 @@ helper def : renderHelperCall(
         receiver
     );
 
+-- Inline a module-level helper attribute. It has no receiver or formal
+-- parameters; the recursion marker is still kept in the environment.
+helper def : renderHelperAttribute(
+    h : ATL!Helper,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let scopedNames : Sequence(String) =
+        thisModule.appendStrings(
+            varNames,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    let scopedReplacements : Sequence(String) =
+        thisModule.appendStrings(
+            replacements,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    thisModule.renderExpr(
+        thisModule.helperBody(h),
+        scopedNames,
+        scopedReplacements,
+        selfReplacement
+    );
+
+helper def : renderNavigationCall(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let sourceText : String =
+        thisModule.renderExpr(
+            e.source,
+            varNames,
+            replacements,
+            selfReplacement
+        )
+
+    in
+
+    let refinedType : String =
+        if e.source.oclIsTypeOf(ATL!VariableExp) then
+            thisModule.refinedTypeOf(
+                e.source.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        else
+            ''
+        endif
+
+    in
+
+    sourceText
+    + (if refinedType = '' then '' else '.oclAsType(' + refinedType + ')' endif)
+    + '.'
+    + e.name;
+
+-- Rule calls through thisModule are not ordinary OCL helper calls. A lazy
+-- rule is demand-driven and cannot be represented by universal matched-rule
+-- trace constraints, so leave an explicit marker for the formal runner.
+helper def : isUnsupportedRuleCall(
+    e : ATL!OperationCallExp
+) : Boolean =
+
+    thisModule.isModuleReceiver(e.source)
+    and
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->exists(r | r.name = e.operationName);
+
 -- Biểu diễn expression ATL/OCL hỗ trợ thành Pivot OCL.
 helper def : renderExpr(
     e : ATL!OclExpression,
@@ -541,17 +824,24 @@ helper def : renderExpr(
     else
     if e.oclIsTypeOf(ATL!VariableExp) then
 
-    if e.referredVariable.varName = 'self' then
-
-        selfReplacement
-
-    else
-
+    if varNames->includes(e.referredVariable.varName) then
         thisModule.replacementOf(
             e.referredVariable.varName,
             varNames,
             replacements
         )
+
+    else
+
+        if e.referredVariable.varName = 'self' then
+            selfReplacement
+        else
+            thisModule.replacementOf(
+                e.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        endif
 
     endif
 
@@ -562,14 +852,47 @@ helper def : renderExpr(
     else
         if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp) then
 
-            thisModule.renderExpr(
-                e.source,
-                varNames,
-                replacements,
-                selfReplacement
-            )
-            + '.'
-            + e.name
+            let candidates : Sequence(ATL!Helper) =
+                thisModule.helperAttributeCallCandidates(
+                    e,
+                    varNames,
+                    replacements
+                )
+
+            in
+
+            if candidates->size() = 1 then
+                let h : ATL!Helper = candidates->first()
+                in
+                if thisModule.isActiveHelper(h, varNames) then
+                    '__ATL2TM_UNSUPPORTED_RECURSIVE_HELPER__'
+                    + h.definition.feature.name
+                else
+                    thisModule.renderHelperAttribute(
+                        h,
+                        varNames,
+                        replacements,
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                    )
+                endif
+            else
+                if thisModule.isModuleReceiver(e.source) then
+                    '__ATL2TM_UNSUPPORTED_FEATURE__HELPER_ATTRIBUTE__'
+                    + e.name
+                else
+                    thisModule.renderNavigationCall(
+                        e,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                endif
+            endif
 
 
         -- 6. OperatorCallExp
@@ -653,6 +976,11 @@ helper def : renderExpr(
             else
                 if e.oclIsTypeOf(ATL!IteratorExp) then
 
+                    let refinedType : String =
+                        thisModule.refinedElementTypeName(e.source)
+
+                    in
+
                     thisModule.renderExpr(
                         e.source,
                         varNames,
@@ -669,13 +997,22 @@ helper def : renderExpr(
                     + thisModule.renderExpr(
                         e.body,
                         thisModule.appendStrings(
-                            varNames,
-                            e.iterators->collect(i | i.varName)
-                                ->asSequence()
+                            thisModule.appendStrings(
+                                varNames,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i |
+                                thisModule.refinedTypeMarker(i.varName)
+                            )->asSequence()
                         ),
                         thisModule.appendStrings(
-                            replacements,
-                            e.iterators->collect(i | i.varName)
+                            thisModule.appendStrings(
+                                replacements,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i | refinedType)
                                 ->asSequence()
                         ),
                         selfReplacement
@@ -706,6 +1043,16 @@ helper def : renderExpr(
             -- 9. Normal operation/helper call
             else
                 if e.oclIsTypeOf(ATL!OperationCallExp) then
+
+                    if thisModule.isUnsupportedRuleCall(e) then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__'
+                        + e.operationName
+                    else
+                    if e.operationName = 'resolveTemp'
+                       and thisModule.isModuleReceiver(e.source)
+                    then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+                    else
 
                     let candidates : Sequence(ATL!Helper) =
                         thisModule.helperCallCandidates(
@@ -756,6 +1103,8 @@ helper def : renderExpr(
                         )
                         + ')'
 
+                    endif
+                    endif
                     endif
 
 
@@ -853,7 +1202,7 @@ helper def : filterExpr(
 
     let replacements : Sequence(String) =
         inputs->collect(s |
-            'self.' + s.varName
+            'self.' + thisModule.matchInputVarName(s)
         )
 
     in
@@ -879,6 +1228,18 @@ helper def : rulesForMatchConstraint(
         ->asSequence();
 
 -- Tạo các predicate bằng nhau giữa trace và input.
+-- OCL reserves "self" for the context object. ATL input variables may also
+-- use that legal ATL name, so render them with a fresh generated identifier.
+helper def : matchInputVarName(
+    s : ATL!SimpleInPatternElement
+) : String =
+
+    if s.varName = 'self' then
+        '__efinder_src_self'
+    else
+        s.varName
+    endif;
+
 helper def : traceMatchCondition(
     r : ATL!MatchedRule
 ) : String =
@@ -891,17 +1252,17 @@ helper def : traceMatchCondition(
             if acc = '' then
 
                 'z.'
-                + s.varName
+                + thisModule.matchInputVarName(s)
                 + ' = '
-                + s.varName
+                + thisModule.matchInputVarName(s)
 
             else
 
                 acc
                 + ' and z.'
-                + s.varName
+                + thisModule.matchInputVarName(s)
                 + ' = '
-                + s.varName
+                + thisModule.matchInputVarName(s)
 
             endif
         );
@@ -920,7 +1281,7 @@ helper def : wrapForAllAt(
         in
             s.type.name
             + '.allInstances()->forAll('
-            + s.varName
+            + thisModule.matchInputVarName(s)
             + ' : '
             + s.type.name
             + ' | '
@@ -982,7 +1343,7 @@ helper def : matchExpr(
     -- a -> a
     -- b -> b
     let replacements : Sequence(String) =
-        inputs->collect(s | s.varName)
+        inputs->collect(s | thisModule.matchInputVarName(s))
 
     in
 
@@ -1055,7 +1416,7 @@ helper def : ruleExpr(
 
     let replacements : Sequence(String) =
         inputs->collect(s |
-            'self.' + s.varName
+            'self.' + thisModule.matchInputVarName(s)
         )
         ->union(
             outputs->collect(o |
@@ -1358,14 +1719,28 @@ helper def : sourceExprTypeName(
 
                 in
 
-                if features->notEmpty()
-                   and
-                   features->first().eType
-                       .oclIsKindOf(ECORE!EClass)
-                then
-                    features->first().eType.name
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
                 else
-                    ''
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            sourceTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
                 endif
 
             endif
@@ -1421,8 +1796,23 @@ helper def : sourceExprIsCollection(
 
             in
 
-            features->notEmpty()
-            and features->first().upperBound <> 1
+            if features->notEmpty() then
+                features->first().upperBound <> 1
+            else
+                let helpers : Sequence(ATL!Helper) =
+                    thisModule.contextHelperAttributeCandidates(
+                        ownerTypeName,
+                        e.name
+                    )
+                in
+                if helpers->size() = 1 then
+                    thisModule.helperAttributeIsCollection(
+                        helpers->first()
+                    )
+                else
+                    false
+                endif
+            endif
         endif
 
     else
@@ -1564,7 +1954,7 @@ helper def : resolverTraceTargetCollection(
     + '.allInstances()->select(z : '
     + resolver.name
     + ' | z.'
-    + input.varName
+    + thisModule.matchInputVarName(input)
     + ' = '
     + exprText
     + '.oclAsType('
@@ -1744,13 +2134,28 @@ helper def : iteratorBodySourceTypeName(
 
                 in
 
-                if features->notEmpty()
-                   and features->first().eType
-                       .oclIsKindOf(ECORE!EClass)
-                then
-                    features->first().eType.name
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
                 else
-                    ''
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            ownerTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
                 endif
 
             endif
@@ -1803,32 +2208,55 @@ helper def : selectedElementTypeName(
 
             in
 
-            if body.operationName <> 'oclIsTypeOf'
+            if (body.operationName <> 'oclIsTypeOf'
+                and body.operationName <> 'oclIsKindOf')
                or body.arguments->isEmpty()
+               or e.iterators->size() <> 1
             then
                 ''
             else
-
-                let typeArgument : ATL!OclExpression =
-                    body.arguments->first()
-
-                in
-
-                if typeArgument.oclIsTypeOf(
-                    ATL!OclModelElement
-                ) then
-                    let modelType : ATL!OclModelElement =
-                        typeArgument
-                    in
-                    modelType.name
-                else
+                if not body.source.oclIsTypeOf(ATL!VariableExp) then
                     ''
-                endif
+                else
+                    if body.source.referredVariable.varName
+                        <> e.iterators->first().varName
+                    then
+                        ''
+                    else
+                        let typeArgument : ATL!OclExpression =
+                            body.arguments->first()
 
+                        in
+
+                        if typeArgument.oclIsTypeOf(
+                            ATL!OclModelElement
+                        ) then
+                            let modelType : ATL!OclModelElement =
+                                typeArgument
+                            in
+                            modelType.name
+                        else
+                            ''
+                        endif
+                    endif
+                endif
             endif
 
         endif
 
+    endif;
+
+-- A collection produced directly by select(x | x.oclIsTypeOf/KindOf(T))
+-- contains values safely castable to T.  The next iterator receives that
+-- type fact in its lexical rendering environment.
+helper def : refinedElementTypeName(
+    e : ATL!OclExpression
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        thisModule.selectedElementTypeName(e)
+    else
+        ''
     endif;
 
 -- Suy ra kiểu phần tử của source collection sau select/reject/collect.
@@ -2049,9 +2477,21 @@ helper def : resolveShapeVParts(
         if e.operationName = 'union'
            and e.arguments->notEmpty()
         then
-            thisModule.resolveShapeVParts(e.source, r)
-            + ', '
-            + thisModule.resolveShapeVParts(e.arguments->first(), r)
+            let left : String =
+                thisModule.resolveShapeVParts(e.source, r)
+            in
+            let right : String =
+                thisModule.resolveShapeVParts(e.arguments->first(), r)
+            in
+            if left = '' then
+                right
+            else
+                if right = '' then
+                    left
+                else
+                    left + ', ' + right
+                endif
+            endif
         else
             thisModule.resolveShapeVDirectParts(e, r)
         endif
@@ -2457,6 +2897,16 @@ helper def : laterOverlappingRules(
             r,
             r2
         )
+
+        and
+
+        -- Some pairs overlap by nominal type but have no concrete common
+        -- subtype combination. Do not advertise a mutex constraint when its
+        -- renderer would produce an empty specification body.
+        thisModule.mutexExpr(
+            r,
+            r2
+        ) <> ''
     )
     ->asSequence();
 
@@ -2481,20 +2931,25 @@ helper def : traceExistsCondition(
 
         in
 
-        let term : String =
-            traceVar
-            + '.'
-            + s.varName
-            + ' = '
-            + iteratorNames->at(pos)
-
-        in
-
-        if acc = ''
+        if pos > iteratorNames->size()
         then
-            term
+            acc
         else
-            acc + ' and ' + term
+            let term : String =
+                traceVar
+                + '.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + iteratorNames->at(pos)
+
+            in
+
+            if acc = ''
+            then
+                term
+            else
+                acc + ' and ' + term
+            endif
         endif
     );
 
@@ -2527,7 +2982,7 @@ helper def : mutexInnerExpr(
     let iteratorNames : Sequence(String) =
         r1.inPattern.elements
             ->asSequence()
-            ->collect(s | s.varName)
+            ->collect(s | thisModule.matchInputVarName(s))
 
     in
 
@@ -2573,7 +3028,7 @@ helper def : wrapMutexForAllAt(
 
         t.name
         + '.allInstances()->forAll('
-        + s.varName
+        + thisModule.matchInputVarName(s)
         + ' : '
         + t.name
         + ' | '
@@ -2605,7 +3060,9 @@ helper def : mutexCombinationsAt(
 
     in
 
-    if pos > inputs1->size() then
+    if pos > inputs1->size()
+       or pos > inputs2->size()
+    then
 
         thisModule.wrapMutexForAllAt(
             r1,
@@ -3308,7 +3765,7 @@ rule InPatternElement2SourceAssociation {
         s : ATL!SimpleInPatternElement
     to
         forward : ECORE!EReference (
-            name <- s.varName,
+            name <- thisModule.matchInputVarName(s),
 
             lowerBound <- 1,
             upperBound <- 1,
@@ -3639,7 +4096,9 @@ unique lazy rule ShapeVSizeConstraintDetail {
 }
 
 -- Step 2: lưu invariant frame cho thuộc tính chưa bind.
-unique lazy rule NullConstraintDetail {
+-- One detail is required for every (out-pattern element, unbound feature)
+-- pair. A unique lazy rule reused the first detail for the other features.
+lazy rule NullConstraintDetail {
 
     from
         o : ATL!SimpleOutPatternElement,
@@ -3733,7 +4192,10 @@ unique lazy rule CreationOclAnnotation {
 }
 
 -- Step 4: lưu OCL expression mutex cho một cặp matched rule.
-unique lazy rule MutexConstraintDetail {
+-- A mutex detail is parameterised by an ordered pair of matched rules. Do
+-- not memoise it as a unique lazy rule: ATL may reuse the cached result for
+-- a partial source tuple, leaving later mutex names without a Pivot body.
+lazy rule MutexConstraintDetail {
 
     from
         r1 : ATL!MatchedRule,

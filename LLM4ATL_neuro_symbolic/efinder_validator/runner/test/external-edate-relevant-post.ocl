@@ -1,0 +1,5 @@
+-- Regression profile: EDate must not be abstracted when the selected
+-- verification property observes it.
+context Person
+inv UsesBirthday:
+  self.birthday.oclIsUndefined()

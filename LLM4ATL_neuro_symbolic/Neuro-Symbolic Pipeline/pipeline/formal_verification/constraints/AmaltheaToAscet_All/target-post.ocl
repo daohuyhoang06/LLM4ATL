@@ -1,0 +1,6 @@
+-- ComponentContainer2AscetModule delegates each contained source Task to the
+-- SoftwareTask-producing rule.  Task names are constrained in source-pre.
+context AscetModule
+inv AscetModuleMapsTasksToSoftwareTasks:
+  self.tasks->notEmpty() and
+  self.tasks->forAll(t | t.oclIsKindOf(SoftwareTask) and t.name <> '')

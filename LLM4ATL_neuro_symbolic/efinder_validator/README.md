@@ -123,6 +123,33 @@ Each query uses `Sem AND Pre AND NOT Post_i`; the aggregate report is written to
 postconditions, the command returns `NO_POSTCONSTRAINTS`. Semantic constraints
 such as `create_Male` are part of `Sem`, not individual `Post_i` checks.
 
+### External verification profiles
+
+Target invariants may be kept outside the metamodel as one `.ocl` file or a
+folder of `.ocl` files. Pass it with `--constraints`; the runner injects every
+named `context <EClass> inv <name>:` declaration into the temporary ATL2TM
+Ecore copy. Files named `target-post.ocl` (and a single supplied `.ocl` file)
+become target `postConstraints`; a `source-pre.ocl` file in the supplied folder
+becomes source `preConstraints`. The latter remains enabled in every query,
+whereas `--check-all` selects only target posts. Neither the input ATL2TM Ecore
+nor the original target metamodel is modified.
+
+For source assumptions that must not be vacuous when no source classifier
+exists, `source-pre.ocl` also supports `global inv Name: expression`. The
+runner attaches this premise to the selected target context, which is known to
+have a witness when checking `NOT Post_i`. If that context is abstract, the
+solver instead gives one concrete subclass the minimum scope; the chosen class
+is recorded as `bounded_witness_context` in the result JSON.
+
+```powershell
+python .\efinder_check.py <path-to-atl2tm-model.ecore> `
+  --constraints "..\Neuro-Symbolic Pipeline\pipeline\formal_verification\constraints\Class2Interface_All" `
+  --check-all --scope 3 --reference-scope 6
+```
+
+The repository's per-case properties are in
+`Neuro-Symbolic Pipeline/pipeline/formal_verification/constraints/`.
+
 For every call, the wrapper removes a previous result with the same name before
 launching EFinder, so an old witness cannot be reported as a fresh one. Use
 `--launcher <path>` to select a product installed in a different location and
@@ -158,14 +185,25 @@ fallback to `use_validator`.
 For a plain Ecore model without ATL2TM provenance, `--check-all` retains the
 older behavior and checks every Ecore constraint independently.
 
-## Current limitation demonstrated by FamiliesToPersons
+## Unsupported Ecore datatypes
 
-The generated `FamiliesToPersons_TM.ecore` reaches the EFinder/USEMV backend,
-but checks that involve its `Person.birthday : EDate` currently return
-`UNSUPPORTED_FEATURE: EDate`. This is a USE Model Validator capability limit,
-not a conversion to the old USE folder. Models and selected checks restricted
-to EFinder/USEMV-supported Ecore datatypes and OCL constructs can produce the
-SAT/UNSAT results shown by the smoke fixture.
+EFinder/USEMV does not support every Ecore datatype (for example `EDate`,
+custom `EDataType`s, and some `EEnum`s). Before invoking the solver, the runner
+analyses the active `Sem AND Pre AND NOT Post_i` formula. If an unsupported
+attribute occurs only in an ATL2TM-generated `null_*` frame constraint, the
+**prepared Ecore copy** maps that attribute to `EString` and removes that
+now-irrelevant frame constraint. The same treatment applies to any datatype
+outside the runner's supported primitive set (`EString`, `EBoolean`, numeric
+Ecore primitives).
+The original ATL2TM Ecore is not changed; the JSON result records the change
+in `abstracted_features`.
+
+If the unsupported attribute is read by an active semantic constraint,
+precondition, selected postcondition, guard, or binding encoding, the runner
+does not abstract it. It returns `UNSUPPORTED_FEATURE` before solving and
+names the dependent constraints in `detail`. Supporting that case requires a
+sound finite encoding in the EFinder backend (for example, dates as bounded
+integers), rather than silently dropping information.
 
 ## Optional upstream plain build check
 

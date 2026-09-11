@@ -1,0 +1,4 @@
+-- Member2Male and Member2Female concatenate a valid first and family name.
+context Person
+inv PersonHasFullName:
+  self.fullName <> ''

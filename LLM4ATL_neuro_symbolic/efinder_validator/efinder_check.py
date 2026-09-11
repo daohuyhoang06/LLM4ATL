@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +20,14 @@ PRODUCT_DIR = (HERE / "runtime" / "headless-product" / "target" / "products"
                / "org.llm4atl.efinder.headless")
 PROVENANCE_SOURCE = "urn:llm4atl:provenance"
 ECORE_SOURCE = "http://www.eclipse.org/emf/2002/Ecore"
+EXTERNAL_INVARIANT = re.compile(
+    r"(?ms)^\s*context\s+(?:[A-Za-z_][A-Za-z0-9_]*::)?([A-Za-z_][A-Za-z0-9_]*)"
+    r"\s+inv\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*?)(?=^\s*(?:context|global)\s+|\Z)"
+)
+EXTERNAL_GLOBAL_INVARIANT = re.compile(
+    r"(?ms)^\s*global\s+inv\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*"
+    r"(.*?)(?=^\s*(?:context|global)\s+|\Z)"
+)
 
 
 def result_paths(ecore: Path, check: str, out_dir: Path) -> tuple[Path, Path]:
@@ -53,8 +62,31 @@ def _detail(annotation, key: str) -> str:
     return ""
 
 
-def discover_checks(ecore: Path) -> list[str]:
-    """Return ATL2TM target postconditions, or all plain Ecore constraints."""
+def _external_checks(location: Path) -> list[str]:
+    """Return ``EClass::invariant`` entries declared in one OCL file/folder."""
+    files = sorted(location.rglob("*.ocl")) if location.is_dir() else [location]
+    if not files:
+        raise ValueError(f"no .ocl files found in constraints path: {location}")
+    checks: list[str] = []
+    for file in files:
+        if not file.is_file() or file.suffix.lower() != ".ocl":
+            raise ValueError(f"constraints input must be an .ocl file or folder: {file}")
+        text = file.read_text(encoding="utf-8")
+        matches = list(EXTERNAL_INVARIANT.finditer(text))
+        global_matches = list(EXTERNAL_GLOBAL_INVARIANT.finditer(text))
+        if global_matches and file.name.lower() != "source-pre.ocl":
+            raise ValueError("global invariants are allowed only in source-pre.ocl: " + str(file))
+        if not matches and not global_matches:
+            raise ValueError("no supported 'context <EClass> inv <name>:' or 'global inv <name>:' declaration in " + str(file))
+        # source-pre.ocl constrains the premise only; it must never become a
+        # selectable Post_i query for --check-all.
+        if file.name.lower() != "source-pre.ocl":
+            checks.extend(f"{match.group(1)}::{match.group(2)}" for match in matches)
+    return checks
+
+
+def discover_checks(ecore: Path, constraints: Path | None = None) -> list[str]:
+    """Return selectable checks, including optional external target OCL."""
     root = ElementTree.parse(ecore).getroot()
     classifiers = [node for node in root.iter() if _local_name(node.tag) == "eClassifiers"]
     atl2tm = any(_annotation(node, PROVENANCE_SOURCE) is not None for node in classifiers)
@@ -70,7 +102,9 @@ def discover_checks(ecore: Path) -> list[str]:
         else:
             names = _detail(ecore_annotation, "constraints").split()
         checks.extend(f"{name}::{constraint}" for constraint in names)
-    return checks
+    if constraints is not None:
+        checks.extend(_external_checks(constraints))
+    return list(dict.fromkeys(checks))
 
 
 def accepted_status(status: str) -> bool:
@@ -95,13 +129,35 @@ def run_one(args, check: str) -> tuple[dict, int]:
         "--reference-scope", str(args.reference_scope),
         "--timeout-ms", str(args.timeout_ms),
     ]
+    if args.constraints is not None:
+        java_args.extend(["--constraints", str(args.constraints.resolve())])
     command = [str(args.launcher), "-nosplash"] + java_args
     if args.console_log:
         command.insert(1, "-consoleLog")
     completed = subprocess.run(command, text=True, capture_output=True,
                                cwd=args.launcher.parent)
     if result_json.is_file():
-        result = json.loads(result_json.read_text(encoding="utf-8"))
+        raw_result = result_json.read_text(encoding="utf-8")
+        try:
+            result = json.loads(raw_result)
+        except json.JSONDecodeError as error:
+            # Older EFinder builds may write backend diagnostics containing
+            # raw control characters into the JSON detail field. Preserve the
+            # useful classification instead of crashing the batch wrapper.
+            diagnostic = raw_result
+            unsupported = "not supported" in diagnostic.lower()
+            result = {
+                "backend": "efinder",
+                "status": "UNSUPPORTED_FEATURE" if unsupported
+                         else "EFINDER_TRANSLATION_ERROR",
+                "ecore": str(args.ecore),
+                "check": check,
+                "detail": (
+                    "Malformed backend result JSON at character "
+                    + str(error.pos) + "; raw diagnostic: "
+                    + diagnostic[-4000:]
+                ),
+            }
         if args.console_log and (completed.stdout or completed.stderr):
             print((completed.stdout + "\n" + completed.stderr).strip(), file=sys.stderr)
         return result, 0 if accepted_status(result.get("status", "")) else 1
@@ -124,7 +180,9 @@ def main(argv: list[str] | None = None) -> int:
     checks.add_argument("--check", metavar="EClass::constraint",
                         help="one Pivot OCL constraint to negate and search")
     checks.add_argument("--check-all", action="store_true",
-                        help="check every ATL2TM target postConstraint")
+                        help="check every ATL2TM target postConstraint (including --constraints)")
+    parser.add_argument("--constraints", type=Path,
+                        help="an .ocl file or folder of target-post.ocl and optional source-pre.ocl constraints")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--scope", type=int, default=3, help="maximum instances per EClass")
     parser.add_argument("--reference-scope", type=int, default=6,
@@ -138,6 +196,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.ecore.is_file():
         parser.error(f"not found: {args.ecore}")
+    if args.constraints is not None and not args.constraints.exists():
+        parser.error(f"constraints path not found: {args.constraints}")
     if args.scope < 1 or args.reference_scope < 0 or args.timeout_ms < 1:
         parser.error("scope >= 1, reference-scope >= 0, and timeout-ms >= 1 are required")
     if not args.launcher.is_file():
@@ -154,7 +214,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return returncode
 
-    discovered = discover_checks(args.ecore)
+    try:
+        discovered = discover_checks(args.ecore, args.constraints)
+    except ValueError as error:
+        parser.error(str(error))
     if not discovered:
         summary = {
             "backend": "efinder",

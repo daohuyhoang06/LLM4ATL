@@ -1,0 +1,12 @@
+-- AD2AD copies source content into the descriptive fields and creates a
+-- taxonomy; IEEE1471Model2MoDAFModel retains the core architecture links.
+context MoDAFModel
+inv MoDAFModelHasCoreArchitecture:
+  self.name <> '' and not self.enterprise.oclIsUndefined() and
+  not self.environment.oclIsUndefined() and
+  not self.architecturalDescription.oclIsUndefined()
+
+context ArchitecturalDescription
+inv ArchitecturalDescriptionCopiesContent:
+  self.approvialAuthority <> '' and self.architect <> '' and
+  not self.taxonomy.oclIsUndefined()

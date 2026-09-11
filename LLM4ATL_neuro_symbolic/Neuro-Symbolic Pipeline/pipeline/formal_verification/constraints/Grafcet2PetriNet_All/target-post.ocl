@@ -1,0 +1,6 @@
+-- The ATL preserves the named Grafcet container and translates all contained
+-- elements and connections.  It does not assign Arc.weight, so no claim is
+-- made about that unrelated target attribute.
+context PetriNet
+inv PetriNetRetainsNamedStructure:
+  self.name <> '' and self.elements->notEmpty() and self.arcs->notEmpty()

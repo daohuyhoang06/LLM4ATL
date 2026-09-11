@@ -1,0 +1,12 @@
+global inv SourceAmaltheaInputIsValid:
+  ComponentContainer.allInstances()->exists(c | c.tasks->notEmpty()) and
+  Task.allInstances()->forAll(t | t.name <> '')
+
+-- The rule creates one AscetModule per source ComponentContainer.
+context ComponentContainer
+inv SourceContainerHasTasks:
+  self.tasks->notEmpty()
+
+context Task
+inv SourceTaskHasName:
+  self.name <> ''

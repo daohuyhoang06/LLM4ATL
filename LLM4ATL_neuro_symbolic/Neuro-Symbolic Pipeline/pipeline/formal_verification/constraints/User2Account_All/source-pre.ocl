@@ -1,0 +1,15 @@
+global inv SourceUserInputIsValid:
+  UserModel.allInstances()->exists(m |
+    m.users->notEmpty() and
+    m.users->isUnique(u | u.username) and
+    m.users->forAll(u | u.username <> '' and u.email <> '')
+  ) and
+  User.allInstances()->forAll(u | u.username <> '' and u.email <> '')
+
+context UserModel
+inv SourceUserModelIsNonEmpty:
+  self.users->notEmpty()
+
+context User
+inv SourceUserHasIdentifiers:
+  self.username <> '' and self.email <> ''

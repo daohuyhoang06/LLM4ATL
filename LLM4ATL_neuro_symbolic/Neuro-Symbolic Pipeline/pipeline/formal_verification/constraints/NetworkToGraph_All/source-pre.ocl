@@ -1,0 +1,17 @@
+global inv SourceNetworkInputIsValid:
+  System.allInstances()->exists(s |
+    s.components->notEmpty() and s.components->forAll(c | c.name <> '')
+  ) and
+  Link.allInstances()->forAll(l | l.components->notEmpty())
+
+context System
+inv SourceSystemHasComponents:
+  self.components->notEmpty()
+
+context Component
+inv SourceComponentHasName:
+  self.name <> ''
+
+context Link
+inv SourceLinkHasEndpoints:
+  self.components->notEmpty()

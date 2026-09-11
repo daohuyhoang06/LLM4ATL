@@ -1,0 +1,24 @@
+global inv SourceFamilyInputIsValid:
+  FamilyRegister.allInstances()->exists(r |
+    r.families->notEmpty() and
+    r.families->forAll(f |
+      f.lastName <> '' and
+      (f.sons->notEmpty() or f.daughters->notEmpty() or
+       not f.father.oclIsUndefined() or not f.mother.oclIsUndefined())
+    )
+  ) and
+  Member.allInstances()->forAll(m |
+    m.firstName <> '' and
+    (not m.familySon.oclIsUndefined() or not m.familyDaughter.oclIsUndefined() or
+     not m.familyFather.oclIsUndefined() or not m.familyMother.oclIsUndefined())
+  )
+
+context Family
+inv SourceFamilyHasLastName:
+  self.lastName <> ''
+
+context Member
+inv SourceMemberHasFirstName:
+  self.firstName <> '' and
+  (not self.familySon.oclIsUndefined() or not self.familyDaughter.oclIsUndefined() or
+   not self.familyFather.oclIsUndefined() or not self.familyMother.oclIsUndefined())

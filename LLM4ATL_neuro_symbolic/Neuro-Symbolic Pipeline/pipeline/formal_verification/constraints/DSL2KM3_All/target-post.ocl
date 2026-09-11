@@ -1,0 +1,6 @@
+-- DomainModel always creates its named package and the PrimitiveTypes package.
+context Metamodel
+inv MetamodelHasMainAndPrimitivePackages:
+  self.contents->size() = 2 and
+  self.contents->exists(p | p.name = 'PrimitiveTypes') and
+  self.contents->exists(p | p.name <> 'PrimitiveTypes' and p.name <> '')

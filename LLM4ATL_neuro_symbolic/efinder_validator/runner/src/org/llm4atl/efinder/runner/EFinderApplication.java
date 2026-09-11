@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.equinox.app.IApplication;
@@ -49,10 +51,19 @@ public final class EFinderApplication implements IApplication {
         try {
             Files.createDirectories(arguments.outDir);
             EcoreCounterexamplePreparer.PreparedModel prepared = EcoreCounterexamplePreparer.prepare(
-                    arguments.ecore, arguments.outDir, arguments.check);
+                    arguments.ecore, arguments.outDir, arguments.check, arguments.constraints);
+            if (arguments.constraints != null) {
+                result.put("constraints", arguments.constraints.toAbsolutePath().toString());
+            }
             result.put("prepared_ecore", prepared.ecore().toString());
             result.put("generated_negation", prepared.generatedConstraint());
             result.put("verification_formula", prepared.verificationFormula());
+            if (!prepared.normalizedFeatures().isEmpty()) {
+                result.put("normalized_features", String.join("; ", prepared.normalizedFeatures()));
+            }
+            if (!prepared.abstractedFeatures().isEmpty()) {
+                result.put("abstracted_features", String.join("; ", prepared.abstractedFeatures()));
+            }
             phase = "load-ecore";
             ResourceSet resourceSet = new ResourceSetImpl();
             resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
@@ -76,7 +87,9 @@ public final class EFinderApplication implements IApplication {
             parseOclExpressions(ocl, asResource.getModel());
             Model pivot = (Model) asResource.getContents().get(0);
             phase = "efinder-translation";
-            IBoundsProvider bounds = new TargetClassBounds(arguments.check.context(), arguments.scope,
+            String boundedContext = concreteWitnessContext(resourceSet, prepared.verificationContext());
+            result.put("bounded_witness_context", boundedContext);
+            IBoundsProvider bounds = new TargetClassBounds(boundedContext, arguments.scope,
                     arguments.referenceScope);
             UseMvFinder finder = new UseMvFinder()
                     .withBoundsProvider(bounds)
@@ -99,6 +112,10 @@ public final class EFinderApplication implements IApplication {
             } else if (finding instanceof UseMvResult.UnsupportedTranslation translation) {
                 result.put("detail", translation.getUseErrors());
             }
+        } catch (EcoreCounterexamplePreparer.UnsupportedFeatureException exception) {
+            result.put("status", "UNSUPPORTED_FEATURE");
+            result.put("phase", phase);
+            result.put("detail", exception.getMessage());
         } catch (Throwable exception) {
             result.put("status", diagnosticStatus(phase, exception));
             result.put("phase", phase);
@@ -130,6 +147,30 @@ public final class EFinderApplication implements IApplication {
     private static void parseOclExpressions(OCL ocl, EObject object) throws Exception {
         if (object instanceof ExpressionInOCL expression) ocl.parseSpecification(expression);
         for (EObject child : object.eContents()) parseOclExpressions(ocl, child);
+    }
+
+    /**
+     * An invariant on an abstract target context still describes its concrete
+     * descendants, but a lower bound on the abstract class cannot create a
+     * witness. Select one concrete descendant so NOT Post_i cannot be
+     * satisfied vacuously with an empty target domain.
+     */
+    private static String concreteWitnessContext(ResourceSet resourceSet, String context) {
+        List<EClass> classifiers = new ArrayList<>();
+        for (Resource resource : resourceSet.getResources()) {
+            resource.getAllContents().forEachRemaining(object -> {
+                if (object instanceof EClass eClass) classifiers.add(eClass);
+            });
+        }
+        EClass selected = classifiers.stream()
+                .filter(eClass -> context.equals(eClass.getName()))
+                .findFirst().orElse(null);
+        if (selected == null || !selected.isAbstract()) return context;
+        return classifiers.stream()
+                .filter(eClass -> !eClass.isAbstract()
+                        && eClass.getEAllSuperTypes().contains(selected))
+                .map(EClass::getName)
+                .findFirst().orElse(context);
     }
 
     private static String diagnosticStatus(String phase, Throwable exception) {
@@ -201,7 +242,7 @@ public final class EFinderApplication implements IApplication {
     }
 
     private record Arguments(Path ecore, EcoreCounterexamplePreparer.Check check, Path outDir,
-                             Path resultJson, int scope, int referenceScope, int timeoutMillis) {
+                             Path resultJson, Path constraints, int scope, int referenceScope, int timeoutMillis) {
         @SuppressWarnings("unchecked")
         static Arguments parse(IApplicationContext context) {
             Object raw = context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
@@ -214,11 +255,16 @@ public final class EFinderApplication implements IApplication {
             EcoreCounterexamplePreparer.Check check = EcoreCounterexamplePreparer.Check.parse(required(options, "--check"));
             Path outDir = path(options, "--out-dir");
             Path resultJson = path(options, "--result-json");
-            return new Arguments(ecore, check, outDir, resultJson,
+            Path constraints = optionalPath(options, "--constraints");
+            return new Arguments(ecore, check, outDir, resultJson, constraints,
                     integer(options, "--scope", 3), integer(options, "--reference-scope", 6),
                     integer(options, "--timeout-ms", 300_000));
         }
         private static Path path(Map<String, String> options, String name) { return Path.of(required(options, name)); }
+        private static Path optionalPath(Map<String, String> options, String name) {
+            String value = options.get(name);
+            return value == null || value.isBlank() ? null : Path.of(value);
+        }
         private static String required(Map<String, String> options, String name) {
             String value = options.get(name);
             if (value == null || value.isBlank()) throw new IllegalArgumentException("Missing argument " + name);

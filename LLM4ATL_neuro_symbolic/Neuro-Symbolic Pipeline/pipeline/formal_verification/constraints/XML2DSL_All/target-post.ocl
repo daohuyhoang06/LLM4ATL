@@ -1,0 +1,9 @@
+-- DomainModel copies its required XML name and introduces these four
+-- primitive types independently of XML classifier content.
+context DomainModel
+inv DomainModelHasPrimitiveTypes:
+  self.name <> '' and
+  self.types->exists(t | t.name = 'String') and
+  self.types->exists(t | t.name = 'Integer') and
+  self.types->exists(t | t.name = 'Boolean') and
+  self.types->exists(t | t.name = 'Real')

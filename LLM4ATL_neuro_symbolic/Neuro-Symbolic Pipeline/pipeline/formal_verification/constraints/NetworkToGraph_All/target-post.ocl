@@ -1,0 +1,9 @@
+-- System2Root and Link2Link preserve source component memberships in both
+-- relevant target collections.
+context Root
+inv RootRetainsNamedEntities:
+  self.entities->notEmpty() and self.entities->forAll(e | e.name <> '')
+
+context Link
+inv GraphLinkRetainsEndpoints:
+  self.Entitys->notEmpty() and self.Entitys->forAll(e | e.name <> '')

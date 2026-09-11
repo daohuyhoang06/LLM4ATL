@@ -1,0 +1,9 @@
+global inv SourceGrafcetInputIsValid:
+  Grafcet.allInstances()->exists(g |
+    g.name <> '' and g.elements->notEmpty() and g.connections->notEmpty()
+  ) and
+  Grafcet.allInstances()->forAll(g | g.name <> '')
+
+context Grafcet
+inv SourceGrafcetHasNamedStructure:
+  self.name <> '' and self.elements->notEmpty() and self.connections->notEmpty()

@@ -1,0 +1,28 @@
+global inv SourceClassModelIsValid:
+  ClassModel.allInstances()->exists(cm |
+    cm.classes->notEmpty() and
+    cm.classes->forAll(c |
+      c.name <> '' and c.methods->notEmpty() and
+      c.methods->isUnique(m | m.name) and
+      c.methods->forAll(m |
+        m.name <> '' and m.returnType <> '' and
+        m.parameters->notEmpty() and
+        m.parameters->isUnique(p | p.name) and
+        m.parameters->forAll(p | p.name <> '' and p.type <> '')
+      )
+    )
+  )
+
+context Class
+inv SourceClassHasMethods:
+  self.name <> '' and self.methods->notEmpty() and
+  self.methods->isUnique(m | m.name)
+
+context Method
+inv SourceMethodHasTypedParameters:
+  self.name <> '' and self.parameters->notEmpty() and self.returnType <> '' and
+  self.parameters->isUnique(p | p.name)
+
+context Parameter
+inv SourceParameterHasNameAndType:
+  self.name <> '' and self.type <> ''

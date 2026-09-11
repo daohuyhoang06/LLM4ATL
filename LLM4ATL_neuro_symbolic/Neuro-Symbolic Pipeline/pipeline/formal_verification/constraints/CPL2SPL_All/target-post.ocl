@@ -1,0 +1,9 @@
+-- CPL2Program explicitly creates a Program, its service and a Dialog with
+-- the source incoming/outgoing endpoints.  The ATL literal is "unnamed".
+context Program
+inv ProgramOwnsNamedService:
+  not self.service.oclIsUndefined() and self.service.name = 'unnamed'
+
+context Service
+inv ServiceHasDialog:
+  self.name = 'unnamed' and self.sessions->exists(s | s.oclIsKindOf(Dialog))

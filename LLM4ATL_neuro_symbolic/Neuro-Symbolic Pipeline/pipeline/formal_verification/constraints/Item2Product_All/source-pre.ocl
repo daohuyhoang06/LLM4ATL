@@ -1,0 +1,15 @@
+global inv SourceItemInputIsValid:
+  ItemModel.allInstances()->exists(m |
+    m.items->notEmpty() and
+    m.items->isUnique(i | i.name) and
+    m.items->forAll(i | i.name <> '' and i.description <> '' and i.price >= 0.0)
+  ) and
+  Item.allInstances()->forAll(i | i.name <> '' and i.description <> '' and i.price >= 0.0)
+
+context ItemModel
+inv SourceItemModelIsNonEmpty:
+  self.items->notEmpty() and self.items->isUnique(i | i.name)
+
+context Item
+inv SourceItemHasNonNegativePrice:
+  self.name <> '' and self.description <> '' and self.price >= 0.0

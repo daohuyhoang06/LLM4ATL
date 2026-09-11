@@ -1,0 +1,6 @@
+-- Document2Report and Section2Section copy the document metadata and every
+-- ordered, non-empty section from the source profile.
+context Report
+inv ReportRetainsOrderedSections:
+  self.title <> '' and self.author <> '' and self.sections->notEmpty() and
+  self.sections->forAll(s | s.title <> '' and s.content <> '' and s.order > 0)

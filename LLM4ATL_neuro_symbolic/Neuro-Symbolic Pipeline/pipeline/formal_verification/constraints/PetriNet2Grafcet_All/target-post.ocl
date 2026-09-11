@@ -1,0 +1,16 @@
+-- Grafcet preserves the source net structure; Step explicitly resets only
+-- the two execution flags.  ATL does not assign Step.action.
+context Grafcet
+inv GrafcetRetainsNamedStructure:
+  self.name <> '' and self.elements->notEmpty() and self.connections->notEmpty()
+  and self.elements->forAll(e | e.name <> '' and e.location <> '')
+  and self.connections->forAll(c | c.name <> '' and c.location <> '')
+
+context Step
+inv GeneratedStepIsInactive:
+  self.name <> '' and self.location <> '' and
+  not self.isInitial and not self.isActive
+
+context Transition
+inv GeneratedTransitionIsContainedAndNamed:
+  self.name <> '' and self.location <> '' and not self.grafcet.oclIsUndefined()

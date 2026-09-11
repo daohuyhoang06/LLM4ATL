@@ -1,0 +1,7 @@
+-- Makefile2Project maps the Makefile name, Rule collection and Macro
+-- collection; its default is selected from the mapped targets.
+context Project
+inv ProjectDefaultIsDeclaredTarget:
+  self.name <> '' and self.targets->notEmpty() and
+  self.targets->includes(self.default) and self.properties->notEmpty() and
+  self.properties->forAll(p | p.oclIsKindOf(PropertyValue))

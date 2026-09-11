@@ -1,0 +1,9 @@
+global inv SourceCplInputExists:
+  CPL.allInstances()->notEmpty() and
+  CPL.allInstances()->forAll(c |
+    not c.incoming.oclIsUndefined() and not c.outgoing.oclIsUndefined()
+  )
+
+context CPL
+inv SourceCplHasDialogEndpoints:
+  not self.incoming.oclIsUndefined() and not self.outgoing.oclIsUndefined()
