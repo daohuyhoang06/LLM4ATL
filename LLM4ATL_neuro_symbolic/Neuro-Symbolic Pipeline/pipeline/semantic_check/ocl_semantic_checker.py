@@ -569,6 +569,21 @@ class OCLSemanticChecker:
     def _check_iterator(cls, expr, env, ablation_config=None) -> str:
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
         iter_type = expr.iterator_type
+
+        # Iterator expressions (select, reject, collect, forAll, exists,
+        # any, ...) are defined only for collections.  Do this check before
+        # binding the iterator variable: otherwise a scalar receiver produces
+        # an Unknown iterator type and errors such as
+        # ``singleReference->reject(...)`` pass Layer 2 unnoticed.
+        if (
+            is_enabled(ablation_config, "enable_layer2_type_check")
+            and source_type != "Unknown"
+            and not cls.is_collection_type(source_type)
+        ):
+            raise SemanticError(
+                f"Iterator '{iter_type}' requires a collection source, got {source_type}"
+            )
+
         element_type = cls._element_type(source_type)
 
         env.push_scope()
@@ -814,12 +829,16 @@ class OCLSemanticChecker:
             return True
 
         # Collection compatibility
-        src_match = re.match(
-            r'^(Set|Bag|Sequence|OrderedSet)\((.+)\)$',
+        # A bare collection type is the legacy representation of a
+        # collection whose element type could not be inferred.  Treat it as
+        # ``Kind(Unknown)`` so, for example, ``Set`` and ``Set(Unknown)``
+        # unify, while different collection kinds remain incompatible.
+        src_match = re.fullmatch(
+            r'(Set|Bag|Sequence|OrderedSet)(?:\((.+)\))?',
             actual_type
         )
-        tgt_match = re.match(
-            r'^(Set|Bag|Sequence|OrderedSet)\((.+)\)$',
+        tgt_match = re.fullmatch(
+            r'(Set|Bag|Sequence|OrderedSet)(?:\((.+)\))?',
             expected_type
         )
 
@@ -831,8 +850,8 @@ class OCLSemanticChecker:
                 return False
 
             return cls._is_type_compatible(
-                src_match.group(2),
-                tgt_match.group(2),
+                src_match.group(2) or "Unknown",
+                tgt_match.group(2) or "Unknown",
                 env
             )
 

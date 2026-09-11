@@ -98,7 +98,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         else:
             print(f"[Lỗi] Không tìm thấy file model: {full_path}")
             
-    MAX_RETRIES = 3
+    MAX_RETRIES = 4
     validation_error = ""
     data = None
     
@@ -180,22 +180,7 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-       "Class2Interface_All",
-        "Document2Report_All",
-        "Item2Product_All",
-        "User2Account_All",
-        "NetworkToGraph_All",
-        "FamiliesToPersons_All",
-        "AmaltheaToAscet_All",
-        "BibTeX2DocBook_All",
-        "XML2DSL_All",
-        "PetriNet2Grafcet_All",
-        "Grafcet2PetriNet_All",
-        "DSL2KM3_All",
-        "IEEE1471_2_MoDAF_All",
-        "Make2Ant_All",
-        "CPL2SPL_All"
-
+        "DSL2KM3_All"
     ]
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p

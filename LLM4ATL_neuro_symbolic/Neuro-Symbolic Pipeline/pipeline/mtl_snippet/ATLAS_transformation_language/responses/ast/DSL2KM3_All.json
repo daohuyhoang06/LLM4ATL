@@ -21,36 +21,28 @@
       "kind": "operation",
       "context_type": "DSL!Relationship",
       "name": "needTurnOnClass",
+      "parameters": [],
       "return_type": "Boolean",
       "body": {
         "type": "BinaryExpression",
         "operator": "or",
         "left": {
+          "type": "CollectionOperation",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            },
+            "property_name": "properties"
+          },
+          "operation_name": "notEmpty",
+          "arguments": []
+        },
+        "right": {
           "type": "BinaryExpression",
           "operator": "or",
           "left": {
-            "type": "BinaryExpression",
-            "operator": ">",
-            "left": {
-              "type": "CollectionOperation",
-              "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "self"
-                },
-                "property_name": "properties"
-              },
-              "operation_name": "size",
-              "arguments": []
-            },
-            "right": {
-              "type": "LiteralExpression",
-              "value": 0,
-              "literal_type": "Integer"
-            }
-          },
-          "right": {
             "type": "UnaryExpression",
             "operator": "not",
             "expression": {
@@ -66,12 +58,8 @@
               "operation_name": "oclIsUndefined",
               "arguments": []
             }
-          }
-        },
-        "right": {
-          "type": "BinaryExpression",
-          "operator": ">",
-          "left": {
+          },
+          "right": {
             "type": "CollectionOperation",
             "source": {
               "type": "PropertyCall",
@@ -81,13 +69,8 @@
               },
               "property_name": "subTypes"
             },
-            "operation_name": "size",
+            "operation_name": "notEmpty",
             "arguments": []
-          },
-          "right": {
-            "type": "LiteralExpression",
-            "value": 0,
-            "literal_type": "Integer"
           }
         }
       }
@@ -95,8 +78,9 @@
     {
       "type": "Helper",
       "kind": "operation",
-      "context_type": "DSL!Class",
+      "context_type": "DSL!Classifier",
       "name": "getRoles",
+      "parameters": [],
       "return_type": "Set(DSL!Role)",
       "body": {
         "type": "IteratorExpression",
@@ -160,6 +144,7 @@
       "kind": "operation",
       "context_type": "DSL!Role",
       "name": "isEmbedding",
+      "parameters": [],
       "return_type": "Boolean",
       "body": {
         "type": "PropertyCall",
@@ -176,7 +161,7 @@
     },
     {
       "type": "MatchedRule",
-      "name": "DomainModel",
+      "name": "Metamodel",
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -184,7 +169,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "dm",
               "declared_type": "DSL!DomainModel"
             }
           }
@@ -197,7 +182,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "km3_metamodel",
               "declared_type": "KM3!Metamodel"
             },
             "bindings": [
@@ -210,11 +195,11 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "p"
+                      "name": "main_package"
                     },
                     {
                       "type": "Variable",
-                      "name": "pt"
+                      "name": "prim_package"
                     }
                   ]
                 }
@@ -225,7 +210,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "main_package",
               "declared_type": "KM3!Package"
             },
             "bindings": [
@@ -236,7 +221,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "dm"
                   },
                   "property_name": "name"
                 }
@@ -245,12 +230,26 @@
                 "type": "Binding",
                 "property_name": "contents",
                 "value": {
-                  "type": "PropertyCall",
+                  "type": "CollectionOperation",
                   "source": {
-                    "type": "Variable",
-                    "name": "s"
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "dm"
+                    },
+                    "property_name": "classifiers"
                   },
-                  "property_name": "classifiers"
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "dm"
+                      },
+                      "property_name": "types"
+                    }
+                  ]
                 }
               }
             ]
@@ -259,7 +258,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "pt",
+              "name": "prim_package",
               "declared_type": "KM3!Package"
             },
             "bindings": [
@@ -276,12 +275,79 @@
                 "type": "Binding",
                 "property_name": "contents",
                 "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "types"
+                  "type": "CollectionLiteral",
+                  "collection_kind": "Set",
+                  "elements": [
+                    {
+                      "type": "Variable",
+                      "name": "pt_boolean"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "pt_integer"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "pt_string"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "pt_boolean",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Boolean",
+                  "literal_type": "String"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "pt_integer",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Integer",
+                  "literal_type": "String"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "pt_string",
+              "declared_type": "KM3!DataType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "String",
+                  "literal_type": "String"
                 }
               }
             ]
@@ -299,7 +365,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "c",
               "declared_type": "DSL!Class"
             }
           }
@@ -312,7 +378,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "k_class",
               "declared_type": "KM3!Class"
             },
             "bindings": [
@@ -323,7 +389,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "c"
                   },
                   "property_name": "name"
                 }
@@ -335,7 +401,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "c"
                   },
                   "property_name": "isAbstract"
                 }
@@ -344,38 +410,38 @@
                 "type": "Binding",
                 "property_name": "supertypes",
                 "value": {
-                  "type": "IfExpression",
-                  "condition": {
+                  "type": "IteratorExpression",
+                  "source": {
                     "type": "OperationCall",
                     "source": {
+                      "type": "Variable",
+                      "name": "DSL!Classifier"
+                    },
+                    "operation_name": "allInstances",
+                    "arguments": []
+                  },
+                  "iterator_type": "select",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "x"
+                    }
+                  ],
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Variable",
+                      "name": "x"
+                    },
+                    "right": {
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s"
+                        "name": "c"
                       },
                       "property_name": "superType"
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  },
-                  "then_expression": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": []
-                  },
-                  "else_expression": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "s"
-                        },
-                        "property_name": "superType"
-                      }
-                    ]
+                    }
                   }
                 }
               },
@@ -388,7 +454,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s"
+                      "name": "c"
                     },
                     "property_name": "properties"
                   },
@@ -398,7 +464,7 @@
                       "type": "OperationCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s"
+                        "name": "c"
                       },
                       "operation_name": "getRoles",
                       "arguments": []
@@ -416,25 +482,25 @@
       "name": "Relation2Class",
       "in_pattern": {
         "type": "InPattern",
+        "filter": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "rel"
+          },
+          "operation_name": "needTurnOnClass",
+          "arguments": []
+        },
         "elements": [
           {
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "rel",
               "declared_type": "DSL!Relationship"
             }
           }
-        ],
-        "filter": {
-          "type": "OperationCall",
-          "source": {
-            "type": "Variable",
-            "name": "s"
-          },
-          "operation_name": "needTurnOnClass",
-          "arguments": []
-        }
+        ]
       },
       "out_pattern": {
         "type": "OutPattern",
@@ -443,7 +509,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "c",
               "declared_type": "KM3!Class"
             },
             "bindings": [
@@ -454,7 +520,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "rel"
                   },
                   "property_name": "name"
                 }
@@ -466,7 +532,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "rel"
                   },
                   "property_name": "isAbstract"
                 }
@@ -475,38 +541,38 @@
                 "type": "Binding",
                 "property_name": "supertypes",
                 "value": {
-                  "type": "IfExpression",
-                  "condition": {
+                  "type": "IteratorExpression",
+                  "source": {
                     "type": "OperationCall",
                     "source": {
+                      "type": "Variable",
+                      "name": "DSL!Classifier"
+                    },
+                    "operation_name": "allInstances",
+                    "arguments": []
+                  },
+                  "iterator_type": "select",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "x"
+                    }
+                  ],
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "Variable",
+                      "name": "x"
+                    },
+                    "right": {
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s"
+                        "name": "rel"
                       },
                       "property_name": "superType"
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  },
-                  "then_expression": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": []
-                  },
-                  "else_expression": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "s"
-                        },
-                        "property_name": "superType"
-                      }
-                    ]
+                    }
                   }
                 }
               },
@@ -519,7 +585,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s"
+                      "name": "rel"
                     },
                     "property_name": "properties"
                   },
@@ -529,7 +595,7 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s"
+                        "name": "rel"
                       },
                       "property_name": "roles"
                     }
@@ -546,16 +612,6 @@
       "name": "SimpleReference",
       "in_pattern": {
         "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "s",
-              "declared_type": "DSL!Role"
-            }
-          }
-        ],
         "filter": {
           "type": "UnaryExpression",
           "operator": "not",
@@ -565,14 +621,24 @@
               "type": "PropertyCall",
               "source": {
                 "type": "Variable",
-                "name": "s"
+                "name": "r"
               },
               "property_name": "relation"
             },
             "operation_name": "needTurnOnClass",
             "arguments": []
           }
-        }
+        },
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "DSL!Role"
+            }
+          }
+        ]
       },
       "out_pattern": {
         "type": "OutPattern",
@@ -581,7 +647,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ref",
               "declared_type": "KM3!Reference"
             },
             "bindings": [
@@ -592,9 +658,21 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "r"
+                  },
+                  "property_name": "type"
                 }
               },
               {
@@ -604,7 +682,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "min"
                 }
@@ -616,7 +694,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "max"
                 }
@@ -628,7 +706,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "isOrdered"
                 }
@@ -638,20 +716,8 @@
                 "property_name": "isUnique",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": false,
+                  "value": true,
                   "literal_type": "Boolean"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "type",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "type"
                 }
               },
               {
@@ -661,7 +727,7 @@
                   "type": "OperationCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "operation_name": "isEmbedding",
                   "arguments": []
@@ -671,34 +737,43 @@
                 "type": "Binding",
                 "property_name": "opposite",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "CollectionOperation",
                   "source": {
-                    "type": "PropertyCall",
+                    "type": "IteratorExpression",
                     "source": {
-                      "type": "Variable",
-                      "name": "s"
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "r"
+                        },
+                        "property_name": "relation"
+                      },
+                      "property_name": "roles"
                     },
-                    "property_name": "relation"
+                    "iterator_type": "reject",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "x"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "Variable",
+                        "name": "x"
+                      },
+                      "right": {
+                        "type": "Variable",
+                        "name": "r"
+                      }
+                    }
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "r"
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "Variable",
-                      "name": "r"
-                    },
-                    "right": {
-                      "type": "Variable",
-                      "name": "s"
-                    }
-                  }
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ]
@@ -711,29 +786,29 @@
       "name": "ComplexReference",
       "in_pattern": {
         "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "s",
-              "declared_type": "DSL!Role"
-            }
-          }
-        ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "PropertyCall",
             "source": {
               "type": "Variable",
-              "name": "s"
+              "name": "r"
             },
             "property_name": "relation"
           },
           "operation_name": "needTurnOnClass",
           "arguments": []
-        }
+        },
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "DSL!Role"
+            }
+          }
+        ]
       },
       "out_pattern": {
         "type": "OutPattern",
@@ -742,7 +817,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ref",
               "declared_type": "KM3!Reference"
             },
             "bindings": [
@@ -753,9 +828,21 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "r"
+                  },
+                  "property_name": "type"
                 }
               },
               {
@@ -765,7 +852,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "min"
                 }
@@ -777,7 +864,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "max"
                 }
@@ -789,7 +876,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "property_name": "isOrdered"
                 }
@@ -799,20 +886,8 @@
                 "property_name": "isUnique",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": false,
+                  "value": true,
                   "literal_type": "Boolean"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "type",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "type"
                 }
               },
               {
@@ -822,7 +897,7 @@
                   "type": "OperationCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "r"
                   },
                   "operation_name": "isEmbedding",
                   "arguments": []
@@ -843,7 +918,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "vp",
               "declared_type": "DSL!ValueProperty"
             }
           }
@@ -856,7 +931,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "attr",
               "declared_type": "KM3!Attribute"
             },
             "bindings": [
@@ -867,9 +942,21 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "vp"
                   },
                   "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "vp"
+                  },
+                  "property_name": "type"
                 }
               },
               {
@@ -904,20 +991,8 @@
                 "property_name": "isUnique",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": false,
+                  "value": true,
                   "literal_type": "Boolean"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "type",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "type"
                 }
               }
             ]
@@ -935,7 +1010,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "e",
               "declared_type": "DSL!Enumeration"
             }
           }
@@ -948,7 +1023,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "k_enum",
               "declared_type": "KM3!Enumeration"
             },
             "bindings": [
@@ -959,7 +1034,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "e"
                   },
                   "property_name": "name"
                 }
@@ -971,7 +1046,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "e"
                   },
                   "property_name": "literals"
                 }
@@ -991,7 +1066,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "el",
               "declared_type": "DSL!EnumerationLiteral"
             }
           }
@@ -1004,7 +1079,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "k_el",
               "declared_type": "KM3!EnumLiteral"
             },
             "bindings": [
@@ -1015,7 +1090,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "el"
                   },
                   "property_name": "name"
                 }
@@ -1035,7 +1110,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "st",
               "declared_type": "DSL!SimpleType"
             }
           }
@@ -1048,7 +1123,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "dt",
               "declared_type": "KM3!DataType"
             },
             "bindings": [
@@ -1059,7 +1134,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s"
+                    "name": "st"
                   },
                   "property_name": "name"
                 }
