@@ -86,6 +86,13 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
+Neuro-Symbolic Pipeline/pipeline/formal_verification/output/
+
+# Generated parser and ATL execution reports (kept locally for inspection).
+ATL_Parser/atl_chrf_similarity.csv
+ATL_Parser/atl_parser_chrf_results.csv
+ATL_Tests/atl_pass_rate_summary.csv
+ATL_Tests/atl_test_results.csv
 
 # Jupyter Notebook
 .ipynb_checkpoints
