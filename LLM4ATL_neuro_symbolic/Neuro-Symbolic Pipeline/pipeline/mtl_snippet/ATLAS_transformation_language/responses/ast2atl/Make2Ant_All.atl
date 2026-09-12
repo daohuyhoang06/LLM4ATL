@@ -9,7 +9,7 @@ rule Makefile2Project {
             name <- m.name,
             properties <- m.elements->select(e | e.oclIsTypeOf(Make!Macro)),
             targets <- m.elements->select(e | e.oclIsTypeOf(Make!Rule)),
-            default <- m.elements->select(e | e.oclIsTypeOf(Make!Rule))->first()
+            default <- m.elements->select(e | e.oclIsTypeOf(Make!Rule)).first()
         )
 }
 
@@ -41,12 +41,12 @@ rule ShellLine2Task_Display {
         )
     to
         echo : Ant!Echo (
-            target <- s.ruleShellLine,
-            message <- s.command
+            message <- s.command,
+            target <- s.ruleShellLine
         ),
         exec : Ant!Exec (
-            target <- s.ruleShellLine,
-            executable <- s.command
+            executable <- s.command,
+            target <- s.ruleShellLine
         )
 }
 
@@ -57,8 +57,8 @@ rule ShellLine2Task_NoDisplay {
         )
     to
         exec : Ant!Exec (
-            target <- s.ruleShellLine,
-            executable <- s.command
+            executable <- s.command,
+            target <- s.ruleShellLine
         )
 }
 

@@ -227,6 +227,7 @@
     {
       "type": "MatchedRule",
       "name": "Member2Male",
+      "using": [],
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -236,7 +237,8 @@
               "type": "Variable",
               "name": "m",
               "declared_type": "families!Member"
-            }
+            },
+            "model": "IN"
           }
         ],
         "filter": {
@@ -294,7 +296,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "model": "OUT"
           }
         ]
       }
@@ -302,6 +305,7 @@
     {
       "type": "MatchedRule",
       "name": "Member2Female",
+      "using": [],
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -311,7 +315,8 @@
               "type": "Variable",
               "name": "m",
               "declared_type": "families!Member"
-            }
+            },
+            "model": "IN"
           }
         ],
         "filter": {
@@ -369,7 +374,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "model": "OUT"
           }
         ]
       }

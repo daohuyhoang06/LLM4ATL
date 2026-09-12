@@ -194,7 +194,7 @@ class OCLSemanticChecker:
             inner = cls._element_type(source_type)
             return f"OrderedSet({inner})" if inner != "Unknown" else "OrderedSet"
         if op in ("first", "last", "at"):
-            return cls._element_type(source_type)
+            return cls._single_collection_element_type(source_type)
         if op == "indexOf": return "Integer"
         if op == "count": return "Integer"
         if op == "includes": return "Boolean"
@@ -647,7 +647,9 @@ class OCLSemanticChecker:
             else:
                 if body_type not in ("Boolean", "Unknown"):
                     raise SemanticError(f"Condition for 'any' must be Boolean, got {body_type}")
-            return element_type
+            # ``any`` selects one member satisfying the predicate; it never
+            # returns the source collection.
+            return cls._single_collection_element_type(source_type)
 
         raise SemanticError(
             f"Unknown iterator type '{iter_type}'. "
@@ -665,14 +667,14 @@ class OCLSemanticChecker:
         if op == "notEmpty": return "Boolean"
         if op == "sum": return "Integer"
         if op in ("first", "last"):
-            return cls._element_type(source_type)
+            return cls._single_collection_element_type(source_type)
         if op == "at":
             if len(expr.arguments) != 1:
                 raise SemanticError("at expects exactly one argument")
             index_type = cls.check(expr.arguments[0], env, ablation_config=ablation_config)
             if is_enabled(ablation_config, "enable_layer2_type_check") and index_type not in ("Integer", "Unknown"):
                 raise SemanticError(f"at index must be Integer, got {index_type}")
-            return cls._element_type(source_type)
+            return cls._single_collection_element_type(source_type)
         if op == "includes": return "Boolean"
         if op == "excludes": return "Boolean"
         if op in ("includesAll", "excludesAll"): return "Boolean"
@@ -771,6 +773,17 @@ class OCLSemanticChecker:
         if match:
             return match.group(2)
         return "Unknown"
+
+    @classmethod
+    def _single_collection_element_type(cls, source_type: str) -> str:
+        """Return the scalar element type selected by ``any``/``first``/``last``/``at``.
+
+        Registry property types may carry a cardinality suffix (for example
+        ``KM3!Reference[0..1]``). A collection selector yields the element,
+        not that element's multiplicity annotation, so normalize it here
+        before the binding compatibility check.
+        """
+        return cls._normalize_type(cls._element_type(source_type))
 
     @classmethod
     def _select_refined_collection_type(cls, expr, source_type: str, element_type: str, env) -> str:

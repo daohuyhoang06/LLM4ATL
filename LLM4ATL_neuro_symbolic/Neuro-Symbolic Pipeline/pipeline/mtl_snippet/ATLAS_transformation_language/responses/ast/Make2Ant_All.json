@@ -72,7 +72,8 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "e"
+                      "name": "e",
+                      "declared_type": "Make!Element"
                     }
                   ],
                   "body": {
@@ -108,7 +109,8 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "e"
+                      "name": "e",
+                      "declared_type": "Make!Element"
                     }
                   ],
                   "body": {
@@ -131,7 +133,7 @@
                 "type": "Binding",
                 "property_name": "default",
                 "value": {
-                  "type": "CollectionOperation",
+                  "type": "OperationCall",
                   "source": {
                     "type": "IteratorExpression",
                     "source": {
@@ -146,7 +148,8 @@
                     "iterators": [
                       {
                         "type": "Variable",
-                        "name": "e"
+                        "name": "e",
+                        "declared_type": "Make!Element"
                       }
                     ],
                     "body": {
@@ -164,7 +167,8 @@
                       ]
                     }
                   },
-                  "operation_name": "first"
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ]
@@ -298,7 +302,8 @@
                     "iterators": [
                       {
                         "type": "Variable",
-                        "name": "d"
+                        "name": "d",
+                        "declared_type": "Make!Dependency"
                       }
                     ],
                     "body": {
@@ -320,7 +325,8 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "d"
+                      "name": "d",
+                      "declared_type": "Make!RuleDep"
                     }
                   ],
                   "body": {
@@ -375,18 +381,6 @@
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "ruleShellLine"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "message",
                 "value": {
                   "type": "PropertyCall",
@@ -395,6 +389,18 @@
                     "name": "s"
                   },
                   "property_name": "command"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
                 }
               }
             ]
@@ -409,18 +415,6 @@
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "ruleShellLine"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "executable",
                 "value": {
                   "type": "PropertyCall",
@@ -429,6 +423,18 @@
                     "name": "s"
                   },
                   "property_name": "command"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
                 }
               }
             ]
@@ -477,18 +483,6 @@
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s"
-                  },
-                  "property_name": "ruleShellLine"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "executable",
                 "value": {
                   "type": "PropertyCall",
@@ -497,6 +491,18 @@
                     "name": "s"
                   },
                   "property_name": "command"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "target",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "ruleShellLine"
                 }
               }
             ]

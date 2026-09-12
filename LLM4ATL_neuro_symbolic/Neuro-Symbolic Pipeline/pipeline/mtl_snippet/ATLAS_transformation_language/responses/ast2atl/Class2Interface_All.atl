@@ -15,7 +15,7 @@ rule Method2Method {
     from
         m : Class!Method
     to
-        im : Interface!Method (
+        t : Interface!Method (
             name <- m.name,
             returnType <- m.returnType,
             parameters <- m.parameters
@@ -26,7 +26,7 @@ rule Parameter2Parameter {
     from
         p : Class!Parameter
     to
-        ip : Interface!Parameter (
+        t : Interface!Parameter (
             name <- p.name,
             type <- p.type
         )

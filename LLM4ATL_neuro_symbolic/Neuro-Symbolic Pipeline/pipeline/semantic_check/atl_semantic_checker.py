@@ -321,13 +321,27 @@ class ATLSemanticChecker:
             return True
 
         import re
-        src_match = re.fullmatch(r'(Set|Bag|Sequence|OrderedSet)\((.+)\)', source_type)
-        tgt_match = re.fullmatch(r'(Set|Bag|Sequence|OrderedSet)\((.+)\)', target_type)
+        # A bare collection type is the legacy representation of a
+        # collection whose element type could not be inferred. Treat it as
+        # ``Kind(Unknown)`` so ``Set`` and ``Set(Unknown)`` are compatible,
+        # just like the OCL expression checker.
+        src_match = re.fullmatch(
+            r'(Set|Bag|Sequence|OrderedSet)(?:\((.+)\))?', source_type
+        )
+        tgt_match = re.fullmatch(
+            r'(Set|Bag|Sequence|OrderedSet)(?:\((.+)\))?', target_type
+        )
 
         # Cả hai đều là collection
         if src_match and tgt_match:
-            # Cho phép gán bất kỳ collection nào sang collection nào (Implicit Cast trong ATL)
-            return cls._is_compatible_type(src_match.group(2), tgt_match.group(2), env)
+            # Preserve ATL's existing collection coercion behavior. Missing
+            # element types are treated as Unknown during unification, so
+            # ``Set`` and ``Set(Unknown)`` are compatible.
+            return cls._is_compatible_type(
+                src_match.group(2) or "Unknown",
+                tgt_match.group(2) or "Unknown",
+                env,
+            )
         
         # Nếu source là collection nhưng target không phải
         if src_match and not tgt_match:
@@ -337,8 +351,11 @@ class ATLSemanticChecker:
             return True
 
         if tgt_match and not src_match:
-            # Nếu target là Collection nhưng gán 1 phần tử vào thì coi như hợp lệ
-            return cls._is_compatible_type(source_type, tgt_match.group(2), env)
+            # Preserve the existing ATL implicit element-to-collection
+            # compatibility rule.
+            return cls._is_compatible_type(
+                source_type, tgt_match.group(2) or "Unknown", env
+            )
 
         # Kiểm tra tính kế thừa UML
         if env and env.registry:

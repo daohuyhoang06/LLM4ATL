@@ -89,7 +89,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "im",
+              "name": "s",
               "declared_type": "item!ItemModel"
             }
           }
@@ -102,7 +102,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "pm",
+              "name": "t",
               "declared_type": "product!ProductModel"
             },
             "bindings": [
@@ -113,7 +113,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "im"
+                    "name": "s"
                   },
                   "property_name": "items"
                 }
@@ -133,7 +133,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "i",
+              "name": "s",
               "declared_type": "item!Item"
             }
           }
@@ -146,7 +146,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "product!Product"
             },
             "bindings": [
@@ -157,7 +157,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -169,7 +169,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i"
+                    "name": "s"
                   },
                   "property_name": "price"
                 }
@@ -181,22 +181,9 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i"
+                    "name": "s"
                   },
                   "property_name": "description"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "category",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "i"
-                  },
-                  "operation_name": "getCategory",
-                  "arguments": []
                 }
               },
               {
@@ -209,7 +196,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "i"
+                      "name": "s"
                     },
                     "property_name": "quantity"
                   },
@@ -218,6 +205,19 @@
                     "value": 0,
                     "literal_type": "Integer"
                   }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "category",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "operation_name": "getCategory",
+                  "arguments": []
                 }
               }
             ]

@@ -60,7 +60,7 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "task"
+                      "name": "e"
                     }
                   ],
                   "body": {
@@ -73,7 +73,7 @@
                     "arguments": [
                       {
                         "type": "Variable",
-                        "name": "task"
+                        "name": "e"
                       }
                     ]
                   }
@@ -118,26 +118,22 @@
             }
           ],
           "body": {
-            "type": "UnaryExpression",
-            "operator": "not",
-            "expression": {
-              "type": "CollectionOperation",
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
               "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "c"
-                },
-                "property_name": "tasks"
+                "type": "Variable",
+                "name": "c"
               },
-              "operation_name": "includes",
-              "arguments": [
-                {
-                  "type": "Variable",
-                  "name": "s"
-                }
-              ]
-            }
+              "property_name": "tasks"
+            },
+            "operation_name": "excludes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "s"
+              }
+            ]
           }
         }
       },

@@ -19,46 +19,67 @@
     {
       "type": "Helper",
       "kind": "attribute",
-      "context_type": "IEEE1471!IEEE1471Model",
+      "context_type": null,
       "name": "rationale",
       "return_type": "String",
       "body": {
-        "type": "OperationCall",
-        "source": {
-          "type": "PropertyCall",
+        "type": "LetExpression",
+        "variable": {
+          "type": "Variable",
+          "name": "r",
+          "declared_type": "IEEE1471!Rationale"
+        },
+        "value": {
+          "type": "CollectionOperation",
           "source": {
-            "type": "CollectionOperation",
+            "type": "OperationCall",
             "source": {
-              "type": "OperationCall",
+              "type": "Variable",
+              "name": "IEEE1471!Rationale"
+            },
+            "operation_name": "allInstances",
+            "arguments": []
+          },
+          "operation_name": "first",
+          "arguments": []
+        },
+        "body": {
+          "type": "IfExpression",
+          "condition": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "r"
+            },
+            "operation_name": "oclIsUndefined",
+            "arguments": []
+          },
+          "then_expression": {
+            "type": "LiteralExpression",
+            "value": "",
+            "literal_type": "String"
+          },
+          "else_expression": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "PropertyCall",
               "source": {
                 "type": "Variable",
-                "name": "IEEE1471!Rationale"
+                "name": "r"
               },
-              "operation_name": "allInstances"
+              "property_name": "name"
             },
-            "operation_name": "first"
-          },
-          "property_name": "name"
-        },
-        "operation_name": "concat",
-        "arguments": [
-          {
-            "type": "PropertyCall",
-            "source": {
-              "type": "CollectionOperation",
+            "right": {
+              "type": "PropertyCall",
               "source": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "IEEE1471!Rationale"
-                },
-                "operation_name": "allInstances"
+                "type": "Variable",
+                "name": "r"
               },
-              "operation_name": "first"
-            },
-            "property_name": "content"
+              "property_name": "content"
+            }
           }
-        ]
+        }
       }
     },
     {
@@ -84,7 +105,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "m",
               "declared_type": "MoDAF!MoDAFModel"
             },
             "bindings": [
@@ -190,24 +211,25 @@
                 "value": {
                   "type": "CollectionOperation",
                   "source": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "IEEE1471!LibraryViewpoint"
-                    },
-                    "operation_name": "allInstances"
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "Variable",
+                        "name": "af"
+                      }
+                    ]
                   },
                   "operation_name": "union",
                   "arguments": [
                     {
-                      "type": "CollectionLiteral",
-                      "collection_kind": "Set",
-                      "elements": [
-                        {
-                          "type": "Variable",
-                          "name": "af"
-                        }
-                      ]
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "IEEE1471!LibraryViewpoint"
+                      },
+                      "operation_name": "allInstances",
+                      "arguments": []
                     }
                   ]
                 }
@@ -227,16 +249,7 @@
                 "property_name": "name",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "Default Architectural Framework",
-                  "literal_type": "String"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "content",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "Contains all Viewpoints without a source.",
+                  "value": "default",
                   "literal_type": "String"
                 }
               },
@@ -251,7 +264,8 @@
                       "type": "Variable",
                       "name": "IEEE1471!Viewpoint"
                     },
-                    "operation_name": "allInstances"
+                    "operation_name": "allInstances",
+                    "arguments": []
                   },
                   "iterator_type": "select",
                   "iterators": [
@@ -370,7 +384,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "e",
+              "name": "s",
               "declared_type": "IEEE1471!Environment"
             }
           }
@@ -394,7 +408,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "e"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -406,7 +420,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "e"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -418,7 +432,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "e"
+                    "name": "s"
                   },
                   "property_name": "influences"
                 }
@@ -438,7 +452,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "IEEE1471!Mission"
             }
           }
@@ -462,7 +476,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "m"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -474,7 +488,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "m"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -494,7 +508,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "a",
+              "name": "s",
               "declared_type": "IEEE1471!Architecture"
             }
           }
@@ -518,7 +532,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "a"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -530,7 +544,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "a"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -542,51 +556,9 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "a"
+                    "name": "s"
                   },
                   "property_name": "describedBy"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "enterprise",
-                "value": {
-                  "type": "CollectionOperation",
-                  "source": {
-                    "type": "IteratorExpression",
-                    "source": {
-                      "type": "OperationCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "IEEE1471!System"
-                      },
-                      "operation_name": "allInstances"
-                    },
-                    "iterator_type": "select",
-                    "iterators": [
-                      {
-                        "type": "Variable",
-                        "name": "sys"
-                      }
-                    ],
-                    "body": {
-                      "type": "BinaryExpression",
-                      "operator": "=",
-                      "left": {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "sys"
-                        },
-                        "property_name": "hasAn"
-                      },
-                      "right": {
-                        "type": "Variable",
-                        "name": "a"
-                      }
-                    }
-                  },
-                  "operation_name": "first"
                 }
               }
             ]
@@ -604,7 +576,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "ad",
+              "name": "s",
               "declared_type": "IEEE1471!ArchitecturalDescription"
             }
           }
@@ -628,7 +600,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "ad"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -640,115 +612,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "approvialAuthority",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "architect",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "assumptionAndConstraints",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "creatingOrganisation",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "dateCompleted",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "purpose",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "recommendations",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "summaryOfFindings",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "tollsUsed",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -760,9 +624,9 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "ad"
+                    "name": "s"
                   },
-                  "property_name": "selects"
+                  "property_name": "organizedBy"
                 }
               },
               {
@@ -772,77 +636,92 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "ad"
+                    "name": "s"
                   },
                   "property_name": "organizedBy"
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "taxonomy",
-                "value": {
-                  "type": "Variable",
-                  "name": "tax"
-                }
-              }
-            ]
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "tax",
-              "declared_type": "MoDAF!Taxonomy"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "name",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "name"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "content",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "ad"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "date",
+                "property_name": "approvialAuthority",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "2023-11-01",
+                  "value": "default",
                   "literal_type": "String"
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "url",
+                "property_name": "architect",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "http://modaf",
+                  "value": "default",
                   "literal_type": "String"
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "version",
+                "property_name": "assumptionAndConstraints",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "1.0",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "creatingOrganisation",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "dateCompleted",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "purpose",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "recommendations",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "summaryOfFindings",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "thisModule"
+                  },
+                  "property_name": "rationale"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "tollsUsed",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
                   "literal_type": "String"
                 }
               }
@@ -917,7 +796,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "vp",
+              "name": "s",
               "declared_type": "IEEE1471!Viewpoint"
             }
           }
@@ -941,7 +820,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "vp"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -953,49 +832,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "vp"
-                  },
-                  "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "framework",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "MoDAF",
-                  "literal_type": "String"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "frameworkWebsite",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "http://modaf",
-                  "literal_type": "String"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "viewCode",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "vp"
-                  },
-                  "property_name": "name"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "viewDescription",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "vp"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -1007,14 +844,14 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "vp"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "definingFramework",
+                "property_name": "viewDescription",
                 "value": {
                   "type": "IfExpression",
                   "condition": {
@@ -1023,7 +860,52 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "vp"
+                        "name": "s"
+                      },
+                      "property_name": "content"
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
+                  },
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": "",
+                    "literal_type": "String"
+                  },
+                  "else_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "content"
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "viewCode",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "framework",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
                       },
                       "property_name": "hasSource"
                     },
@@ -1031,52 +913,43 @@
                     "arguments": []
                   },
                   "then_expression": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "thisModule"
-                    },
-                    "operation_name": "resolveTemp",
-                    "arguments": [
-                      {
-                        "type": "CollectionOperation",
-                        "source": {
-                          "type": "OperationCall",
-                          "source": {
-                            "type": "Variable",
-                            "name": "IEEE1471!IEEE1471Model"
-                          },
-                          "operation_name": "allInstances"
-                        },
-                        "operation_name": "first"
-                      },
-                      {
-                        "type": "LiteralExpression",
-                        "value": "af",
-                        "literal_type": "String"
-                      }
-                    ]
+                    "type": "LiteralExpression",
+                    "value": "default",
+                    "literal_type": "String"
                   },
                   "else_expression": {
                     "type": "PropertyCall",
                     "source": {
-                      "type": "Variable",
-                      "name": "vp"
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "hasSource"
                     },
-                    "property_name": "hasSource"
+                    "property_name": "name"
                   }
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "usedToCover",
+                "property_name": "frameworkWebsite",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "default",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "definingFramework",
                 "value": {
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "vp"
+                    "name": "s"
                   },
-                  "property_name": "usedToCover"
+                  "property_name": "hasSource"
                 }
               }
             ]
@@ -1094,7 +967,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "v",
+              "name": "s",
               "declared_type": "IEEE1471!View"
             }
           }
@@ -1118,7 +991,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "v"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -1130,7 +1003,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "v"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -1139,12 +1012,33 @@
                 "type": "Binding",
                 "property_name": "description",
                 "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "v"
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s"
+                      },
+                      "property_name": "content"
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
                   },
-                  "property_name": "content"
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": "",
+                    "literal_type": "String"
+                  },
+                  "else_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "content"
+                  }
                 }
               },
               {
@@ -1154,7 +1048,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "v"
+                    "name": "s"
                   },
                   "property_name": "conformsTo"
                 }
@@ -1166,25 +1060,9 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "v"
+                    "name": "s"
                   },
                   "property_name": "consitsOf"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "addresses",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "v"
-                    },
-                    "property_name": "conformsTo"
-                  },
-                  "property_name": "usedToCover"
                 }
               }
             ]
@@ -1202,7 +1080,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "IEEE1471!Model"
             }
           }
@@ -1226,7 +1104,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "m"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -1238,7 +1116,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "m"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -1258,7 +1136,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "c",
+              "name": "s",
               "declared_type": "IEEE1471!Concern"
             }
           }
@@ -1282,7 +1160,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "c"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -1294,7 +1172,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "c"
+                    "name": "s"
                   },
                   "property_name": "content"
                 }
@@ -1314,7 +1192,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "lvp",
+              "name": "s",
               "declared_type": "IEEE1471!LibraryViewpoint"
             }
           }
@@ -1338,7 +1216,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "lvp"
+                    "name": "s"
                   },
                   "property_name": "name"
                 }
@@ -1350,47 +1228,9 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "lvp"
+                    "name": "s"
                   },
                   "property_name": "content"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "ownedMember",
-                "value": {
-                  "type": "IteratorExpression",
-                  "source": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "IEEE1471!Viewpoint"
-                    },
-                    "operation_name": "allInstances"
-                  },
-                  "iterator_type": "select",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "vp"
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "vp"
-                      },
-                      "property_name": "hasSource"
-                    },
-                    "right": {
-                      "type": "Variable",
-                      "name": "lvp"
-                    }
-                  }
                 }
               }
             ]
@@ -1416,7 +1256,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "c",
+              "name": "con",
               "declared_type": "IEEE1471!Concern"
             }
           }
@@ -1435,7 +1275,7 @@
           "arguments": [
             {
               "type": "Variable",
-              "name": "c"
+              "name": "con"
             }
           ]
         }
@@ -1464,7 +1304,7 @@
                 "property_name": "supplier",
                 "value": {
                   "type": "Variable",
-                  "name": "c"
+                  "name": "con"
                 }
               },
               {
@@ -1478,9 +1318,11 @@
                       "type": "Variable",
                       "name": "IEEE1471!IEEE1471Model"
                     },
-                    "operation_name": "allInstances"
+                    "operation_name": "allInstances",
+                    "arguments": []
                   },
-                  "operation_name": "first"
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ]

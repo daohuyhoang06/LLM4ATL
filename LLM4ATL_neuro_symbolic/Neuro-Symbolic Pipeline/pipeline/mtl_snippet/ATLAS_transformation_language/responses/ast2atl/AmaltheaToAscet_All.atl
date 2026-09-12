@@ -6,14 +6,14 @@ rule ComponentContainer2AscetModule {
         s : Amalthea!ComponentContainer
     to
         t : Ascet!AscetModule (
-            tasks <- s.tasks->collect(task | thisModule.Task2SoftwareTask(task))
+            tasks <- s.tasks->collect(e | thisModule.Task2SoftwareTask(e))
         )
 }
 
 rule TaskRoot2SoftwareTask {
     from
         s : Amalthea!Task (
-            Amalthea!ComponentContainer.allInstances()->forAll(c | not c.tasks->includes(s))
+            Amalthea!ComponentContainer.allInstances()->forAll(c | c.tasks->excludes(s))
         )
     to
         t : Ascet!SoftwareTask (

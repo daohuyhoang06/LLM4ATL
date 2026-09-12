@@ -1,9 +1,15 @@
--- DomainModel copies its required XML name and introduces these four
--- primitive types independently of XML classifier content.
+-- A DomainModel comes from the nested XML ``model`` element, not from its
+-- enclosing ``dmd`` wrapper.  The reference transformation supplies one
+-- instance of each required primitive type; enumerations may be additional
+-- entries in ``types``.
 context DomainModel
-inv DomainModelHasPrimitiveTypes:
+inv DomainModelHasRequiredPrimitiveTypes:
   self.name <> '' and
-  self.types->exists(t | t.name = 'String') and
-  self.types->exists(t | t.name = 'Integer') and
-  self.types->exists(t | t.name = 'Boolean') and
-  self.types->exists(t | t.name = 'Real')
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'String')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Integer')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Boolean')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Double')->size() = 1
+
+context DomainModel
+inv DomainModelDoesNotUseXmlWrapperName:
+  self.name <> 'dmd'

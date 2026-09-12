@@ -95,7 +95,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "im",
+              "name": "t",
               "declared_type": "Interface!Method"
             },
             "bindings": [
@@ -163,7 +163,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "ip",
+              "name": "t",
               "declared_type": "Interface!Parameter"
             },
             "bindings": [

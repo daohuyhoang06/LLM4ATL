@@ -14,23 +14,23 @@ helper context Item!Item def: getCategory() : String =
 
 rule ItemModel2ProductModel {
     from
-        im : Item!ItemModel
+        s : Item!ItemModel
     to
-        pm : Product!ProductModel (
-            products <- im.items
+        t : Product!ProductModel (
+            products <- s.items
         )
 }
 
 rule Item2Product {
     from
-        i : Item!Item
+        s : Item!Item
     to
-        p : Product!Product (
-            name <- i.name,
-            price <- i.price,
-            description <- i.description,
-            category <- i.getCategory(),
-            inStock <- (i.quantity > 0)
+        t : Product!Product (
+            name <- s.name,
+            price <- s.price,
+            description <- s.description,
+            inStock <- (s.quantity > 0),
+            category <- s.getCategory()
         )
 }
 

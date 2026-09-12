@@ -303,7 +303,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "pt",
+              "name": "a",
               "declared_type": "PetriNet!PlaceToTransition"
             },
             "bindings": [
@@ -395,7 +395,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "tp",
+              "name": "a",
               "declared_type": "PetriNet!TransitionToPlace"
             },
             "bindings": [

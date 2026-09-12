@@ -23,8 +23,9 @@ rule Step {
             grafcet <- s.net,
             incomingConnections <- s.incomingArc,
             outgoingConnections <- s.outgoingArc,
+            action <- s.name,
             isInitial <- false,
-            isActive <- false
+            isActive <- true
         )
 }
 
@@ -36,6 +37,7 @@ rule Transition {
             location <- s.location,
             name <- s.name,
             grafcet <- s.net,
+            condition <- s.name,
             incomingConnections <- s.incomingArc,
             outgoingConnections <- s.outgoingArc
         )

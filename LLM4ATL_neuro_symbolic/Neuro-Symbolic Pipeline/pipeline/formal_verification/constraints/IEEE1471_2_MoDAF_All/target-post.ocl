@@ -4,7 +4,7 @@ context MoDAFModel
 inv MoDAFModelHasCoreArchitecture:
   self.name <> '' and not self.enterprise.oclIsUndefined() and
   not self.environment.oclIsUndefined() and
-  not self.architecturalDescription.oclIsUndefined()
+  self.architecturalDescription->notEmpty()
 
 context ArchitecturalDescription
 inv ArchitecturalDescriptionCopiesContent:

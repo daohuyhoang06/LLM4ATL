@@ -43,7 +43,7 @@ rule PlaceToTransition {
     from
         c : Grafcet!StepToTransition
     to
-        pt : PetriNet!PlaceToTransition (
+        a : PetriNet!PlaceToTransition (
             location <- c.location,
             name <- c.name,
             net <- c.grafcet,
@@ -56,7 +56,7 @@ rule TransitionToPlace {
     from
         c : Grafcet!TransitionToStep
     to
-        tp : PetriNet!TransitionToPlace (
+        a : PetriNet!TransitionToPlace (
             location <- c.location,
             name <- c.name,
             net <- c.grafcet,

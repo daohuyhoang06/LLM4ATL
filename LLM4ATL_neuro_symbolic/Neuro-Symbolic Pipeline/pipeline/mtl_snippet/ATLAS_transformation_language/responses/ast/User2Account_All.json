@@ -64,50 +64,6 @@
     },
     {
       "type": "MatchedRule",
-      "name": "UserModel2AccountModel",
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "um",
-              "declared_type": "user!UserModel"
-            }
-          }
-        ]
-      },
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "am",
-              "declared_type": "account!AccountModel"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "accounts",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "um"
-                  },
-                  "property_name": "users"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "type": "MatchedRule",
       "name": "User2Account",
       "in_pattern": {
         "type": "InPattern",

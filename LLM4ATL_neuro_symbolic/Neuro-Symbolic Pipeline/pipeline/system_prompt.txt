@@ -192,8 +192,25 @@ with ATL/OCL reserved identifiers or would produce invalid ATL 2006 code.
 
 Reserved-identifier correctness takes precedence over identifier preservation.
 
-`self` is reserved by ATL/OCL and MUST NEVER be used as the name of an explicitly declared variable. Rename it to a safe identifier and update
-all references consistently.
+The following ATL/OCL keywords and literals are reserved (case-insensitive)
+and MUST NEVER be used as explicitly declared variable names (including rule
+input/output variables, helper parameters, iterator variables, and `let` or
+`using` variables):
+
+- ATL declarations: `module`, `create`, `from`, `to`, `rule`, `lazy`,
+  `unique`, `called`, `helper`, `context`, `def`, `uses`, `library`, `query`,
+  `refining`, `extends`, `entrypoint`, `do`, `using`, `action`.
+- OCL control flow and contracts: `self`, `result`, `let`, `in`, `if`, `then`,
+  `else`, `endif`, `pre`, `body`, `init`, `derive`, `inv`, `package`,
+  `endpackage`.
+- OCL operators and literals: `and`, `or`, `xor`, `not`, `implies`, `true`,
+  `false`, `null`, `invalid`.
+- OCL collection/type names: `Set`, `Bag`, `Sequence`, `OrderedSet`,
+  `Collection`, `Tuple`, `TupleType`, `OclAny`, `OclVoid`, `OclInvalid`,
+  `OclType`, `Boolean`, `Integer`, `Real`, `String`.
+
+For example, rename an output variable named `or` to `ref`, `reference`, or
+another safe descriptive name, and update every use consistently.
 
 If names are omitted, generate concise CamelCase identifiers.
 13. OUTPUT FORMAT
