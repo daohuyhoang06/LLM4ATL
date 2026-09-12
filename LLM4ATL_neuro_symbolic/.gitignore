@@ -88,6 +88,11 @@ docs/_build/
 target/
 Neuro-Symbolic Pipeline/pipeline/formal_verification/output/
 
+# Generated LLM AST and ATL candidates. Keep these local; the pipeline
+# regenerates them under responses/ast and responses/ast2atl.
+Neuro-Symbolic Pipeline/pipeline/mtl_snippet/ATLAS_transformation_language/responses/ast/
+Neuro-Symbolic Pipeline/pipeline/mtl_snippet/ATLAS_transformation_language/responses/ast2atl/
+
 # Generated parser and ATL execution reports (kept locally for inspection).
 ATL_Parser/atl_chrf_similarity.csv
 ATL_Parser/atl_parser_chrf_results.csv
