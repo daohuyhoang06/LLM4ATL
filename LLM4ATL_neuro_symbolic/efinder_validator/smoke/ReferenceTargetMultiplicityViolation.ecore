@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ATL2TM-shaped counterexample fixture.
+
+  Intended target metamodel contract: Task.assignee : Employee [1].
+  The transformation semantics below creates exactly one Task for each
+  TicketInput, but deliberately does not bind Task.assignee.  As in ATL2TM
+  output, the feature itself is relaxed in this verification metamodel; its
+  original lower bound is represented by the selectable TARGET_MULTIPLICITY
+  postcondition on Task.
+-->
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="referenceTargetMultiplicityViolation"
+    nsURI="urn:llm4atl:efinder:reference-target-multiplicity-violation"
+    nsPrefix="demo">
+  <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+    <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+  </eAnnotations>
+
+  <eClassifiers xsi:type="ecore:EClass" name="TicketInput">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="source"/>
+      <details key="originalName" value="TicketInput"/>
+      <details key="preConstraints" value=""/>
+      <details key="postConstraints" value=""/>
+      <details key="targetMultiplicityConstraints" value=""/>
+      <details key="semConstraints" value="match_CreateTask"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="match_CreateTask"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="match_CreateTask" value="self.CreateTask_source-&gt;size() = 1"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="CreateTask_source"
+        upperBound="-1" eType="//CreateTask" eOpposite="//CreateTask/source"/>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="Employee">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="target"/>
+      <details key="originalName" value="Employee"/>
+      <details key="preConstraints" value=""/>
+      <details key="postConstraints" value=""/>
+      <details key="targetMultiplicityConstraints" value=""/>
+      <details key="semConstraints" value=""/>
+    </eAnnotations>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="Task">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="target"/>
+      <details key="originalName" value="Task"/>
+      <details key="preConstraints" value=""/>
+      <details key="postConstraints" value="targetMultiplicity_Task_assignee"/>
+      <details key="targetMultiplicityConstraints" value="targetMultiplicity_Task_assignee"/>
+      <details key="semConstraints" value="create_Task"/>
+      <details key="constraintRole.targetMultiplicity_Task_assignee" value="POST / TARGET_MULTIPLICITY"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="create_Task"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="create_Task" value="self.CreateTask_target-&gt;size() = 1"/>
+      <details key="targetMultiplicity_Task_assignee" value="not self.assignee.oclIsUndefined()"/>
+    </eAnnotations>
+    <!-- Relaxed here; original target multiplicity [1] is checked above. -->
+    <eStructuralFeatures xsi:type="ecore:EReference" name="assignee" eType="//Employee"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="CreateTask_target"
+        upperBound="-1" eType="//CreateTask" eOpposite="//CreateTask/target"/>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="CreateTask">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="trace"/>
+      <details key="originalName" value="CreateTask"/>
+      <details key="preConstraints" value=""/>
+      <details key="postConstraints" value=""/>
+      <details key="targetMultiplicityConstraints" value=""/>
+      <details key="semConstraints" value="map_CreateTask"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="map_CreateTask"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="map_CreateTask" value="not self.source.oclIsUndefined() and not self.target.oclIsUndefined()"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="//TicketInput"
+        eOpposite="//TicketInput/CreateTask_source"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="//Task"
+        eOpposite="//Task/CreateTask_target"/>
+  </eClassifiers>
+</ecore:EPackage>

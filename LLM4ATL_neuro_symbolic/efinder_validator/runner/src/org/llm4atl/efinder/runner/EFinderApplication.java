@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -89,7 +91,9 @@ public final class EFinderApplication implements IApplication {
             phase = "efinder-translation";
             String boundedContext = concreteWitnessContext(resourceSet, prepared.verificationContext());
             result.put("bounded_witness_context", boundedContext);
-            IBoundsProvider bounds = new TargetClassBounds(boundedContext, arguments.scope,
+            Set<String> witnessClasses = witnessClasses(resourceSet, boundedContext);
+            result.put("bounded_witness_classes", String.join(" ", witnessClasses));
+            IBoundsProvider bounds = new TargetClassBounds(witnessClasses, arguments.scope,
                     arguments.referenceScope);
             UseMvFinder finder = new UseMvFinder()
                     .withBoundsProvider(bounds)
@@ -173,6 +177,47 @@ public final class EFinderApplication implements IApplication {
                 .findFirst().orElse(context);
     }
 
+    /**
+     * The generated ATL2TM counterexample formula ranges over trace outputs,
+     * e.g. {@code Step__trace.allInstances()->exists(r | ...)}.  A target-only
+     * lower scope can leave that trace domain empty, so require one trace that
+     * creates the concrete target witness as well as the target itself.
+     */
+    private static Set<String> witnessClasses(ResourceSet resourceSet, String targetContext) {
+        List<EClass> classifiers = new ArrayList<>();
+        for (Resource resource : resourceSet.getResources()) {
+            resource.getAllContents().forEachRemaining(object -> {
+                if (object instanceof EClass eClass) classifiers.add(eClass);
+            });
+        }
+
+        EClass target = classifiers.stream()
+                .filter(eClass -> targetContext.equals(eClass.getName()))
+                .findFirst().orElse(null);
+        Set<String> result = new LinkedHashSet<>();
+        result.add(targetContext);
+        if (target == null) return result;
+
+        for (EClass candidate : classifiers) {
+            if (!"trace".equals(provenanceDetail(candidate, "origin"))) continue;
+            for (EReference reference : candidate.getEAllReferences()) {
+                EClass output = reference.getEReferenceType();
+                if (output == target || output.getEAllSuperTypes().contains(target)) {
+                    result.add(candidate.getName());
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private static String provenanceDetail(EClass eClass, String key) {
+        var annotation = eClass.getEAnnotation("urn:llm4atl:provenance");
+        if (annotation == null) return "";
+        String value = annotation.getDetails().get(key);
+        return value == null ? "" : value;
+    }
+
     private static String diagnosticStatus(String phase, Throwable exception) {
         if (exception instanceof NoClassDefFoundError || exception instanceof ClassNotFoundException
                 || exception.getClass().getName().contains("BundleException")) {
@@ -229,10 +274,10 @@ public final class EFinderApplication implements IApplication {
                 .replace("\n", "\\n").replace("\r", "\\r");
     }
 
-    private record TargetClassBounds(String selectedClass, int objectMaximum, int referenceMaximum)
+    private record TargetClassBounds(Set<String> witnessClasses, int objectMaximum, int referenceMaximum)
             implements IBoundsProvider {
         @Override public Interval getScope(EClass klass) {
-            return new Interval(klass.getName().equals(selectedClass) ? 1 : 0, objectMaximum);
+            return new Interval(witnessClasses.contains(klass.getName()) ? 1 : 0, objectMaximum);
         }
         @Override public Interval getScope(EReference reference) {
             return new Interval(0, referenceMaximum);

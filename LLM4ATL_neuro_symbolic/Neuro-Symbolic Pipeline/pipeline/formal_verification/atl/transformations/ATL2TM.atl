@@ -137,6 +137,103 @@ helper def : targetConstraintNames(
         original + ' ' + creation
     endif;
 
+-- Reference-valued target multiplicities are properties to verify, rather
+-- than assumptions of the transformation semantics. Primitive EAttributes
+-- are intentionally excluded: USE/EFinder cannot soundly represent an
+-- unbound primitive value. Their names are recorded as unsupported metadata.
+helper def : targetMultiplicityConstraintName(
+    c : ECORE!EClass,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'targetMultiplicity_'
+    + c.name
+    + '_'
+    + p.name;
+
+helper def : targetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : unsupportedPrimitiveTargetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EAttribute))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : targetPostConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let multiplicities : String =
+        thisModule.targetMultiplicityConstraintNames(c)
+
+    in
+
+    if original = '' then
+        multiplicities
+    else
+        if multiplicities = '' then
+            original
+        else
+            original + ' ' + multiplicities
+        endif
+    endif;
+
+helper def : targetMultiplicityConstraintExpr(
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+        'not self.'
+        + p.name
+        + '.oclIsUndefined()'
+    else
+        'self.'
+        + p.name
+        + '->size() >= '
+        + p.lowerBound.toString()
+    endif;
+
 -- ================================================================
 -- Hỗ trợ chung: biểu diễn ATL/OCL thành chuỗi Pivot OCL
 -- ================================================================
@@ -315,7 +412,8 @@ helper def : uniqueUnknownContextHelper(
         )
         ->size() = 1;
 
--- Resolve helper theo name + receiver/context type + arity.
+-- Resolve helper theo name + receiver/context type + arity. A context helper
+-- declared on a supertype is also callable on a subtype receiver.
 helper def : helperCallCandidates(
     e : ATL!OperationCallExp,
     varNames : Sequence(String),
@@ -345,7 +443,10 @@ helper def : helperCallCandidates(
                 else
                     not moduleReceiver
                     and (
-                        receiverType = thisModule.helperContextTypeName(h)
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
                         or
                         (
                             receiverType = ''
@@ -3286,14 +3387,31 @@ unique lazy rule EClassProvenanceAnnotation {
     to
         ann : ECORE!EAnnotation (
             source <- thisModule.provenanceSource,
-            details <- Sequence {
-                originDetail,
-                nameDetail,
-                ruleDetail,
-                preDetail,
-                postDetail,
-                semDetail
-            }
+            details <-
+                Sequence {
+                    originDetail,
+                    nameDetail,
+                    ruleDetail,
+                    preDetail,
+                    postDetail,
+                    multiplicityNamesDetail,
+                    unsupportedPrimitiveMultiplicityNamesDetail,
+                    semDetail
+                }
+                ->union(
+                    if thisModule.classifierOrigin(c) = 'target' then
+                        c.eStructuralFeatures
+                            ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                            ->collect(p |
+                                thisModule.TargetMultiplicityProvenanceDetail(
+                                    c,
+                                    p
+                                )
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
         ),
 
         originDetail : ECORE!EStringToStringMapEntry (
@@ -3338,7 +3456,29 @@ unique lazy rule EClassProvenanceAnnotation {
             value <-
                 if thisModule.classifierOrigin(c) = 'target'
                 then
-                    thisModule.originalConstraintNames(c)
+                    thisModule.targetPostConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        multiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'targetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.targetMultiplicityConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        unsupportedPrimitiveMultiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'unsupportedPrimitiveTargetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.unsupportedPrimitiveTargetMultiplicityConstraintNames(c)
                 else
                     ''
                 endif
@@ -3358,6 +3498,21 @@ unique lazy rule EClassProvenanceAnnotation {
                         ''
                     endif
                 endif
+        )
+}
+
+-- One provenance entry per relaxed target feature. The value is deliberately
+-- human-readable so reports distinguish these generated Posts from user OCL.
+lazy rule TargetMultiplicityProvenanceDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'constraintRole.'
+                + thisModule.targetMultiplicityConstraintName(c, p),
+            value <- 'POST / TARGET_MULTIPLICITY'
         )
 }
 
@@ -3604,7 +3759,17 @@ rule EAttribute2EAttribute {
         out : ECORE!EAttribute (
             name <- a.name,
 
-            lowerBound <- a.lowerBound,
+            -- Keep source multiplicities intact. Target bounds are relaxed;
+            -- required references become selectable postconditions, while
+            -- primitive multiplicities are reported as unsupported.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(a.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    a.lowerBound
+                endif,
             upperBound <- a.upperBound,
             ordered <- a.ordered,
             unique <- a.unique,
@@ -3629,7 +3794,16 @@ rule EReference2EReference {
         out : ECORE!EReference (
             name <- r.name,
 
-            lowerBound <- r.lowerBound,
+            -- See EAttribute2EAttribute: target lower bounds must not make
+            -- Sem inconsistent before a target Post_i is selected.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(r.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    r.lowerBound
+                endif,
             upperBound <- r.upperBound,
             ordered <- r.ordered,
             unique <- r.unique,
@@ -3842,6 +4016,21 @@ unique lazy rule CopyOriginalOclDetail {
         out : ECORE!EStringToStringMapEntry (
             key <- d.key,
             value <- d.value
+        )
+}
+
+-- Preserve every original required target reference as a Post property.
+-- Primitive EAttribute multiplicities are emitted only as unsupported
+-- provenance, not as OCL details, because EFinder/USE cannot model their
+-- absent-value state soundly.
+lazy rule TargetMultiplicityConstraintDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.targetMultiplicityConstraintName(c, p),
+            value <- thisModule.targetMultiplicityConstraintExpr(p)
         )
 }
 
@@ -4187,6 +4376,16 @@ unique lazy rule CreationOclAnnotation {
                     Sequence {
                         thisModule.CreationConstraintDetail(c)
                     }
+                )
+
+                -- Do not add these names to CreationConstraintNamesAnnotation:
+                -- USE/eFinder must not treat them as semantic assumptions.
+                ->union(
+                    c.eStructuralFeatures
+                        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                        ->collect(p |
+                            thisModule.TargetMultiplicityConstraintDetail(c, p)
+                        )
                 )
         )
 }

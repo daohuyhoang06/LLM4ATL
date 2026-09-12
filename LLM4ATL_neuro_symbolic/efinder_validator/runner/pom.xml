@@ -11,4 +11,14 @@
   </parent>
   <artifactId>org.llm4atl.efinder.runner</artifactId>
   <packaging>eclipse-plugin</packaging>
+
+  <!--
+    When this module is built directly (for example: mvn test from runner),
+    Maven resolves maven.multiModuleProjectDirectory to runner/.  The target
+    definition belongs to the parent runtime reactor, so override the parent
+    default with the actual runtime location.
+  -->
+  <properties>
+    <efinder.headless.target>../runtime/target-platform/efinder-headless.target</efinder.headless.target>
+  </properties>
 </project>

@@ -93,8 +93,11 @@
                         true
                     </includeProjectDependencies>
 
+                    <!-- ATLModelLoader is supplied by the parser-demo
+                         dependency and exposes ATL's compile API (IModel).
+                         Keep that API on exec:java's classpath as well. -->
                     <classpathScope>
-                        runtime
+                        compile
                     </classpathScope>
                 </configuration>
             </plugin>

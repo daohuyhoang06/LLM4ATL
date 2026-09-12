@@ -188,7 +188,13 @@ final class EcoreCounterexamplePreparer {
         }
 
         List<String> constraints = words(constraintsDetail.getAttribute("value"));
-        if (!constraints.contains(check.constraint())) {
+        // Generated target posts (notably relaxed target multiplicities) are
+        // intentionally absent from Ecore's ordinary constraints list: USE
+        // and Ecore2AS enforce that list as hard semantics. Provenance is the
+        // catalogue of selectable ATL2TM Post_i entries; the rewrite below
+        // enables only the generated NOT Post_i query.
+        if (!constraints.contains(check.constraint())
+                && !(atl2tm && isPostConstraint(context, check.constraint()))) {
             throw new IllegalArgumentException("Constraint " + check.constraint()
                     + " is not enabled by the Ecore constraints annotation");
         }
@@ -282,15 +288,17 @@ final class EcoreCounterexamplePreparer {
                     ? "postConstraints" : "preConstraints";
             Element roleConstraints = ensureDetail(document, provenance, provenanceKey);
             Element body = detail(pivot, invariant.name());
+            String rewrittenBody = rewriteExternalInvariantTypes(document, invariant.body(),
+                    invariant.role());
 
-            if (body != null && !body.getAttribute("value").equals(invariant.body())) {
+            if (body != null && !body.getAttribute("value").equals(rewrittenBody)) {
                 throw new IllegalArgumentException("Invariant " + invariant.context() + "::"
                         + invariant.name() + " is already defined with a different body in the ATL2TM model");
             }
             if (body == null) {
                 body = document.createElement("details");
                 body.setAttribute("key", invariant.name());
-                body.setAttribute("value", invariant.body());
+                body.setAttribute("value", rewrittenBody);
                 pivot.appendChild(body);
             }
             appendWord(constraints, invariant.name());
@@ -314,19 +322,63 @@ final class EcoreCounterexamplePreparer {
             Element constraints = ensureDetail(document, ecore, "constraints");
             Element preConstraints = ensureDetail(document, provenance, "preConstraints");
             Element body = detail(pivot, invariant.name());
-            if (body != null && !body.getAttribute("value").equals(invariant.body())) {
+            String rewrittenBody = rewriteExternalInvariantTypes(document, invariant.body(),
+                    invariant.role());
+            if (body != null && !body.getAttribute("value").equals(rewrittenBody)) {
                 throw new IllegalArgumentException("Global invariant " + invariant.name()
                         + " is already defined with a different body in " + invariant.source());
             }
             if (body == null) {
                 body = document.createElement("details");
                 body.setAttribute("key", invariant.name());
-                body.setAttribute("value", invariant.body());
+                body.setAttribute("value", rewrittenBody);
                 pivot.appendChild(body);
             }
             appendWord(constraints, invariant.name());
             appendWord(preConstraints, invariant.name());
         }
+    }
+
+    /**
+     * Version-2 ATL2TM models use role-qualified classifier names in the
+     * persisted Ecore (for example {@code Place__source} and
+     * {@code Step__target}).  Constraint files intentionally retain the
+     * metamodel-level names that users write ({@code Place}, {@code Step}).
+     * Rebind their type tokens to the role selected by the constraint before
+     * passing them to Pivot. This leaves property navigation unchanged.
+     */
+    private static String rewriteExternalInvariantTypes(Document document, String expression,
+                                                        ConstraintRole role) {
+        String expectedOrigin = role == ConstraintRole.TARGET_POST ? "target" : "source";
+        Map<String, String> replacements = new LinkedHashMap<>();
+        NodeList classifiers = document.getElementsByTagName("eClassifiers");
+        for (int i = 0; i < classifiers.getLength(); i++) {
+            Element classifier = (Element) classifiers.item(i);
+            if (!expectedOrigin.equals(origin(classifier))) continue;
+            String originalName = detailValue(annotation(classifier, PROVENANCE_ANNOTATION),
+                    "originalName");
+            String actualName = classifier.getAttribute("name");
+            if (!originalName.isBlank() && !originalName.equals(actualName)) {
+                replacements.put(originalName, actualName);
+            }
+        }
+        if (replacements.isEmpty()) return expression;
+
+        java.util.regex.Matcher matcher = Pattern.compile("\\b[A-Za-z_][A-Za-z0-9_]*\\b")
+                .matcher(expression);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            String replacement = replacements.get(matcher.group());
+            if (replacement == null || isOclCollectionLiteralType(expression, matcher)) {
+                matcher.appendReplacement(result,
+                        java.util.regex.Matcher.quoteReplacement(matcher.group()));
+            } else {
+                matcher.appendReplacement(result,
+                        java.util.regex.Matcher.quoteReplacement(replacement));
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     /**
@@ -414,15 +466,17 @@ final class EcoreCounterexamplePreparer {
     }
 
     private static boolean isTargetSubtypeOf(Document document, Element classifier,
-                                             String required, Set<String> visited) {
-        String name = classifier.getAttribute("name");
-        if (!visited.add(name)) return false;
+                                             String required, Set<Element> visited) {
+        if (!visited.add(classifier)) return false;
         for (String supertype : words(classifier.getAttribute("eSuperTypes"))) {
-            String supertypeName = typeName(supertype);
-            if (required.equals(supertypeName)) return true;
-            Element parent = findClassifierByRole(document, supertypeName,
-                    ConstraintRole.TARGET_POST);
-            if (parent != null && isTargetSubtypeOf(document, parent, required, visited)) {
+            // Keep Ecore's duplicate-name suffix (for example //Element.1)
+            // while resolving the parent. typeName() strips only the URI and
+            // would turn it into Element.1, which cannot be found by the
+            // role-based name lookup and loses target inheritance.
+            Element parent = classifierForTypeReference(document, supertype);
+            if (parent != null && "target".equals(origin(parent))
+                    && (required.equals(parent.getAttribute("name"))
+                    || isTargetSubtypeOf(document, parent, required, visited))) {
                 return true;
             }
         }
@@ -501,7 +555,8 @@ final class EcoreCounterexamplePreparer {
         NodeList classifiers = document.getElementsByTagName("eClassifiers");
         for (int i = 0; i < classifiers.getLength(); i++) {
             Element classifier = (Element) classifiers.item(i);
-            if (name.equals(classifier.getAttribute("name")) && expectedOrigin.equals(origin(classifier))) {
+            if (matchesClassifierName(classifier, name)
+                    && expectedOrigin.equals(origin(classifier))) {
                 return classifier;
             }
         }
@@ -1069,6 +1124,8 @@ final class EcoreCounterexamplePreparer {
             if (ecore == null || pivot == null || constraintsDetail == null || provenance == null) continue;
 
             List<String> original = words(constraintsDetail.getAttribute("value"));
+            Set<String> postConstraints = new LinkedHashSet<>(
+                    words(detailValue(provenance, "postConstraints")));
             Set<String> allowed = new LinkedHashSet<>();
             allowed.addAll(words(detailValue(provenance, "semConstraints")));
             allowed.addAll(words(detailValue(provenance, "preConstraints")));
@@ -1084,10 +1141,14 @@ final class EcoreCounterexamplePreparer {
             if (classifier == selectedContext) rewritten.add(generated);
             constraintsDetail.setAttribute("value", String.join(" ", rewritten));
 
-            // Ecore2AS parses Pivot details even if they are absent from the
-            // standard constraints list, so remove disabled postconditions too.
+            // Ecore2AS parses every Pivot detail even if it is absent from the
+            // standard constraints list. Remove disabled Post_i bodies by
+            // provenance as well as by the legacy Ecore list: generated
+            // TARGET_MULTIPLICITY posts are intentionally never present in
+            // that hard-constraint list.
             for (Element detail : new ArrayList<>(children(pivot, "details"))) {
-                if (original.contains(detail.getAttribute("key"))
+                if ((original.contains(detail.getAttribute("key"))
+                        || postConstraints.contains(detail.getAttribute("key")))
                         && !allowed.contains(detail.getAttribute("key"))) {
                     pivot.removeChild(detail);
                 }
@@ -1113,7 +1174,7 @@ final class EcoreCounterexamplePreparer {
         Element firstMatch = null;
         for (int i = 0; i < classifiers.getLength(); i++) {
             Element candidate = (Element) classifiers.item(i);
-            if (name.equals(candidate.getAttribute("name"))) {
+            if (matchesClassifierName(candidate, name)) {
                 if (firstMatch == null) {
                     firstMatch = candidate;
                 }
@@ -1133,6 +1194,17 @@ final class EcoreCounterexamplePreparer {
                 && "target".equals(detailValue(provenance, "origin"))
                 && words(detailValue(provenance, "postConstraints"))
                         .contains(constraint);
+    }
+
+    /**
+     * Schema v2 ATL2TM artifacts persist collision-free names such as
+     * {@code Transition__target}; CLI checks and external OCL deliberately
+     * retain the user-facing metamodel name {@code Transition}.
+     */
+    private static boolean matchesClassifierName(Element classifier, String name) {
+        return name.equals(classifier.getAttribute("name"))
+                || name.equals(detailValue(annotation(classifier, PROVENANCE_ANNOTATION),
+                "originalName"));
     }
 
     /**
@@ -1209,12 +1281,12 @@ final class EcoreCounterexamplePreparer {
                 String detailRole = targetCoverage ? "target"
                         : preConstraints.contains(detail.getAttribute("key"))
                         ? "source" : role;
-                boolean preferTrace = detail.getAttribute("key").startsWith("match_")
-                        || detail.getAttribute("key").startsWith("__efinder_NOT_");
+                boolean matchConstraint = detail.getAttribute("key").startsWith("match_");
+                boolean preferTrace = detail.getAttribute("key").startsWith("__efinder_NOT_");
                 boolean traceContext = "trace".equals(origin(classifier));
                 detail.setAttribute("value", rewriteOclTypes(
                         detail.getAttribute("value"), byName, normalized, detailRole,
-                        preferTrace, traceContext));
+                        preferTrace, traceContext, matchConstraint));
             }
         }
         return normalized;
@@ -1270,7 +1342,8 @@ final class EcoreCounterexamplePreparer {
                                           Map<Element, String> normalized,
                                           String role,
                                           boolean preferTrace,
-                                          boolean traceContext) {
+                                          boolean traceContext,
+                                          boolean matchConstraint) {
         String rewritten = value;
         for (Map.Entry<String, List<Element>> entry : byName.entrySet()) {
             boolean hasRenamedClassifier = entry.getValue().stream()
@@ -1290,7 +1363,9 @@ final class EcoreCounterexamplePreparer {
                             java.util.regex.Matcher.quoteReplacement(matcher.group()));
                     continue;
                 }
-                boolean useTrace = preferTrace || (traceContext
+                boolean useTrace = matchConstraint
+                        ? occurrenceUsesTraceInMatchConstraint(rewritten, matcher)
+                        : preferTrace || (traceContext
                         && occurrenceUsesTrace(rewritten, matcher));
                 Element selected = selectByOrigin(entry.getValue(), role, useTrace);
                 String replacement = selected == null ? null : normalized.get(selected);
@@ -1306,6 +1381,24 @@ final class EcoreCounterexamplePreparer {
             rewritten = result.toString();
         }
         return rewritten;
+    }
+
+    /**
+     * A generated {@code match_<rule>} invariant has the shape
+     * {@code Source.allInstances()->forAll(s : Source |
+     * Trace.allInstances()->one(z : Trace | ...))}.  Both Source and Trace
+     * can have the rule's original name (for example {@code Transition}), so
+     * the two positions must not be renamed uniformly as trace types.
+     */
+    private static boolean occurrenceUsesTraceInMatchConstraint(
+            String expression, java.util.regex.Matcher match) {
+        String before = expression.substring(0, match.start());
+        String after = expression.substring(match.end()).trim();
+        if (after.matches("^\\.allInstances\\(\\)\\s*->\\s*one\\s*\\(.*")) {
+            return true;
+        }
+        return before.matches("(?s).*->\\s*one\\s*\\(\\s*"
+                + "[A-Za-z_][A-Za-z0-9_]*\\s*:\\s*$");
     }
 
     private static boolean isOclCollectionLiteralType(String expression,

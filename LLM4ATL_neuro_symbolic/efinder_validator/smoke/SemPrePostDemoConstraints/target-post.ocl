@@ -1,0 +1,9 @@
+-- Two Post_i properties make the expected formula behavior observable.
+-- With Sem + Pre, Output.value is forced to 1.
+context Output
+inv OutputValueIsOne:
+  self.value = 1
+
+context Output
+inv OutputValueIsTwo:
+  self.value = 2

@@ -83,6 +83,60 @@ python .\efinder_check.py .\smoke\Person.ecore `
   --check Person::withinLowerBound --scope 1 --timeout-ms 30000
 ```
 
+### Minimal Sem/Pre/Post_i formula fixture
+
+`smoke/SemPrePostDemo.ecore` is a tiny ATL2TM-shaped model containing all
+three parts of the verification formula:
+
+* `CopySemantics` is `Sem`: `Output.value = Input.value`.
+* `source-pre.ocl` is `Pre`: every `Input.value` is `1`.
+* `target-post.ocl` contains two selectable `Post_i` properties.
+
+Run both postconditions with the same bounded scope:
+
+```powershell
+python .\efinder_check.py .\smoke\SemPrePostDemo.ecore `
+  --constraints .\smoke\SemPrePostDemoConstraints `
+  --check-all --scope 1 --reference-scope 1 --timeout-ms 30000
+```
+
+Expected result: `Output::OutputValueIsOne` is `UNSAT` (the postcondition is
+entailed by `Sem AND Pre`), while `Output::OutputValueIsTwo` is `SAT` and its
+witness has `Input.value = Output.value = 1`, demonstrating the searched
+formula is `Sem AND Pre AND NOT Post_i`.
+
+### Reference-typed target multiplicity counterexample
+
+`smoke/ReferenceTargetMultiplicityViolation.ecore` models an intended target
+reference `Task.assignee : Employee [1]`. Its trace semantics creates a `Task`
+from a `TicketInput` but deliberately omits the `assignee` binding. The
+relaxed target feature is checked by the generated ATL2TM-style postcondition
+`targetMultiplicity_Task_assignee`, rather than by a hard Ecore lower bound:
+
+```powershell
+python .\efinder_check.py .\smoke\ReferenceTargetMultiplicityViolation.ecore `
+  --check Task::targetMultiplicity_Task_assignee --scope 1 --reference-scope 1 `
+  --timeout-ms 30000
+```
+
+Expected result: `SAT`. The counterexample XMI contains one `CreateTask`, one
+`TicketInput`, and one `Task`, but the `Task` has no `assignee` reference.
+
+### Primitive target multiplicities
+
+EFinder/USE cannot soundly represent an ATL target primitive attribute that
+was left unbound. Therefore target multiplicities are checked only for
+reference-valued features (`EReference`). Target `EAttribute` lower bounds are
+still relaxed in the verification Ecore, but their generated `null_*` frame
+constraints are removed from the solver premise and no primitive
+`targetMultiplicity_*` postcondition is sent to EFinder.
+
+For an explicit primitive multiplicity query, or for one found in an older
+ATL2TM model, the wrapper writes `UNSUPPORTED_FEATURE` with an explanation.
+`--check-all` includes such entries in its aggregate result; they must not be
+interpreted as `UNSAT` proofs. Other supported primitive value constraints
+(for example equality or numeric comparisons) remain eligible for EFinder.
+
 ## Reproducing `counterexample_demo.use`
 
 The USE demo describes the property

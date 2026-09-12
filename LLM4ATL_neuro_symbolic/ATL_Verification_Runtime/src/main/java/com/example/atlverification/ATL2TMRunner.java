@@ -21,7 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 public final class ATL2TMRunner {
@@ -54,6 +56,13 @@ public final class ATL2TMRunner {
         // 1. Load transformation cần verify thành ATL IModel
         IModel inputAtlModel =
                 atlModelLoader.loadAsModel(inputAtl);
+
+        // Keep unsupported-construct handling inside the ATL2TM runtime. A
+        // lazy rule is demand-driven and cannot be represented by the
+        // universal matched-rule constraints produced by ATL2TM. Detect it
+        // from the parsed ATL model and use the same unsupported result path
+        // as recursive helpers and unsupported expressions.
+        rejectUnsupportedLazyRules(inputAtlModel);
 
         System.out.println(
                 "Loaded ATL input model: " + inputAtl
@@ -201,10 +210,43 @@ public final class ATL2TMRunner {
                 outputUri
         );
 
+        // The ATL2TM model contains source, target, and trace classifiers in
+        // one EPackage. Make collisions explicit in the persisted artifact so
+        // Pivot OCL never has to guess whether (for example) Transition means
+        // the source class, target class, or the rule trace.
+        TransformationModelRoleNormalizer.normalize(normalizedOutput);
+
         System.out.println(
                 "Saved Transformation Model: "
                         + normalizedOutput
         );
+    }
+
+    private static void rejectUnsupportedLazyRules(IModel inputModel)
+            throws UnsupportedAtlConstructException {
+        if (!(inputModel instanceof EMFModel emfModel)
+                || emfModel.getResource() == null) {
+            return;
+        }
+
+        Set<String> names = new LinkedHashSet<>();
+        TreeIterator<EObject> contents = emfModel.getResource().getAllContents();
+        while (contents.hasNext()) {
+            EObject element = contents.next();
+            if (!"LazyMatchedRule".equals(element.eClass().getName())) {
+                continue;
+            }
+            EStructuralFeature nameFeature = element.eClass()
+                    .getEStructuralFeature("name");
+            Object value = nameFeature == null ? null : element.eGet(nameFeature);
+            names.add(value == null || value.toString().isBlank()
+                    ? "<unnamed>" : value.toString());
+        }
+        if (!names.isEmpty()) {
+            throw new UnsupportedAtlConstructException(
+                    "ATL2TM does not support lazy rule(s): "
+                            + String.join(", ", names));
+        }
     }
 
     /**

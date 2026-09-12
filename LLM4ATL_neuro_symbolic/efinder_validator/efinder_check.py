@@ -11,6 +11,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -99,11 +100,51 @@ def discover_checks(ecore: Path, constraints: Path | None = None) -> list[str]:
         ecore_annotation = _annotation(classifier, ECORE_SOURCE)
         if atl2tm:
             names = _detail(provenance, "postConstraints").split()
+            # Schema-v2 transformation models persist role-qualified names
+            # (for example Step__target). Keep the CLI/profile vocabulary on
+            # the original metamodel name, which provenance preserves.
+            name = _detail(provenance, "originalName") or name
         else:
             names = _detail(ecore_annotation, "constraints").split()
         checks.extend(f"{name}::{constraint}" for constraint in names)
     if constraints is not None:
         checks.extend(_external_checks(constraints))
+    unsupported = set(discover_unsupported_primitive_multiplicities(ecore))
+    return [check for check in dict.fromkeys(checks) if check not in unsupported]
+
+
+def discover_unsupported_primitive_multiplicities(ecore: Path) -> list[str]:
+    """Return primitive target-multiplicity checks intentionally skipped.
+
+    New ATL2TM models advertise these in provenance.  The EAttribute scan also
+    recognizes older generated models, whose primitive multiplicities were
+    still present in ``postConstraints``.
+    """
+    root = ElementTree.parse(ecore).getroot()
+    checks: list[str] = []
+    for classifier in (node for node in root.iter()
+                       if _local_name(node.tag) == "eClassifiers"):
+        provenance = _annotation(classifier, PROVENANCE_SOURCE)
+        if _detail(provenance, "origin") != "target":
+            continue
+        context = _detail(provenance, "originalName") or classifier.get("name", "")
+        if not context:
+            continue
+        names = set(_detail(provenance,
+                            "unsupportedPrimitiveTargetMultiplicityConstraints").split())
+        post_constraints = set(_detail(provenance, "postConstraints").split())
+        for feature in classifier:
+            if _local_name(feature.tag) != "eStructuralFeatures":
+                continue
+            feature_type = (feature.get("xsi:type")
+                            or feature.get("{http://www.w3.org/2001/XMLSchema-instance}type", ""))
+            if not feature_type.endswith("EAttribute"):
+                continue
+            feature_name = feature.get("name", "")
+            constraint = f"targetMultiplicity_{context}_{feature_name}"
+            if constraint in post_constraints:
+                names.add(constraint)
+        checks.extend(f"{context}::{name}" for name in names)
     return list(dict.fromkeys(checks))
 
 
@@ -113,6 +154,41 @@ def accepted_status(status: str) -> bool:
         "OCL_PARSE_ERROR", "EFINDER_TRANSLATION_ERROR", "SOLVER_ERROR",
         "RUNTIME_DEPENDENCY_ERROR"
     }
+
+
+def _wait_for_result_file(result_json: Path, timeout_seconds: float = 10.0) -> bool:
+    """Wait for the Eclipse launcher child to finish writing its result.
+
+    On Windows the packaged launcher can return before its Java child has
+    flushed ``--result-json``. Without this small synchronization window the
+    wrapper incorrectly reports a successful eFinder query as ``ERROR``.
+    """
+    deadline = time.monotonic() + timeout_seconds
+    while not result_json.is_file() and time.monotonic() < deadline:
+        time.sleep(0.1)
+    return result_json.is_file()
+
+
+def _result_from_launcher_output(output: str) -> dict | None:
+    """Recover the Java result when Equinox exits before flushing its file.
+
+    The Windows launcher occasionally returns while the child has already
+    printed its JSON result but has not yet completed ``--result-json``. Look
+    for the last decodable object carrying a machine-readable status instead
+    of turning a valid SAT/UNSAT result into a spurious ERROR.
+    """
+    decoder = json.JSONDecoder()
+    candidates: list[dict] = []
+    for index, char in enumerate(output):
+        if char != "{":
+            continue
+        try:
+            value, _ = decoder.raw_decode(output, index)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict) and isinstance(value.get("status"), str):
+            candidates.append(value)
+    return candidates[-1] if candidates else None
 
 
 def run_one(args, check: str) -> tuple[dict, int]:
@@ -136,6 +212,7 @@ def run_one(args, check: str) -> tuple[dict, int]:
         command.insert(1, "-consoleLog")
     completed = subprocess.run(command, text=True, capture_output=True,
                                cwd=args.launcher.parent)
+    _wait_for_result_file(result_json)
     if result_json.is_file():
         raw_result = result_json.read_text(encoding="utf-8")
         try:
@@ -162,6 +239,17 @@ def run_one(args, check: str) -> tuple[dict, int]:
             print((completed.stdout + "\n" + completed.stderr).strip(), file=sys.stderr)
         return result, 0 if accepted_status(result.get("status", "")) else 1
 
+    launcher_result = _result_from_launcher_output(
+        (completed.stdout or "") + "\n" + (completed.stderr or "")
+    )
+    if launcher_result is not None:
+        launcher_result.setdefault("backend", "efinder")
+        launcher_result.setdefault("ecore", str(args.ecore))
+        launcher_result.setdefault("check", check)
+        if args.console_log:
+            print("Recovered eFinder result from launcher output.", file=sys.stderr)
+        return launcher_result, 0 if accepted_status(launcher_result.get("status", "")) else 1
+
     detail = (completed.stdout + "\n" + completed.stderr).strip()
     result = {
         "backend": "efinder",
@@ -171,6 +259,26 @@ def run_one(args, check: str) -> tuple[dict, int]:
         "detail": detail[-4000:],
     }
     return result, completed.returncode or 1
+
+
+def skipped_primitive_multiplicity_result(args, check: str) -> tuple[dict, int]:
+    """Persist an explicit result instead of sending an unsound query to USE."""
+    result_json, witness_xmi = result_paths(args.ecore, check, args.out_dir)
+    result_json.unlink(missing_ok=True)
+    witness_xmi.unlink(missing_ok=True)
+    result = {
+        "backend": "efinder",
+        "status": "UNSUPPORTED_FEATURE",
+        "ecore": str(args.ecore.resolve()),
+        "check": check,
+        "detail": (
+            "Primitive EAttribute target multiplicity is skipped: "
+            "the EFinder/USE backend cannot soundly represent an unbound "
+            "primitive value. Reference-valued target multiplicities remain supported."
+        ),
+    }
+    result_json.write_text(json.dumps(result) + "\n", encoding="utf-8")
+    return result, 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -207,10 +315,14 @@ def main(argv: list[str] | None = None) -> int:
                      + "mvn.cmd -f pom.xml \"-Definder.headless.target=$target\" package -DskipTests")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    unsupported_primitive_checks = set(
+        discover_unsupported_primitive_multiplicities(args.ecore))
     if not args.check_all:
         if "::" not in args.check or not all(args.check.split("::", 1)):
             parser.error("--check must be EClass::constraint")
-        result, returncode = run_one(args, args.check)
+        result, returncode = (skipped_primitive_multiplicity_result(args, args.check)
+                              if args.check in unsupported_primitive_checks
+                              else run_one(args, args.check))
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return returncode
 
@@ -218,7 +330,7 @@ def main(argv: list[str] | None = None) -> int:
         discovered = discover_checks(args.ecore, args.constraints)
     except ValueError as error:
         parser.error(str(error))
-    if not discovered:
+    if not discovered and not unsupported_primitive_checks:
         summary = {
             "backend": "efinder",
             "status": "NO_POSTCONSTRAINTS",
@@ -230,6 +342,9 @@ def main(argv: list[str] | None = None) -> int:
         results = []
         for check in discovered:
             result, _ = run_one(args, check)
+            results.append(result)
+        for check in sorted(unsupported_primitive_checks):
+            result, _ = skipped_primitive_multiplicity_result(args, check)
             results.append(result)
         statuses = {}
         for result in results:
