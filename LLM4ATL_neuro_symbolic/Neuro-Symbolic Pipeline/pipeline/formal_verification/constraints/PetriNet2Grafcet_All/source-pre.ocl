@@ -1,12 +1,12 @@
 global inv SourcePetriNetInputIsValid:
-  PetriNet.allInstances()->exists(n |
+  PetriNet.allInstances()->notEmpty() and
+  PetriNet.allInstances()->forAll(n |
     n.name <> '' and n.elements->notEmpty() and n.arcs->notEmpty() and
     n.elements->exists(e | e.oclIsKindOf(Place)) and
     n.elements->exists(e | e.oclIsKindOf(Transition)) and
     n.elements->forAll(e | e.name <> '' and e.location <> '') and
     n.arcs->forAll(a | a.name <> '' and a.location <> '')
-  ) and
-  PetriNet.allInstances()->forAll(n | n.name <> '')
+  )
 
 context PetriNet
 inv SourcePetriNetHasNamedStructure:

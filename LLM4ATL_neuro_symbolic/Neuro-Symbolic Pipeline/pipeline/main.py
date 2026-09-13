@@ -221,7 +221,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         else:
             print(f"[Lỗi] Không tìm thấy file model: {full_path}")
             
-    MAX_RETRIES = 4
+    MAX_RETRIES = 5
     validation_error = ""
     data = None
     
@@ -238,7 +238,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             # Gửi request lên Gemini API
             response = model.generate_content(full_prompt)
             raw_json = extract_json(response.text)
-            
+
             # Layer 0: Check basic JSON syntax
             data = json.loads(raw_json)
             
@@ -348,7 +348,6 @@ def main():
         "IEEE1471_2_MoDAF_All",
         "Make2Ant_All",
         "CPL2SPL_All"
-
     ]
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p

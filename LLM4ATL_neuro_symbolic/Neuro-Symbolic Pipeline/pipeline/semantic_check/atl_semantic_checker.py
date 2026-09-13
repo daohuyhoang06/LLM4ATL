@@ -303,7 +303,11 @@ class ATLSemanticChecker:
                 and property_type != "Unknown"
                 and not cls._is_compatible_type(value_type, property_type, env)
             ):
-                raise SemanticError(f"Binding for property '{binding.property_name}' type mismatch: expected {property_type}, got {value_type}")
+                display_property_type = cls._normalize_type(property_type)
+                raise SemanticError(
+                    f"Binding for property '{binding.property_name}' type mismatch: "
+                    f"expected {display_property_type}, got {value_type}"
+                )
 
     @classmethod
     def _is_compatible_type(cls, source_type:str, target_type:str, env:TypeEnvironment=None) -> bool:

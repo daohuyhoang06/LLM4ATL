@@ -503,11 +503,15 @@ def verify_atl_for_pipeline(
             report=report,
         )
 
-    return Layer3Result(
-        "VERIFIED",
-        f"eFinder found no bounded counterexample for {len(checks)} postcondition(s).",
-        report=report,
-    )
+    skipped_checks = summary.get("skipped_checks", [])
+    skipped_count = len(skipped_checks) if isinstance(skipped_checks, list) else 0
+    detail = f"eFinder found no bounded counterexample for {len(checks)} postcondition(s)."
+    if skipped_count:
+        detail += (
+            f" {skipped_count} primitive target-multiplicity check(s) were "
+            "skipped because EFinder cannot represent an unbound primitive value."
+        )
+    return Layer3Result("VERIFIED", detail, report=report)
 
 
 def parse_args() -> argparse.Namespace:

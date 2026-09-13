@@ -64,6 +64,43 @@ class ATL2TMOclCopyTest {
                 .getDetails().get("constraints"));
         assertEquals("self.name <> ''", annotation(target, PIVOT)
                 .getDetails().get("nonEmptyName"));
+        assertEquals(
+                "(if self.A2B_b.oclIsUndefined() then 0 else 1 endif) = 1",
+                annotation(target, PIVOT).getDetails().get("create_B")
+        );
+    }
+
+    @Test
+    void encodesMultipleScalarCreatorsAsDefinednessIndicators() throws Exception {
+        Path fixture = Path.of("src", "test", "resources", "mutex-unrelated");
+        Path workDir = Path.of("target", "scalar-creator-test-work");
+        Path output = workDir.resolve("scalar-creator_TM.ecore");
+        Path atl2tm = Path.of(
+                "..",
+                "Neuro-Symbolic Pipeline",
+                "pipeline",
+                "formal_verification",
+                "atl",
+                "transformations",
+                "ATL2TM.atl"
+        );
+
+        new ATL2TMRunner().run(
+                fixture.resolve("Mutex_Unrelated.atl"),
+                fixture.resolve("src.ecore"),
+                fixture.resolve("tgt.ecore"),
+                atl2tm,
+                workDir,
+                output
+        );
+
+        EPackage model = new EcoreModelLoader().load(output);
+        EClass target = assertInstanceOf(EClass.class, model.getEClassifier("T"));
+        assertEquals(
+                "(if self.A2T_t1.oclIsUndefined() then 0 else 1 endif)"
+                        + " + (if self.C2T_t2.oclIsUndefined() then 0 else 1 endif) = 1",
+                annotation(target, PIVOT).getDetails().get("create_T")
+        );
     }
 
     private static EAnnotation annotation(

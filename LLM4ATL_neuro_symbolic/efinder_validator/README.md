@@ -131,11 +131,12 @@ still relaxed in the verification Ecore, but their generated `null_*` frame
 constraints are removed from the solver premise and no primitive
 `targetMultiplicity_*` postcondition is sent to EFinder.
 
-For an explicit primitive multiplicity query, or for one found in an older
-ATL2TM model, the wrapper writes `UNSUPPORTED_FEATURE` with an explanation.
-`--check-all` includes such entries in its aggregate result; they must not be
-interpreted as `UNSAT` proofs. Other supported primitive value constraints
-(for example equality or numeric comparisons) remain eligible for EFinder.
+For an explicit primitive multiplicity query, the wrapper writes
+`UNSUPPORTED_FEATURE` with an explanation. With `--check-all`, these checks
+are omitted from the EFinder batch and recorded under `skipped_checks` in the
+aggregate report; they do not block verification of the other postconditions.
+Other supported primitive value constraints (for example equality or numeric
+comparisons) remain eligible for EFinder.
 
 ## Reproducing `counterexample_demo.use`
 

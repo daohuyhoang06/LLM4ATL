@@ -2811,19 +2811,19 @@ helper def : creationTerm(
 
     if o.type.name = c.name then
 
-        'self.'
+        '(if self.'
         + thisModule.creatorRefName(o)
-        + '->size()'
+        + '.oclIsUndefined() then 0 else 1 endif)'
 
     else
 
         '(if self.oclIsKindOf('
         + o.type.name
-        + ') then self.oclAsType('
+        + ') then (if self.oclAsType('
         + o.type.name
         + ').'
         + thisModule.creatorRefName(o)
-        + '->size() else 0 endif)'
+        + '.oclIsUndefined() then 0 else 1 endif) else 0 endif)'
 
     endif;
 

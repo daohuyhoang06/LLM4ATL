@@ -731,6 +731,13 @@ class OCLSemanticChecker:
         if cls._is_type_compatible(else_type, then_type, env):
             return then_type
 
+        # Sibling EClasses are also valid branches when they have a common
+        # ancestor.  For example, ``ReturnStat`` and ``SelectStat`` both
+        # conform to ``Statement`` even though neither conforms to the other.
+        common_type = cls._least_common_supertype(then_type, else_type, env)
+        if common_type is not None:
+            return common_type
+
         if is_enabled(ablation_config, "enable_layer2_type_check"):
             raise SemanticError(
                 "If-expression branch type mismatch: "
@@ -738,6 +745,72 @@ class OCLSemanticChecker:
             )
 
         return then_type
+
+    @classmethod
+    def _least_common_supertype(cls, first_type: str, second_type: str, env):
+        """Return the unique nearest shared EClass ancestor, if one exists."""
+        if env is None or env.registry is None:
+            return None
+
+        registry = env.registry
+        first_type = registry.resolve_class_name(cls._normalize_type(first_type))
+        second_type = registry.resolve_class_name(cls._normalize_type(second_type))
+
+        if (
+            first_type not in registry.uml_context
+            or second_type not in registry.uml_context
+        ):
+            return None
+
+        def ancestor_distances(type_name: str) -> dict[str, int]:
+            distances = {}
+            queue = [(type_name, 0)]
+
+            while queue:
+                current_type, distance = queue.pop(0)
+                if current_type in distances:
+                    continue
+
+                distances[current_type] = distance
+                class_info = registry.uml_context.get(current_type, {})
+                for super_type in class_info.get("super_classes", []):
+                    queue.append((super_type, distance + 1))
+
+            return distances
+
+        first_ancestors = ancestor_distances(first_type)
+        second_ancestors = ancestor_distances(second_type)
+        shared = set(first_ancestors) & set(second_ancestors)
+        if not shared:
+            return None
+
+        # Prefer the closest common ancestor.  If multiple inheritance leaves
+        # several incomparable nearest ancestors, retain the mismatch rather
+        # than selecting an arbitrary type.
+        ranked = sorted(
+            shared,
+            key=lambda type_name: (
+                max(first_ancestors[type_name], second_ancestors[type_name]),
+                first_ancestors[type_name] + second_ancestors[type_name],
+                type_name,
+            ),
+        )
+        best = ranked[0]
+        best_rank = (
+            max(first_ancestors[best], second_ancestors[best]),
+            first_ancestors[best] + second_ancestors[best],
+        )
+        if sum(
+            (
+                max(first_ancestors[type_name], second_ancestors[type_name]),
+                first_ancestors[type_name] + second_ancestors[type_name],
+            )
+            == best_rank
+            for type_name in ranked
+        ) > 1:
+            return None
+
+        return best
 
 
     @classmethod

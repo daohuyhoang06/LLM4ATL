@@ -1,6 +1,31 @@
--- Document2Report and Section2Section copy the document metadata and every
--- ordered, non-empty section from the source profile.
+-- The generated Report must preserve the Document metadata
+-- and contain exactly the target Sections corresponding to
+-- the source Document sections.
+
 context Report
-inv ReportRetainsOrderedSections:
-  self.title <> '' and self.author <> '' and self.sections->notEmpty() and
-  self.sections->forAll(s | s.title <> '' and s.content <> '' and s.order > 0)
+inv ReportRetainsDocumentAndSections:
+  Document2Report.allInstances()->forAll(tr |
+    tr.r = self implies (
+      self.title = tr.d.title and
+      self.author = tr.d.author and
+
+      self.sections->size() = tr.d.sections->size() and
+
+      tr.d.sections->forAll(s |
+        Section2Section.allInstances()->one(st |
+          st.s = s and
+          self.sections->includes(st.t) and
+          st.t.title = s.title and
+          st.t.content = s.content and
+          st.t.order = s.order
+        )
+      ) and
+
+      self.sections->forAll(t |
+        Section2Section.allInstances()->one(st |
+          st.t = t and
+          tr.d.sections->includes(st.s)
+        )
+      )
+    )
+  )

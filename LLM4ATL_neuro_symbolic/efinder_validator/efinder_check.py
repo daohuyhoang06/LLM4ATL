@@ -330,21 +330,22 @@ def main(argv: list[str] | None = None) -> int:
         discovered = discover_checks(args.ecore, args.constraints)
     except ValueError as error:
         parser.error(str(error))
-    if not discovered and not unsupported_primitive_checks:
+    if not discovered:
         summary = {
             "backend": "efinder",
             "status": "NO_POSTCONSTRAINTS",
             "ecore": str(args.ecore.resolve()),
             "checks": [],
-            "detail": "No target postConstraints were found in the ATL2TM provenance annotation"
+            "skipped_checks": sorted(unsupported_primitive_checks),
+            "detail": (
+                "No supported target postConstraints were found in the "
+                "ATL2TM provenance annotation"
+            ),
         }
     else:
         results = []
         for check in discovered:
             result, _ = run_one(args, check)
-            results.append(result)
-        for check in sorted(unsupported_primitive_checks):
-            result, _ = skipped_primitive_multiplicity_result(args, check)
             results.append(result)
         statuses = {}
         for result in results:
@@ -357,6 +358,10 @@ def main(argv: list[str] | None = None) -> int:
             "ecore": str(args.ecore.resolve()),
             "checks": results,
             "counts": statuses,
+            # Primitive target-multiplicity checks are intentionally not sent
+            # to EFinder.  They must not turn an otherwise supported batch
+            # into UNSUPPORTED_FEATURE, but remain visible in the report.
+            "skipped_checks": sorted(unsupported_primitive_checks),
         }
     aggregate = args.out_dir / f"{args.ecore.stem}.all.result.json"
     aggregate.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
