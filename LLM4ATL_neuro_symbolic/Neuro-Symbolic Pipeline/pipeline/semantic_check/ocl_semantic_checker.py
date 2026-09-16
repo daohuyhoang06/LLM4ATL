@@ -6,6 +6,15 @@ from .type_environment import TypeEnvironment
 from .errors import SemanticError
 from .ecore_registry import ATLEcoreRegistry
 
+
+_COLLECTION_OPERATIONS = frozenset({
+    "size", "isEmpty", "notEmpty", "sum", "first", "last", "at",
+    "includes", "excludes", "includesAll", "excludesAll", "union",
+    "intersection", "symmetricDifference", "flatten", "asSet", "asBag",
+    "count",
+})
+
+
 class OCLSemanticChecker:
 
     @classmethod
@@ -661,6 +670,30 @@ class OCLSemanticChecker:
     def _check_collection_op(cls, expr, env, ablation_config=None) -> str:
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
         op = expr.operation_name
+
+        # ``CollectionOperation`` is rendered as ``receiver->operation(...)``
+        # by AST2ATL.  Rejecting scalar receivers here prevents an Ecore
+        # reference such as ``self.familySon`` from becoming the invalid
+        # ``self->familySon()`` in generated ATL.
+        if (
+            is_enabled(ablation_config, "enable_layer2_type_check")
+            and source_type != "Unknown"
+            and not cls.is_collection_type(source_type)
+        ):
+            raise SemanticError(
+                f"Collection operation '{op}' requires a collection source, "
+                f"got {source_type}. Use PropertyCall for an Ecore feature."
+            )
+
+        if (
+            is_enabled(ablation_config, "enable_layer2_existence_check")
+            and op not in _COLLECTION_OPERATIONS
+        ):
+            supported = ", ".join(sorted(_COLLECTION_OPERATIONS))
+            raise SemanticError(
+                f"Unknown collection operation '{op}'. Supported operations: {supported}. "
+                "Use PropertyCall for an Ecore attribute or reference."
+            )
 
         if op == "size": return "Integer"
         if op == "isEmpty": return "Boolean"

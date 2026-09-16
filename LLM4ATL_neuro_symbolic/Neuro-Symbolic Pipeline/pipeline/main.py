@@ -6,10 +6,10 @@ from pathlib import Path
 # Keep gRPC's repeated TLS handshake diagnostics from flooding the pipeline
 # output; the first actionable exception is still reported below.
 os.environ.setdefault("GRPC_VERBOSITY", "ERROR")
-import google.generativeai as genai
 from pydantic import ValidationError
 from dotenv import load_dotenv
 from ablation_config import AblationConfig
+from llm_client import LLMConfigurationError, create_llm_client
 from semantic_check.ecore_registry import ATLEcoreRegistry
 from semantic_check.type_environment import TypeEnvironment
 from semantic_check.atl_semantic_checker import ATLSemanticChecker
@@ -30,14 +30,12 @@ from schema.atl_ast import Module
 
 # Load environment variables from the pipeline directory even when the
 # command is launched from the repository root or another working directory.
-load_dotenv(os.path.join(current_dir, '.env'))
-API_KEY = os.getenv("GEMINI_API_KEY")
-if not API_KEY or API_KEY == "your_api_key_here":
-    print("Vui lòng cập nhật GEMINI_API_KEY trong file .env")
+load_dotenv(os.path.join(current_dir, '.env'),override=True)
+try:
+    LLM_CLIENT = create_llm_client()
+except LLMConfigurationError as error:
+    print(f"[Lỗi cấu hình LLM] {error}")
     sys.exit(1)
-
-genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-3.5-flash')
 ABLATION_CONFIG = AblationConfig.from_env()
 
 
@@ -80,7 +78,11 @@ with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
     system_prompt_template = f.read()
 
 # Load Schema JSON string directly from Pydantic definition
-schema_json = json.dumps(Module.model_json_schema(), indent=2)
+schema_json = json.dumps(
+    Module.model_json_schema(),
+    ensure_ascii=False,
+    separators=(",", ":"),
+)
 system_prompt = system_prompt_template.replace('<INSERT_SCHEMA_HERE>', schema_json)
 
 # Load Mapping
@@ -88,7 +90,8 @@ with open(MAPPING_PATH, 'r', encoding='utf-8') as f:
     mapping = json.load(f)
 
 def build_prompt(prompt_content, model_content, validation_error=""):
-    prompt = f"{system_prompt}\n\n=== ECORE MODELS ===\n{model_content}\n\n=== TRANSFORMATION REQUEST ===\n{prompt_content}"
+    """Build the user-level input; system guidance is sent separately."""
+    prompt = f"=== ECORE MODELS ===\n{model_content}\n\n=== TRANSFORMATION REQUEST ===\n{prompt_content}"
     if validation_error:
         prompt += ("\n\n=== PREVIOUS ATTEMPT FAILED VALIDATION OR FORMAL VERIFICATION ===\n"
                    "Repair the AST and return JSON only. Details:\n"
@@ -234,10 +237,13 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         full_prompt = build_prompt(prompt_content, model_content, validation_error)
         
         try:
-            print(f"[{basename}] Đang gửi request tới Gemini...")
-            # Gửi request lên Gemini API
-            response = model.generate_content(full_prompt)
-            raw_json = extract_json(response.text)
+            print(
+                f"[{basename}] Đang gửi request tới "
+                f"{LLM_CLIENT.provider}/{LLM_CLIENT.model_name}..."
+            )
+            raw_json = extract_json(
+                LLM_CLIENT.generate(full_prompt, instructions=system_prompt)
+            )
 
             # Layer 0: Check basic JSON syntax
             data = json.loads(raw_json)
@@ -248,10 +254,12 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             if ablation_config.is_enabled("enable_layer1_schema"):
                 print(f"[{basename}] Đang kiểm tra Pydantic Validation (Layer 1)...")
                 ast_obj = Module(**data)
+                data = ast_obj.model_dump()
                 print(f"[{basename}] Layer 1: PASS - AST hợp lệ.", flush=True)
             elif needs_typed_ast:
                 print(f"[{basename}] Layer 1 disabled as a validation gate; building typed AST for downstream checks.")
                 ast_obj = Module(**data)
+                data = ast_obj.model_dump()
             else:
                 print(f"[{basename}] Skipping Pydantic Validation (Layer 1).")
             
@@ -333,21 +341,9 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-        "Class2Interface_All",
-        "Document2Report_All",
-        "Item2Product_All",
-        "User2Account_All",
-        "NetworkToGraph_All",
-        "FamiliesToPersons_All",
-        "AmaltheaToAscet_All",
-        "BibTeX2DocBook_All",
-        "XML2DSL_All",
-        "PetriNet2Grafcet_All",
-        "Grafcet2PetriNet_All",
-        "DSL2KM3_All",
-        "IEEE1471_2_MoDAF_All",
-        "Make2Ant_All",
-        "CPL2SPL_All"
+        "CPL2SPL_All",
+        "XML2DSL_All"
+
     ]
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p

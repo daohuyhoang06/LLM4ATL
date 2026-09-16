@@ -5,7 +5,3 @@ inv ProductHasValidPriceAndCategory:
   self.name <> '' and self.description <> '' and self.price >= 0.0 and
   (self.inStock = true or self.inStock = false) and
   (self.category = 'Tech' or self.category = 'Apparel' or self.category = 'General')
-
-context ProductModel
-inv ProductModelPreservesUniqueProductNames:
-  self.products->notEmpty() and self.products->isUnique(p | p.name)

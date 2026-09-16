@@ -1149,6 +1149,19 @@ helper def : renderExpr(
                         '__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__'
                         + e.operationName
                     else
+                    -- ATL exposes refImmediateComposite(), but Pivot/USE does
+                    -- not. eFinder synthesizes the equivalent oclContainer().
+                    if e.operationName = 'refImmediateComposite'
+                       and e.arguments->isEmpty()
+                    then
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + '.oclContainer()'
+                    else
                     if e.operationName = 'resolveTemp'
                        and thisModule.isModuleReceiver(e.source)
                     then
@@ -1204,6 +1217,7 @@ helper def : renderExpr(
                         )
                         + ')'
 
+                    endif
                     endif
                     endif
                     endif

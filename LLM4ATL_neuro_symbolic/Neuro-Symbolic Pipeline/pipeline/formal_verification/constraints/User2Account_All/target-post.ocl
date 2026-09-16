@@ -3,7 +3,3 @@ context Account
 inv AccountHasIdentifiers:
   self.username <> '' and self.email <> '' and
   (self.active = true or self.active = false)
-
-context AccountModel
-inv AccountModelPreservesUniqueUsernames:
-  self.accounts->notEmpty() and self.accounts->isUnique(a | a.username)

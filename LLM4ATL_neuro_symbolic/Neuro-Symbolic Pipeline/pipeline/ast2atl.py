@@ -174,6 +174,50 @@ class ATLGenerator:
         lines.append("}")
         return "\n".join(lines)
 
+    def _visit_CalledRule(self, node):
+        """Render an ATL called rule.
+
+        Called rules are represented separately from matched rules in the AST
+        because they are invoked explicitly (for example,
+        ``thisModule.Task2SoftwareTask(t)``) and do not have an input pattern.
+        """
+        name = node.get("name", "")
+        parameters = node.get("parameters", [])
+        parameter_strs = []
+        for parameter in parameters:
+            parameter_name = parameter.get("name", "")
+            parameter_type = normalize_alias(
+                parameter.get("declared_type", parameter.get("var_type", ""))
+            )
+            if not parameter_type or not str(parameter_type).strip():
+                raise ValueError(f"Called rule parameter '{parameter_name}' is missing type")
+            parameter_strs.append(f"{parameter_name} : {parameter_type}")
+
+        modifiers = []
+        if node.get("is_entrypoint"):
+            modifiers.append("entrypoint")
+        if node.get("is_endpoint"):
+            modifiers.append("endpoint")
+        modifiers.append("rule")
+
+        lines = [
+            f"{' '.join(modifiers)} {name}({', '.join(parameter_strs)}) {{"
+        ]
+
+        out_pattern = node.get("out_pattern", {})
+        if out_pattern:
+            lines.append(self._visit(out_pattern))
+
+        # ActionBlock rendering is intentionally delegated to the regular
+        # visitor so unsupported statement nodes remain visible in the output
+        # instead of being silently discarded.
+        action_block = node.get("action_block")
+        if action_block:
+            lines.append(self._visit(action_block))
+
+        lines.append("}")
+        return "\n".join(lines)
+
     def _visit_InPattern(self, node):
         lines = ["    from"]
         elements = node.get("elements", [])
