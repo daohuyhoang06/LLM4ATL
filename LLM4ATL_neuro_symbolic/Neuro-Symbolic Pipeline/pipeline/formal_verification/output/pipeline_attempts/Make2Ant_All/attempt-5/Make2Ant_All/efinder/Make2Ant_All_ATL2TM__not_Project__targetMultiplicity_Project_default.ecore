@@ -1,0 +1,3907 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="Make2Ant"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers name="Makefile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Makefile"/>
+                              
+            
+            <details key="atlRules" value="Makefile2Project"/>
+                              
+            
+            <details key="preConstraints" value="SourceMakefileDeclaresRule"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Makefile2Project"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Makefile2Project SourceMakefileDeclaresRule"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Makefile2Project" value="Makefile.allInstances()-&gt;forAll(m : Makefile | Makefile2Project.allInstances()-&gt;one(z : Makefile2Project | z.m = m))"/>
+                            
+        
+            <details key="SourceMakefileDeclaresRule" value="self.name &lt;&gt; '' and self.elements-&gt;exists(e | e.oclIsKindOf(Rule)) and&#10;  self.elements-&gt;exists(e | e.oclIsKindOf(Macro))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Comment" name="comment" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Element" lowerBound="1" name="elements" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Makefile2Project/m" eType="//Makefile2Project" name="Makefile2Project_m" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="Element" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Element"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Element" name="Rule" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Rule"/>
+                              
+            
+            <details key="atlRules" value="Rule2Target"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Rule2Target"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Rule2Target"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Rule2Target" value="Rule.allInstances()-&gt;forAll(r : Rule | Rule2Target.allInstances()-&gt;one(z : Rule2Target | z.r = r))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Dependency" name="dependencies" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ShellLine/ruleShellLine" eType="//ShellLine" lowerBound="1" name="shellLines" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Rule2Target/r" eType="//Rule2Target" name="Rule2Target_r" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Element" name="Macro" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Macro"/>
+                              
+            
+            <details key="atlRules" value="Macro2Property"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Macro2Property"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Macro2Property"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Macro2Property" value="Macro.allInstances()-&gt;forAll(mac : Macro | Macro2Property.allInstances()-&gt;one(z : Macro2Property | z.mac = mac))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Macro2Property/mac" eType="//Macro2Property" name="Macro2Property_mac" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ShellLine" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ShellLine"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_ShellLine2Task_Display match_ShellLine2Task_NoDisplay mutex_ShellLine2Task_Display_ShellLine2Task_NoDisplay"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_ShellLine2Task_Display match_ShellLine2Task_NoDisplay mutex_ShellLine2Task_Display_ShellLine2Task_NoDisplay"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_ShellLine2Task_Display" value="ShellLine.allInstances()-&gt;forAll(s : ShellLine | (s.display = true) implies ShellLine2Task_Display.allInstances()-&gt;one(z : ShellLine2Task_Display | z.s = s))"/>
+                              
+            
+            <details key="match_ShellLine2Task_NoDisplay" value="ShellLine.allInstances()-&gt;forAll(s : ShellLine | (s.display = false) implies ShellLine2Task_NoDisplay.allInstances()-&gt;one(z : ShellLine2Task_NoDisplay | z.s = s))"/>
+                              
+            
+            <details key="mutex_ShellLine2Task_Display_ShellLine2Task_NoDisplay" value="(ShellLine.allInstances()-&gt;forAll(s : ShellLine | not (ShellLine2Task_Display.allInstances()-&gt;exists(z1 : ShellLine2Task_Display | z1.s = s) and ShellLine2Task_NoDisplay.allInstances()-&gt;exists(z2 : ShellLine2Task_NoDisplay | z2.s = s))))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="command" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="display" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Rule/shellLines" eType="//Rule" lowerBound="1" name="ruleShellLine" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine2Task_Display/s" eType="//ShellLine2Task_Display" name="ShellLine2Task_Display_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine2Task_NoDisplay/s" eType="//ShellLine2Task_NoDisplay" name="ShellLine2Task_NoDisplay_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Comment" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Comment"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="text" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="Dependency" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Dependency"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Dependency" name="RuleDep" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="RuleDep"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="//Rule" lowerBound="1" name="ruledep" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Dependency" name="FileDep" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="FileDep"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="date" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Project" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Project"/>
+                              
+            
+            <details key="atlRules" value="Makefile2Project"/>
+                              
+            
+            <details key="preConstraints" value="SourceMakeInputIsValid"/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Project_default targetMultiplicity_Project_targets ProjectDefaultIsDeclaredTarget"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Project_default targetMultiplicity_Project_targets"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Project"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Project_default" value="POST / TARGET_MULTIPLICITY"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Project_targets" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Project SourceMakeInputIsValid __efinder_NOT_targetMultiplicity_Project_default"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Project" value="(if self.Makefile2Project_p.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                  
+            
+                
+        
+            <details key="SourceMakeInputIsValid" value="Makefile.allInstances()-&gt;exists(m |&#10;    m.name &lt;&gt; '' and&#10;    m.elements-&gt;exists(e | e.oclIsKindOf(Rule)) and&#10;    m.elements-&gt;exists(e | e.oclIsKindOf(Macro))&#10;  ) and&#10;  Makefile.allInstances()-&gt;forAll(m |&#10;    m.name &lt;&gt; '' and&#10;    m.elements-&gt;exists(e | e.oclIsKindOf(Rule)) and&#10;    m.elements-&gt;exists(e | e.oclIsKindOf(Macro))&#10;  )"/>
+            <details key="__efinder_NOT_targetMultiplicity_Project_default" value="Makefile2Project.allInstances()-&gt;exists(r | not (not r.p.default.oclIsUndefined()))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="basedir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="description" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Target" name="default" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Path" name="path" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Property" name="properties" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//TaskDef" name="taskdef" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Target" name="targets" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Makefile2Project/p" eType="//Makefile2Project" name="Makefile2Project_p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="Property" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Property"/>
+                              
+            
+            <details key="atlRules" value="Macro2Property"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Property"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Property"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Property" value="(if self.oclIsKindOf(PropertyValue) then (if self.oclAsType(PropertyValue).Macro2Property_prop.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Property" name="PropertyName" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PropertyName"/>
+                              
+            
+            <details key="atlRules" value="Macro2Property"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PropertyName_name"/>
+                              
+            
+            <details key="semConstraints" value="create_PropertyName"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PropertyName"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PropertyName" value="(if self.oclIsKindOf(PropertyValue) then (if self.oclAsType(PropertyValue).Macro2Property_prop.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//PropertyName" name="PropertyValue" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PropertyValue"/>
+                              
+            
+            <details key="atlRules" value="Macro2Property"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PropertyValue_value"/>
+                              
+            
+            <details key="semConstraints" value="create_PropertyValue"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PropertyValue"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PropertyValue" value="(if self.Macro2Property_prop.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Macro2Property/prop" eType="//Macro2Property" name="Macro2Property_prop" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//PropertyName" name="PropertyLocation" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PropertyLocation"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PropertyLocation_location"/>
+                              
+            
+            <details key="semConstraints" value="create_PropertyLocation"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PropertyLocation"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PropertyLocation" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="location" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Property" name="PropertyFile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PropertyFile"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PropertyFile_file"/>
+                              
+            
+            <details key="semConstraints" value="create_PropertyFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PropertyFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PropertyFile" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="file" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Property" name="PropertyEnv" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PropertyEnv"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PropertyEnv_environment"/>
+                              
+            
+            <details key="semConstraints" value="create_PropertyEnv"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PropertyEnv"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PropertyEnv" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="environment" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Target"/>
+                              
+            
+            <details key="atlRules" value="Rule2Target"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Target_name"/>
+                              
+            
+            <details key="semConstraints" value="create_Target"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Target"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Target" value="(if self.Rule2Target_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="description" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="unless" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="ifCondition" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Target" name="depends" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Task/target" eType="//Task" name="tasks" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Rule2Target/t" eType="//Rule2Target" name="Rule2Target_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="Pattern" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Pattern"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Pattern"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Pattern"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Pattern" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Pattern" name="Basic" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Basic"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Basic"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Basic"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Basic" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Basic" name="Mapper" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Mapper"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Mapper"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Mapper"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Mapper" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="type" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="classname" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="classpath" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="classpathref" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="from" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="to" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Basic" name="InExcludes" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="InExcludes"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_InExcludes_name"/>
+                              
+            
+            <details key="semConstraints" value="create_InExcludes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_InExcludes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_InExcludes" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="ifCondition" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="unless" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//InExcludes" name="Includes" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Includes"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Includes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Includes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Includes" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//InExcludes" name="Excludes" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Excludes"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Excludes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Excludes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Excludes" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//InExcludes" name="IncludesFile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="IncludesFile"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_IncludesFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_IncludesFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_IncludesFile" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//InExcludes" name="ExcludesFile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ExcludesFile"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_ExcludesFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ExcludesFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ExcludesFile" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Basic" name="FileList" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FileList"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_FileList_dir targetMultiplicity_FileList_files"/>
+                              
+            
+            <details key="semConstraints" value="create_FileList"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FileList"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FileList" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="dir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="files" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Basic" name="Filter" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Filter"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Filter_token targetMultiplicity_Filter_value"/>
+                              
+            
+            <details key="semConstraints" value="create_Filter"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Filter"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Filter" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="token" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Basic" name="FiltersFile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FiltersFile"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_FiltersFile_file"/>
+                              
+            
+            <details key="semConstraints" value="create_FiltersFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FiltersFile"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FiltersFile" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="file" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Basic" name="PathElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PathElement"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_PathElement_path targetMultiplicity_PathElement_location"/>
+                              
+            
+            <details key="semConstraints" value="create_PathElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PathElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PathElement" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="path" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="location" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Pattern" name="Set__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Set"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Set"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Set"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Set" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Set__target" name="PatternSet" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PatternSet"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_PatternSet_inexcludes"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_PatternSet_inexcludes"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_PatternSet"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_PatternSet_inexcludes" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PatternSet"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PatternSet" value="false"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//InExcludes" name="inexcludes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Set__target" name="FileSet" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FileSet"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_FileSet_dir"/>
+                              
+            
+            <details key="semConstraints" value="create_FileSet"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FileSet"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FileSet" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="dir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//PatternSet" name="patternset" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Includes" name="include" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Excludes" name="exclude" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Set__target" name="FilterSet" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FilterSet"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_FilterSet"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FilterSet"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FilterSet" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="starttoken" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="endtoken" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Filter" name="filter" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FiltersFile" name="filtersfile" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Set__target" name="Path" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Path"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Path_id"/>
+                              
+            
+            <details key="semConstraints" value="create_Path"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Path"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Path" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="id" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="refid" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Path" name="path" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//PathElement" name="pathElement" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FileSet" name="fileset" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Set__target" name="ClassPath" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ClassPath"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_ClassPath_refid"/>
+                              
+            
+            <details key="semConstraints" value="create_ClassPath"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ClassPath"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ClassPath" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="refid" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//PathElement" name="pathElement" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FileSet" name="fileset" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="Task" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Task"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display ShellLine2Task_Display ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Task_target"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Task_target"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Task"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Task_target" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Task"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Task" value="(if self.oclIsKindOf(Echo) then (if self.oclAsType(Echo).ShellLine2Task_Display_echo.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_Display_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_NoDisplay_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Target/tasks" eType="//Target" name="target" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="TaskDef" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="TaskDef"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_TaskDef_name targetMultiplicity_TaskDef_classname"/>
+                              
+            
+            <details key="semConstraints" value="create_TaskDef"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_TaskDef"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_TaskDef" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="classname" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Task" name="NewTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="NewTask"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_NewTask_taskName"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_NewTask_taskName"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_NewTask"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_NewTask_taskName" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_NewTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_NewTask" value="false"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="//TaskDef" name="taskName" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Attribut" name="attributes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Attribut" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Attribut"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Attribut_name targetMultiplicity_Attribut_value"/>
+                              
+            
+            <details key="semConstraints" value="create_Attribut"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Attribut"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Attribut" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Task" name="PreDefinedTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="PreDefinedTask"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display ShellLine2Task_Display ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_PreDefinedTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_PreDefinedTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_PreDefinedTask" value="(if self.oclIsKindOf(Echo) then (if self.oclAsType(Echo).ShellLine2Task_Display_echo.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_Display_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_NoDisplay_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="id" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="taskname" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="description" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="ExecutionTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ExecutionTask"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_ExecutionTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ExecutionTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ExecutionTask" value="(if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_Display_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Exec) then (if self.oclAsType(Exec).ShellLine2Task_NoDisplay_exec.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ExecutionTask" name="Exec" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Exec"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Exec_executable targetMultiplicity_Exec_dir"/>
+                              
+            
+            <details key="semConstraints" value="create_Exec"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Exec"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Exec" value="(if self.ShellLine2Task_Display_exec.oclIsUndefined() then 0 else 1 endif) + (if self.ShellLine2Task_NoDisplay_exec.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="executable" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="dir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine2Task_Display/exec" eType="//ShellLine2Task_Display" name="ShellLine2Task_Display_exec" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine2Task_NoDisplay/exec" eType="//ShellLine2Task_NoDisplay" name="ShellLine2Task_NoDisplay_exec" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ExecutionTask" name="Java" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Java"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Java_classname"/>
+                              
+            
+            <details key="semConstraints" value="create_Java"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Java"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Java" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="classname" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="jar" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="fork" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//ClassPath" name="classPath" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="MiscellaneousTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="MiscellaneousTask"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_MiscellaneousTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_MiscellaneousTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_MiscellaneousTask" value="(if self.oclIsKindOf(Echo) then (if self.oclAsType(Echo).ShellLine2Task_Display_echo.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//MiscellaneousTask" name="Echo" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Echo"/>
+                              
+            
+            <details key="atlRules" value="ShellLine2Task_Display"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Echo_message"/>
+                              
+            
+            <details key="semConstraints" value="create_Echo"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Echo"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Echo" value="(if self.ShellLine2Task_Display_echo.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="message" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="file" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="append" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine2Task_Display/echo" eType="//ShellLine2Task_Display" name="ShellLine2Task_Display_echo" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//MiscellaneousTask" name="Tstamp" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Tstamp"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Tstamp"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Tstamp"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Tstamp" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FormatTstamp" name="format" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="FormatTstamp" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FormatTstamp"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_FormatTstamp_property targetMultiplicity_FormatTstamp_pattern"/>
+                              
+            
+            <details key="semConstraints" value="create_FormatTstamp"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FormatTstamp"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FormatTstamp" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="property" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="pattern" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="offset" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="unit" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="locale" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="CompileTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="CompileTask"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_CompileTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_CompileTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_CompileTask" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//CompileTask" name="Javac" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Javac"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Javac_srcdir"/>
+                              
+            
+            <details key="semConstraints" value="create_Javac"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Javac"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Javac" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="srcdir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="destdir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="debug" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="fork" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="optimize" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="deprecation" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//InExcludes" name="inExcludes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//ClassPath" name="classPath" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="DocumentationTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="DocumentationTask"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_DocumentationTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_DocumentationTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_DocumentationTask" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//DocumentationTask" name="Javadoc" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Javadoc"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Javadoc_sourcepath targetMultiplicity_Javadoc_destdir targetMultiplicity_Javadoc_packagenames targetMultiplicity_Javadoc_defaultexcludes targetMultiplicity_Javadoc_author targetMultiplicity_Javadoc_version targetMultiplicity_Javadoc_use targetMultiplicity_Javadoc_windowtitle"/>
+                              
+            
+            <details key="semConstraints" value="create_Javadoc"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Javadoc"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Javadoc" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="sourcepath" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="destdir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="packagenames" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="defaultexcludes" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="author" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="version" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="use" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="windowtitle" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="ArchiveTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ArchiveTask"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_ArchiveTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ArchiveTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ArchiveTask" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ArchiveTask" name="Jar" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Jar"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Jar_jarfile"/>
+                              
+            
+            <details key="semConstraints" value="create_Jar"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Jar"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Jar" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="jarfile" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="basedir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="compress" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="encoding" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="manifest" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//PreDefinedTask" name="FileTask" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="FileTask"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_FileTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_FileTask"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_FileTask" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//FileTask" name="Mkdir" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Mkdir"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Mkdir_dir"/>
+                              
+            
+            <details key="semConstraints" value="create_Mkdir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Mkdir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Mkdir" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="dir" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//FileTask" name="Copy" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Copy"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Copy"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Copy"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Copy" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="file" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="presservelastmodified" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="tofile" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="todir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="overwrite" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="filtering" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="flatten" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="includeEmptyDirs" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FileSet" name="fileset" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//FilterSet" name="filterset" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Mapper" name="mapper" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//FileTask" name="Delete" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Delete"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Delete"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Delete"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Delete" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="file" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="dir" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="verbose" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="quiet" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="failonerror" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="includeEmptyDirs" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="includes" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="includesfile" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="excludes" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="excludesfile" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="defaultexcludes" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.util.Date" name="Date" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Date"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Boolean" name="Boolean" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Boolean"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Makefile2Project" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Makefile2Project"/>
+                              
+            
+            <details key="semConstraints" value="bind_Makefile2Project_p_name bind_Makefile2Project_p_properties bind_Makefile2Project_p_properties_size bind_Makefile2Project_p_targets bind_Makefile2Project_p_targets_size bind_Makefile2Project_p_default bind_Makefile2Project_p_default_defined null_Makefile2Project_p_path null_Makefile2Project_p_taskdef"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Makefile2Project_p_name bind_Makefile2Project_p_properties bind_Makefile2Project_p_properties_size bind_Makefile2Project_p_targets bind_Makefile2Project_p_targets_size bind_Makefile2Project_p_default bind_Makefile2Project_p_default_defined null_Makefile2Project_p_path null_Makefile2Project_p_taskdef"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Makefile2Project_p_name" value="self.p.name = self.m.name"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_properties" value="self.p.properties = Set { self.m.elements-&gt;select(e | e.oclIsKindOf(Macro))-&gt;collect(x | (if x.oclIsKindOf(Macro) then Macro2Property.allInstances()-&gt;select(z : Macro2Property | z.mac = x.oclAsType(Macro))-&gt;collect(z | z.prop) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_targets" value="self.p.targets = Set { self.m.elements-&gt;select(e | e.oclIsKindOf(Rule))-&gt;collect(x | (if x.oclIsKindOf(Rule) then Rule2Target.allInstances()-&gt;select(z : Rule2Target | z.r = x.oclAsType(Rule))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_default" value="self.p.default = self.m.elements-&gt;select(e | e.oclIsKindOf(Rule))-&gt;first().oclAsType(Rule).Rule2Target_r.t"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_default_defined" value="(not self.m.elements-&gt;select(e | e.oclIsKindOf(Rule))-&gt;first().oclIsUndefined()) = (not self.m.elements-&gt;select(e | e.oclIsKindOf(Rule))-&gt;first().oclAsType(Rule).Rule2Target_r.t.oclIsUndefined())"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_properties_size" value="(self.m.elements-&gt;select(e | e.oclIsKindOf(Macro)))-&gt;size() = (Set { self.m.elements-&gt;select(e | e.oclIsKindOf(Macro))-&gt;collect(x | (if x.oclIsKindOf(Macro) then Macro2Property.allInstances()-&gt;select(z : Macro2Property | z.mac = x.oclAsType(Macro))-&gt;collect(z | z.prop) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+            
+            <details key="bind_Makefile2Project_p_targets_size" value="(self.m.elements-&gt;select(e | e.oclIsKindOf(Rule)))-&gt;size() = (Set { self.m.elements-&gt;select(e | e.oclIsKindOf(Rule))-&gt;collect(x | (if x.oclIsKindOf(Rule) then Rule2Target.allInstances()-&gt;select(z : Rule2Target | z.r = x.oclAsType(Rule))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+      
+      
+            
+            <details key="null_Makefile2Project_p_path" value="self.p.path.oclIsUndefined()"/>
+                              
+            
+            <details key="null_Makefile2Project_p_taskdef" value="self.p.taskdef-&gt;isEmpty()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Makefile/Makefile2Project_m" eType="//Makefile" lowerBound="1" name="m" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Project/Makefile2Project_p" eType="//Project" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Macro2Property" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Macro2Property"/>
+                              
+            
+            <details key="semConstraints" value="bind_Macro2Property_prop_name bind_Macro2Property_prop_value"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Macro2Property_prop_name bind_Macro2Property_prop_value"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Macro2Property_prop_name" value="self.prop.name = self.mac.name"/>
+                              
+            
+            <details key="bind_Macro2Property_prop_value" value="self.prop.value = self.mac.value"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Macro/Macro2Property_mac" eType="//Macro" lowerBound="1" name="mac" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//PropertyValue/Macro2Property_prop" eType="//PropertyValue" lowerBound="1" name="prop" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Rule2Target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Rule2Target"/>
+                              
+            
+            <details key="semConstraints" value="bind_Rule2Target_t_name bind_Rule2Target_t_tasks bind_Rule2Target_t_tasks_size bind_Rule2Target_t_depends bind_Rule2Target_t_depends_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Rule2Target_t_name bind_Rule2Target_t_tasks bind_Rule2Target_t_tasks_size bind_Rule2Target_t_depends bind_Rule2Target_t_depends_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Rule2Target_t_name" value="self.t.name = self.r.name"/>
+                              
+            
+            <details key="bind_Rule2Target_t_tasks" value="self.t.tasks = Set { self.r.shellLines-&gt;collect(x | (if x.oclIsKindOf(ShellLine) then ShellLine2Task_Display.allInstances()-&gt;select(z : ShellLine2Task_Display | z.s = x.oclAsType(ShellLine))-&gt;collect(z | z.echo) else Sequence {} endif))-&gt;flatten(), self.r.shellLines-&gt;collect(x | (if x.oclIsKindOf(ShellLine) then ShellLine2Task_NoDisplay.allInstances()-&gt;select(z : ShellLine2Task_NoDisplay | z.s = x.oclAsType(ShellLine))-&gt;collect(z | z.exec) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Rule2Target_t_depends" value="self.t.depends = Set { self.r.dependencies-&gt;select(d | d.oclIsKindOf(RuleDep))-&gt;collect(rd | rd.oclAsType(RuleDep).ruledep)-&gt;collect(x | (if x.oclIsKindOf(Rule) then Rule2Target.allInstances()-&gt;select(z : Rule2Target | z.r = x.oclAsType(Rule))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Rule2Target_t_tasks_size" value="(self.r.shellLines)-&gt;size() = (Set { self.r.shellLines-&gt;collect(x | (if x.oclIsKindOf(ShellLine) then ShellLine2Task_Display.allInstances()-&gt;select(z : ShellLine2Task_Display | z.s = x.oclAsType(ShellLine))-&gt;collect(z | z.echo) else Sequence {} endif))-&gt;flatten(), self.r.shellLines-&gt;collect(x | (if x.oclIsKindOf(ShellLine) then ShellLine2Task_NoDisplay.allInstances()-&gt;select(z : ShellLine2Task_NoDisplay | z.s = x.oclAsType(ShellLine))-&gt;collect(z | z.exec) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+            
+            <details key="bind_Rule2Target_t_depends_size" value="(self.r.dependencies-&gt;select(d | d.oclIsKindOf(RuleDep))-&gt;collect(rd | rd.oclAsType(RuleDep).ruledep))-&gt;size() = (Set { self.r.dependencies-&gt;select(d | d.oclIsKindOf(RuleDep))-&gt;collect(rd | rd.oclAsType(RuleDep).ruledep)-&gt;collect(x | (if x.oclIsKindOf(Rule) then Rule2Target.allInstances()-&gt;select(z : Rule2Target | z.r = x.oclAsType(Rule))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+      
+      
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Rule/Rule2Target_r" eType="//Rule" lowerBound="1" name="r" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Target/Rule2Target_t" eType="//Target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ShellLine2Task_Display" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="ShellLine2Task_Display"/>
+                              
+            
+            <details key="semConstraints" value="match_ShellLine2Task_Display_cond bind_ShellLine2Task_Display_echo_message bind_ShellLine2Task_Display_exec_executable bind_ShellLine2Task_Display_exec_dir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_ShellLine2Task_Display_cond bind_ShellLine2Task_Display_echo_message bind_ShellLine2Task_Display_exec_executable bind_ShellLine2Task_Display_exec_dir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_ShellLine2Task_Display_cond" value="(self.s.display = true)"/>
+                              
+            
+            <details key="bind_ShellLine2Task_Display_echo_message" value="self.echo.message = self.s.command"/>
+                              
+            
+            <details key="bind_ShellLine2Task_Display_exec_executable" value="self.exec.executable = self.s.command"/>
+                              
+            
+            <details key="bind_ShellLine2Task_Display_exec_dir" value="self.exec.dir = '.'"/>
+                              
+      
+      
+      
+      
+      
+      
+      
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine/ShellLine2Task_Display_s" eType="//ShellLine" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Echo/ShellLine2Task_Display_echo" eType="//Echo" lowerBound="1" name="echo" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Exec/ShellLine2Task_Display_exec" eType="//Exec" lowerBound="1" name="exec" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ShellLine2Task_NoDisplay" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="ShellLine2Task_NoDisplay"/>
+                              
+            
+            <details key="semConstraints" value="match_ShellLine2Task_NoDisplay_cond bind_ShellLine2Task_NoDisplay_exec_executable bind_ShellLine2Task_NoDisplay_exec_dir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_ShellLine2Task_NoDisplay_cond bind_ShellLine2Task_NoDisplay_exec_executable bind_ShellLine2Task_NoDisplay_exec_dir"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_ShellLine2Task_NoDisplay_cond" value="(self.s.display = false)"/>
+                              
+            
+            <details key="bind_ShellLine2Task_NoDisplay_exec_executable" value="self.exec.executable = self.s.command"/>
+                              
+            
+            <details key="bind_ShellLine2Task_NoDisplay_exec_dir" value="self.exec.dir = '.'"/>
+                              
+      
+      
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ShellLine/ShellLine2Task_NoDisplay_s" eType="//ShellLine" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Exec/ShellLine2Task_NoDisplay_exec" eType="//Exec" lowerBound="1" name="exec" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

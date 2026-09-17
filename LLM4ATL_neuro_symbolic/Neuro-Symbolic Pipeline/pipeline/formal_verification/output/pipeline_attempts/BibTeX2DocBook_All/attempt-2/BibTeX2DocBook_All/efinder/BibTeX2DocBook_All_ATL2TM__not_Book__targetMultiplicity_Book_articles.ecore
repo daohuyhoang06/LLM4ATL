@@ -1,0 +1,2098 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="BibTeX2DocBook"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers name="BibTeXFile" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="BibTeXFile"/>
+                              
+            
+            <details key="atlRules" value="Main"/>
+                              
+            
+            <details key="preConstraints" value="SourceBibliographyIsNonEmpty"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Main"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Main SourceBibliographyIsNonEmpty"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Main" value="BibTeXFile.allInstances()-&gt;forAll(bf : BibTeXFile | Main.allInstances()-&gt;one(z : Main | z.bf = bf))"/>
+                            
+        
+            <details key="SourceBibliographyIsNonEmpty" value="self.entries-&gt;notEmpty()"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//BibTeXEntry" name="entries" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/bf" eType="//Main" name="Main_bf" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Author__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Author"/>
+                              
+            
+            <details key="atlRules" value="Author"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Author"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Author"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Author" value="Author__source.allInstances()-&gt;forAll(au : Author__source | Author__trace.allInstances()-&gt;one(z : Author__trace | z.au = au))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="author" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Author__trace/au" eType="//Author__trace" name="Author_au" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="BibTeXEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="BibTeXEntry"/>
+                              
+            
+            <details key="atlRules" value="UntitledEntry"/>
+                              
+            
+            <details key="preConstraints" value="SourceEntryHasIdentifier"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_UntitledEntry mutex_UntitledEntry_TitledEntry_Title_NoArticle mutex_UntitledEntry_TitledEntry_NoTitle_NoArticle mutex_UntitledEntry_Article_Title_Journal mutex_UntitledEntry_Article_NoTitle_Journal mutex_UntitledEntry_Article_Title_NoJournal mutex_UntitledEntry_Article_NoTitle_NoJournal"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_UntitledEntry mutex_UntitledEntry_TitledEntry_Title_NoArticle mutex_UntitledEntry_TitledEntry_NoTitle_NoArticle mutex_UntitledEntry_Article_Title_Journal mutex_UntitledEntry_Article_NoTitle_Journal mutex_UntitledEntry_Article_Title_NoJournal mutex_UntitledEntry_Article_NoTitle_NoJournal SourceEntryHasIdentifier"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_UntitledEntry" value="BibTeXEntry.allInstances()-&gt;forAll(be : BibTeXEntry | UntitledEntry.allInstances()-&gt;one(z : UntitledEntry | z.be = be))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_TitledEntry_Title_NoArticle" value="(TitledEntry.allInstances()-&gt;forAll(be : TitledEntry | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (TechReport.allInstances()-&gt;forAll(be : TechReport | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (Unpublished.allInstances()-&gt;forAll(be : Unpublished | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (Manual.allInstances()-&gt;forAll(be : Manual | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (Proceedings.allInstances()-&gt;forAll(be : Proceedings | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (InProceedings.allInstances()-&gt;forAll(be : InProceedings | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (Book__source.allInstances()-&gt;forAll(be : Book__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (InCollection.allInstances()-&gt;forAll(be : InCollection | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (InBook.allInstances()-&gt;forAll(be : InBook | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (ThesisEntry.allInstances()-&gt;forAll(be : ThesisEntry | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (PhDThesis.allInstances()-&gt;forAll(be : PhDThesis | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be)))) and (MasterThesis.allInstances()-&gt;forAll(be : MasterThesis | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_Title_NoArticle | z2.te = be))))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_TitledEntry_NoTitle_NoArticle" value="(TitledEntry.allInstances()-&gt;forAll(be : TitledEntry | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (TechReport.allInstances()-&gt;forAll(be : TechReport | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (Unpublished.allInstances()-&gt;forAll(be : Unpublished | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (Manual.allInstances()-&gt;forAll(be : Manual | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (Proceedings.allInstances()-&gt;forAll(be : Proceedings | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (InProceedings.allInstances()-&gt;forAll(be : InProceedings | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (Book__source.allInstances()-&gt;forAll(be : Book__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (InCollection.allInstances()-&gt;forAll(be : InCollection | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (InBook.allInstances()-&gt;forAll(be : InBook | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (ThesisEntry.allInstances()-&gt;forAll(be : ThesisEntry | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (PhDThesis.allInstances()-&gt;forAll(be : PhDThesis | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be)))) and (MasterThesis.allInstances()-&gt;forAll(be : MasterThesis | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = be))))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_Article_Title_Journal" value="(Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and Article_Title_Journal.allInstances()-&gt;exists(z2 : Article_Title_Journal | z2.a1 = be))))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_Article_NoTitle_Journal" value="(Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and Article_NoTitle_Journal.allInstances()-&gt;exists(z2 : Article_NoTitle_Journal | z2.a2 = be))))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_Article_Title_NoJournal" value="(Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and Article_Title_NoJournal.allInstances()-&gt;exists(z2 : Article_Title_NoJournal | z2.a3 = be))))"/>
+                              
+            
+            <details key="mutex_UntitledEntry_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(be : Article__source | not (UntitledEntry.allInstances()-&gt;exists(z1 : UntitledEntry | z1.be = be) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = be))))"/>
+                            
+        
+            <details key="SourceEntryHasIdentifier" value="self.id &lt;&gt; ''"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="id" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//UntitledEntry/be" eType="//UntitledEntry" name="UntitledEntry_be" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//BibTeXEntry" name="AuthoredEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="AuthoredEntry"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Author__source" lowerBound="1" name="authors" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//BibTeXEntry" name="DatedEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="DatedEntry"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="year" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//BibTeXEntry" name="TitledEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="TitledEntry"/>
+                              
+            
+            <details key="atlRules" value="TitledEntry_Title_NoArticle TitledEntry_NoTitle_NoArticle"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_TitledEntry_Title_NoArticle match_TitledEntry_NoTitle_NoArticle mutex_TitledEntry_Title_NoArticle_TitledEntry_NoTitle_NoArticle mutex_TitledEntry_Title_NoArticle_Article_Title_Journal mutex_TitledEntry_Title_NoArticle_Article_NoTitle_Journal mutex_TitledEntry_Title_NoArticle_Article_Title_NoJournal mutex_TitledEntry_Title_NoArticle_Article_NoTitle_NoJournal mutex_TitledEntry_NoTitle_NoArticle_Article_Title_Journal mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_Journal mutex_TitledEntry_NoTitle_NoArticle_Article_Title_NoJournal mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_NoJournal"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_TitledEntry_Title_NoArticle match_TitledEntry_NoTitle_NoArticle mutex_TitledEntry_Title_NoArticle_TitledEntry_NoTitle_NoArticle mutex_TitledEntry_Title_NoArticle_Article_Title_Journal mutex_TitledEntry_Title_NoArticle_Article_NoTitle_Journal mutex_TitledEntry_Title_NoArticle_Article_Title_NoJournal mutex_TitledEntry_Title_NoArticle_Article_NoTitle_NoJournal mutex_TitledEntry_NoTitle_NoArticle_Article_Title_Journal mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_Journal mutex_TitledEntry_NoTitle_NoArticle_Article_Title_NoJournal mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_NoJournal"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_TitledEntry_Title_NoArticle" value="TitledEntry.allInstances()-&gt;forAll(te : TitledEntry | TitledEntry_Title_NoArticle.allInstances()-&gt;one(z : TitledEntry_Title_NoArticle | z.te = te))"/>
+                              
+            
+            <details key="match_TitledEntry_NoTitle_NoArticle" value="TitledEntry.allInstances()-&gt;forAll(te2 : TitledEntry | TitledEntry_NoTitle_NoArticle.allInstances()-&gt;one(z : TitledEntry_NoTitle_NoArticle | z.te2 = te2))"/>
+                              
+            
+            <details key="mutex_TitledEntry_Title_NoArticle_TitledEntry_NoTitle_NoArticle" value="(TitledEntry.allInstances()-&gt;forAll(te : TitledEntry | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (Article__source.allInstances()-&gt;forAll(te : Article__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (TechReport.allInstances()-&gt;forAll(te : TechReport | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (Unpublished.allInstances()-&gt;forAll(te : Unpublished | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (Manual.allInstances()-&gt;forAll(te : Manual | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (Proceedings.allInstances()-&gt;forAll(te : Proceedings | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (InProceedings.allInstances()-&gt;forAll(te : InProceedings | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (Book__source.allInstances()-&gt;forAll(te : Book__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (InCollection.allInstances()-&gt;forAll(te : InCollection | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (InBook.allInstances()-&gt;forAll(te : InBook | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (ThesisEntry.allInstances()-&gt;forAll(te : ThesisEntry | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (PhDThesis.allInstances()-&gt;forAll(te : PhDThesis | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te)))) and (MasterThesis.allInstances()-&gt;forAll(te : MasterThesis | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z2 : TitledEntry_NoTitle_NoArticle | z2.te2 = te))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_Title_NoArticle_Article_Title_Journal" value="(Article__source.allInstances()-&gt;forAll(te : Article__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and Article_Title_Journal.allInstances()-&gt;exists(z2 : Article_Title_Journal | z2.a1 = te))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_Title_NoArticle_Article_NoTitle_Journal" value="(Article__source.allInstances()-&gt;forAll(te : Article__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and Article_NoTitle_Journal.allInstances()-&gt;exists(z2 : Article_NoTitle_Journal | z2.a2 = te))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_Title_NoArticle_Article_Title_NoJournal" value="(Article__source.allInstances()-&gt;forAll(te : Article__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and Article_Title_NoJournal.allInstances()-&gt;exists(z2 : Article_Title_NoJournal | z2.a3 = te))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_Title_NoArticle_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(te : Article__source | not (TitledEntry_Title_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_Title_NoArticle | z1.te = te) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = te))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_NoTitle_NoArticle_Article_Title_Journal" value="(Article__source.allInstances()-&gt;forAll(te2 : Article__source | not (TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_NoTitle_NoArticle | z1.te2 = te2) and Article_Title_Journal.allInstances()-&gt;exists(z2 : Article_Title_Journal | z2.a1 = te2))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_Journal" value="(Article__source.allInstances()-&gt;forAll(te2 : Article__source | not (TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_NoTitle_NoArticle | z1.te2 = te2) and Article_NoTitle_Journal.allInstances()-&gt;exists(z2 : Article_NoTitle_Journal | z2.a2 = te2))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_NoTitle_NoArticle_Article_Title_NoJournal" value="(Article__source.allInstances()-&gt;forAll(te2 : Article__source | not (TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_NoTitle_NoArticle | z1.te2 = te2) and Article_Title_NoJournal.allInstances()-&gt;exists(z2 : Article_Title_NoJournal | z2.a3 = te2))))"/>
+                              
+            
+            <details key="mutex_TitledEntry_NoTitle_NoArticle_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(te2 : Article__source | not (TitledEntry_NoTitle_NoArticle.allInstances()-&gt;exists(z1 : TitledEntry_NoTitle_NoArticle | z1.te2 = te2) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = te2))))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="title" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry_Title_NoArticle/te" eType="//TitledEntry_Title_NoArticle" name="TitledEntry_Title_NoArticle_te" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry_NoTitle_NoArticle/te2" eType="//TitledEntry_NoTitle_NoArticle" name="TitledEntry_NoTitle_NoArticle_te2" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//BibTeXEntry" name="BookTitledEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="BookTitledEntry"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="booktitle" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//AuthoredEntry //DatedEntry //TitledEntry" name="Article__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Article"/>
+                              
+            
+            <details key="atlRules" value="Article_Title_Journal Article_NoTitle_Journal Article_Title_NoJournal Article_NoTitle_NoJournal"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Article_Title_Journal match_Article_NoTitle_Journal match_Article_Title_NoJournal match_Article_NoTitle_NoJournal mutex_Article_Title_Journal_Article_NoTitle_Journal mutex_Article_Title_Journal_Article_Title_NoJournal mutex_Article_Title_Journal_Article_NoTitle_NoJournal mutex_Article_NoTitle_Journal_Article_Title_NoJournal mutex_Article_NoTitle_Journal_Article_NoTitle_NoJournal mutex_Article_Title_NoJournal_Article_NoTitle_NoJournal"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Article_Title_Journal match_Article_NoTitle_Journal match_Article_Title_NoJournal match_Article_NoTitle_NoJournal mutex_Article_Title_Journal_Article_NoTitle_Journal mutex_Article_Title_Journal_Article_Title_NoJournal mutex_Article_Title_Journal_Article_NoTitle_NoJournal mutex_Article_NoTitle_Journal_Article_Title_NoJournal mutex_Article_NoTitle_Journal_Article_NoTitle_NoJournal mutex_Article_Title_NoJournal_Article_NoTitle_NoJournal"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Article_Title_Journal" value="Article__source.allInstances()-&gt;forAll(a1 : Article__source | Article_Title_Journal.allInstances()-&gt;one(z : Article_Title_Journal | z.a1 = a1))"/>
+                              
+            
+            <details key="match_Article_NoTitle_Journal" value="Article__source.allInstances()-&gt;forAll(a2 : Article__source | Article_NoTitle_Journal.allInstances()-&gt;one(z : Article_NoTitle_Journal | z.a2 = a2))"/>
+                              
+            
+            <details key="match_Article_Title_NoJournal" value="Article__source.allInstances()-&gt;forAll(a3 : Article__source | Article_Title_NoJournal.allInstances()-&gt;one(z : Article_Title_NoJournal | z.a3 = a3))"/>
+                              
+            
+            <details key="match_Article_NoTitle_NoJournal" value="Article__source.allInstances()-&gt;forAll(a4 : Article__source | Article_NoTitle_NoJournal.allInstances()-&gt;one(z : Article_NoTitle_NoJournal | z.a4 = a4))"/>
+                              
+            
+            <details key="mutex_Article_Title_Journal_Article_NoTitle_Journal" value="(Article__source.allInstances()-&gt;forAll(a1 : Article__source | not (Article_Title_Journal.allInstances()-&gt;exists(z1 : Article_Title_Journal | z1.a1 = a1) and Article_NoTitle_Journal.allInstances()-&gt;exists(z2 : Article_NoTitle_Journal | z2.a2 = a1))))"/>
+                              
+            
+            <details key="mutex_Article_Title_Journal_Article_Title_NoJournal" value="(Article__source.allInstances()-&gt;forAll(a1 : Article__source | not (Article_Title_Journal.allInstances()-&gt;exists(z1 : Article_Title_Journal | z1.a1 = a1) and Article_Title_NoJournal.allInstances()-&gt;exists(z2 : Article_Title_NoJournal | z2.a3 = a1))))"/>
+                              
+            
+            <details key="mutex_Article_Title_Journal_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(a1 : Article__source | not (Article_Title_Journal.allInstances()-&gt;exists(z1 : Article_Title_Journal | z1.a1 = a1) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = a1))))"/>
+                              
+            
+            <details key="mutex_Article_NoTitle_Journal_Article_Title_NoJournal" value="(Article__source.allInstances()-&gt;forAll(a2 : Article__source | not (Article_NoTitle_Journal.allInstances()-&gt;exists(z1 : Article_NoTitle_Journal | z1.a2 = a2) and Article_Title_NoJournal.allInstances()-&gt;exists(z2 : Article_Title_NoJournal | z2.a3 = a2))))"/>
+                              
+            
+            <details key="mutex_Article_NoTitle_Journal_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(a2 : Article__source | not (Article_NoTitle_Journal.allInstances()-&gt;exists(z1 : Article_NoTitle_Journal | z1.a2 = a2) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = a2))))"/>
+                              
+            
+            <details key="mutex_Article_Title_NoJournal_Article_NoTitle_NoJournal" value="(Article__source.allInstances()-&gt;forAll(a3 : Article__source | not (Article_Title_NoJournal.allInstances()-&gt;exists(z1 : Article_Title_NoJournal | z1.a3 = a3) and Article_NoTitle_NoJournal.allInstances()-&gt;exists(z2 : Article_NoTitle_NoJournal | z2.a4 = a3))))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="journal" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_Title_Journal/a1" eType="//Article_Title_Journal" name="Article_Title_Journal_a1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_NoTitle_Journal/a2" eType="//Article_NoTitle_Journal" name="Article_NoTitle_Journal_a2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_Title_NoJournal/a3" eType="//Article_Title_NoJournal" name="Article_Title_NoJournal_a3" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_NoTitle_NoJournal/a4" eType="//Article_NoTitle_NoJournal" name="Article_NoTitle_NoJournal_a4" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//AuthoredEntry //DatedEntry //TitledEntry" name="TechReport" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="TechReport"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//AuthoredEntry //TitledEntry" name="Unpublished" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Unpublished"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="note" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//TitledEntry" name="Manual" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Manual"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//DatedEntry //TitledEntry" name="Proceedings" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Proceedings"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Proceedings //AuthoredEntry //BookTitledEntry" name="InProceedings" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="InProceedings"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//DatedEntry" name="Booklet" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Booklet"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//AuthoredEntry //DatedEntry //TitledEntry" name="Book__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Book"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="publisher" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Book__source //BookTitledEntry" name="InCollection" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="InCollection"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Book__source" name="InBook" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="InBook"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" lowerBound="1" name="chapter" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//BibTeXEntry" name="Misc" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Misc"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//AuthoredEntry //DatedEntry //TitledEntry" name="ThesisEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ThesisEntry"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="school" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ThesisEntry" name="PhDThesis" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="PhDThesis"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ThesisEntry" name="MasterThesis" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="MasterThesis"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="DocBook" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="DocBook"/>
+                              
+            
+            <details key="atlRules" value="Main"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_DocBook_books DocBookContainsCanonicalArticle"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_DocBook_books"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_DocBook"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_DocBook_books" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_DocBook"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_DocBook" value="(if self.Main_outDocBook.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Book__target" name="books" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/outDocBook" eType="//Main" name="Main_outDocBook" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Book__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Book"/>
+                              
+            
+            <details key="atlRules" value="Main"/>
+                              
+            
+            <details key="preConstraints" value="SourceBibliographyInputIsValid"/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Book_articles"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Book_articles"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Book"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Book_articles" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Book SourceBibliographyInputIsValid __efinder_NOT_targetMultiplicity_Book_articles"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Book" value="(if self.Main_outBook.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+            <details key="SourceBibliographyInputIsValid" value="BibTeXFile.allInstances()-&gt;exists(f | f.entries-&gt;notEmpty()) and&#10;  BibTeXEntry.allInstances()-&gt;forAll(e | e.id &lt;&gt; '')&#10;&#10;-- The canonical DocBook article is meaningful only for a non-empty bibliography."/>
+            <details key="__efinder_NOT_targetMultiplicity_Book_articles" value="Main.allInstances()-&gt;exists(r | not (r.outBook.articles-&gt;size() &gt;= 1))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Article__target" name="articles" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/outBook" eType="//Main" name="Main_outBook" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="TitledElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="TitledElement"/>
+                              
+            
+            <details key="atlRules" value="Main Main Main Main Main"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_TitledElement_title"/>
+                              
+            
+            <details key="semConstraints" value="create_TitledElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_TitledElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_TitledElement" value="(if self.oclIsKindOf(Article__target) then (if self.oclAsType(Article__target).Main_outArticle.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secRefList.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secAuthors.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secJournals.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secTitles.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="title" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//TitledElement" name="Article__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Article"/>
+                              
+            
+            <details key="atlRules" value="Main"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Article_sections_1"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Article_sections_1"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Article"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Article_sections_1" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Article"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Article" value="(if self.Main_outArticle.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Sect1" name="sections_1" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/outArticle" eType="//Main" name="Main_outArticle" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//TitledElement" name="Section" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Section"/>
+                              
+            
+            <details key="atlRules" value="Main Main Main Main"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Section_paras"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Section_paras"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Section"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Section_paras" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Section"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Section" value="(if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secRefList.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secAuthors.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secJournals.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Sect1) then (if self.oclAsType(Sect1).Main_secTitles.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Para" name="paras" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Section" name="Sect1" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Sect1"/>
+                              
+            
+            <details key="atlRules" value="Main Main Main Main"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Sect1_sections_2"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Sect1_sections_2"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Sect1"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Sect1_sections_2" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Sect1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Sect1" value="(if self.Main_secRefList.oclIsUndefined() then 0 else 1 endif) + (if self.Main_secAuthors.oclIsUndefined() then 0 else 1 endif) + (if self.Main_secJournals.oclIsUndefined() then 0 else 1 endif) + (if self.Main_secTitles.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Sect2" name="sections_2" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/secRefList" eType="//Main" name="Main_secRefList" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/secAuthors" eType="//Main" name="Main_secAuthors" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/secJournals" eType="//Main" name="Main_secJournals" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Main/secTitles" eType="//Main" name="Main_secTitles" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Section" name="Sect2" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Sect2"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Sect2"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Sect2"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Sect2" value="false"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Para" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Para"/>
+                              
+            
+            <details key="atlRules" value="Author UntitledEntry TitledEntry_Title_NoArticle TitledEntry_NoTitle_NoArticle Article_Title_Journal Article_NoTitle_Journal Article_Title_NoJournal Article_NoTitle_NoJournal"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Para_content"/>
+                              
+            
+            <details key="semConstraints" value="create_Para"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Para"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Para" value="(if self.Author_p.oclIsUndefined() then 0 else 1 endif) + (if self.UntitledEntry_p.oclIsUndefined() then 0 else 1 endif) + (if self.TitledEntry_Title_NoArticle_pTitle.oclIsUndefined() then 0 else 1 endif) + (if self.TitledEntry_NoTitle_NoArticle_p2.oclIsUndefined() then 0 else 1 endif) + (if self.Article_Title_Journal_pA1.oclIsUndefined() then 0 else 1 endif) + (if self.Article_NoTitle_Journal_pA2.oclIsUndefined() then 0 else 1 endif) + (if self.Article_Title_NoJournal_pA3.oclIsUndefined() then 0 else 1 endif) + (if self.Article_NoTitle_NoJournal_pA4.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="content" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Author__trace/p" eType="//Author__trace" name="Author_p" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//UntitledEntry/p" eType="//UntitledEntry" name="UntitledEntry_p" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry_Title_NoArticle/pTitle" eType="//TitledEntry_Title_NoArticle" name="TitledEntry_Title_NoArticle_pTitle" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry_NoTitle_NoArticle/p2" eType="//TitledEntry_NoTitle_NoArticle" name="TitledEntry_NoTitle_NoArticle_p2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_Title_Journal/pA1" eType="//Article_Title_Journal" name="Article_Title_Journal_pA1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_NoTitle_Journal/pA2" eType="//Article_NoTitle_Journal" name="Article_NoTitle_Journal_pA2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_Title_NoJournal/pA3" eType="//Article_Title_NoJournal" name="Article_Title_NoJournal_pA3" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article_NoTitle_NoJournal/pA4" eType="//Article_NoTitle_NoJournal" name="Article_NoTitle_NoJournal_pA4" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Integer" name="Integer" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Integer"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Main" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Main"/>
+                              
+            
+            <details key="semConstraints" value="bind_Main_outDocBook_books bind_Main_outBook_articles bind_Main_outArticle_title bind_Main_outArticle_sections_1 bind_Main_secRefList_title bind_Main_secRefList_paras bind_Main_secRefList_sections_2 bind_Main_secAuthors_title bind_Main_secAuthors_paras bind_Main_secAuthors_sections_2 bind_Main_secJournals_title bind_Main_secJournals_paras bind_Main_secJournals_sections_2 bind_Main_secTitles_title bind_Main_secTitles_paras bind_Main_secTitles_sections_2"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Main_outDocBook_books bind_Main_outBook_articles bind_Main_outArticle_title bind_Main_outArticle_sections_1 bind_Main_secRefList_title bind_Main_secRefList_paras bind_Main_secRefList_sections_2 bind_Main_secAuthors_title bind_Main_secAuthors_paras bind_Main_secAuthors_sections_2 bind_Main_secJournals_title bind_Main_secJournals_paras bind_Main_secJournals_sections_2 bind_Main_secTitles_title bind_Main_secTitles_paras bind_Main_secTitles_sections_2"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Main_outDocBook_books" value="self.outDocBook.books = Set { self.outBook }"/>
+                              
+            
+            <details key="bind_Main_outBook_articles" value="self.outBook.articles = Set { self.outArticle }"/>
+                              
+            
+            <details key="bind_Main_outArticle_title" value="self.outArticle.title = 'BibTeXML to DocBook'"/>
+                              
+            
+            <details key="bind_Main_outArticle_sections_1" value="self.outArticle.sections_1 = Set { self.secRefList, self.secAuthors, self.secJournals, self.secTitles }"/>
+                              
+            
+            <details key="bind_Main_secRefList_title" value="self.secRefList.title = 'References List'"/>
+                              
+            
+            <details key="bind_Main_secRefList_paras" value="self.secRefList.paras = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secRefList_sections_2" value="self.secRefList.sections_2 = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secAuthors_title" value="self.secAuthors.title = 'Authors list'"/>
+                              
+            
+            <details key="bind_Main_secAuthors_paras" value="self.secAuthors.paras = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secAuthors_sections_2" value="self.secAuthors.sections_2 = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secJournals_title" value="self.secJournals.title = 'Journals List'"/>
+                              
+            
+            <details key="bind_Main_secJournals_paras" value="self.secJournals.paras = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secJournals_sections_2" value="self.secJournals.sections_2 = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secTitles_title" value="self.secTitles.title = 'Titles List'"/>
+                              
+            
+            <details key="bind_Main_secTitles_paras" value="self.secTitles.paras = Set { null }"/>
+                              
+            
+            <details key="bind_Main_secTitles_sections_2" value="self.secTitles.sections_2 = Set { null }"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//BibTeXFile/Main_bf" eType="//BibTeXFile" lowerBound="1" name="bf" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DocBook/Main_outDocBook" eType="//DocBook" lowerBound="1" name="outDocBook" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Book__target/Main_outBook" eType="//Book__target" lowerBound="1" name="outBook" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article__target/Main_outArticle" eType="//Article__target" lowerBound="1" name="outArticle" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Sect1/Main_secRefList" eType="//Sect1" lowerBound="1" name="secRefList" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Sect1/Main_secAuthors" eType="//Sect1" lowerBound="1" name="secAuthors" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Sect1/Main_secJournals" eType="//Sect1" lowerBound="1" name="secJournals" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Sect1/Main_secTitles" eType="//Sect1" lowerBound="1" name="secTitles" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Author__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Author"/>
+                              
+            
+            <details key="semConstraints" value="bind_Author_p_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Author_p_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Author_p_content" value="self.p.content = self.au.author"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Author__source/Author_au" eType="//Author__source" lowerBound="1" name="au" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/Author_p" eType="//Para" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="UntitledEntry" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="UntitledEntry"/>
+                              
+            
+            <details key="semConstraints" value="bind_UntitledEntry_p_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_UntitledEntry_p_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_UntitledEntry_p_content" value="self.p.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//BibTeXEntry/UntitledEntry_be" eType="//BibTeXEntry" lowerBound="1" name="be" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/UntitledEntry_p" eType="//Para" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="TitledEntry_Title_NoArticle" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="TitledEntry_Title_NoArticle"/>
+                              
+            
+            <details key="semConstraints" value="bind_TitledEntry_Title_NoArticle_pTitle_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_TitledEntry_Title_NoArticle_pTitle_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_TitledEntry_Title_NoArticle_pTitle_content" value="self.pTitle.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry/TitledEntry_Title_NoArticle_te" eType="//TitledEntry" lowerBound="1" name="te" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/TitledEntry_Title_NoArticle_pTitle" eType="//Para" lowerBound="1" name="pTitle" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="TitledEntry_NoTitle_NoArticle" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="TitledEntry_NoTitle_NoArticle"/>
+                              
+            
+            <details key="semConstraints" value="bind_TitledEntry_NoTitle_NoArticle_p2_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_TitledEntry_NoTitle_NoArticle_p2_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_TitledEntry_NoTitle_NoArticle_p2_content" value="self.p2.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//TitledEntry/TitledEntry_NoTitle_NoArticle_te2" eType="//TitledEntry" lowerBound="1" name="te2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/TitledEntry_NoTitle_NoArticle_p2" eType="//Para" lowerBound="1" name="p2" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Article_Title_Journal" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Article_Title_Journal"/>
+                              
+            
+            <details key="semConstraints" value="bind_Article_Title_Journal_pA1_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Article_Title_Journal_pA1_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Article_Title_Journal_pA1_content" value="self.pA1.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article__source/Article_Title_Journal_a1" eType="//Article__source" lowerBound="1" name="a1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/Article_Title_Journal_pA1" eType="//Para" lowerBound="1" name="pA1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Article_NoTitle_Journal" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Article_NoTitle_Journal"/>
+                              
+            
+            <details key="semConstraints" value="bind_Article_NoTitle_Journal_pA2_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Article_NoTitle_Journal_pA2_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Article_NoTitle_Journal_pA2_content" value="self.pA2.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article__source/Article_NoTitle_Journal_a2" eType="//Article__source" lowerBound="1" name="a2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/Article_NoTitle_Journal_pA2" eType="//Para" lowerBound="1" name="pA2" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Article_Title_NoJournal" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Article_Title_NoJournal"/>
+                              
+            
+            <details key="semConstraints" value="bind_Article_Title_NoJournal_pA3_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Article_Title_NoJournal_pA3_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Article_Title_NoJournal_pA3_content" value="self.pA3.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article__source/Article_Title_NoJournal_a3" eType="//Article__source" lowerBound="1" name="a3" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/Article_Title_NoJournal_pA3" eType="//Para" lowerBound="1" name="pA3" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Article_NoTitle_NoJournal" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Article_NoTitle_NoJournal"/>
+                              
+            
+            <details key="semConstraints" value="bind_Article_NoTitle_NoJournal_pA4_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Article_NoTitle_NoJournal_pA4_content"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Article_NoTitle_NoJournal_pA4_content" value="self.pA4.content = null"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Article__source/Article_NoTitle_NoJournal_a4" eType="//Article__source" lowerBound="1" name="a4" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Para/Article_NoTitle_NoJournal_pA4" eType="//Para" lowerBound="1" name="pA4" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

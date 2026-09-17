@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/postcondition-smoke-efinder/Document2Report_All_ATL2TM__not_Report__ReportRetainsDocumentAndSections.ecore">
+  <tm:Report title="string5" author="string2" Document2Report_t="/4">
+    <sections title="string6" content="string5" order="4" Section2Section_ts="/2"/>
+    <sections title="string6" content="string5" order="4" Section2Section_ts="/1"/>
+  </tm:Report>
+  <tm:Section2Section ss="/3/@documents.0/@sections.0" ts="/0/@sections.1"/>
+  <tm:Section2Section ss="/3/@documents.0/@sections.1" ts="/0/@sections.0"/>
+  <tm:DocumentModel>
+    <documents title="string5" author="string2" Document2Report_s="/4">
+      <sections title="string6" content="string5" order="4" Section2Section_ss="/1"/>
+      <sections title="string6" content="string5" order="4" Section2Section_ss="/2"/>
+    </documents>
+  </tm:DocumentModel>
+  <tm:Document2Report s="/3/@documents.0" t="/0"/>
+</xmi:XMI>

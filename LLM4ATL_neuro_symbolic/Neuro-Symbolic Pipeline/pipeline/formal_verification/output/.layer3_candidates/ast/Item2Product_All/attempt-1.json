@@ -1,0 +1,229 @@
+{
+  "type": "Module",
+  "name": "Item2Product_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "item"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "product"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "item!Item",
+      "name": "getCategory",
+      "parameters": [],
+      "return_type": "String",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            },
+            "property_name": "type"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "Electronics",
+            "literal_type": "String"
+          }
+        },
+        "then_expression": {
+          "type": "LiteralExpression",
+          "value": "Tech",
+          "literal_type": "String"
+        },
+        "else_expression": {
+          "type": "IfExpression",
+          "condition": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              },
+              "property_name": "type"
+            },
+            "right": {
+              "type": "LiteralExpression",
+              "value": "Clothing",
+              "literal_type": "String"
+            }
+          },
+          "then_expression": {
+            "type": "LiteralExpression",
+            "value": "Apparel",
+            "literal_type": "String"
+          },
+          "else_expression": {
+            "type": "LiteralExpression",
+            "value": "General",
+            "literal_type": "String"
+          }
+        }
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "ItemModel2ProductModel",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "item!ItemModel"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "product!ProductModel"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "products",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "items"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Item2Product",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "item!Item"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "product!Product"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "price",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "price"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "description",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "description"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "category",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "operation_name": "getCategory",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "inStock",
+                "value": {
+                  "type": "BinaryExpression",
+                  "operator": ">",
+                  "left": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s"
+                    },
+                    "property_name": "quantity"
+                  },
+                  "right": {
+                    "type": "LiteralExpression",
+                    "value": 0,
+                    "literal_type": "Integer"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

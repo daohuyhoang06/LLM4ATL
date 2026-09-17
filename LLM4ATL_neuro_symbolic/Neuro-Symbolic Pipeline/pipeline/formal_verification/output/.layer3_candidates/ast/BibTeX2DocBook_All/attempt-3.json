@@ -1,0 +1,1616 @@
+{
+  "type": "Module",
+  "name": "BibTeX2DocBook",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "BibTeX"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "DocBook"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": null,
+      "name": "authorSet",
+      "return_type": "Set(BibTeX!Author)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "BibTeX!Author"
+          },
+          "operation_name": "allInstances"
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "a",
+            "declared_type": "BibTeX!Author"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "Variable",
+            "name": "a",
+            "declared_type": "BibTeX!Author"
+          },
+          "right": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "BibTeX!Author"
+              },
+              "operation_name": "allInstances"
+            },
+            "iterator_type": "any",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "a2",
+                "declared_type": "BibTeX!Author"
+              }
+            ],
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "a2",
+                  "declared_type": "BibTeX!Author"
+                },
+                "property_name": "author"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Author"
+                },
+                "property_name": "author"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": null,
+      "name": "titledEntrySet",
+      "return_type": "Set(BibTeX!TitledEntry)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "BibTeX!TitledEntry"
+          },
+          "operation_name": "allInstances"
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "e",
+            "declared_type": "BibTeX!TitledEntry"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "Variable",
+            "name": "e",
+            "declared_type": "BibTeX!TitledEntry"
+          },
+          "right": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "BibTeX!TitledEntry"
+              },
+              "operation_name": "allInstances"
+            },
+            "iterator_type": "any",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "e2",
+                "declared_type": "BibTeX!TitledEntry"
+              }
+            ],
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "e2",
+                  "declared_type": "BibTeX!TitledEntry"
+                },
+                "property_name": "title"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "e",
+                  "declared_type": "BibTeX!TitledEntry"
+                },
+                "property_name": "title"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": null,
+      "name": "articleSet",
+      "return_type": "Set(BibTeX!Article)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "BibTeX!Article"
+          },
+          "operation_name": "allInstances"
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "a",
+            "declared_type": "BibTeX!Article"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "Variable",
+            "name": "a",
+            "declared_type": "BibTeX!Article"
+          },
+          "right": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "BibTeX!Article"
+              },
+              "operation_name": "allInstances"
+            },
+            "iterator_type": "any",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "a2",
+                "declared_type": "BibTeX!Article"
+              }
+            ],
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "a2",
+                  "declared_type": "BibTeX!Article"
+                },
+                "property_name": "journal"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Article"
+                },
+                "property_name": "journal"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "BibTeX!BibTeXEntry",
+      "name": "buildEntryPara",
+      "return_type": "String",
+      "body": {
+        "type": "BinaryExpression",
+        "operator": "+",
+        "left": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "BinaryExpression",
+              "operator": "+",
+              "left": {
+                "type": "BinaryExpression",
+                "operator": "+",
+                "left": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "self"
+                  },
+                  "property_name": "id"
+                },
+                "right": {
+                  "type": "LiteralExpression",
+                  "value": " ",
+                  "literal_type": "String"
+                }
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "self"
+                  },
+                  "operation_name": "oclType"
+                },
+                "property_name": "name"
+              }
+            },
+            "right": {
+              "type": "IfExpression",
+              "condition": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                },
+                "operation_name": "oclIsKindOf",
+                "arguments": [
+                  {
+                    "type": "Variable",
+                    "name": "BibTeX!TitledEntry"
+                  }
+                ]
+              },
+              "then_expression": {
+                "type": "BinaryExpression",
+                "operator": "+",
+                "left": {
+                  "type": "LiteralExpression",
+                  "value": " ",
+                  "literal_type": "String"
+                },
+                "right": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "self"
+                  },
+                  "property_name": "title"
+                }
+              },
+              "else_expression": {
+                "type": "LiteralExpression",
+                "value": "",
+                "literal_type": "String"
+              }
+            }
+          },
+          "right": {
+            "type": "IfExpression",
+            "condition": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              },
+              "operation_name": "oclIsKindOf",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "BibTeX!DatedEntry"
+                }
+              ]
+            },
+            "then_expression": {
+              "type": "BinaryExpression",
+              "operator": "+",
+              "left": {
+                "type": "LiteralExpression",
+                "value": " ",
+                "literal_type": "String"
+              },
+              "right": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self"
+                },
+                "property_name": "year"
+              }
+            },
+            "else_expression": {
+              "type": "LiteralExpression",
+              "value": "",
+              "literal_type": "String"
+            }
+          }
+        },
+        "right": {
+          "type": "IfExpression",
+          "condition": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self"
+            },
+            "operation_name": "oclIsKindOf",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "BibTeX!Book"
+              }
+            ]
+          },
+          "then_expression": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "LiteralExpression",
+              "value": " ",
+              "literal_type": "String"
+            },
+            "right": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self"
+              },
+              "property_name": "publisher"
+            }
+          },
+          "else_expression": {
+            "type": "LiteralExpression",
+            "value": "",
+            "literal_type": "String"
+          }
+        }
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Main",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "b",
+              "declared_type": "BibTeX!BibTeXFile"
+            }
+          }
+        ]
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "docBook",
+              "declared_type": "DocBook!DocBook"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "books",
+                "value": {
+                  "type": "Variable",
+                  "name": "book"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "book",
+              "declared_type": "DocBook!Book"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "articles",
+                "value": {
+                  "type": "Variable",
+                  "name": "article"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "article",
+              "declared_type": "DocBook!Article"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "title",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "BibTeXML to DocBook",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "sections_1",
+                "value": {
+                  "type": "CollectionLiteral",
+                  "collection_kind": "Set",
+                  "elements": [
+                    {
+                      "type": "Variable",
+                      "name": "sect1"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "sect2"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "sect3"
+                    },
+                    {
+                      "type": "Variable",
+                      "name": "sect4"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "sect1",
+              "declared_type": "DocBook!Sect1"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "title",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "References List",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "paras",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "BibTeX!BibTeXEntry"
+                    },
+                    "operation_name": "allInstances"
+                  },
+                  "iterator_type": "sortedBy",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "BibTeX!BibTeXEntry"
+                    }
+                  ],
+                  "body": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "BibTeX!BibTeXEntry"
+                    },
+                    "property_name": "id"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "sect2",
+              "declared_type": "DocBook!Sect1"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "title",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Authors list",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "paras",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "property_name": "authorSet"
+                  },
+                  "iterator_type": "sortedBy",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "a",
+                      "declared_type": "BibTeX!Author"
+                    }
+                  ],
+                  "body": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "a",
+                      "declared_type": "BibTeX!Author"
+                    },
+                    "property_name": "author"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "sect3",
+              "declared_type": "DocBook!Sect1"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "title",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Titles List",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "paras",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule"
+                      },
+                      "property_name": "titledEntrySet"
+                    },
+                    "iterator_type": "sortedBy",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "e",
+                        "declared_type": "BibTeX!TitledEntry"
+                      }
+                    ],
+                    "body": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "e",
+                        "declared_type": "BibTeX!TitledEntry"
+                      },
+                      "property_name": "title"
+                    }
+                  },
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "BibTeX!TitledEntry"
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "operation_name": "resolveTemp",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "e",
+                        "declared_type": "BibTeX!TitledEntry"
+                      },
+                      {
+                        "type": "LiteralExpression",
+                        "value": "p_title",
+                        "literal_type": "String"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "sect4",
+              "declared_type": "DocBook!Sect1"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "title",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Journals List",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "paras",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule"
+                      },
+                      "property_name": "articleSet"
+                    },
+                    "iterator_type": "sortedBy",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "a",
+                        "declared_type": "BibTeX!Article"
+                      }
+                    ],
+                    "body": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "a",
+                        "declared_type": "BibTeX!Article"
+                      },
+                      "property_name": "journal"
+                    }
+                  },
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "a",
+                      "declared_type": "BibTeX!Article"
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule"
+                    },
+                    "operation_name": "resolveTemp",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "a",
+                        "declared_type": "BibTeX!Article"
+                      },
+                      {
+                        "type": "LiteralExpression",
+                        "value": "p_journal",
+                        "literal_type": "String"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Author",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Author"
+            }
+          }
+        ],
+        "filter": {
+          "type": "CollectionOperation",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "thisModule"
+            },
+            "property_name": "authorSet"
+          },
+          "operation_name": "includes",
+          "arguments": [
+            {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Author"
+            }
+          ]
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Author"
+                  },
+                  "property_name": "author"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "UntitledEntry",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "BibTeX!BibTeXEntry"
+            }
+          }
+        ],
+        "filter": {
+          "type": "UnaryExpression",
+          "operator": "not",
+          "expression": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "BibTeX!BibTeXEntry"
+            },
+            "operation_name": "oclIsKindOf",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "BibTeX!TitledEntry"
+              }
+            ]
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "BibTeX!BibTeXEntry"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "TitledEntry_Title_NoArticle",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "BibTeX!BibTeXEntry"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "and",
+            "left": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "e",
+                "declared_type": "BibTeX!BibTeXEntry"
+              },
+              "operation_name": "oclIsKindOf",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "BibTeX!TitledEntry"
+                }
+              ]
+            },
+            "right": {
+              "type": "UnaryExpression",
+              "operator": "not",
+              "expression": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "e",
+                  "declared_type": "BibTeX!BibTeXEntry"
+                },
+                "operation_name": "oclIsKindOf",
+                "arguments": [
+                  {
+                    "type": "Variable",
+                    "name": "BibTeX!Article"
+                  }
+                ]
+              }
+            }
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "thisModule"
+              },
+              "property_name": "titledEntrySet"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "e",
+                "declared_type": "BibTeX!BibTeXEntry"
+              }
+            ]
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "BibTeX!BibTeXEntry"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_title",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "BibTeX!BibTeXEntry"
+                  },
+                  "property_name": "title"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "TitledEntry_NoTitle_NoArticle",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "BibTeX!BibTeXEntry"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "BinaryExpression",
+            "operator": "and",
+            "left": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "e",
+                "declared_type": "BibTeX!BibTeXEntry"
+              },
+              "operation_name": "oclIsKindOf",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "BibTeX!TitledEntry"
+                }
+              ]
+            },
+            "right": {
+              "type": "UnaryExpression",
+              "operator": "not",
+              "expression": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "e",
+                  "declared_type": "BibTeX!BibTeXEntry"
+                },
+                "operation_name": "oclIsKindOf",
+                "arguments": [
+                  {
+                    "type": "Variable",
+                    "name": "BibTeX!Article"
+                  }
+                ]
+              }
+            }
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "CollectionOperation",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "thisModule"
+                },
+                "property_name": "titledEntrySet"
+              },
+              "operation_name": "includes",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "e",
+                  "declared_type": "BibTeX!BibTeXEntry"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "BibTeX!BibTeXEntry"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Article_Title_Journal",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Article"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "thisModule"
+              },
+              "property_name": "titledEntrySet"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "a",
+                "declared_type": "BibTeX!Article"
+              }
+            ]
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "thisModule"
+              },
+              "property_name": "articleSet"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "a",
+                "declared_type": "BibTeX!Article"
+              }
+            ]
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_title",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "property_name": "title"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_journal",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "property_name": "journal"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Article_NoTitle_Journal",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Article"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "CollectionOperation",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "thisModule"
+                },
+                "property_name": "titledEntrySet"
+              },
+              "operation_name": "includes",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Article"
+                }
+              ]
+            }
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "thisModule"
+              },
+              "property_name": "articleSet"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "a",
+                "declared_type": "BibTeX!Article"
+              }
+            ]
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_journal",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "property_name": "journal"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Article_Title_NoJournal",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Article"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "thisModule"
+              },
+              "property_name": "titledEntrySet"
+            },
+            "operation_name": "includes",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "a",
+                "declared_type": "BibTeX!Article"
+              }
+            ]
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "CollectionOperation",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "thisModule"
+                },
+                "property_name": "articleSet"
+              },
+              "operation_name": "includes",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Article"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p_title",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "property_name": "title"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Article_NoTitle_NoJournal",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "a",
+              "declared_type": "BibTeX!Article"
+            }
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "CollectionOperation",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "thisModule"
+                },
+                "property_name": "titledEntrySet"
+              },
+              "operation_name": "includes",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Article"
+                }
+              ]
+            }
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "CollectionOperation",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "thisModule"
+                },
+                "property_name": "articleSet"
+              },
+              "operation_name": "includes",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "a",
+                  "declared_type": "BibTeX!Article"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DocBook!Para"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "content",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "a",
+                    "declared_type": "BibTeX!Article"
+                  },
+                  "operation_name": "buildEntryPara",
+                  "arguments": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

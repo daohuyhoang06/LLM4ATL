@@ -1,0 +1,2267 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="DSL2KM3"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers abstract="true" name="NamedElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="NamedElement"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="identity" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Namespace" name="LoadedElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="LoadedElement"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isLoaded" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//NamedElement" name="Namespace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Namespace"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="namespace" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//LoadedElement" name="DomainModel" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="DomainModel"/>
+                              
+            
+            <details key="atlRules" value="Metamodel"/>
+                              
+            
+            <details key="preConstraints" value="SourceDomainModelIsNonEmpty"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Metamodel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Metamodel SourceDomainModelIsNonEmpty"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Metamodel" value="DomainModel.allInstances()-&gt;forAll(s : DomainModel | Metamodel__trace.allInstances()-&gt;one(z : Metamodel__trace | z.s = s))"/>
+                            
+        
+            <details key="SourceDomainModelIsNonEmpty" value="self.name &lt;&gt; '' and (self.classifiers-&gt;notEmpty() or self.types-&gt;notEmpty())"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Classifier__source/domainModel" eType="//Classifier__source" name="classifiers" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Type" name="types" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/s" eType="//Metamodel__trace" name="Metamodel_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//LoadedElement" name="Classifier__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Classifier"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isAbstract" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ValueProperty/owner" eType="//ValueProperty" name="properties" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier__source/subTypes" eType="//Classifier__source" name="superType" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier__source/superType" eType="//Classifier__source" name="subTypes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel/classifiers" eType="//DomainModel" lowerBound="1" name="domainModel" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier__source" name="Class__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Class"/>
+                              
+            
+            <details key="atlRules" value="Class"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Class" value="Class__source.allInstances()-&gt;forAll(s : Class__source | Class__trace.allInstances()-&gt;one(z : Class__trace | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__trace/s" eType="//Class__trace" name="Class_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier__source" name="Relationship" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Relationship"/>
+                              
+            
+            <details key="atlRules" value="Relation2Class"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Relation2Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Relation2Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Relation2Class" value="Relationship.allInstances()-&gt;forAll(s : Relationship | (s.properties-&gt;notEmpty() or (s.subTypes-&gt;notEmpty() or (not s.superType.oclIsUndefined()))) implies Relation2Class.allInstances()-&gt;one(z : Relation2Class | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isEmbedding" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Role/relation" eType="//Role" lowerBound="2" name="roles" ordered="false" upperBound="2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relation2Class/s" eType="//Relation2Class" name="Relation2Class_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="Role" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Role"/>
+                              
+            
+            <details key="atlRules" value="SimpleReference ComplexReference"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_SimpleReference match_ComplexReference mutex_SimpleReference_ComplexReference"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_SimpleReference match_ComplexReference mutex_SimpleReference_ComplexReference"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_SimpleReference" value="Role.allInstances()-&gt;forAll(s : Role | (not (s.relation.properties-&gt;notEmpty() or (s.relation.subTypes-&gt;notEmpty() or (not s.relation.superType.oclIsUndefined())))) implies SimpleReference.allInstances()-&gt;one(z : SimpleReference | z.s = s))"/>
+                              
+            
+            <details key="match_ComplexReference" value="Role.allInstances()-&gt;forAll(s : Role | (s.relation.properties-&gt;notEmpty() or (s.relation.subTypes-&gt;notEmpty() or (not s.relation.superType.oclIsUndefined()))) implies ComplexReference.allInstances()-&gt;one(z : ComplexReference | z.s = s))"/>
+                              
+            
+            <details key="mutex_SimpleReference_ComplexReference" value="(Role.allInstances()-&gt;forAll(s : Role | not (SimpleReference.allInstances()-&gt;exists(z1 : SimpleReference | z1.s = s) and ComplexReference.allInstances()-&gt;exists(z2 : ComplexReference | z2.s = s))))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" lowerBound="1" name="min" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" lowerBound="1" name="max" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isUnbounded" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="accepts" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isOrdered" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isNavigableFrom" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" lowerBound="1" name="isPropertyGenerator" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Classifier__source" lowerBound="1" name="source" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eType="//Classifier__source" lowerBound="1" name="type" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship/roles" eType="//Relationship" lowerBound="1" name="relation" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleReference/s" eType="//SimpleReference" name="SimpleReference_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ComplexReference/s" eType="//ComplexReference" name="ComplexReference_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="ValueProperty" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ValueProperty"/>
+                              
+            
+            <details key="atlRules" value="Attribute"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Attribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Attribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Attribute" value="ValueProperty.allInstances()-&gt;forAll(s : ValueProperty | Attribute__trace.allInstances()-&gt;one(z : Attribute__trace | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier__source/properties" eType="//Classifier__source" lowerBound="1" name="owner" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eType="//Type" lowerBound="1" name="type" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Attribute__trace/s" eType="//Attribute__trace" name="Attribute_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Namespace" name="Type" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Type"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Type" name="SimpleType" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="SimpleType"/>
+                              
+            
+            <details key="atlRules" value="DataType"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_DataType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_DataType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_DataType" value="SimpleType.allInstances()-&gt;forAll(s : SimpleType | DataType__trace.allInstances()-&gt;one(z : DataType__trace | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__trace/s" eType="//DataType__trace" name="DataType_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="EnumerationLiteral" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="EnumerationLiteral"/>
+                              
+            
+            <details key="atlRules" value="EnumLiteral"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_EnumLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_EnumLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_EnumLiteral" value="EnumerationLiteral.allInstances()-&gt;forAll(s : EnumerationLiteral | EnumLiteral__trace.allInstances()-&gt;one(z : EnumLiteral__trace | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" lowerBound="1" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumLiteral__trace/s" eType="//EnumLiteral__trace" name="EnumLiteral_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Type" name="Enumeration__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Enumeration"/>
+                              
+            
+            <details key="atlRules" value="Enumeration"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Enumeration" value="Enumeration__source.allInstances()-&gt;forAll(s : Enumeration__source | Enumeration__trace.allInstances()-&gt;one(z : Enumeration__trace | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//EnumerationLiteral" name="literals" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__trace/s" eType="//Enumeration__trace" name="Enumeration_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="LocatedElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="LocatedElement"/>
+                              
+            
+            <details key="atlRules" value="Metamodel Metamodel Metamodel Metamodel Metamodel Metamodel Class Relation2Class SimpleReference ComplexReference Attribute Enumeration EnumLiteral DataType"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_LocatedElement_location"/>
+                              
+            
+            <details key="semConstraints" value="create_LocatedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_LocatedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_LocatedElement" value="(if self.oclIsKindOf(Metamodel__target) then (if self.oclAsType(Metamodel__target).Metamodel_m.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Package) then (if self.oclAsType(Package).Metamodel_p.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Package) then (if self.oclAsType(Package).Metamodel_pt.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_bool.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_int.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_str.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Relation2Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).SimpleReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).ComplexReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Attribute__target) then (if self.oclAsType(Attribute__target).Attribute_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(EnumLiteral__target) then (if self.oclAsType(EnumLiteral__target).EnumLiteral_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).DataType_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="location" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//LocatedElement" name="ModelElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ModelElement"/>
+                              
+            
+            <details key="atlRules" value="Metamodel Metamodel Metamodel Metamodel Metamodel Class Relation2Class SimpleReference ComplexReference Attribute Enumeration EnumLiteral DataType"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_ModelElement_package"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_ModelElement_package"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_ModelElement_name"/>
+                              
+            
+            <details key="semConstraints" value="create_ModelElement"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_ModelElement_package" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ModelElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ModelElement" value="(if self.oclIsKindOf(Package) then (if self.oclAsType(Package).Metamodel_p.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Package) then (if self.oclAsType(Package).Metamodel_pt.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_bool.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_int.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_str.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Relation2Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).SimpleReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).ComplexReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Attribute__target) then (if self.oclAsType(Attribute__target).Attribute_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(EnumLiteral__target) then (if self.oclAsType(EnumLiteral__target).EnumLiteral_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).DataType_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Package/contents" eType="//Package" name="package" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ModelElement" name="Classifier__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Classifier"/>
+                              
+            
+            <details key="atlRules" value="Metamodel Metamodel Metamodel Class Relation2Class Enumeration DataType"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Classifier"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Classifier"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Classifier" value="(if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_bool.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_int.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).Metamodel_str.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Relation2Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(DataType__target) then (if self.oclAsType(DataType__target).DataType_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier__target" name="DataType__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="DataType"/>
+                              
+            
+            <details key="atlRules" value="Metamodel Metamodel Metamodel DataType"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_DataType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_DataType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_DataType" value="(if self.Metamodel_bool.oclIsUndefined() then 0 else 1 endif) + (if self.Metamodel_int.oclIsUndefined() then 0 else 1 endif) + (if self.Metamodel_str.oclIsUndefined() then 0 else 1 endif) + (if self.DataType_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/bool" eType="//Metamodel__trace" name="Metamodel_bool" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/int" eType="//Metamodel__trace" name="Metamodel_int" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/str" eType="//Metamodel__trace" name="Metamodel_str" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__trace/t" eType="//DataType__trace" name="DataType_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier__target" name="Enumeration__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Enumeration"/>
+                              
+            
+            <details key="atlRules" value="Enumeration"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Enumeration" value="(if self.Enumeration_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//EnumLiteral__target" name="literals" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__trace/t" eType="//Enumeration__trace" name="Enumeration_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ModelElement" name="EnumLiteral__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="EnumLiteral"/>
+                              
+            
+            <details key="atlRules" value="EnumLiteral"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_EnumLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_EnumLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_EnumLiteral" value="(if self.EnumLiteral_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumLiteral__trace/t" eType="//EnumLiteral__trace" name="EnumLiteral_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier__target" name="Class__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Class"/>
+                              
+            
+            <details key="atlRules" value="Class Relation2Class"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Class_isAbstract"/>
+                              
+            
+            <details key="semConstraints" value="create_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Class" value="(if self.Class_t.oclIsUndefined() then 0 else 1 endif) + (if self.Relation2Class_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isAbstract" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Class__target" name="supertypes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//StructuralFeature/owner" eType="//StructuralFeature" name="structuralFeatures" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__trace/t" eType="//Class__trace" name="Class_t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relation2Class/t" eType="//Relation2Class" name="Relation2Class_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ModelElement" name="StructuralFeature" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="StructuralFeature"/>
+                              
+            
+            <details key="atlRules" value="SimpleReference ComplexReference Attribute"/>
+                              
+            
+            <details key="preConstraints" value="SourceDslInputIsValid"/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_StructuralFeature_owner targetMultiplicity_StructuralFeature_type"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_StructuralFeature_owner targetMultiplicity_StructuralFeature_type"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_StructuralFeature_lower targetMultiplicity_StructuralFeature_upper targetMultiplicity_StructuralFeature_isOrdered targetMultiplicity_StructuralFeature_isUnique"/>
+                              
+            
+            <details key="semConstraints" value="create_StructuralFeature"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_StructuralFeature_owner" value="POST / TARGET_MULTIPLICITY"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_StructuralFeature_type" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_StructuralFeature SourceDslInputIsValid __efinder_NOT_targetMultiplicity_StructuralFeature_owner"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_StructuralFeature" value="(if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).SimpleReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Reference) then (if self.oclAsType(Reference).ComplexReference_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Attribute__target) then (if self.oclAsType(Attribute__target).Attribute_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                              
+            
+                  
+            
+                
+        
+            <details key="SourceDslInputIsValid" value="DomainModel.allInstances()-&gt;exists(dm |&#10;    dm.name &lt;&gt; '' and (dm.classifiers-&gt;notEmpty() or dm.types-&gt;notEmpty())&#10;  ) and&#10;  DomainModel.allInstances()-&gt;forAll(dm | dm.name &lt;&gt; '')"/>
+            <details key="__efinder_NOT_targetMultiplicity_StructuralFeature_owner" value="(SimpleReference.allInstances()-&gt;exists(r | not (not r.t.owner.oclIsUndefined())) or ComplexReference.allInstances()-&gt;exists(r | not (not r.t.owner.oclIsUndefined())) or Attribute__trace.allInstances()-&gt;exists(r | not (not r.t.owner.oclIsUndefined())))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="lower" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="upper" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isOrdered" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isUnique" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__target/structuralFeatures" eType="//Class__target" name="owner" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eType="//Classifier__target" name="type" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//StructuralFeature" name="Attribute__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Attribute"/>
+                              
+            
+            <details key="atlRules" value="Attribute"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Attribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Attribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Attribute" value="(if self.Attribute_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Attribute__trace/t" eType="//Attribute__trace" name="Attribute_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//StructuralFeature" name="Reference" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Reference"/>
+                              
+            
+            <details key="atlRules" value="SimpleReference ComplexReference"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Reference_isContainer"/>
+                              
+            
+            <details key="semConstraints" value="create_Reference"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Reference"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Reference" value="(if self.SimpleReference_t.oclIsUndefined() then 0 else 1 endif) + (if self.ComplexReference_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isContainer" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Reference" name="opposite" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleReference/t" eType="//SimpleReference" name="SimpleReference_t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ComplexReference/t" eType="//ComplexReference" name="ComplexReference_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//ModelElement" name="Package" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Package"/>
+                              
+            
+            <details key="atlRules" value="Metamodel Metamodel"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Package_metamodel"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Package_metamodel"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Package"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Package_metamodel" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Package"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Package" value="(if self.Metamodel_p.oclIsUndefined() then 0 else 1 endif) + (if self.Metamodel_pt.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ModelElement/package" eType="//ModelElement" name="contents" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__target/contents" eType="//Metamodel__target" name="metamodel" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/p" eType="//Metamodel__trace" name="Metamodel_p" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/pt" eType="//Metamodel__trace" name="Metamodel_pt" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//LocatedElement" name="Metamodel__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Metamodel"/>
+                              
+            
+            <details key="atlRules" value="Metamodel"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="MetamodelHasMainAndPrimitivePackages"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Metamodel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Metamodel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Metamodel" value="(if self.Metamodel_m.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Package/metamodel" eType="//Package" name="contents" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__trace/m" eType="//Metamodel__trace" name="Metamodel_m" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Boolean" name="Boolean__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Boolean"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Integer" name="Integer__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Integer"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Boolean" name="Boolean__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Boolean"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Integer" name="Integer__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Integer"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Metamodel__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Metamodel"/>
+                              
+            
+            <details key="semConstraints" value="bind_Metamodel_m_contents bind_Metamodel_p_name bind_Metamodel_p_contents bind_Metamodel_p_contents_size bind_Metamodel_pt_name bind_Metamodel_pt_contents bind_Metamodel_bool_name bind_Metamodel_int_name bind_Metamodel_str_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Metamodel_m_contents bind_Metamodel_p_name bind_Metamodel_p_contents bind_Metamodel_p_contents_size bind_Metamodel_pt_name bind_Metamodel_pt_contents bind_Metamodel_bool_name bind_Metamodel_int_name bind_Metamodel_str_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Metamodel_m_contents" value="self.m.contents = Set { self.p, self.pt }"/>
+                              
+            
+            <details key="bind_Metamodel_p_name" value="self.p.name = self.s.name"/>
+                              
+            
+            <details key="bind_Metamodel_p_contents" value="self.p.contents = Set { self.s.classifiers-&gt;collect(x | (if x.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = x.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.classifiers-&gt;collect(x | (if x.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = x.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.types-&gt;collect(x | (if x.oclIsKindOf(Enumeration__source) then Enumeration__trace.allInstances()-&gt;select(z : Enumeration__trace | z.s = x.oclAsType(Enumeration__source))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.types-&gt;collect(x | (if x.oclIsKindOf(SimpleType) then DataType__trace.allInstances()-&gt;select(z : DataType__trace | z.s = x.oclAsType(SimpleType))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Metamodel_pt_name" value="self.pt.name = 'PrimitiveTypes'"/>
+                              
+            
+            <details key="bind_Metamodel_pt_contents" value="self.pt.contents = Set { self.bool, self.int, self.str }"/>
+                              
+            
+            <details key="bind_Metamodel_bool_name" value="self.bool.name = 'Boolean'"/>
+                              
+            
+            <details key="bind_Metamodel_int_name" value="self.int.name = 'Integer'"/>
+                              
+            
+            <details key="bind_Metamodel_str_name" value="self.str.name = 'String'"/>
+                              
+            
+            <details key="bind_Metamodel_p_contents_size" value="(self.s.classifiers-&gt;union(self.s.types))-&gt;size() = (Set { self.s.classifiers-&gt;collect(x | (if x.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = x.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.classifiers-&gt;collect(x | (if x.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = x.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.types-&gt;collect(x | (if x.oclIsKindOf(Enumeration__source) then Enumeration__trace.allInstances()-&gt;select(z : Enumeration__trace | z.s = x.oclAsType(Enumeration__source))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.types-&gt;collect(x | (if x.oclIsKindOf(SimpleType) then DataType__trace.allInstances()-&gt;select(z : DataType__trace | z.s = x.oclAsType(SimpleType))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+      
+      
+      
+      
+      
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel/Metamodel_s" eType="//DomainModel" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Metamodel__target/Metamodel_m" eType="//Metamodel__target" lowerBound="1" name="m" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Package/Metamodel_p" eType="//Package" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Package/Metamodel_pt" eType="//Package" lowerBound="1" name="pt" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__target/Metamodel_bool" eType="//DataType__target" lowerBound="1" name="bool" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__target/Metamodel_int" eType="//DataType__target" lowerBound="1" name="int" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__target/Metamodel_str" eType="//DataType__target" lowerBound="1" name="str" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Class__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Class"/>
+                              
+            
+            <details key="semConstraints" value="bind_Class_t_name bind_Class_t_isAbstract bind_Class_t_supertypes bind_Class_t_supertypes_defined bind_Class_t_structuralFeatures bind_Class_t_structuralFeatures_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Class_t_name bind_Class_t_isAbstract bind_Class_t_supertypes bind_Class_t_supertypes_defined bind_Class_t_structuralFeatures bind_Class_t_structuralFeatures_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Class_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_Class_t_isAbstract" value="self.t.isAbstract = self.s.isAbstract"/>
+                              
+            
+            <details key="bind_Class_t_supertypes" value="self.t.supertypes = Set { (if self.s.superType.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.superType.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.superType.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.superType.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true)"/>
+                              
+            
+            <details key="bind_Class_t_structuralFeatures" value="self.t.structuralFeatures = Set { self.s.properties-&gt;collect(x | (if x.oclIsKindOf(ValueProperty) then Attribute__trace.allInstances()-&gt;select(z : Attribute__trace | z.s = x.oclAsType(ValueProperty))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Class_t_supertypes_defined" value="(not self.s.superType.oclIsUndefined()) = (not Set { (if self.s.superType.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.superType.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.superType.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.superType.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true).oclIsUndefined())"/>
+                              
+            
+            <details key="bind_Class_t_structuralFeatures_size" value="(self.s.properties-&gt;union(Role.allInstances()-&gt;select(role | ((role.source = self.s) and (not (role.relation.properties-&gt;notEmpty() or (role.relation.subTypes-&gt;notEmpty() or (not role.relation.superType.oclIsUndefined()))))))))-&gt;size() = (Set { self.s.properties-&gt;collect(x | (if x.oclIsKindOf(ValueProperty) then Attribute__trace.allInstances()-&gt;select(z : Attribute__trace | z.s = x.oclAsType(ValueProperty))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__source/Class_s" eType="//Class__source" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__target/Class_t" eType="//Class__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Relation2Class" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Relation2Class"/>
+                              
+            
+            <details key="semConstraints" value="match_Relation2Class_cond bind_Relation2Class_t_name bind_Relation2Class_t_isAbstract bind_Relation2Class_t_supertypes bind_Relation2Class_t_supertypes_defined bind_Relation2Class_t_structuralFeatures bind_Relation2Class_t_structuralFeatures_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Relation2Class_cond bind_Relation2Class_t_name bind_Relation2Class_t_isAbstract bind_Relation2Class_t_supertypes bind_Relation2Class_t_supertypes_defined bind_Relation2Class_t_structuralFeatures bind_Relation2Class_t_structuralFeatures_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Relation2Class_cond" value="(self.s.properties-&gt;notEmpty() or (self.s.subTypes-&gt;notEmpty() or (not self.s.superType.oclIsUndefined())))"/>
+                              
+            
+            <details key="bind_Relation2Class_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_Relation2Class_t_isAbstract" value="self.t.isAbstract = self.s.isAbstract"/>
+                              
+            
+            <details key="bind_Relation2Class_t_supertypes" value="self.t.supertypes = Set { (if self.s.superType.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.superType.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.superType.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.superType.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true)"/>
+                              
+            
+            <details key="bind_Relation2Class_t_structuralFeatures" value="self.t.structuralFeatures = Set { self.s.properties-&gt;collect(x | (if x.oclIsKindOf(ValueProperty) then Attribute__trace.allInstances()-&gt;select(z : Attribute__trace | z.s = x.oclAsType(ValueProperty))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.roles-&gt;collect(x | (if x.oclIsKindOf(Role) then SimpleReference.allInstances()-&gt;select(z : SimpleReference | z.s = x.oclAsType(Role))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.roles-&gt;collect(x | (if x.oclIsKindOf(Role) then ComplexReference.allInstances()-&gt;select(z : ComplexReference | z.s = x.oclAsType(Role))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Relation2Class_t_supertypes_defined" value="(not self.s.superType.oclIsUndefined()) = (not Set { (if self.s.superType.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.superType.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.superType.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.superType.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true).oclIsUndefined())"/>
+                              
+            
+            <details key="bind_Relation2Class_t_structuralFeatures_size" value="(self.s.properties-&gt;union(self.s.roles))-&gt;size() = (Set { self.s.properties-&gt;collect(x | (if x.oclIsKindOf(ValueProperty) then Attribute__trace.allInstances()-&gt;select(z : Attribute__trace | z.s = x.oclAsType(ValueProperty))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.roles-&gt;collect(x | (if x.oclIsKindOf(Role) then SimpleReference.allInstances()-&gt;select(z : SimpleReference | z.s = x.oclAsType(Role))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.roles-&gt;collect(x | (if x.oclIsKindOf(Role) then ComplexReference.allInstances()-&gt;select(z : ComplexReference | z.s = x.oclAsType(Role))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship/Relation2Class_s" eType="//Relationship" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__target/Relation2Class_t" eType="//Class__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="SimpleReference" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="SimpleReference"/>
+                              
+            
+            <details key="semConstraints" value="match_SimpleReference_cond bind_SimpleReference_t_name bind_SimpleReference_t_lower bind_SimpleReference_t_upper bind_SimpleReference_t_isOrdered bind_SimpleReference_t_type bind_SimpleReference_t_type_defined bind_SimpleReference_t_isContainer bind_SimpleReference_t_opposite"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_SimpleReference_cond bind_SimpleReference_t_name bind_SimpleReference_t_lower bind_SimpleReference_t_upper bind_SimpleReference_t_isOrdered bind_SimpleReference_t_type bind_SimpleReference_t_type_defined bind_SimpleReference_t_isContainer bind_SimpleReference_t_opposite"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_SimpleReference_cond" value="(not (self.s.relation.properties-&gt;notEmpty() or (self.s.relation.subTypes-&gt;notEmpty() or (not self.s.relation.superType.oclIsUndefined()))))"/>
+                              
+            
+            <details key="bind_SimpleReference_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_SimpleReference_t_lower" value="self.t.lower = self.s.min"/>
+                              
+            
+            <details key="bind_SimpleReference_t_upper" value="self.t.upper = (if self.s.isUnbounded then (-1) else self.s.max endif)"/>
+                              
+            
+            <details key="bind_SimpleReference_t_isOrdered" value="self.t.isOrdered = self.s.isOrdered"/>
+                              
+            
+            <details key="bind_SimpleReference_t_type" value="self.t.type = Set { (if self.s.type.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.type.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.type.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true)"/>
+                              
+            
+            <details key="bind_SimpleReference_t_isContainer" value="self.t.isContainer = self.s.relation.isEmbedding"/>
+                              
+            
+            <details key="bind_SimpleReference_t_opposite" value="self.t.opposite = self.s.relation.roles-&gt;any(r | (r &lt;&gt; self.s))"/>
+                              
+            
+            <details key="bind_SimpleReference_t_type_defined" value="(not self.s.type.oclIsUndefined()) = (not Set { (if self.s.type.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.type.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.type.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true).oclIsUndefined())"/>
+                              
+      
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Role/SimpleReference_s" eType="//Role" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Reference/SimpleReference_t" eType="//Reference" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ComplexReference" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="ComplexReference"/>
+                              
+            
+            <details key="semConstraints" value="match_ComplexReference_cond bind_ComplexReference_t_name bind_ComplexReference_t_lower bind_ComplexReference_t_upper bind_ComplexReference_t_isOrdered bind_ComplexReference_t_type bind_ComplexReference_t_type_defined bind_ComplexReference_t_isContainer null_ComplexReference_t_opposite"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_ComplexReference_cond bind_ComplexReference_t_name bind_ComplexReference_t_lower bind_ComplexReference_t_upper bind_ComplexReference_t_isOrdered bind_ComplexReference_t_type bind_ComplexReference_t_type_defined bind_ComplexReference_t_isContainer null_ComplexReference_t_opposite"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_ComplexReference_cond" value="(self.s.relation.properties-&gt;notEmpty() or (self.s.relation.subTypes-&gt;notEmpty() or (not self.s.relation.superType.oclIsUndefined())))"/>
+                              
+            
+            <details key="bind_ComplexReference_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_ComplexReference_t_lower" value="self.t.lower = self.s.min"/>
+                              
+            
+            <details key="bind_ComplexReference_t_upper" value="self.t.upper = (if self.s.isUnbounded then (-1) else self.s.max endif)"/>
+                              
+            
+            <details key="bind_ComplexReference_t_isOrdered" value="self.t.isOrdered = self.s.isOrdered"/>
+                              
+            
+            <details key="bind_ComplexReference_t_type" value="self.t.type = Set { (if self.s.type.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.type.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.type.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true)"/>
+                              
+            
+            <details key="bind_ComplexReference_t_isContainer" value="self.t.isContainer = self.s.relation.isEmbedding"/>
+                              
+            
+            <details key="bind_ComplexReference_t_type_defined" value="(not self.s.type.oclIsUndefined()) = (not Set { (if self.s.type.oclIsKindOf(Class__source) then Class__trace.allInstances()-&gt;select(z : Class__trace | z.s = self.s.type.oclAsType(Class__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(Relationship) then Relation2Class.allInstances()-&gt;select(z : Relation2Class | z.s = self.s.type.oclAsType(Relationship))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true).oclIsUndefined())"/>
+                              
+      
+      
+            
+            <details key="null_ComplexReference_t_opposite" value="self.t.opposite.oclIsUndefined()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Role/ComplexReference_s" eType="//Role" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Reference/ComplexReference_t" eType="//Reference" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Attribute__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Attribute"/>
+                              
+            
+            <details key="semConstraints" value="bind_Attribute_t_name bind_Attribute_t_lower bind_Attribute_t_upper bind_Attribute_t_isOrdered bind_Attribute_t_isUnique bind_Attribute_t_type bind_Attribute_t_type_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Attribute_t_name bind_Attribute_t_lower bind_Attribute_t_upper bind_Attribute_t_isOrdered bind_Attribute_t_isUnique bind_Attribute_t_type bind_Attribute_t_type_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Attribute_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_Attribute_t_lower" value="self.t.lower = 1"/>
+                              
+            
+            <details key="bind_Attribute_t_upper" value="self.t.upper = 1"/>
+                              
+            
+            <details key="bind_Attribute_t_isOrdered" value="self.t.isOrdered = false"/>
+                              
+            
+            <details key="bind_Attribute_t_isUnique" value="self.t.isUnique = false"/>
+                              
+            
+            <details key="bind_Attribute_t_type" value="self.t.type = Set { (if self.s.type.oclIsKindOf(Enumeration__source) then Enumeration__trace.allInstances()-&gt;select(z : Enumeration__trace | z.s = self.s.type.oclAsType(Enumeration__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(SimpleType) then DataType__trace.allInstances()-&gt;select(z : DataType__trace | z.s = self.s.type.oclAsType(SimpleType))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true)"/>
+                              
+            
+            <details key="bind_Attribute_t_type_defined" value="(not self.s.type.oclIsUndefined()) = (not Set { (if self.s.type.oclIsKindOf(Enumeration__source) then Enumeration__trace.allInstances()-&gt;select(z : Enumeration__trace | z.s = self.s.type.oclAsType(Enumeration__source))-&gt;collect(z | z.t) else Sequence {} endif), (if self.s.type.oclIsKindOf(SimpleType) then DataType__trace.allInstances()-&gt;select(z : DataType__trace | z.s = self.s.type.oclAsType(SimpleType))-&gt;collect(z | z.t) else Sequence {} endif) }-&gt;flatten()-&gt;any(true).oclIsUndefined())"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ValueProperty/Attribute_s" eType="//ValueProperty" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Attribute__target/Attribute_t" eType="//Attribute__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Enumeration__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Enumeration"/>
+                              
+            
+            <details key="semConstraints" value="bind_Enumeration_t_name bind_Enumeration_t_literals bind_Enumeration_t_literals_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Enumeration_t_name bind_Enumeration_t_literals bind_Enumeration_t_literals_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Enumeration_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_Enumeration_t_literals" value="self.t.literals = Set { self.s.literals-&gt;collect(x | (if x.oclIsKindOf(EnumerationLiteral) then EnumLiteral__trace.allInstances()-&gt;select(z : EnumLiteral__trace | z.s = x.oclAsType(EnumerationLiteral))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Enumeration_t_literals_size" value="(self.s.literals)-&gt;size() = (Set { self.s.literals-&gt;collect(x | (if x.oclIsKindOf(EnumerationLiteral) then EnumLiteral__trace.allInstances()-&gt;select(z : EnumLiteral__trace | z.s = x.oclAsType(EnumerationLiteral))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__source/Enumeration_s" eType="//Enumeration__source" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__target/Enumeration_t" eType="//Enumeration__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="EnumLiteral__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="EnumLiteral"/>
+                              
+            
+            <details key="semConstraints" value="bind_EnumLiteral_t_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_EnumLiteral_t_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_EnumLiteral_t_name" value="self.t.name = self.s.name"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumerationLiteral/EnumLiteral_s" eType="//EnumerationLiteral" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumLiteral__target/EnumLiteral_t" eType="//EnumLiteral__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="DataType__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="DataType"/>
+                              
+            
+            <details key="semConstraints" value="bind_DataType_t_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_DataType_t_name"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_DataType_t_name" value="self.t.name = self.s.name"/>
+                              
+    
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleType/DataType_s" eType="//SimpleType" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DataType__target/DataType_t" eType="//DataType__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

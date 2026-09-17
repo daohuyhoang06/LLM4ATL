@@ -1,0 +1,89 @@
+module XML2DSL;
+create OUT : DSL from IN : XML;
+
+helper context XML!Element def: hasAttr(name : String) : Boolean =
+    self.children->exists(c | (c.oclIsTypeOf(XML!Attribute) and (c.name = name)));
+
+helper context XML!Element def: getAttrVal(name : String) : String =
+    if self.hasAttr(name) then
+        self.children->select(c | (c.oclIsTypeOf(XML!Attribute) and (c.name = name)))->collect(c | c.value)->any(v | true)
+    else
+        ''
+    endif;
+
+helper context XML!Element def: getAttrBool(name : String) : Boolean =
+    if self.hasAttr(name) then
+        (self.getAttrVal(name) = 'true')
+    else
+        false
+    endif;
+
+helper context XML!Element def: get(name : String) : XML!Element =
+    self.children->select(c | (c.oclIsTypeOf(XML!Element) and (c.name = name)))->collect(c | c.oclAsType(XML!Element))->any(e | true);
+
+helper context XML!Element def: getType() : DSL!Type =
+    thisModule.findType(self.getAttrVal('type'));
+
+helper context XML!Element def: getEnumId() : String =
+    self.getAttrVal('enum');
+
+helper context XML!Element def: getText() : String =
+    if self.children->exists(c | c.oclIsTypeOf(XML!Text)) then
+        self.children->select(c | c.oclIsTypeOf(XML!Text))->collect(c | c.value)->any(v | true)
+    else
+        ''
+    endif;
+
+helper context XML!Element def: getSeq() : String =
+    self.getAttrVal('seq');
+
+helper context XML!Element def: hasChildren() : Boolean =
+    self.children->exists(c | c.oclIsTypeOf(XML!Element));
+
+helper context XML!Element def: isAbstract() : Boolean =
+    self.getAttrBool('isAbstract');
+
+helper def: dslElementsById(id : String) : DSL!NamedElement =
+    DSL!NamedElement.allInstances()->any(e | (e.identity = id));
+
+helper def: getSubTypes(classifier : DSL!Classifier) : Set(DSL!Classifier) =
+    DSL!Classifier.allInstances()->select(c | (c.superType = classifier));
+
+helper def: findType(name : String) : DSL!Type =
+    DSL!Type.allInstances()->any(t | (t.name = name));
+
+rule DomainModel {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule Class {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule Relationship {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule Role {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule ValueProperty {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule Enumeration {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+
+rule EnumerationLiteral {
+/* UNKNOWN NODE TYPE: None */
+/* UNKNOWN NODE TYPE: None */
+}
+

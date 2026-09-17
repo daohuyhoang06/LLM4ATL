@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/pipeline_attempts/Grafcet2PetriNet_All/attempt-1/Grafcet2PetriNet_All/efinder/Grafcet2PetriNet_All_ATL2TM__not_Transition__targetMultiplicity_Transition_incomingArc.ecore">
+  <tm:Grafcet location="" name="string2" PetriNet_s="/1">
+    <elements xsi:type="tm:Step" location="string2" name="string9" action="" Place_s="/2"/>
+    <elements xsi:type="tm:Step" location="" name="string8" action="" Place_s="/3"/>
+    <elements xsi:type="tm:Step" location="" name="string10" action="" incomingConnections="/0/@connections.0" Place_s="/4"/>
+    <elements xsi:type="tm:Step" location="" name="" action="" Place_s="/5"/>
+    <elements xsi:type="tm:Transition__source" location="string2" name="string9" condition="" outgoingConnections="/0/@connections.0" Transition_s="/7"/>
+    <connections xsi:type="tm:TransitionToStep" location="string5" name="string10" from="/0/@elements.4" to="/0/@elements.2" TransitionToPlace_s="/8"/>
+  </tm:Grafcet>
+  <tm:PetriNet__trace s="/0" t="/6"/>
+  <tm:Place__trace s="/0/@elements.0" t="/6/@elements.2"/>
+  <tm:Place__trace s="/0/@elements.1" t="/6/@elements.4"/>
+  <tm:Place__trace s="/0/@elements.2" t="/6/@elements.3"/>
+  <tm:Place__trace s="/0/@elements.3" t="/6/@elements.1"/>
+  <tm:PetriNet__target location="" name="string2" PetriNet_t="/1">
+    <elements xsi:type="tm:Transition__target" location="string2" name="string9" outgoingArc="/6/@arcs.0" Transition_t="/7"/>
+    <elements xsi:type="tm:Place__target" location="" name="" Place_t="/5"/>
+    <elements xsi:type="tm:Place__target" location="string2" name="string9" Place_t="/2"/>
+    <elements xsi:type="tm:Place__target" location="" name="string10" incomingArc="/6/@arcs.0" Place_t="/4"/>
+    <elements xsi:type="tm:Place__target" location="" name="string8" Place_t="/3"/>
+    <arcs xsi:type="tm:TransitionToPlace__target" location="string5" name="string10" weight="2" from="/6/@elements.0" to="/6/@elements.3" TransitionToPlace_t="/8"/>
+  </tm:PetriNet__target>
+  <tm:Transition__trace s="/0/@elements.4" t="/6/@elements.0"/>
+  <tm:TransitionToPlace__trace s="/0/@connections.0" t="/6/@arcs.0"/>
+</xmi:XMI>

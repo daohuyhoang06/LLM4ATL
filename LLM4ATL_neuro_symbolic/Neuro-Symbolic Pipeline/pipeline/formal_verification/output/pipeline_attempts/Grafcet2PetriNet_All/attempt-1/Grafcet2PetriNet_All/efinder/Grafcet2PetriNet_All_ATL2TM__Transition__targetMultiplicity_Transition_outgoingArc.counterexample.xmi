@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/pipeline_attempts/Grafcet2PetriNet_All/attempt-1/Grafcet2PetriNet_All/efinder/Grafcet2PetriNet_All_ATL2TM__not_Transition__targetMultiplicity_Transition_outgoingArc.ecore">
+  <tm:Grafcet location="" name="string2" PetriNet_s="/1">
+    <elements xsi:type="tm:Step" location="string2" name="" action="" outgoingConnections="/0/@connections.1 /0/@connections.0" Place_s="/2"/>
+    <elements xsi:type="tm:Transition__source" location="string5" name="string10" condition="" incomingConnections="/0/@connections.0 /0/@connections.1" Transition_s="/6"/>
+    <connections xsi:type="tm:StepToTransition" location="string6" name="string10" from="/0/@elements.0" to="/0/@elements.1" PlaceToTransition_s="/3"/>
+    <connections xsi:type="tm:StepToTransition" location="string3" name="string10" from="/0/@elements.0" to="/0/@elements.1" PlaceToTransition_s="/4"/>
+  </tm:Grafcet>
+  <tm:PetriNet__trace s="/0" t="/5"/>
+  <tm:Place__trace s="/0/@elements.0" t="/5/@elements.1"/>
+  <tm:PlaceToTransition__trace s="/0/@connections.0" t="/5/@arcs.0"/>
+  <tm:PlaceToTransition__trace s="/0/@connections.1" t="/5/@arcs.1"/>
+  <tm:PetriNet__target location="" name="string2" PetriNet_t="/1">
+    <elements xsi:type="tm:Transition__target" location="string5" name="string10" incomingArc="/5/@arcs.0 /5/@arcs.1" Transition_t="/6"/>
+    <elements xsi:type="tm:Place__target" location="string2" name="" outgoingArc="/5/@arcs.0 /5/@arcs.1" Place_t="/2"/>
+    <arcs xsi:type="tm:PlaceToTransition__target" location="string6" name="string10" weight="10" from="/5/@elements.1" to="/5/@elements.0" PlaceToTransition_t="/3"/>
+    <arcs xsi:type="tm:PlaceToTransition__target" location="string3" name="string10" weight="10" from="/5/@elements.1" to="/5/@elements.0" PlaceToTransition_t="/4"/>
+  </tm:PetriNet__target>
+  <tm:Transition__trace s="/0/@elements.1" t="/5/@elements.0"/>
+</xmi:XMI>

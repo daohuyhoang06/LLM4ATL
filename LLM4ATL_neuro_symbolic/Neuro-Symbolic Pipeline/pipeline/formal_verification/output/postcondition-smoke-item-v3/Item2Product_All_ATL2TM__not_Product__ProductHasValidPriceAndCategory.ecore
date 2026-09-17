@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="Item2Product_All"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers name="ItemModel" xsi:type="ecore:EClass">
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+            <details key="SourceItemModelIsNonEmpty" value="self.items-&gt;notEmpty() and self.items-&gt;isUnique(i | i.name)"/>
+        </eAnnotations>
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+            <details key="constraints" value="SourceItemModelIsNonEmpty"/>
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ItemModel"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value="SourceItemModelIsNonEmpty"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Item" name="items" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Item" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Item"/>
+                              
+            
+            <details key="atlRules" value="Item2Product"/>
+                              
+            
+            <details key="preConstraints" value="SourceItemHasNonNegativePrice"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Item2Product"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Item2Product SourceItemHasNonNegativePrice"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Item2Product" value="Item.allInstances()-&gt;forAll(i : Item | Item2Product.allInstances()-&gt;one(z : Item2Product | z.i = i))"/>
+                            
+        
+            <details key="SourceItemHasNonNegativePrice" value="self.name &lt;&gt; '' and self.description &lt;&gt; '' and self.price &gt;= 0.0"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="price" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EDouble" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="description" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="type" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="quantity" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EInt" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Item2Product/i" eType="//Item2Product" name="Item2Product_i" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ProductModel" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ProductModel"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_ProductModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ProductModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ProductModel" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Product" name="products" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Product" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Product"/>
+                              
+            
+            <details key="atlRules" value="Item2Product"/>
+                              
+            
+            <details key="preConstraints" value="SourceItemInputIsValid"/>
+                              
+            
+            <details key="postConstraints" value="ProductHasValidPriceAndCategory ProductsPreserveUniqueNames"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Product_name"/>
+                              
+            
+            <details key="semConstraints" value="create_Product"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Product SourceItemInputIsValid __efinder_NOT_ProductHasValidPriceAndCategory"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Product" value="(if self.Item2Product_p.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+            <details key="SourceItemInputIsValid" value="ItemModel.allInstances()-&gt;exists(m |&#10;    m.items-&gt;notEmpty() and&#10;    m.items-&gt;isUnique(i | i.name) and&#10;    m.items-&gt;forAll(i | i.name &lt;&gt; '' and i.description &lt;&gt; '' and i.price &gt;= 0.0)&#10;  ) and&#10;  Item.allInstances()-&gt;forAll(i | i.name &lt;&gt; '' and i.description &lt;&gt; '' and i.price &gt;= 0.0)"/>
+            <details key="__efinder_NOT_ProductHasValidPriceAndCategory" value="Item2Product.allInstances()-&gt;exists(r | not (r.p.name &lt;&gt; '' and r.p.description &lt;&gt; '' and r.p.price &gt;= 0.0 and&#10;  (r.p.inStock = true or r.p.inStock = false) and&#10;  (r.p.category = 'Tech' or r.p.category = 'Apparel' or r.p.category = 'General')))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="price" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EDouble" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="description" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="category" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="inStock" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Item2Product/p" eType="//Item2Product" name="Item2Product_p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Item2Product" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Item2Product"/>
+                              
+            
+            <details key="semConstraints" value="bind_Item2Product_p_name bind_Item2Product_p_price bind_Item2Product_p_description bind_Item2Product_p_category bind_Item2Product_p_inStock"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Item2Product_p_name bind_Item2Product_p_price bind_Item2Product_p_description bind_Item2Product_p_category bind_Item2Product_p_inStock"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Item2Product_p_name" value="self.p.name = self.i.name"/>
+                              
+            
+            <details key="bind_Item2Product_p_price" value="self.p.price = self.i.price"/>
+                              
+            
+            <details key="bind_Item2Product_p_description" value="self.p.description = self.i.description"/>
+                              
+            
+            <details key="bind_Item2Product_p_category" value="self.p.category = (if (self.i.type = 'Electronics') then 'Tech' else (if (self.i.type = 'Clothing') then 'Apparel' else 'General' endif) endif)"/>
+                              
+            
+            <details key="bind_Item2Product_p_inStock" value="self.p.inStock = (if (self.i.quantity &gt; 0) then true else false endif)"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Item/Item2Product_i" eType="//Item" lowerBound="1" name="i" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Product/Item2Product_p" eType="//Product" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

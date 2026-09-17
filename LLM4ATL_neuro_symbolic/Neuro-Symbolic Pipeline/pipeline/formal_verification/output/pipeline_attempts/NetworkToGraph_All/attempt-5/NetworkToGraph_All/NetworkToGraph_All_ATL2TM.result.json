@@ -1,0 +1,10 @@
+{
+  "backend": "atl2tm",
+  "status": "ATL2TM_UNSUPPORTED_FEATURE",
+  "phase": "atl2tm-runner",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\NetworkToGraph_All\\attempt-5\\NetworkToGraph_All\\NetworkToGraph_All_ATL2TM.ecore",
+  "features": [
+    "LAZY_RULE"
+  ],
+  "detail": "ATL2TM ch\u01b0a h\u1ed7 tr\u1ee3 lazy rule; Layer 3 \u0111\u00e3 d\u1eebng, eFinder kh\u00f4ng \u0111\u01b0\u1ee3c ch\u1ea1y."
+}

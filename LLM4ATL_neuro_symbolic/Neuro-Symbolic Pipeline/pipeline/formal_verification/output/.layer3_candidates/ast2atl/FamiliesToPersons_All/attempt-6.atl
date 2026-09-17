@@ -1,0 +1,34 @@
+module FamiliesToPersons_All;
+create OUT : Persons from IN : Families;
+
+helper context Families!Member def: familyLastName() : String =
+    '';
+
+helper context Families!Member def: isFemale() : Boolean =
+    false;
+
+helper context Families!Member def: isMale() : Boolean =
+    false;
+
+rule Member2Male {
+    from
+        mem : Families!Member (
+            mem.isMale()
+        )
+    to
+        m : Persons!Male (
+            fullName <- (mem.firstName + (' ' + mem.familyLastName()))
+        )
+}
+
+rule Member2Female {
+    from
+        mem : Families!Member (
+            mem.isFemale()
+        )
+    to
+        f : Persons!Female (
+            fullName <- (mem.firstName + (' ' + mem.familyLastName()))
+        )
+}
+

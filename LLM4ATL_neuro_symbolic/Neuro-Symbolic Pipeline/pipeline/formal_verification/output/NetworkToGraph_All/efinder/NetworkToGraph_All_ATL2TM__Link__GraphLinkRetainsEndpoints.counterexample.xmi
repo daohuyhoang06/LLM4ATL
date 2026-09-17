@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/NetworkToGraph_All/efinder/NetworkToGraph_All_ATL2TM__not_Link__GraphLinkRetainsEndpoints.ecore">
+  <tm:Link2Link l="/3/@links.0" g="/5"/>
+  <tm:Root System2Root_r="/7">
+    <entities name="string2" Component2Entity_e="/4"/>
+    <entities name="string2" Component2Entity_e="/2"/>
+  </tm:Root>
+  <tm:Component2Entity c="/3/@components.0" e="/1/@entities.1"/>
+  <tm:System System2Root_s="/7">
+    <links components="/3/@components.1 /3/@components.0" protocol="/6" Link2Link_l="/0"/>
+    <components xsi:type="tm:Server" name="string2" supportedProtocols="/6" Component2Entity_c="/2"/>
+    <components xsi:type="tm:Server" name="string2" supportedProtocols="/6" Component2Entity_c="/4"/>
+  </tm:System>
+  <tm:Component2Entity c="/3/@components.1" e="/1/@entities.0"/>
+  <tm:Link__target Link2Link_g="/0"/>
+  <tm:Protocol name="string5"/>
+  <tm:System2Root s="/3" r="/1"/>
+</xmi:XMI>

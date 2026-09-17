@@ -1,0 +1,177 @@
+module IEEE1471_2_MoDAF;
+create OUT : MoDAF from IN : IEEE1471;
+
+helper context IEEE1471!Rationale def: rationale : String =
+    (self.name + self.content);
+
+rule IEEE1471Model2MoDAFModel {
+    from
+        srcModel : IEEE1471!IEEE1471Model
+    to
+        tgtModel : MoDAF!MoDAFModel (
+            name <- srcModel.name,
+            content <- srcModel.content,
+            enterprise <- srcModel.system,
+            environment <- srcModel.environment,
+            operationalMissions <- srcModel.missions,
+            architectures <- srcModel.architecture,
+            architecturalDescription <- srcModel.architecturalDescription,
+            stakeholders <- srcModel.stakeholders,
+            architecturalFrameworks <- Set{defaultFramework}
+        ),
+        defaultFramework : MoDAF!ArchitecturalFramework (
+            name <- 'DefaultFramework',
+            content <- 'Default framework for IEEE1471 viewpoints without a source',
+            ownedMember <- srcModel.viewpoints->select(vp | vp.hasSource.oclIsUndefined())
+        )
+}
+
+rule System2Enterprise {
+    from
+        srcSystem : IEEE1471!System
+    to
+        tgtEnterprise : MoDAF!Enterprise (
+            name <- srcSystem.name,
+            content <- srcSystem.content,
+            inhabits <- srcSystem.inhabits,
+            fulfills <- srcSystem.fulfills
+        )
+}
+
+rule Environment2Environment {
+    from
+        srcEnv : IEEE1471!Environment
+    to
+        tgtEnv : MoDAF!Environment (
+            name <- srcEnv.name,
+            content <- srcEnv.content,
+            influences <- srcEnv.influences
+        )
+}
+
+rule Mission2OperationalMission {
+    from
+        srcMission : IEEE1471!Mission
+    to
+        tgtOperationalMission : MoDAF!OperationalMission (
+            name <- srcMission.name,
+            content <- srcMission.content
+        )
+}
+
+rule Architecture2Architecture {
+    from
+        srcArch : IEEE1471!Architecture
+    to
+        tgtArch : MoDAF!Architecture (
+            name <- srcArch.name,
+            content <- srcArch.content,
+            describedBy <- srcArch.describedBy
+        )
+}
+
+rule AD2AD {
+    from
+        srcAD : IEEE1471!ArchitecturalDescription
+    to
+        tgtAD : MoDAF!ArchitecturalDescription (
+            name <- srcAD.name,
+            content <- srcAD.content,
+            approvialAuthority <- srcAD.content,
+            architect <- srcAD.content,
+            assumptionAndConstraints <- srcAD.content,
+            creatingOrganisation <- srcAD.content,
+            dateCompleted <- srcAD.content,
+            purpose <- srcAD.content,
+            recommendations <- srcAD.content,
+            summaryOfFindings <- srcAD.content,
+            tollsUsed <- srcAD.content,
+            viewpoints <- srcAD.selects,
+            products <- srcAD.organizedBy
+        )
+}
+
+rule Stakeholder2Stakeholder {
+    from
+        srcStakeholder : IEEE1471!Stakeholder
+    to
+        tgtStakeholder : MoDAF!Stakeholder (
+            name <- srcStakeholder.name,
+            content <- srcStakeholder.content
+        )
+}
+
+rule Viewpoint2View {
+    from
+        srcVP : IEEE1471!Viewpoint
+    to
+        tgtView : MoDAF!View (
+            name <- srcVP.name,
+            content <- srcVP.content,
+            framework <- 'IEEE1471',
+            frameworkWebsite <- 'http://www.iso-architecture.org/IEEE1471',
+            viewCode <- srcVP.name,
+            viewDescription <- srcVP.content,
+            viewName <- srcVP.name,
+            usedToCover <- srcVP.usedToCover,
+            definingFramework <- srcVP.hasSource
+        )
+}
+
+rule View2ArchitecturalProduct {
+    from
+        srcView : IEEE1471!View
+    to
+        tgtProduct : MoDAF!ArchitecturalProduct (
+            name <- srcView.name,
+            content <- srcView.content,
+            description <- srcView.content,
+            definingView <- srcView.conformsTo
+        )
+}
+
+rule Model2Element {
+    from
+        srcModelElement : IEEE1471!Model
+    to
+        tgtElements : MoDAF!Elements (
+            name <- srcModelElement.name,
+            content <- srcModelElement.content
+        )
+}
+
+rule Concern2Concern {
+    from
+        srcConcern : IEEE1471!Concern
+    to
+        tgtConcern : MoDAF!Concern (
+            name <- srcConcern.name,
+            content <- srcConcern.content
+        )
+}
+
+rule LibraryViewpoint2ArchitecturalFramework {
+    from
+        srcLibVP : IEEE1471!LibraryViewpoint
+    to
+        tgtFramework : MoDAF!ArchitecturalFramework (
+            name <- srcLibVP.name,
+            content <- srcLibVP.content
+        )
+}
+
+rule StakeholderHasConcern {
+    from
+        srcModel : IEEE1471!IEEE1471Model,
+        srcStakeholder : IEEE1471!Stakeholder,
+        srcConcern : IEEE1471!Concern (
+            ((srcModel.stakeholders->includes(srcStakeholder) and srcModel.concerns->includes(srcConcern)) and srcStakeholder.has->includes(srcConcern))
+        )
+    to
+        tgtLink : MoDAF!StakeholderHasConcern (
+            client <- srcStakeholder,
+            supplier <- srcConcern,
+            owner <- srcModel
+        )
+}
+

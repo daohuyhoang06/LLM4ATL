@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="Class2Interface_All"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers name="ClassModel" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ClassModel"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Class" name="classes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Class" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Class"/>
+                              
+            
+            <details key="atlRules" value="Class2Interface"/>
+                              
+            
+            <details key="preConstraints" value="SourceClassHasMethods"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Class2Interface"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Class2Interface SourceClassHasMethods"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Class2Interface" value="Class.allInstances()-&gt;forAll(c : Class | Class2Interface.allInstances()-&gt;one(z : Class2Interface | z.c = c))"/>
+                            
+        
+            <details key="SourceClassHasMethods" value="self.name &lt;&gt; '' and self.methods-&gt;notEmpty() and&#10;  self.methods-&gt;isUnique(m | m.name)"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Method__source" name="methods" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class2Interface/c" eType="//Class2Interface" name="Class2Interface_c" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Method__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Method"/>
+                              
+            
+            <details key="atlRules" value="Method2Method"/>
+                              
+            
+            <details key="preConstraints" value="SourceMethodHasTypedParameters"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Method2Method"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Method2Method SourceMethodHasTypedParameters"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Method2Method" value="Method__source.allInstances()-&gt;forAll(m : Method__source | Method2Method.allInstances()-&gt;one(z : Method2Method | z.m = m))"/>
+                            
+        
+            <details key="SourceMethodHasTypedParameters" value="self.name &lt;&gt; '' and self.parameters-&gt;notEmpty() and self.returnType &lt;&gt; '' and&#10;  self.parameters-&gt;isUnique(p | p.name)"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="returnType" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Parameter__source" name="parameters" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Method2Method/m" eType="//Method2Method" name="Method2Method_m" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Parameter__source" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Parameter"/>
+                              
+            
+            <details key="atlRules" value="Parameter2Parameter"/>
+                              
+            
+            <details key="preConstraints" value="SourceParameterHasNameAndType"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_Parameter2Parameter"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Parameter2Parameter SourceParameterHasNameAndType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Parameter2Parameter" value="Parameter__source.allInstances()-&gt;forAll(p : Parameter__source | Parameter2Parameter.allInstances()-&gt;one(z : Parameter2Parameter | z.p = p))"/>
+                            
+        
+            <details key="SourceParameterHasNameAndType" value="self.name &lt;&gt; '' and self.type &lt;&gt; ''"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="type" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Parameter2Parameter/p" eType="//Parameter2Parameter" name="Parameter2Parameter_p" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="InterfaceModel" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="InterfaceModel"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_InterfaceModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_InterfaceModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_InterfaceModel" value="false"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Interface" name="interfaces" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Interface" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Interface"/>
+                              
+            
+            <details key="atlRules" value="Class2Interface"/>
+                              
+            
+            <details key="preConstraints" value="SourceClassModelIsValid"/>
+                              
+            
+            <details key="postConstraints" value="InterfaceRetainsOperationsAndParameters"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Interface_name"/>
+                              
+            
+            <details key="semConstraints" value="create_Interface"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Interface SourceClassModelIsValid __efinder_NOT_InterfaceRetainsOperationsAndParameters"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Interface" value="(if self.Class2Interface_i.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+            <details key="SourceClassModelIsValid" value="ClassModel.allInstances()-&gt;exists(cm |&#10;    cm.classes-&gt;notEmpty() and&#10;    cm.classes-&gt;forAll(c |&#10;      c.name &lt;&gt; '' and c.methods-&gt;notEmpty() and&#10;      c.methods-&gt;isUnique(m | m.name) and&#10;      c.methods-&gt;forAll(m |&#10;        m.name &lt;&gt; '' and m.returnType &lt;&gt; '' and&#10;        m.parameters-&gt;notEmpty() and&#10;        m.parameters-&gt;isUnique(p | p.name) and&#10;        m.parameters-&gt;forAll(p | p.name &lt;&gt; '' and p.type &lt;&gt; '')&#10;      )&#10;    )&#10;  )"/>
+            <details key="__efinder_NOT_InterfaceRetainsOperationsAndParameters" value="Class2Interface.allInstances()-&gt;exists(r | not (r.i.name &lt;&gt; '' and r.i.methods-&gt;notEmpty() and&#10;  r.i.methods-&gt;isUnique(m | m.name) and&#10;  r.i.methods-&gt;forAll(m |&#10;    m.name &lt;&gt; '' and m.returnType &lt;&gt; '' and&#10;    m.parameters-&gt;notEmpty() and&#10;    m.parameters-&gt;isUnique(p | p.name) and&#10;    m.parameters-&gt;forAll(p | p.name &lt;&gt; '' and p.type &lt;&gt; '')&#10;  )))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Method__target" name="methods" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class2Interface/i" eType="//Class2Interface" name="Class2Interface_i" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Method__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Method"/>
+                              
+            
+            <details key="atlRules" value="Method2Method"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Method_name"/>
+                              
+            
+            <details key="semConstraints" value="create_Method"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Method"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Method" value="(if self.Method2Method_im.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="returnType" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Parameter__target" name="parameters" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Method2Method/im" eType="//Method2Method" name="Method2Method_im" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Parameter__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Parameter"/>
+                              
+            
+            <details key="atlRules" value="Parameter2Parameter"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Parameter_name targetMultiplicity_Parameter_type"/>
+                              
+            
+            <details key="semConstraints" value="create_Parameter"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Parameter"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Parameter" value="(if self.Parameter2Parameter_ip.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="type" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Parameter2Parameter/ip" eType="//Parameter2Parameter" name="Parameter2Parameter_ip" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Class2Interface" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Class2Interface"/>
+                              
+            
+            <details key="semConstraints" value="bind_Class2Interface_i_name bind_Class2Interface_i_methods bind_Class2Interface_i_methods_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Class2Interface_i_name bind_Class2Interface_i_methods bind_Class2Interface_i_methods_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Class2Interface_i_name" value="self.i.name = self.c.name"/>
+                              
+            
+            <details key="bind_Class2Interface_i_methods" value="self.i.methods = Set { self.c.methods-&gt;collect(x | (if x.oclIsKindOf(Method__source) then Method2Method.allInstances()-&gt;select(z : Method2Method | z.m = x.oclAsType(Method__source))-&gt;collect(z | z.im) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Class2Interface_i_methods_size" value="(self.c.methods)-&gt;size() = (Set { self.c.methods-&gt;collect(x | (if x.oclIsKindOf(Method__source) then Method2Method.allInstances()-&gt;select(z : Method2Method | z.m = x.oclAsType(Method__source))-&gt;collect(z | z.im) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class/Class2Interface_c" eType="//Class" lowerBound="1" name="c" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Interface/Class2Interface_i" eType="//Interface" lowerBound="1" name="i" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Method2Method" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Method2Method"/>
+                              
+            
+            <details key="semConstraints" value="bind_Method2Method_im_name bind_Method2Method_im_returnType bind_Method2Method_im_parameters bind_Method2Method_im_parameters_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Method2Method_im_name bind_Method2Method_im_returnType bind_Method2Method_im_parameters bind_Method2Method_im_parameters_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Method2Method_im_name" value="self.im.name = self.m.name"/>
+                              
+            
+            <details key="bind_Method2Method_im_returnType" value="self.im.returnType = self.m.returnType"/>
+                              
+            
+            <details key="bind_Method2Method_im_parameters" value="self.im.parameters = Set { self.m.parameters-&gt;collect(x | (if x.oclIsKindOf(Parameter__source) then Parameter2Parameter.allInstances()-&gt;select(z : Parameter2Parameter | z.p = x.oclAsType(Parameter__source))-&gt;collect(z | z.ip) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_Method2Method_im_parameters_size" value="(self.m.parameters)-&gt;size() = (Set { self.m.parameters-&gt;collect(x | (if x.oclIsKindOf(Parameter__source) then Parameter2Parameter.allInstances()-&gt;select(z : Parameter2Parameter | z.p = x.oclAsType(Parameter__source))-&gt;collect(z | z.ip) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Method__source/Method2Method_m" eType="//Method__source" lowerBound="1" name="m" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Method__target/Method2Method_im" eType="//Method__target" lowerBound="1" name="im" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Parameter2Parameter" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Parameter2Parameter"/>
+                              
+            
+            <details key="semConstraints" value="bind_Parameter2Parameter_ip_name bind_Parameter2Parameter_ip_type"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_Parameter2Parameter_ip_name bind_Parameter2Parameter_ip_type"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_Parameter2Parameter_ip_name" value="self.ip.name = self.p.name"/>
+                              
+            
+            <details key="bind_Parameter2Parameter_ip_type" value="self.ip.type = self.p.type"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Parameter__source/Parameter2Parameter_p" eType="//Parameter__source" lowerBound="1" name="p" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Parameter__target/Parameter2Parameter_ip" eType="//Parameter__target" lowerBound="1" name="ip" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

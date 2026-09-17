@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/Class2Interface_All/efinder/Class2Interface_All_ATL2TM__not_Interface__InterfaceRetainsOperationsAndParameters.ecore">
+  <tm:Interface name="string5"/>
+  <tm:Interface name="string2" Class2Interface_i="/5">
+    <methods name="string2" returnType="string6" Method2Method_im="/4"/>
+  </tm:Interface>
+  <tm:Parameter__target name="string3" type="string2" Parameter2Parameter_ip="/6"/>
+  <tm:ClassModel>
+    <classes name="string2" Class2Interface_c="/5">
+      <methods name="string2" returnType="string6" Method2Method_m="/4">
+        <parameters name="string3" type="string2" Parameter2Parameter_p="/6"/>
+      </methods>
+    </classes>
+  </tm:ClassModel>
+  <tm:Method2Method m="/3/@classes.0/@methods.0" im="/1/@methods.0"/>
+  <tm:Class2Interface c="/3/@classes.0" i="/1"/>
+  <tm:Parameter2Parameter p="/3/@classes.0/@methods.0/@parameters.0" ip="/2"/>
+</xmi:XMI>

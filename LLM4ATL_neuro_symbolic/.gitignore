@@ -86,7 +86,7 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
-Neuro-Symbolic Pipeline/pipeline/formal_verification/output/
+
 
 # Generated LLM AST and ATL candidates. Keep these local; the pipeline
 # regenerates them under responses/ast and responses/ast2atl.

@@ -1,0 +1,10 @@
+{
+  "backend": "atl2tm",
+  "status": "ATL2TM_UNSUPPORTED_FEATURE",
+  "phase": "atl2tm-output-check",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\BibTeX2DocBook_All\\attempt-1\\BibTeX2DocBook_All\\BibTeX2DocBook_All_ATL2TM.ecore",
+  "features": [
+    "__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__"
+  ],
+  "detail": "ATL2TM generated unsupported-feature marker(s); eFinder was not started."
+}

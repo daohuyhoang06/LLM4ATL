@@ -1,0 +1,99 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "Classifier::targetMultiplicity_Classifier_domainModel",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "Relationship::targetMultiplicity_Relationship_roles",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "Role::targetMultiplicity_Role_source",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "Role::targetMultiplicity_Role_type",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "Role::targetMultiplicity_Role_relation",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "ValueProperty::targetMultiplicity_ValueProperty_owner",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "ValueProperty::targetMultiplicity_ValueProperty_type",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "DomainModel::DomainModelHasRequiredPrimitiveTypes",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    },
+    {
+      "phase": "prepare",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\XML2DSL_All\\attempt-2\\XML2DSL_All\\XML2DSL_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "check": "DomainModel::DomainModelDoesNotUseXmlWrapperName",
+      "detail": "Cannot normalize Role__trace::bind_Role_t_min: source of toInteger() has no explicit oclAsType(EClass)",
+      "status": "UNSUPPORTED_FEATURE"
+    }
+  ],
+  "counts": {
+    "UNSUPPORTED_FEATURE": 9
+  },
+  "skipped_checks": [
+    "Classifier::targetMultiplicity_Classifier_isAbstract",
+    "EnumerationLiteral::targetMultiplicity_EnumerationLiteral_value",
+    "LoadedElement::targetMultiplicity_LoadedElement_isLoaded",
+    "NamedElement::targetMultiplicity_NamedElement_identity",
+    "NamedElement::targetMultiplicity_NamedElement_name",
+    "Namespace::targetMultiplicity_Namespace_namespace",
+    "Relationship::targetMultiplicity_Relationship_isEmbedding",
+    "Role::targetMultiplicity_Role_accepts",
+    "Role::targetMultiplicity_Role_isNavigableFrom",
+    "Role::targetMultiplicity_Role_isOrdered",
+    "Role::targetMultiplicity_Role_isPropertyGenerator",
+    "Role::targetMultiplicity_Role_isUnbounded",
+    "Role::targetMultiplicity_Role_max",
+    "Role::targetMultiplicity_Role_min"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Item2Product_All\\attempt-1\\Item2Product_All\\Item2Product_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\postcondition-smoke-item-v3\\Item2Product_All_ATL2TM__not_Product__ProductHasValidPriceAndCategory.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ProductHasValidPriceAndCategory",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Item2Product_All\\attempt-1\\Item2Product_All\\Item2Product_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Product Item2Product",
+      "check": "Product::ProductHasValidPriceAndCategory",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\Item2Product_All",
+      "bounded_witness_context": "Product",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\postcondition-smoke-item-v3\\Item2Product_All_ATL2TM__not_Product__ProductsPreserveUniqueNames.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ProductsPreserveUniqueNames",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Item2Product_All\\attempt-1\\Item2Product_All\\Item2Product_All_ATL2TM.ecore",
+      "counterexample_file": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\postcondition-smoke-item-v3\\Item2Product_All_ATL2TM__Product__ProductsPreserveUniqueNames.counterexample.xmi",
+      "backend": "efinder",
+      "bounded_witness_classes": "Product Item2Product",
+      "check": "Product::ProductsPreserveUniqueNames",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\Item2Product_All",
+      "bounded_witness_context": "Product",
+      "status": "SAT"
+    }
+  ],
+  "counts": {
+    "UNSAT": 1,
+    "SAT": 1
+  },
+  "skipped_checks": [
+    "Product::targetMultiplicity_Product_name"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\Class2Interface_All\\Class2Interface_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\Class2Interface_All\\efinder\\Class2Interface_All_ATL2TM__not_Interface__InterfaceRetainsOperationsAndParameters.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_InterfaceRetainsOperationsAndParameters",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\Class2Interface_All\\Class2Interface_All_ATL2TM.ecore",
+      "counterexample_file": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\Class2Interface_All\\efinder\\Class2Interface_All_ATL2TM__Interface__InterfaceRetainsOperationsAndParameters.counterexample.xmi",
+      "backend": "efinder",
+      "bounded_witness_classes": "Interface Class2Interface",
+      "check": "Interface::InterfaceRetainsOperationsAndParameters",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\Class2Interface_All",
+      "bounded_witness_context": "Interface",
+      "status": "SAT"
+    }
+  ],
+  "counts": {
+    "SAT": 1
+  },
+  "skipped_checks": [
+    "Interface::targetMultiplicity_Interface_name",
+    "Method::targetMultiplicity_Method_name",
+    "Parameter::targetMultiplicity_Parameter_name",
+    "Parameter::targetMultiplicity_Parameter_type"
+  ]
+}

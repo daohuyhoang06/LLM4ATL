@@ -1,0 +1,91 @@
+module BibTeX2DocBook;
+create OUT : DocBook from IN : BibTeX;
+
+helper context BibTeX!BibTeXEntry def: buildEntryPara : PrimitiveTypes!String =
+    '';
+
+helper context BibTeX!BibTeXFile def: authorSet : Set(BibTeX!Author) =
+    Set{};
+
+helper context BibTeX!BibTeXFile def: titledEntrySet : Set(BibTeX!TitledEntry) =
+    Set{};
+
+helper context BibTeX!BibTeXFile def: articleSet : Set(BibTeX!Article) =
+    Set{};
+
+rule Main {
+    from
+        bf : BibTeX!BibTeXFile
+    to
+        outDocBook : DocBook!DocBook (
+            books <- Set{outBook}
+        ),
+        outBook : DocBook!Book (
+            articles <- Set{outArticle}
+        ),
+        outArticle : DocBook!Article (
+            title <- 'BibTeXML to DocBook',
+            sections_1 <- Set{secRefList, secAuthors, secTitles, secJournals}
+        ),
+        secRefList : DocBook!Sect1 (
+            title <- 'References List'
+        ),
+        secAuthors : DocBook!Sect1 (
+            title <- 'Authors list'
+        ),
+        secTitles : DocBook!Sect1 (
+            title <- 'Titles List'
+        ),
+        secJournals : DocBook!Sect1 (
+            title <- 'Journals List'
+        )
+}
+
+rule UntitledEntry {
+    from
+        be : BibTeX!BibTeXEntry
+    to
+}
+
+rule TitledEntry_Title_NoArticle {
+    from
+        te : BibTeX!TitledEntry
+    to
+}
+
+rule TitledEntry_NoTitle_NoArticle {
+    from
+        te2 : BibTeX!TitledEntry
+    to
+}
+
+rule Article_Title_Journal {
+    from
+        ar1 : BibTeX!Article
+    to
+}
+
+rule Article_NoTitle_Journal {
+    from
+        ar2 : BibTeX!Article
+    to
+}
+
+rule Article_Title_NoJournal {
+    from
+        ar3 : BibTeX!Article
+    to
+}
+
+rule Article_NoTitle_NoJournal {
+    from
+        ar4 : BibTeX!Article
+    to
+}
+
+rule Author {
+    from
+        au : BibTeX!Author
+    to
+}
+

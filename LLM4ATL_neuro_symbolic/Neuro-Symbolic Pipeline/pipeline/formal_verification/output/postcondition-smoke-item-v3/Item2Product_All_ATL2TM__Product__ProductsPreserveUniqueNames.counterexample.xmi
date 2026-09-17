@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/postcondition-smoke-item-v3/Item2Product_All_ATL2TM__not_Product__ProductsPreserveUniqueNames.ecore">
+  <tm:Item2Product i="/4" p="/5"/>
+  <tm:ItemModel>
+    <items name="string9" price="1.0" description="string9" type="string7" quantity="10" Item2Product_i="/2"/>
+  </tm:ItemModel>
+  <tm:Item2Product i="/1/@items.0" p="/3"/>
+  <tm:Product name="string9" price="1.0" description="string9" category="General" inStock="true" Item2Product_p="/2"/>
+  <tm:Item name="string9" price="0.9" description="string7" type="Clothing" quantity="9" Item2Product_i="/0"/>
+  <tm:Product name="string9" price="0.9" description="string7" category="Apparel" inStock="true" Item2Product_p="/0"/>
+</xmi:XMI>

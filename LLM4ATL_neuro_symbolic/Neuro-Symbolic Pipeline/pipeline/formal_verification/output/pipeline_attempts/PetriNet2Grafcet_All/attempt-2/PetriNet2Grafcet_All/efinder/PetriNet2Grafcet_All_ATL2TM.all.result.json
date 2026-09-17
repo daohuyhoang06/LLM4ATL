@@ -1,0 +1,136 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_Element__targetMultiplicity_Element_grafcet.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_Element_grafcet",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Step__target Step__trace",
+      "check": "Element::targetMultiplicity_Element_grafcet",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "Step__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_Connection__targetMultiplicity_Connection_grafcet.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_Connection_grafcet",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "StepToTransition__target StepToTransition__trace",
+      "check": "Connection::targetMultiplicity_Connection_grafcet",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "StepToTransition__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_StepToTransition__targetMultiplicity_StepToTransition_from.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_StepToTransition_from",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "StepToTransition__target StepToTransition__trace",
+      "check": "StepToTransition::targetMultiplicity_StepToTransition_from",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "StepToTransition__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_StepToTransition__targetMultiplicity_StepToTransition_to.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_StepToTransition_to",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "StepToTransition__target StepToTransition__trace",
+      "check": "StepToTransition::targetMultiplicity_StepToTransition_to",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "StepToTransition__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_TransitionToStep__targetMultiplicity_TransitionToStep_from.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_TransitionToStep_from",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "TransitionToStep__target TransitionToStep__trace",
+      "check": "TransitionToStep::targetMultiplicity_TransitionToStep_from",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "TransitionToStep__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_TransitionToStep__targetMultiplicity_TransitionToStep_to.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_targetMultiplicity_TransitionToStep_to",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "TransitionToStep__target TransitionToStep__trace",
+      "check": "TransitionToStep::targetMultiplicity_TransitionToStep_to",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "TransitionToStep__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_Grafcet__GrafcetRetainsNamedStructure.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_GrafcetRetainsNamedStructure",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Grafcet__target Grafcet__trace",
+      "check": "Grafcet::GrafcetRetainsNamedStructure",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "Grafcet__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_Step__GeneratedStepIsInactive.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_GeneratedStepIsInactive",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Step__target Step__trace",
+      "check": "Step::GeneratedStepIsInactive",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "Step__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\efinder\\PetriNet2Grafcet_All_ATL2TM__not_Transition__GeneratedTransitionIsContainedAndNamed.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_GeneratedTransitionIsContainedAndNamed",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\PetriNet2Grafcet_All\\attempt-2\\PetriNet2Grafcet_All\\PetriNet2Grafcet_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Transition__target Transition__trace",
+      "check": "Transition::GeneratedTransitionIsContainedAndNamed",
+      "normalized_features": "LocatedElement__source.location : String__source mapped to EString; NamedElement__source.name : String__source mapped to EString; Arc.weight : Integer mapped to EInt; LocatedElement__target.location : String__target mapped to EString; NamedElement__target.name : String__target mapped to EString; Step__target.isInitial : Boolean mapped to EBoolean; Step__target.isActive : Boolean mapped to EBoolean; Step__target.action : String__target mapped to EString; Transition__target.condition : String__target mapped to EString",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\PetriNet2Grafcet_All",
+      "bounded_witness_context": "Transition__target",
+      "status": "UNSAT"
+    }
+  ],
+  "counts": {
+    "UNSAT": 9
+  },
+  "skipped_checks": [
+    "LocatedElement::targetMultiplicity_LocatedElement_location",
+    "NamedElement::targetMultiplicity_NamedElement_name",
+    "Step::targetMultiplicity_Step_action",
+    "Step::targetMultiplicity_Step_isActive",
+    "Step::targetMultiplicity_Step_isInitial",
+    "Transition::targetMultiplicity_Transition_condition"
+  ]
+}

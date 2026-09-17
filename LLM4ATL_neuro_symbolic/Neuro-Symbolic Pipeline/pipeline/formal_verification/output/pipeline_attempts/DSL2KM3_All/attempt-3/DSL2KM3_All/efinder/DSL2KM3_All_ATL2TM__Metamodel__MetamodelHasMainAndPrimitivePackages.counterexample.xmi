@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/pipeline_attempts/DSL2KM3_All/attempt-3/DSL2KM3_All/efinder/DSL2KM3_All_ATL2TM__not_Metamodel__MetamodelHasMainAndPrimitivePackages.ecore">
+  <tm:DomainModel name="String" identity="PrimitiveTypes" namespace="" isLoaded="true" Metamodel_dm="/3">
+    <types xsi:type="tm:SimpleType" name="" identity="string8" namespace="PrimitiveTypes" DataType_st="/1"/>
+  </tm:DomainModel>
+  <tm:DataType__trace st="/0/@types.0" kd="/2/@contents.1/@contents.0"/>
+  <tm:Metamodel__target location="" Metamodel_mm="/3">
+    <contents location="" name="PrimitiveTypes" Metamodel_primPkg="/3">
+      <contents xsi:type="tm:DataType__target" location="PrimitiveTypes" name="String" Metamodel_primString="/3"/>
+      <contents xsi:type="tm:DataType__target" location="string6" name="Boolean" Metamodel_primBoolean="/3"/>
+      <contents xsi:type="tm:DataType__target" location="String" name="Integer" Metamodel_primInteger="/3"/>
+    </contents>
+    <contents location="String" name="" Metamodel_mainPkg="/3">
+      <contents xsi:type="tm:DataType__target" location="string6" name="" DataType_kd="/1"/>
+    </contents>
+  </tm:Metamodel__target>
+  <tm:Metamodel__trace dm="/0" mm="/2" mainPkg="/2/@contents.1" primPkg="/2/@contents.0" primBoolean="/2/@contents.0/@contents.1" primInteger="/2/@contents.0/@contents.2" primString="/2/@contents.0/@contents.0"/>
+</xmi:XMI>

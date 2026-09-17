@@ -1,0 +1,185 @@
+{
+  "type": "Module",
+  "name": "AmaltheaToAscet_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "amalthea"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "ascet"
+    }
+  ],
+  "elements": [
+    {
+      "type": "MatchedRule",
+      "name": "ComponentContainer2AscetModule",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!ComponentContainer"
+            }
+          }
+        ],
+        "filter": null
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!AscetModule"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "tasks",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "tasks"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "TaskRoot2SoftwareTask",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!Task"
+            }
+          }
+        ],
+        "filter": {
+          "type": "OperationCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "s"
+            },
+            "operation_name": "refImmediateComposite",
+            "arguments": []
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!SoftwareTask"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Task2SoftwareTask",
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "amalthea!Task"
+            }
+          }
+        ],
+        "filter": {
+          "type": "UnaryExpression",
+          "operator": "not",
+          "expression": {
+            "type": "OperationCall",
+            "source": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "s"
+              },
+              "operation_name": "refImmediateComposite",
+              "arguments": []
+            },
+            "operation_name": "oclIsUndefined",
+            "arguments": []
+          }
+        }
+      },
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "ascet!SoftwareTask"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s"
+                  },
+                  "property_name": "name"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

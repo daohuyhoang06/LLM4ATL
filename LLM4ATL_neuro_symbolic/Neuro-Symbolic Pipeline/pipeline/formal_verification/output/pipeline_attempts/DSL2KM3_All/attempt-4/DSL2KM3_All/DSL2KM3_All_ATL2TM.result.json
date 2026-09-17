@@ -1,0 +1,10 @@
+{
+  "backend": "atl2tm",
+  "status": "ATL2TM_UNSUPPORTED_FEATURE",
+  "phase": "atl2tm-runner",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\DSL2KM3_All\\attempt-4\\DSL2KM3_All\\DSL2KM3_All_ATL2TM.ecore",
+  "features": [
+    "RECURSIVE_HELPER"
+  ],
+  "detail": "ATL2TM ch\u01b0a h\u1ed7 tr\u1ee3 helper \u0111\u1ec7 quy; Layer 3 \u0111\u00e3 d\u1eebng, eFinder kh\u00f4ng \u0111\u01b0\u1ee3c ch\u1ea1y."
+}

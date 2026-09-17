@@ -1,0 +1,27 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Document2Report_All\\attempt-2\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Document2Report_All\\attempt-2\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Report__ReportRetainsDocumentAndSections.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ReportRetainsDocumentAndSections",
+      "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\Document2Report_All\\attempt-2\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Report Document2Report",
+      "check": "Report::ReportRetainsDocumentAndSections",
+      "constraints": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Report",
+      "status": "UNSAT"
+    }
+  ],
+  "counts": {
+    "UNSAT": 1
+  },
+  "skipped_checks": [
+    "Report::targetMultiplicity_Report_title",
+    "Section::targetMultiplicity_Section_title"
+  ]
+}

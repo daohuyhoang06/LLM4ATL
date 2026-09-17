@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+      
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+            
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+          
+    </eAnnotations>
+      
+    <eAnnotations source="urn:llm4atl:provenance">
+            
+        <details key="schemaVersion" value="2"/>
+            
+        <details key="atlModule" value="FamiliesToPersons_All"/>
+            
+        <details key="constraintLists" value="space-separated-names"/>
+          
+    </eAnnotations>
+      
+    <eClassifiers name="FamilyRegister" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="source"/>
+                  
+            <details key="originalName" value="FamilyRegister"/>
+                  
+            <details key="atlRules" value=""/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value=""/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures containment="true" eType="//Family" name="families" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures iD="true" name="id" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+          
+    </eClassifiers>
+      
+    <eClassifiers name="Family" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="source"/>
+                  
+            <details key="originalName" value="Family"/>
+                  
+            <details key="atlRules" value=""/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value=""/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures lowerBound="1" name="lastName" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+            
+        <eStructuralFeatures containment="true" eOpposite="//Member/familySon" eType="//Member" name="sons" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures containment="true" eOpposite="//Member/familyDaughter" eType="//Member" name="daughters" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures containment="true" eOpposite="//Member/familyFather" eType="//Member" name="father" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures containment="true" eOpposite="//Member/familyMother" eType="//Member" name="mother" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+      
+    <eClassifiers name="Member" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="source"/>
+                  
+            <details key="originalName" value="Member"/>
+                  
+            <details key="atlRules" value="Member2Male Member2Female"/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value="match_Member2Male match_Member2Female mutex_Member2Male_Member2Female"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="match_Member2Male match_Member2Female mutex_Member2Male_Member2Female"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="match_Member2Male" value="Member.allInstances()-&gt;forAll(m : Member | ((not m.familyFather.oclIsUndefined()) or (not m.familySon.oclIsUndefined())) implies Member2Male.allInstances()-&gt;one(z : Member2Male | z.m = m))"/>
+                  
+            <details key="match_Member2Female" value="Member.allInstances()-&gt;forAll(m : Member | ((not m.familyMother.oclIsUndefined()) or (not m.familyDaughter.oclIsUndefined())) implies Member2Female.allInstances()-&gt;one(z : Member2Female | z.m = m))"/>
+                  
+            <details key="mutex_Member2Male_Member2Female" value="(Member.allInstances()-&gt;forAll(m : Member | not (Member2Male.allInstances()-&gt;exists(z1 : Member2Male | z1.m = m) and Member2Female.allInstances()-&gt;exists(z2 : Member2Female | z2.m = m))))"/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures name="firstName" ordered="false" unique="false" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+            
+        <eStructuralFeatures eOpposite="//Family/sons" eType="//Family" name="familySon" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Family/daughters" eType="//Family" name="familyDaughter" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Family/father" eType="//Family" name="familyFather" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Family/mother" eType="//Family" name="familyMother" ordered="false" unique="false" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Member2Male/m" eType="//Member2Male" name="Member2Male_m" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Member2Female/m" eType="//Member2Female" name="Member2Female_m" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+      
+    <eClassifiers name="PersonRegister" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="target"/>
+                  
+            <details key="originalName" value="PersonRegister"/>
+                  
+            <details key="atlRules" value=""/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value="create_PersonRegister"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="create_PersonRegister"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="create_PersonRegister" value="false"/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures containment="true" eType="//Person" name="persons" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures iD="true" name="id" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+          
+    </eClassifiers>
+      
+    <eClassifiers abstract="true" name="Person" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="target"/>
+                  
+            <details key="originalName" value="Person"/>
+                  
+            <details key="atlRules" value="Member2Male Member2Female"/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Person_fullName targetMultiplicity_Person_birthday"/>
+                  
+            <details key="semConstraints" value="create_Person"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="create_Person"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="create_Person" value="(if self.oclIsKindOf(Male) then (if self.oclAsType(Male).Member2Male_outMale.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Female) then (if self.oclAsType(Female).Member2Female_outFemale.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures name="fullName" ordered="false" unique="false" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+            
+        <eStructuralFeatures name="birthday" ordered="false" unique="false" xsi:type="ecore:EAttribute">
+                  
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EDate" xsi:type="ecore:EDataType"/>
+                
+        </eStructuralFeatures>
+          
+    </eClassifiers>
+      
+    <eClassifiers eSuperTypes="//Person" name="Male" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="target"/>
+                  
+            <details key="originalName" value="Male"/>
+                  
+            <details key="atlRules" value="Member2Male"/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value="create_Male"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="create_Male"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="create_Male" value="(if self.Member2Male_outMale.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures eOpposite="//Member2Male/outMale" eType="//Member2Male" name="Member2Male_outMale" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+      
+    <eClassifiers eSuperTypes="//Person" name="Female" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="target"/>
+                  
+            <details key="originalName" value="Female"/>
+                  
+            <details key="atlRules" value="Member2Female"/>
+                  
+            <details key="preConstraints" value=""/>
+                  
+            <details key="postConstraints" value=""/>
+                  
+            <details key="targetMultiplicityConstraints" value=""/>
+                  
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                  
+            <details key="semConstraints" value="create_Female"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="create_Female"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="create_Female" value="(if self.Member2Female_outFemale.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                
+        </eAnnotations>
+            
+        <eStructuralFeatures eOpposite="//Member2Female/outFemale" eType="//Member2Female" name="Member2Female_outFemale" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+      
+    <eClassifiers name="Member2Male" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="trace"/>
+                  
+            <details key="atlRule" value="Member2Male"/>
+                  
+            <details key="semConstraints" value="match_Member2Male_cond bind_Member2Male_outMale_fullName"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="match_Member2Male_cond bind_Member2Male_outMale_fullName"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="match_Member2Male_cond" value="((not self.m.familyFather.oclIsUndefined()) or (not self.m.familySon.oclIsUndefined()))"/>
+                  
+            <details key="bind_Member2Male_outMale_fullName" value="self.outMale.fullName = ((self.m.firstName + ' ') + (if (not self.m.familyFather.oclIsUndefined()) then self.m.familyFather.lastName else (if (not self.m.familyMother.oclIsUndefined()) then self.m.familyMother.lastName else (if (not self.m.familySon.oclIsUndefined()) then self.m.familySon.lastName else (if (not self.m.familyDaughter.oclIsUndefined()) then self.m.familyDaughter.lastName else '' endif) endif) endif) endif))"/>
+                  
+    
+        </eAnnotations>
+            
+        <eStructuralFeatures eOpposite="//Member/Member2Male_m" eType="//Member" lowerBound="1" name="m" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Male/Member2Male_outMale" eType="//Male" lowerBound="1" name="outMale" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+      
+    <eClassifiers name="Member2Female" xsi:type="ecore:EClass">
+            
+        <eAnnotations source="urn:llm4atl:provenance">
+                  
+            <details key="origin" value="trace"/>
+                  
+            <details key="atlRule" value="Member2Female"/>
+                  
+            <details key="semConstraints" value="match_Member2Female_cond bind_Member2Female_outFemale_fullName"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                  
+            <details key="constraints" value="match_Member2Female_cond bind_Member2Female_outFemale_fullName"/>
+                
+        </eAnnotations>
+            
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                  
+            <details key="match_Member2Female_cond" value="((not self.m.familyMother.oclIsUndefined()) or (not self.m.familyDaughter.oclIsUndefined()))"/>
+                  
+            <details key="bind_Member2Female_outFemale_fullName" value="self.outFemale.fullName = ((self.m.firstName + ' ') + (if (not self.m.familyFather.oclIsUndefined()) then self.m.familyFather.lastName else (if (not self.m.familyMother.oclIsUndefined()) then self.m.familyMother.lastName else (if (not self.m.familySon.oclIsUndefined()) then self.m.familySon.lastName else (if (not self.m.familyDaughter.oclIsUndefined()) then self.m.familyDaughter.lastName else '' endif) endif) endif) endif))"/>
+                  
+    
+        </eAnnotations>
+            
+        <eStructuralFeatures eOpposite="//Member/Member2Female_m" eType="//Member" lowerBound="1" name="m" xsi:type="ecore:EReference"/>
+            
+        <eStructuralFeatures eOpposite="//Female/Member2Female_outFemale" eType="//Female" lowerBound="1" name="outFemale" xsi:type="ecore:EReference"/>
+          
+    </eClassifiers>
+    
+</ecore:EPackage>

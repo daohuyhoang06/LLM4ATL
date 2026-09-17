@@ -1,0 +1,123 @@
+module BibTeX2DocBook;
+create OUT : DocBook from IN : BibTeX;
+
+helper context BibTeX!BibTeXEntry def: buildEntryPara() : DocBook!Para =
+    OclUndefined;
+
+helper context BibTeX!BibTeXFile def: authorSet() : Set(BibTex!Author) =
+    OclUndefined;
+
+helper context BibTeX!BibTeXFile def: titledEntrySet() : Set(BibTex!TitledEntry) =
+    OclUndefined;
+
+helper context BibTeX!BibTeXFile def: articleSet() : Set(BibTex!Article) =
+    OclUndefined;
+
+rule Main {
+    from
+        bf : BibTeX!BibTeXFile
+    to
+        outDocBook : DocBook!DocBook (
+            books <- Set{outBook}
+        ),
+        outBook : DocBook!Book (
+            articles <- Set{outArticle}
+        ),
+        outArticle : DocBook!Article (
+            title <- 'BibTeXML to DocBook',
+            sections_1 <- Set{secRefList, secAuthors, secJournals, secTitles}
+        ),
+        secRefList : DocBook!Sect1 (
+            title <- 'References List',
+            paras <- Set{OclUndefined},
+            sections_2 <- Set{OclUndefined}
+        ),
+        secAuthors : DocBook!Sect1 (
+            title <- 'Authors list',
+            paras <- Set{OclUndefined},
+            sections_2 <- Set{OclUndefined}
+        ),
+        secJournals : DocBook!Sect1 (
+            title <- 'Journals List',
+            paras <- Set{OclUndefined},
+            sections_2 <- Set{OclUndefined}
+        ),
+        secTitles : DocBook!Sect1 (
+            title <- 'Titles List',
+            paras <- Set{OclUndefined},
+            sections_2 <- Set{OclUndefined}
+        )
+}
+
+rule Author {
+    from
+        au : BibTeX!Author
+    to
+        p : DocBook!Para (
+            content <- au.author
+        )
+}
+
+rule UntitledEntry {
+    from
+        be : BibTeX!BibTeXEntry
+    to
+        p : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule TitledEntry_Title_NoArticle {
+    from
+        te : BibTeX!TitledEntry
+    to
+        pTitle : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule TitledEntry_NoTitle_NoArticle {
+    from
+        te2 : BibTeX!TitledEntry
+    to
+        p2 : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule Article_Title_Journal {
+    from
+        a1 : BibTeX!Article
+    to
+        pA1 : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule Article_NoTitle_Journal {
+    from
+        a2 : BibTeX!Article
+    to
+        pA2 : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule Article_Title_NoJournal {
+    from
+        a3 : BibTeX!Article
+    to
+        pA3 : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+
+rule Article_NoTitle_NoJournal {
+    from
+        a4 : BibTeX!Article
+    to
+        pA4 : DocBook!Para (
+            content <- OclUndefined
+        )
+}
+

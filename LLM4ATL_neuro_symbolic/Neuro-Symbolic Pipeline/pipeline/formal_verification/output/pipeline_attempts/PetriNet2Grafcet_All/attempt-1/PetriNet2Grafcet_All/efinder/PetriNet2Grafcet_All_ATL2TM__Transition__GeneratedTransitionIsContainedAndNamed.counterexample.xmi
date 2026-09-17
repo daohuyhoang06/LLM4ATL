@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/pipeline_attempts/PetriNet2Grafcet_All/attempt-1/PetriNet2Grafcet_All/efinder/PetriNet2Grafcet_All_ATL2TM__not_Transition__GeneratedTransitionIsContainedAndNamed.ecore">
+  <tm:Step__trace s="/2/@elements.0" t="/15/@elements.1"/>
+  <tm:PetriNet location="" name="string6" Grafcet_s="/13">
+    <elements xsi:type="tm:Transition__source" location="string6" name="" incomingArc="/2/@arcs.0" outgoingArc="/1/@arcs.1" Transition_s="/4"/>
+    <arcs xsi:type="tm:TransitionToPlace" location="string5" name="" weight="-10" from="/2/@elements.1" to="/2/@elements.0" TransitionToStep_s="/11"/>
+    <arcs xsi:type="tm:TransitionToPlace" location="string3" name="" weight="-8" from="/1/@elements.0" to="/2/@elements.0" TransitionToStep_s="/12"/>
+    <arcs xsi:type="tm:PlaceToTransition" location="string3" name="string2" weight="8" from="/2/@elements.0" to="/2/@elements.1" StepToTransition_s="/10"/>
+  </tm:PetriNet>
+  <tm:PetriNet location="" name="string10" Grafcet_s="/14">
+    <elements xsi:type="tm:Place" location="string2" name="string2" incomingArc="/1/@arcs.0 /1/@arcs.1" outgoingArc="/1/@arcs.2 /2/@arcs.0" Step_s="/0"/>
+    <elements xsi:type="tm:Transition__source" location="string5" name="string2" incomingArc="/1/@arcs.2" outgoingArc="/1/@arcs.0" Transition_s="/7"/>
+    <arcs xsi:type="tm:PlaceToTransition" location="string5" name="string10" weight="2" from="/2/@elements.0" to="/1/@elements.0" StepToTransition_s="/8"/>
+  </tm:PetriNet>
+  <tm:TransitionToStep__target location="string9" name=""/>
+  <tm:Transition__trace s="/1/@elements.0" t="/16/@elements.0"/>
+  <tm:TransitionToStep__target location="string3" name="string6"/>
+  <tm:TransitionToStep__target location="string5" name="string3"/>
+  <tm:Transition__trace s="/2/@elements.1" t="/15/@elements.0"/>
+  <tm:StepToTransition__trace s="/2/@arcs.0" t="/15/@connections.0"/>
+  <tm:StepToTransition__target location="string2" name=""/>
+  <tm:StepToTransition__trace s="/1/@arcs.2" t="/16/@connections.2"/>
+  <tm:TransitionToStep__trace s="/1/@arcs.0" t="/16/@connections.0"/>
+  <tm:TransitionToStep__trace s="/1/@arcs.1" t="/16/@connections.1"/>
+  <tm:Grafcet__trace s="/1" t="/16"/>
+  <tm:Grafcet__trace s="/2" t="/15"/>
+  <tm:Grafcet__target location="" name="string10" Grafcet_t="/14">
+    <elements xsi:type="tm:Transition__target" location="string5" name="string2" condition="" incomingConnections="/16/@connections.2" outgoingConnections="/16/@connections.0" Transition_t="/7"/>
+    <elements xsi:type="tm:Step__target" location="string2" name="string2" action="" incomingConnections="/16/@connections.1 /16/@connections.0" outgoingConnections="/15/@connections.0 /16/@connections.2" Step_t="/0"/>
+    <connections xsi:type="tm:StepToTransition__target" location="string5" name="string10" from="/15/@elements.1" to="/16/@elements.0" StepToTransition_t="/8"/>
+  </tm:Grafcet__target>
+  <tm:Grafcet__target location="" name="string6" Grafcet_t="/13">
+    <elements xsi:type="tm:Transition__target" location="string6" name="" condition="" incomingConnections="/15/@connections.0" outgoingConnections="/16/@connections.1" Transition_t="/4"/>
+    <connections xsi:type="tm:TransitionToStep__target" location="string5" name="" from="/15/@elements.0" to="/15/@elements.1" TransitionToStep_t="/11"/>
+    <connections xsi:type="tm:TransitionToStep__target" location="string3" name="" from="/16/@elements.0" to="/15/@elements.1" TransitionToStep_t="/12"/>
+    <connections xsi:type="tm:StepToTransition__target" location="string3" name="string2" from="/15/@elements.1" to="/15/@elements.0" StepToTransition_t="/10"/>
+  </tm:Grafcet__target>
+</xmi:XMI>

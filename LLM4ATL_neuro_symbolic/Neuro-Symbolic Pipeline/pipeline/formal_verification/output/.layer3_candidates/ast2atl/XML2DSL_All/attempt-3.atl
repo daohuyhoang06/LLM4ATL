@@ -1,0 +1,150 @@
+module XML2DSL;
+create OUT : DSL from IN : XML;
+
+helper context XML!Element def: getAttrBool(attrName : PrimitiveTypes!String) : PrimitiveTypes!Boolean =
+    false;
+
+helper context XML!Element def: getAttrVal(attrName : PrimitiveTypes!String) : PrimitiveTypes!String =
+    '';
+
+helper context XML!Element def: get(path : PrimitiveTypes!String) : XML!Element =
+    OclUndefined;
+
+helper context XML!Element def: getType() : DSL!Type =
+    OclUndefined;
+
+helper context XML!Element def: getEnumId() : PrimitiveTypes!String =
+    '';
+
+helper context XML!Element def: getText() : PrimitiveTypes!String =
+    '';
+
+helper context XML!Element def: getSeq() : PrimitiveTypes!Integer =
+    0;
+
+helper context XML!Element def: hasChildren() : PrimitiveTypes!Boolean =
+    false;
+
+helper context XML!Element def: hasAttr(attrName : PrimitiveTypes!String) : PrimitiveTypes!Boolean =
+    false;
+
+helper context XML!Element def: isAbstract() : PrimitiveTypes!Boolean =
+    false;
+
+helper def: dslElementsById() : PrimitiveTypes!String =
+    '';
+
+helper def: getSubTypes(cls : DSL!Classifier) : PrimitiveTypes!Boolean =
+    false;
+
+helper def: findType(typeName : PrimitiveTypes!String) : DSL!Type =
+    OclUndefined;
+
+rule DomainModel {
+    from
+        r : XML!Root
+    to
+        dm : DSL!DomainModel (
+            isLoaded <- true,
+            name <- 'DomainModel',
+            identity <- 'DomainModelId',
+            namespace <- 'DefaultNamespace'
+        ),
+        stString : DSL!SimpleType (
+            name <- 'String',
+            identity <- 'String',
+            namespace <- 'PrimitiveTypes'
+        ),
+        stInteger : DSL!SimpleType (
+            name <- 'Integer',
+            identity <- 'Integer',
+            namespace <- 'PrimitiveTypes'
+        ),
+        stBoolean : DSL!SimpleType (
+            name <- 'Boolean',
+            identity <- 'Boolean',
+            namespace <- 'PrimitiveTypes'
+        ),
+        stReal : DSL!SimpleType (
+            name <- 'Real',
+            identity <- 'Real',
+            namespace <- 'PrimitiveTypes'
+        )
+}
+
+rule Class {
+    from
+        cElem : XML!Element
+    to
+        c : DSL!Class (
+            isAbstract <- false,
+            isLoaded <- true,
+            name <- '',
+            identity <- '',
+            namespace <- ''
+        )
+}
+
+rule Relationship {
+    from
+        relElem : XML!Element
+    to
+        rel : DSL!Relationship (
+            isAbstract <- false,
+            isLoaded <- true,
+            isEmbedding <- false,
+            name <- '',
+            identity <- '',
+            namespace <- ''
+        )
+}
+
+rule Role {
+    from
+        rElem : XML!Element
+    to
+        role : DSL!Role (
+            name <- '',
+            identity <- '',
+            min <- 0,
+            max <- 1,
+            isUnbounded <- false,
+            accepts <- '',
+            isOrdered <- false,
+            isNavigableFrom <- false,
+            isPropertyGenerator <- false
+        )
+}
+
+rule ValueProperty {
+    from
+        vpElem : XML!Element
+    to
+        vp : DSL!ValueProperty (
+            name <- '',
+            identity <- ''
+        )
+}
+
+rule Enumeration {
+    from
+        eElem : XML!Element
+    to
+        e : DSL!Enumeration (
+            name <- '',
+            identity <- '',
+            namespace <- ''
+        )
+}
+
+rule EnumerationLiteral {
+    from
+        elElem : XML!Element
+    to
+        el : DSL!EnumerationLiteral (
+            name <- '',
+            identity <- '',
+            value <- 0
+        )
+}
+
