@@ -84,7 +84,16 @@ class IteratorExpression(OCLNode):
 
     type: TypeLiteral["IteratorExpression"] = "IteratorExpression"
     source: "OCLExpression"
-    iterator_type: str
+    iterator_type: TypeLiteral[
+        "forAll",
+        "exists",
+        "select",
+        "reject",
+        "collect",
+        "isUnique",
+        "sortedBy",
+        "any",
+    ]
     iterators: List[Variable]
     body: "OCLExpression"
 

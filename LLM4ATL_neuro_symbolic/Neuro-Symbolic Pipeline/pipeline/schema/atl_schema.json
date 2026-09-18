@@ -1606,6 +1606,16 @@
           "title": "Source"
         },
         "iterator_type": {
+          "enum": [
+            "forAll",
+            "exists",
+            "select",
+            "reject",
+            "collect",
+            "isUnique",
+            "sortedBy",
+            "any"
+          ],
           "title": "Iterator Type",
           "type": "string"
         },
