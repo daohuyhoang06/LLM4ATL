@@ -241,10 +241,51 @@ class OCLSemanticChecker:
             if len(expr.arguments) != 2:
                 raise SemanticError("resolveTemp expects exactly two arguments")
 
-            cls.check(expr.arguments[0], env, ablation_config=ablation_config)
-            target_name_type = cls.check(expr.arguments[1], env, ablation_config=ablation_config)
+            resolved_source_type = cls.check(
+                expr.arguments[0], env, ablation_config=ablation_config
+            )
+            target_name_expr = expr.arguments[1]
+            target_name_type = cls.check(
+                target_name_expr, env, ablation_config=ablation_config
+            )
             if is_enabled(ablation_config, "enable_layer2_type_check") and target_name_type not in ("String", "Unknown"):
                 raise SemanticError(f"resolveTemp target name must be String, got {target_name_type}")
+
+            # resolveTemp(source, 'label') returns the target-pattern variable
+            # identified by label. The environment records those labels while
+            # registering rules, so a literal label can be typed without
+            # executing the transformation. Dynamic or ambiguous labels keep
+            # the previous conservative Unknown result.
+            if (
+                target_name_expr.type == "LiteralExpression"
+                and target_name_expr.literal_type == "String"
+                and isinstance(target_name_expr.value, str)
+            ):
+                candidate_types = set()
+                for rule in env.rules.values():
+                    output_type = rule.get("output_variables", {}).get(
+                        target_name_expr.value
+                    )
+                    if output_type is None:
+                        continue
+
+                    parameter_types = rule.get("parameter_types", [])
+                    source_matches = (
+                        resolved_source_type == "Unknown"
+                        or not parameter_types
+                        or any(
+                            cls._is_type_compatible(
+                                resolved_source_type, parameter_type, env
+                            )
+                            for parameter_type in parameter_types
+                        )
+                    )
+                    if source_matches:
+                        candidate_types.add(output_type)
+
+                if len(candidate_types) == 1:
+                    return next(iter(candidate_types))
+
             return "Unknown"
         if op == "toString": return "String"
         if op == "abs": return source_type
@@ -304,10 +345,27 @@ class OCLSemanticChecker:
         if op in env.rules:
             rule = env.rules[op]
 
+            if source_type != "Module":
+                raise SemanticError(
+                    f"Rule '{op}' must be called through thisModule"
+                )
+
+            rule_kind = rule["rule_kind"]
+            if rule_kind == "MatchedRule":
+                raise SemanticError(
+                    f"Matched rule '{op}' cannot be called explicitly"
+                )
+
             cls._check_call_arguments(name=op, arguments=expr.arguments, parameter_types=rule["parameter_types"], env=env, ablation_config=ablation_config)
 
             output_types = rule["output_types"]
 
+            # An explicit lazy-rule invocation evaluates to its default target
+            # pattern element: the first element declared in the ``to`` block.
+            if rule_kind == "LazyMatchedRule":
+                return output_types[0] if output_types else "Unknown"
+
+            # Preserve the existing CalledRule behavior.
             if len(output_types) == 1:
                 return output_types[0]
 
@@ -771,13 +829,10 @@ class OCLSemanticChecker:
         if common_type is not None:
             return common_type
 
-        if is_enabled(ablation_config, "enable_layer2_type_check"):
-            raise SemanticError(
-                "If-expression branch type mismatch: "
-                f"then {then_type}, else {else_type}"
-            )
-
-        return then_type
+        # Unrelated branch types still have the OCL root type as their least
+        # common supertype. The surrounding helper/binding can then decide
+        # whether OclAny is sufficiently precise for its declared target.
+        return "OclAny"
 
     @classmethod
     def _least_common_supertype(cls, first_type: str, second_type: str, env):
@@ -897,22 +952,79 @@ class OCLSemanticChecker:
         if not match or len(expr.iterators) != 1:
             return None
 
-        body = expr.body
-        if body.type != "OperationCall" or body.operation_name not in ("oclIsKindOf", "oclIsTypeOf"):
-            return None
-
-        source = body.source
-        target = body.arguments[0] if len(body.arguments) == 1 else None
         iterator_name = expr.iterators[0].name
-        if source.type != "Variable" or source.name != iterator_name:
-            return None
-        if target is None or target.type != "Variable" or "!" not in target.name:
+        refined_type = cls._find_iterator_type_guard(
+            expr.body,
+            iterator_name,
+            element_type,
+            env,
+        )
+        if refined_type is None:
             return None
 
-        if element_type != "Unknown" and not cls._is_type_compatible(target.name, element_type, env):
+        return f"{match.group(1)}({refined_type})"
+
+    @classmethod
+    def _find_iterator_type_guard(
+        cls,
+        expression,
+        iterator_name: str,
+        element_type: str,
+        env,
+    ):
+        """Find a safe iterator type guard in a select predicate.
+
+        A conjunction such as ``c.oclIsKindOf(XML!Element) and c.name = name``
+        still narrows the selected collection to ``XML!Element``.  Do not
+        recurse through ``or``: either branch may be true without satisfying
+        the type guard, so narrowing would be unsound.
+        """
+        if (
+            expression.type == "OperationCall"
+            and expression.operation_name in ("oclIsKindOf", "oclIsTypeOf")
+            and expression.source.type == "Variable"
+            and expression.source.name == iterator_name
+            and len(expression.arguments) == 1
+        ):
+            target = expression.arguments[0]
+            if target.type != "Variable" or "!" not in target.name:
+                return None
+            if (
+                element_type != "Unknown"
+                and not cls._is_type_compatible(target.name, element_type, env)
+            ):
+                return None
+            return target.name
+
+        if expression.type != "BinaryExpression" or expression.operator != "and":
             return None
 
-        return f"{match.group(1)}({target.name})"
+        left_type = cls._find_iterator_type_guard(
+            expression.left,
+            iterator_name,
+            element_type,
+            env,
+        )
+        right_type = cls._find_iterator_type_guard(
+            expression.right,
+            iterator_name,
+            element_type,
+            env,
+        )
+
+        if left_type is None:
+            return right_type
+        if right_type is None:
+            return left_type
+
+        # When both sides constrain the same iterator, retain the more
+        # specific compatible type. Unrelated guards do not justify a safe
+        # static narrowing.
+        if cls._is_type_compatible(left_type, right_type, env):
+            return left_type
+        if cls._is_type_compatible(right_type, left_type, env):
+            return right_type
+        return None
 
     @classmethod
     def is_collection_type(cls, type_str: str) -> bool:
@@ -941,6 +1053,11 @@ class OCLSemanticChecker:
         # Unknown is a wildcard used when a type cannot be inferred yet,
         # including the element type of an empty collection literal.
         if actual_type == "Unknown" or expected_type == "Unknown":
+            return True
+
+        # OclAny is the root OCL type. Compatibility is intentionally
+        # directional: concrete -> OclAny is valid, OclAny -> concrete is not.
+        if expected_type == "OclAny":
             return True
 
         # Primitive compatibility

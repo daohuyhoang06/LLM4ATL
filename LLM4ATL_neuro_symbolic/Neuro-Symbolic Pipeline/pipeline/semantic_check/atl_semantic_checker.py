@@ -167,19 +167,23 @@ class ATLSemanticChecker:
             raise SemanticError(f"Unknown rule type: {type(rule)}")
 
         output_types = []
+        output_variables = {}
 
         if rule.out_pattern is not None:
             for element in rule.out_pattern.elements:
                 variable = element.variable
                 if not variable.declared_type or not str(variable.declared_type).strip():
                     raise SemanticError(f"OutPattern variable '{variable.name}' is missing declared type.")
-                output_types.append(str(variable.declared_type).strip())
+                declared_type = str(variable.declared_type).strip()
+                output_types.append(declared_type)
+                output_variables[variable.name] = declared_type
 
         env.register_rule(
             name=rule.name,
             parameter_types=parameter_types,
             output_types=output_types,
-            rule_kind=rule.type
+            rule_kind=rule.type,
+            output_variables=output_variables,
         )
 
     @classmethod
@@ -349,6 +353,10 @@ class ATLSemanticChecker:
         if source_type == target_type:
             return True
         if source_type == "Unknown" or target_type == "Unknown":
+            return True
+        # OclAny is the root OCL type. Every concrete value conforms to it,
+        # but an OclAny value does not conform to an arbitrary concrete type.
+        if target_type == "OclAny":
             return True
         if source_type == "Null":
             return True

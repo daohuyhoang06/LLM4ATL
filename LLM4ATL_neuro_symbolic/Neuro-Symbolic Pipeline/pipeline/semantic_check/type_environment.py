@@ -70,7 +70,14 @@ class TypeEnvironment:
 
         return self.helpers[name]
 
-    def register_rule(self, name: str, parameter_types: List[str], output_types: List[str], rule_kind: str):
+    def register_rule(
+        self,
+        name: str,
+        parameter_types: List[str],
+        output_types: List[str],
+        rule_kind: str,
+        output_variables: Dict[str, str] | None = None,
+    ):
         if name in self.rules:
             raise SemanticError(
                 f"Duplicate rule name: '{name}'"
@@ -79,6 +86,7 @@ class TypeEnvironment:
         self.rules[name] = {
             "parameter_types": parameter_types,
             "output_types": output_types,
+            "output_variables": dict(output_variables or {}),
             "rule_kind": rule_kind
         }
 
