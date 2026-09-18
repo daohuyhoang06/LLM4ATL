@@ -6,6 +6,8 @@ from .ocl_semantic_checker import OCLSemanticChecker
 from .errors import SemanticError
 
 class ATLSemanticChecker:
+    _BARE_COLLECTION_TYPE = re.compile(r"^(Set|Bag|Sequence|OrderedSet)$")
+
     @classmethod
     def check(cls, document:ATLDocument, env:TypeEnvironment, ablation_config=None):
         module = document.module
@@ -74,6 +76,17 @@ class ATLSemanticChecker:
             raise SemanticError("Helper name is missing.")
         if not helper.return_type or not str(helper.return_type).strip():
             raise SemanticError(f"Helper '{helper.name}' is missing return type.")
+        cls._validate_emittable_type(
+            helper.return_type,
+            f"Helper '{helper.name}' return type",
+        )
+
+        for param in helper.parameters:
+            if param.declared_type:
+                cls._validate_emittable_type(
+                    param.declared_type,
+                    f"Helper '{helper.name}' parameter '{param.name}' type",
+                )
 
         env.register_helper(
             name=helper.name,
@@ -85,6 +98,25 @@ class ATLSemanticChecker:
             context_type=helper.context_type,
             kind=helper.kind
         )
+
+    @classmethod
+    def _validate_emittable_type(cls, type_name: str, label: str) -> None:
+        """Reject type annotations that AST2ATL cannot render as valid ATL.
+
+        A bare collection name is useful internally as an inferred
+        ``Kind(Unknown)`` type, but is not legal in an ATL declaration.  The
+        AST generator emits declared types verbatim, so declarations must
+        carry their element type (for example, ``Set(CPL!Location)``).
+        """
+        normalized = str(type_name).strip()
+        match = cls._BARE_COLLECTION_TYPE.fullmatch(normalized)
+        if match:
+            kind = match.group(1)
+            raise SemanticError(
+                f"{label} cannot be bare '{kind}'. "
+                f"Use '{kind}(ElementType)' (for example, "
+                f"'{kind}(CPL!Location)')."
+            )
 
     @classmethod
     def _check_helper(cls, helper:Helper, env:TypeEnvironment, ablation_config=None):
