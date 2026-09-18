@@ -714,6 +714,22 @@ class OCLSemanticChecker:
             else:
                 if body_type not in ("Boolean", "Unknown"):
                     raise SemanticError(f"Condition for 'any' must be Boolean, got {body_type}")
+
+            # Like ``select``, ``any`` may narrow its result through a type
+            # guard in the predicate.  For example, selecting from
+            # ``Collection(XML!Node)`` with
+            # ``c.oclIsTypeOf(XML!Attribute) and ...`` yields an
+            # ``XML!Attribute``, not merely an ``XML!Node``.
+            if len(expr.iterators) == 1:
+                refined_type = cls._find_iterator_type_guard(
+                    expr.body,
+                    expr.iterators[0].name,
+                    element_type,
+                    env,
+                )
+                if refined_type is not None:
+                    return refined_type
+
             # ``any`` selects one member satisfying the predicate; it never
             # returns the source collection.
             return cls._single_collection_element_type(source_type)
@@ -972,7 +988,7 @@ class OCLSemanticChecker:
         element_type: str,
         env,
     ):
-        """Find a safe iterator type guard in a select predicate.
+        """Find a safe iterator type guard in an iterator predicate.
 
         A conjunction such as ``c.oclIsKindOf(XML!Element) and c.name = name``
         still narrows the selected collection to ``XML!Element``.  Do not
