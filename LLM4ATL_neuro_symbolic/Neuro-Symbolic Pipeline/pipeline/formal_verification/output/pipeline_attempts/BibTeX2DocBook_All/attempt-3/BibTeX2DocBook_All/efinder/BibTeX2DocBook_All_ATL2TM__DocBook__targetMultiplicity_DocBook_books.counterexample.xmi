@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/LLM4ATL/LLM4ATL_neuro_symbolic/Neuro-Symbolic%20Pipeline/pipeline/formal_verification/output/pipeline_attempts/BibTeX2DocBook_All/attempt-3/BibTeX2DocBook_All/efinder/BibTeX2DocBook_All_ATL2TM__not_DocBook__targetMultiplicity_DocBook_books.ecore">
-  <tm:DocBook Main_db="/2"/>
-  <tm:Booklet id="string5" year="string2"/>
-  <tm:Main f="/3" db="/0"/>
-  <tm:BibTeXFile Main_f="/2">
-    <entries xsi:type="tm:Booklet" id="string2" year=""/>
-  </tm:BibTeXFile>
-</xmi:XMI>

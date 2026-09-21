@@ -1,4 +1,0 @@
--- Pre: every source input used by the transformation has value 1.
-context Input
-inv SourceValueIsOne:
-  self.value = 1

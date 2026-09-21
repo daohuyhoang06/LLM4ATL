@@ -1,0 +1,66 @@
+module Make2Ant;
+create OUT : Ant from IN : Make;
+
+helper context Make!RuleDep def: rule : Make!Rule =
+	Make!Rule.allInstances()->any(r | r.name = self.name);
+
+rule Makefile2Project {
+	from
+		m : Make!Makefile
+	to
+		p : Ant!Project (
+			name <- m.name,
+			properties <- m.macros,
+			targets <- m.rules,
+			default <- m.rules->first()
+		)
+}
+
+rule Macro2Property {
+	from
+		m : Make!Macro
+	to
+		p : Ant!PropertyValue (
+			name <- m.name,
+			value <- m.value
+		)
+}
+
+rule Rule2Target {
+	from
+		r : Make!Rule
+	to
+		t : Ant!Target (
+			name <- r.name,
+			tasks <- r.shellLines,
+			depends <- r.dependencies->collect(d | d.rule)->reject(e | e.oclIsUndefined())
+		)
+}
+
+rule ShellLine2Task_Display {
+	from
+		s : Make!ShellLine (
+			s.display
+		)
+	to
+		echo : Ant!Echo (
+			target <- s.rule,
+			message <- s.command
+		),
+		exec : Ant!Exec (
+			target <- s.rule,
+			executable <- s.command
+		)
+}
+
+rule ShellLine2Task_NoDisplay {
+	from
+		s : Make!ShellLine (
+			not s.display
+		)
+	to
+		exec : Ant!Exec (
+			target <- s.rule,
+			executable <- s.command
+		)
+}

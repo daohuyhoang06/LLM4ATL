@@ -14,13 +14,6 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>LLM4ATL_neuro_symbolic/Neuro-Symbolic Pipeline/pipeline/formal_verification/use_models/New Folder/atl_ast.use</name>
-			<type>1</type>
-			<location>C:/Users/hoang/Downloads/atl_ast.use</location>
-		</link>
-	</linkedResources>
 	<filteredResources>
 		<filter>
 			<id>1786013103436</id>

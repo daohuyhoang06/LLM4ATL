@@ -1,0 +1,225 @@
+module CPL2SPL;
+create OUT : SPL from IN : CPL;
+
+helper context CPL!Element def: statement : CPL!Element =
+	if self.oclIsTypeOf(CPL!AddressSwitch) then
+		self
+	else if self.oclIsTypeOf(CPL!StringSwitch) then
+		self
+	else if self.oclIsTypeOf(CPL!LanguageSwitch) then
+		self
+	else if self.oclIsTypeOf(CPL!TimeSwitch) then
+		self
+	else if self.oclIsTypeOf(CPL!PrioritySwitch) then
+		self
+	else if self.oclIsTypeOf(CPL!Location) then
+		if self.isSimple then
+			self.contents.statement
+		else
+			self
+		endif
+	else if self.oclIsTypeOf(CPL!SubCall) then
+		self
+	else if self.oclIsTypeOf(CPL!Redirect) then
+		self
+	else if self.oclIsTypeOf(CPL!Reject) then
+		self
+	else if self.oclIsTypeOf(CPL!Proxy) then
+		if self.isSimple then
+			self
+		else
+			self
+		endif
+	else
+		OclUndefined
+	endif endif endif endif endif endif endif endif endif;
+
+helper context CPL!Element def: locations : Sequence(CPL!Location) =
+	if self.parent.oclIsUndefined() then
+		Sequence{}
+	else
+		if self.parent.oclIsTypeOf(CPL!Location) then
+			self.parent.locations->append(self.parent)
+		else
+			self.parent.locations
+		endif
+	endif;
+
+helper context CPL!Proxy def: isSimple : Boolean =
+	self.busy.oclIsUndefined() and self.noAnswer.oclIsUndefined() and self.redirection.oclIsUndefined() and self.default.oclIsUndefined();
+
+helper context CPL!Location def: isSimple : Boolean =
+	self.clear.oclIsUndefined() and self.noAnswer.oclIsUndefined() and self.busy.oclIsUndefined() and self.failure.oclIsUndefined() and self.default.oclIsUndefined();
+
+rule CPL2Program {
+	from
+		s : CPL!CPL
+	to
+		t : SPL!Program (
+			service <- s.incoming
+		)
+}
+
+rule SubAction2Function {
+	from
+		s : CPL!SubAction
+	to
+		t : SPL!Function (
+			name <- s.id,
+			returnType <- voidType,
+			statements <- Sequence{s.statement}
+		),
+		voidType : SPL!SimpleType (
+			type <- #void
+		)
+}
+
+rule Incoming2Method {
+	from
+		s : CPL!Incoming
+	to
+		t : SPL!Method (
+			type <- voidType,
+			direction <- #in,
+			statements <- Sequence{s.statement}
+		),
+		voidType : SPL!SimpleType (
+			type <- #void
+		)
+}
+
+rule Proxy2Return {
+	from
+		s : CPL!Proxy (s.isSimple)
+	to
+		t : SPL!ReturnStat (
+			returnedValue <- thisModule.Location2URIConstant(s.locations->first())
+		)
+}
+
+rule Proxy2Select {
+	from
+		s : CPL!Proxy (not s.isSimple)
+	to
+		t : SPL!SelectStat (
+			matchedExpr <- r,
+			selectCases <- Sequence{s.busy, s.noAnswer, s.redirection}->reject(e | e.oclIsUndefined()),
+			selectDefault <- s.default
+		),
+		r : SPL!ResponseID
+}
+
+rule Busy2SelectCase {
+	from
+		s : CPL!Busy
+	to
+		t : SPL!SelectCase (
+			values <- Sequence{v},
+			statements <- Sequence{s.statement}
+		),
+		v : SPL!ResponseConstant (
+			response <- #busy
+		)
+}
+
+rule NoAnswer2SelectCase {
+	from
+		s : CPL!NoAnswer
+	to
+		t : SPL!SelectCase (
+			values <- Sequence{v},
+			statements <- Sequence{s.statement}
+		),
+		v : SPL!ResponseConstant (
+			response <- #no_answer
+		)
+}
+
+rule Redirection2SelectCase {
+	from
+		s : CPL!Redirection
+	to
+		t : SPL!SelectCase (
+			values <- Sequence{v},
+			statements <- Sequence{s.statement}
+		),
+		v : SPL!ResponseConstant (
+			response <- #redirection
+		)
+}
+
+rule Default2SelectDefault {
+	from
+		s : CPL!Default
+	to
+		t : SPL!SelectDefault (
+			statements <- Sequence{s.statement}
+		)
+}
+
+rule SubCall2Return {
+	from
+		s : CPL!SubCall
+	to
+		t : SPL!ReturnStat (
+			returnedValue <- v
+		),
+		v : SPL!FunctionCallExp (
+			function <- s.sub,
+			argument <- Sequence{}
+		)
+}
+
+rule Redirect2Return {
+	from
+		s : CPL!Redirect
+	to
+		t : SPL!ReturnStat (
+			returnedValue <- thisModule.Location2URIConstant(s.locations->first())
+		)
+}
+
+rule AddressSwitch2SelectStat {
+	from
+		s : CPL!AddressSwitch
+	to
+		t : SPL!SelectStat (
+			matchedExpr <- v,
+			selectCases <- s.addresses,
+			selectDefault <- s.otherwise
+		),
+		v : SPL!SIPHeaderAsval (
+			header <- if s.field = 'origin' then #from else #to endif
+		)
+}
+
+rule SwitchedAddress2SelectCase {
+	from
+		s : CPL!SwitchedAddress
+	to
+		t : SPL!SelectCase (
+			values <- Sequence{v},
+			statements <- Sequence{s.statement}
+		),
+		v : SPL!URIConstant (
+			uri <- s.is
+		)
+}
+
+rule Otherwise2SelectDefault {
+	from
+		s : CPL!Otherwise
+	to
+		t : SPL!SelectDefault (
+			statements <- Sequence{s.statement}
+		)
+}
+
+unique lazy rule Location2URIConstant {
+	from
+		s : CPL!Location
+	to
+		t : SPL!URIConstant (
+			uri <- s.url
+		)
+}

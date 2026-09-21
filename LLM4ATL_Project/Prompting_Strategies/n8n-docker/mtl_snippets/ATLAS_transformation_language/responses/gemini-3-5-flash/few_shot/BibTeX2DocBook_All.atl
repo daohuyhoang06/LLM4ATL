@@ -1,0 +1,205 @@
+module BibTeX2DocBook;
+create OUT : DocBook from IN : BibTeX;
+
+helper def: authorSet : Sequence(BibTeX!Author) =
+	BibTeX!Author.allInstances()->iterate(e; res : Sequence(BibTeX!Author) = Sequence{} |
+		if res->exists(r | r.name = e.name) then
+			res
+		else
+			res->including(e)
+		endif
+	)->sortedBy(e | e.name);
+
+helper def: titledEntrySet : Sequence(BibTeX!TitledEntry) =
+	BibTeX!TitledEntry.allInstances()->iterate(e; res : Sequence(BibTeX!TitledEntry) = Sequence{} |
+		if res->exists(r | r.title = e.title) then
+			res
+		else
+			res->including(e)
+		endif
+	)->sortedBy(e | e.title);
+
+helper def: articleSet : Sequence(BibTeX!Article) =
+	BibTeX!Article.allInstances()->iterate(e; res : Sequence(BibTeX!Article) = Sequence{} |
+		if res->exists(r | r.journal = e.journal) then
+			res
+		else
+			res->including(e)
+		endif
+	)->sortedBy(e | e.journal);
+
+helper context BibTeX!BibTeXEntry def: getTitle : String =
+	if self.oclIsKindOf(BibTeX!TitledEntry) then self.title else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getAuthors : String =
+	if self.oclIsKindOf(BibTeX!AuthoredEntry) then
+		self.authors->iterate(e; res : String = '' |
+			if res = '' then e.name else res + ' and ' + e.name endif
+		)
+	else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getYear : String =
+	if self.oclIsKindOf(BibTeX!Book) or self.oclIsKindOf(BibTeX!Article) or self.oclIsKindOf(BibTeX!Thesis) or self.oclIsKindOf(BibTeX!InBook) or self.oclIsKindOf(BibTeX!InProceedings) or self.oclIsKindOf(BibTeX!InCollection) or self.oclIsKindOf(BibTeX!Booklet) or self.oclIsKindOf(BibTeX!Proceedings) or self.oclIsKindOf(BibTeX!Manual) or self.oclIsKindOf(BibTeX!Misc) then
+		self.year
+	else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getBooktitle : String =
+	if self.oclIsKindOf(BibTeX!InProceedings) or self.oclIsKindOf(BibTeX!InCollection) then self.booktitle else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getSchool : String =
+	if self.oclIsKindOf(BibTeX!Thesis) then self.school else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getJournal : String =
+	if self.oclIsKindOf(BibTeX!Article) then self.journal else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getNote : String =
+	if self.oclIsKindOf(BibTeX!Article) or self.oclIsKindOf(BibTeX!Book) or self.oclIsKindOf(BibTeX!Thesis) or self.oclIsKindOf(BibTeX!InBook) or self.oclIsKindOf(BibTeX!InProceedings) or self.oclIsKindOf(BibTeX!InCollection) or self.oclIsKindOf(BibTeX!Booklet) or self.oclIsKindOf(BibTeX!Proceedings) or self.oclIsKindOf(BibTeX!Manual) or self.oclIsKindOf(BibTeX!Misc) or self.oclIsKindOf(BibTeX!Unpublished) then
+		self.note
+	else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getPublisher : String =
+	if self.oclIsKindOf(BibTeX!Book) or self.oclIsKindOf(BibTeX!InBook) or self.oclIsKindOf(BibTeX!InCollection) or self.oclIsKindOf(BibTeX!Proceedings) then self.publisher else '' endif;
+
+helper context BibTeX!BibTeXEntry def: getChapter : String =
+	if self.oclIsKindOf(BibTeX!InBook) then self.chapter.toString() else '' endif;
+
+helper context BibTeX!BibTeXEntry def: buildEntryPara() : String =
+	let typeName : String = self.oclType().name in
+	let titleStr : String = self.getTitle in
+	let authorsStr : String = self.getAuthors in
+	let yearStr : String = self.getYear in
+	let booktitleStr : String = self.getBooktitle in
+	let schoolStr : String = self.getSchool in
+	let journalStr : String = self.getJournal in
+	let noteStr : String = self.getNote in
+	let publisherStr : String = self.getPublisher in
+	let chapterStr : String = self.getChapter in
+	'[' + self.id + '] ' + typeName +
+	(if titleStr = '' then '' else ' ' + titleStr endif) +
+	(if authorsStr = '' then '' else ' ' + authorsStr endif) +
+	(if yearStr = '' then '' else ' ' + yearStr endif) +
+	(if booktitleStr = '' then '' else ' ' + booktitleStr endif) +
+	(if schoolStr = '' then '' else ' ' + schoolStr endif) +
+	(if journalStr = '' then '' else ' ' + journalStr endif) +
+	(if noteStr = '' then '' else ' ' + noteStr endif) +
+	(if publisherStr = '' then '' else ' ' + publisherStr endif) +
+	(if chapterStr = '' then '' else ' ' + chapterStr endif);
+
+rule Main {
+	from
+		bib : BibTeX!BibTeXFile
+	to
+		doc : DocBook!DocBook (
+			books <- Sequence{book}
+		),
+		book : DocBook!Book (
+			articles <- Sequence{article}
+		),
+		article : DocBook!Article (
+			title <- 'BibTeXML to DocBook',
+			sections <- Sequence{se1, se2, se3, se4}
+		),
+		se1 : DocBook!Sect1 (
+			title <- 'References List',
+			paras <- BibTeX!BibTeXEntry.allInstances()->sortedBy(e | e.id)
+		),
+		se2 : DocBook!Sect1 (
+			title <- 'Authors list',
+			paras <- thisModule.authorSet->collect(e | thisModule.resolveTemp(e, 'p'))
+		),
+		se3 : DocBook!Sect1 (
+			title <- 'Titles List',
+			paras <- thisModule.titledEntrySet->collect(e | thisModule.resolveTemp(e, 'p2'))
+		),
+		se4 : DocBook!Sect1 (
+			title <- 'Journals List',
+			paras <- thisModule.articleSet->collect(e | thisModule.resolveTemp(e, 'p3'))
+		)
+}
+
+rule Author {
+	from
+		a : BibTeX!Author (thisModule.authorSet->includes(a))
+	to
+		p : DocBook!Para (
+			content <- a.name
+		)
+}
+
+rule UntitledEntry {
+	from
+		e : BibTeX!BibTeXEntry (not e.oclIsKindOf(BibTeX!TitledEntry))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		)
+}
+
+rule TitledEntry_Title_NoArticle {
+	from
+		e : BibTeX!TitledEntry (not e.oclIsKindOf(BibTeX!Article) and thisModule.titledEntrySet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		),
+		p2 : DocBook!Para (
+			content <- e.title
+		)
+}
+
+rule TitledEntry_NoTitle_NoArticle {
+	from
+		e : BibTeX!TitledEntry (not e.oclIsKindOf(BibTeX!Article) and not thisModule.titledEntrySet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		)
+}
+
+rule Article_Title_Journal {
+	from
+		e : BibTeX!Article (thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		),
+		p2 : DocBook!Para (
+			content <- e.title
+		),
+		p3 : DocBook!Para (
+			content <- e.journal
+		)
+}
+
+rule Article_NoTitle_Journal {
+	from
+		e : BibTeX!Article (not thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		),
+		p3 : DocBook!Para (
+			content <- e.journal
+		)
+}
+
+rule Article_Title_NoJournal {
+	from
+		e : BibTeX!Article (thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		),
+		p2 : DocBook!Para (
+			content <- e.title
+		)
+}
+
+rule Article_NoTitle_NoJournal {
+	from
+		e : BibTeX!Article (not thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
+	to
+		p : DocBook!Para (
+			content <- e.buildEntryPara()
+		)
+}
