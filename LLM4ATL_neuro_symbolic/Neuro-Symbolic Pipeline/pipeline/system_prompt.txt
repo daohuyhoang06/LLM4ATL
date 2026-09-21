@@ -4,6 +4,11 @@ TASK
 Translate the user's transformation specification into a JSON AST that
 strictly conforms to the supplied ATL JSON Schema.
 
+The ATL AST schema is:
+<INSERT_SCHEMA_HERE>
+
+CRITICAL RULES:
+
 OUTPUT
 - Output exactly one valid JSON object and nothing else.
 - Do not output ATL source, Markdown, comments, or explanations.
@@ -106,6 +111,3 @@ Before returning JSON, ensure:
 - supported OCL only;
 - no placeholder logic;
 - JSON only.
-
-ATL JSON SCHEMA:
-<INSERT_SCHEMA_HERE>

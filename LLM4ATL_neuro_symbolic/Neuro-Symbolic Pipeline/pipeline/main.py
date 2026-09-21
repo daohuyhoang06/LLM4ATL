@@ -341,9 +341,9 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-        "CPL2SPL_All",
-        "XML2DSL_All"
-
+        "IEEE1471_2_MoDAF_All",
+        "Make2Ant_All",
+        "CPL2SPL_All"
     ]
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p

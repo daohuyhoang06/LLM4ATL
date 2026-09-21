@@ -1,0 +1,37 @@
+-- Illustrative structural snapshot for families_to_persons_atl2tm.use.
+-- It is a diagramming aid only; it does not claim satisfaction of the
+-- semantic OCL constraints embedded in FamiliesToPersons_All_ATL2TM.ecore.
+
+!new FamilyRegister('familyRegister')
+!familyRegister.id := 'FR1'
+
+!new Family('family')
+!family.lastName := 'Doe'
+
+!new Member('member')
+!member.firstName := 'John'
+
+!new Member('daughter')
+!daughter.firstName := 'Jane'
+
+!new PersonRegister('personRegister')
+!personRegister.id := 'PR1'
+
+!new Male('male')
+!male.fullName := 'John Doe'
+
+!new Female('female')
+!female.fullName := 'Jane Doe'
+
+!new Member2Male('member2Male')
+!new Member2Female('member2Female')
+
+!insert (familyRegister, family) into FamilyRegisterFamilies
+!insert (family, member) into FamilyFather
+!insert (family, daughter) into FamilyDaughters
+!insert (personRegister, male) into PersonRegisterPersons
+!insert (personRegister, female) into PersonRegisterPersons
+!insert (member2Male, member) into Member2Male_mem
+!insert (member2Male, male) into Member2Male_m
+!insert (member2Female, daughter) into Member2Female_mem
+!insert (member2Female, female) into Member2Female_f

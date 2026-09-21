@@ -599,7 +599,10 @@ class OCLSemanticChecker:
         source = expr.source
         target = expr.arguments[0]
         if source.type == "Variable" and target.type == "Variable" and "!" in target.name:
-            env.bind_variable(source.name, target.name)
+            # This updates the inferred type of an existing variable; it is
+            # not a user declaration. Built-ins such as ``self`` may therefore
+            # be refined by an oclIsKindOf/oclIsTypeOf guard.
+            env.bind_variable(source.name, target.name, allow_builtin=True)
 
 
     @classmethod

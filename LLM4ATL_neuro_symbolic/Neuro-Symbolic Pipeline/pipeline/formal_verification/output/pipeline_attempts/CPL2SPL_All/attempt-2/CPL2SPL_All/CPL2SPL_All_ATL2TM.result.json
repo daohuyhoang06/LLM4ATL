@@ -4,7 +4,7 @@
   "phase": "atl2tm-runner",
   "ecore": "D:\\LLM4ATL\\LLM4ATL_neuro_symbolic\\Neuro-Symbolic Pipeline\\pipeline\\formal_verification\\output\\pipeline_attempts\\CPL2SPL_All\\attempt-2\\CPL2SPL_All\\CPL2SPL_All_ATL2TM.ecore",
   "features": [
-    "RUNNER_REPORTED_FEATURE"
+    "LAZY_RULE"
   ],
-  "detail": "ATL2TM b\u00e1o c\u00f3 c\u1ea5u tr\u00fac ch\u01b0a \u0111\u01b0\u1ee3c h\u1ed7 tr\u1ee3; Layer 3 \u0111\u00e3 d\u1eebng, eFinder kh\u00f4ng \u0111\u01b0\u1ee3c ch\u1ea1y."
+  "detail": "ATL2TM ch\u01b0a h\u1ed7 tr\u1ee3 lazy rule; Layer 3 \u0111\u00e3 d\u1eebng, eFinder kh\u00f4ng \u0111\u01b0\u1ee3c ch\u1ea1y."
 }

@@ -1,4 +1,5 @@
 import re
+from atl_identifiers import atl_identifier_error
 from schema.atl_ast import *
 from ablation_config import is_enabled
 from .type_environment import TypeEnvironment
@@ -22,6 +23,11 @@ class ATLSemanticChecker:
         # Kiểm tra tên module
         if not module.name:
             raise SemanticError("Module name is missing.")
+        identifier_error = atl_identifier_error(module.name)
+        if identifier_error is not None:
+            raise SemanticError(
+                f"Invalid ATL module name '{module.name}': {identifier_error}."
+            )
 
         # Kiểm tra input models
         for model in module.input_models:
@@ -125,7 +131,7 @@ class ATLSemanticChecker:
 
         try: 
             if helper.context_type is not None:
-                env.bind_variable("self", helper.context_type)
+                env.bind_variable("self", helper.context_type, allow_builtin=True)
 
             for param in helper.parameters:
                 env.bind_variable(param.name, param.declared_type)
@@ -246,7 +252,10 @@ class ATLSemanticChecker:
             source = expr.source
             target = expr.arguments[0]
             if source.type == "Variable" and target.type == "Variable" and "!" in target.name:
-                env.bind_variable(source.name, target.name)
+                # This updates the inferred type of an existing variable; it
+                # is not a user declaration. Built-ins such as ``self`` may
+                # therefore be refined by an oclIsKindOf/oclIsTypeOf guard.
+                env.bind_variable(source.name, target.name, allow_builtin=True)
 
     @classmethod
     def _check_using(cls, declarations, env:TypeEnvironment, ablation_config=None):

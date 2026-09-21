@@ -1,243 +1,270 @@
 module CPL2SPL;
 create OUT : SPL from IN : CPL;
 
-helper context CPL!NodeContainer def: statement() : SPL!Statement =
-    OclUndefined;
-
-helper context CPL!Element def: locations() : String =
-    '';
-
 helper context CPL!Proxy def: isSimple : Boolean =
     ((((self.busy.oclIsUndefined() and self.noAnswer.oclIsUndefined()) and self.redirection.oclIsUndefined()) and self.failure.oclIsUndefined()) and self.default.oclIsUndefined());
+
+helper context CPL!Element def: statement : CPL!Element =
+    self;
+
+helper context CPL!NodeContainer def: statement : CPL!Element =
+    if self.contents.oclIsUndefined() then
+        self
+    else
+        self.contents.statement
+    endif;
+
+helper context CPL!Element def: firstLocation : CPL!Location =
+    if self.refImmediateComposite().oclIsUndefined() then
+        OclUndefined
+    else
+        self.refImmediateComposite().firstLocation
+    endif;
+
+helper context CPL!Location def: firstLocation : CPL!Location =
+    self;
+
+helper context CPL!Element def: locations : Set(CPL!Location) =
+    if self.refImmediateComposite().oclIsUndefined() then
+        Set{}
+    else
+        self.refImmediateComposite().locations
+    endif;
+
+helper context CPL!Location def: locations : Set(CPL!Location) =
+    Set{self}->union(if self.refImmediateComposite().oclIsUndefined() then
+        Set{}
+    else
+        self.refImmediateComposite().locations
+    endif);
 
 rule CPL2Program {
     from
         cpl : CPL!CPL
     to
-        prog : SPL!Program (
-            location <- cpl.locations(),
-            service <- srv
+        p : SPL!Program (
+            service <- s
         ),
-        srv : SPL!Service (
-            location <- cpl.locations(),
-            name <- 'Service'
+        s : SPL!Service (
+            name <- 'CPL',
+            declarations <- cpl.subActions,
+            sessions <- Set{cpl.incoming, cpl.outgoing}->reject(e | e.oclIsUndefined())
         )
 }
 
 rule SubAction2Function {
     from
-        sa : CPL!SubAction
+        s : CPL!SubAction
     to
-        func : SPL!RemoteFunctionDeclaration (
-            location <- sa.locations(),
-            name <- sa.id,
-            returnType <- retType,
-            functionLocation <- #local
+        t : SPL!LocalFunctionDeclaration (
+            name <- s.id,
+            returnType <- rt,
+            statements <- s.statement
         ),
-        retType : SPL!SimpleType (
-            location <- sa.locations(),
+        rt : SPL!SimpleType (
             type <- #void
         )
 }
 
 rule Incoming2Method {
     from
-        inc : CPL!Incoming
+        s : CPL!Incoming
     to
-        mth : SPL!Method (
-            location <- inc.locations(),
-            type <- mthType,
+        t : SPL!Method (
             direction <- #"in",
-            methodName <- mthName,
-            statements <- Set{retM},
-            branches <- Set{br}
+            methodName <- mn,
+            type <- rt,
+            statements <- s.statement
         ),
-        mthType : SPL!SimpleType (
-            location <- inc.locations(),
-            type <- #request
-        ),
-        mthName : SPL!SIPMethodName (
-            location <- inc.locations(),
+        mn : SPL!SIPMethodName (
             name <- #INVITE
         ),
-        br : SPL!DefaultBranch (
-            location <- inc.locations(),
-            statements <- Set{retB}
-        ),
-        retM : SPL!ReturnStat (
-            location <- inc.locations()
-        ),
-        retB : SPL!ReturnStat (
-            location <- inc.locations()
+        rt : SPL!SimpleType (
+            type <- #void
         )
 }
 
 rule Proxy2Return {
     from
-        prx : CPL!Proxy (
-            prx.isSimple
+        s : CPL!Proxy (
+            s.isSimple
         )
     to
-        ret : SPL!ReturnStat (
-            location <- prx.locations()
+        t : SPL!ReturnStat (
+            returnedValue <- thisModule.Location2URIConstant(s.firstLocation)
         )
 }
 
 rule Proxy2Select {
     from
-        prx : CPL!Proxy (
-            not prx.isSimple
+        s : CPL!Proxy (
+            not s.isSimple
         )
     to
-        sel : SPL!SelectStat (
-            location <- prx.locations(),
-            matchedExp <- matched
+        t : SPL!SelectStat (
+            matchedExp <- me,
+            selectCases <- Set{s.busy, s.noAnswer, s.redirection}->reject(e | e.oclIsUndefined()),
+            selectDefault <- s.default
         ),
-        matched : SPL!ConstantExp (
-            location <- prx.locations(),
-            value <- bc
-        ),
-        bc : SPL!BooleanConstant (
-            location <- prx.locations(),
-            value <- true
+        me : SPL!RequestURIExp (
         )
 }
 
 rule Busy2SelectCase {
     from
-        busy : CPL!Busy
+        s : CPL!Busy
     to
-        scase : SPL!SelectCase (
-            location <- busy.locations(),
-            values <- Set{sval}
+        t : SPL!SelectCase (
+            values <- Set{rc},
+            statements <- s.statement
         ),
-        sval : SPL!StringConstant (
-            location <- busy.locations(),
-            value <- 'BUSY'
+        rc : SPL!ResponseConstant (
+            response <- r
+        ),
+        r : SPL!ClientErrorResponse (
+            errorKind <- #BUSY_HERE
         )
 }
 
 rule NoAnswer2SelectCase {
     from
-        noa : CPL!NoAnswer
+        s : CPL!NoAnswer
     to
-        scase : SPL!SelectCase (
-            location <- noa.locations(),
-            values <- Set{sval}
+        t : SPL!SelectCase (
+            values <- Set{rc},
+            statements <- s.statement
         ),
-        sval : SPL!StringConstant (
-            location <- noa.locations(),
-            value <- 'NO_ANSWER'
+        rc : SPL!ResponseConstant (
+            response <- r
+        ),
+        r : SPL!ClientErrorResponse (
+            errorKind <- #REQUEST_TIMEOUT
         )
 }
 
 rule Redirection2SelectCase {
     from
-        red : CPL!Redirection
+        s : CPL!Redirection
     to
-        scase : SPL!SelectCase (
-            location <- red.locations(),
-            values <- Set{sval}
+        t : SPL!SelectCase (
+            values <- Set{rc},
+            statements <- s.statement
         ),
-        sval : SPL!StringConstant (
-            location <- red.locations(),
-            value <- 'REDIRECTION'
+        rc : SPL!ResponseConstant (
+            response <- r
+        ),
+        r : SPL!RedirectionErrorResponse (
+            errorKind <- #MULTIPLE_CHOICES
         )
 }
 
 rule Default2SelectDefault {
     from
-        defIn : CPL!Default
+        s : CPL!Default
     to
-        sdef : SPL!SelectDefault (
-            location <- defIn.locations()
+        t : SPL!SelectDefault (
+            statements <- s.statement
         )
 }
 
 rule SubCall2Return {
     from
-        sc : CPL!SubCall
+        s : CPL!SubCall
     to
-        ret : SPL!ReturnStat (
-            location <- sc.locations(),
-            returnedValue <- cexp
+        t : SPL!ReturnStat (
+            returnedValue <- fce
         ),
-        cexp : SPL!ConstantExp (
-            location <- sc.locations(),
-            value <- sval
+        fce : SPL!FunctionCallExp (
+            functionCall <- fc
         ),
-        sval : SPL!StringConstant (
-            location <- sc.locations(),
-            value <- sc.ref
+        fc : SPL!FunctionCall (
+            function <- CPL!SubAction.allInstances()->any(sa | (sa.id = s.ref))
         )
 }
 
 rule Redirect2Return {
     from
-        rdr : CPL!Redirect
+        s : CPL!Redirect
     to
-        ret : SPL!ReturnStat (
-            location <- rdr.locations(),
-            returnedValue <- cexp
+        t : SPL!ReturnStat (
+            returnedValue <- rc
         ),
-        cexp : SPL!ConstantExp (
-            location <- rdr.locations(),
-            value <- bval
+        rc : SPL!ConstantExp (
+            value <- rconst
         ),
-        bval : SPL!BooleanConstant (
-            location <- rdr.locations(),
-            value <- true
+        rconst : SPL!ResponseConstant (
+            response <- r
+        ),
+        r : SPL!RedirectionErrorResponse (
+            errorKind <- if (s.permanent = 'true') then
+    #MOVED_PERMANENTLY
+else
+    #MOVED_TEMPORARILY
+endif
         )
 }
 
 rule AddressSwitch2SelectStat {
     from
-        asw : CPL!AddressSwitch
+        s : CPL!AddressSwitch
     to
-        sel : SPL!SelectStat (
-            location <- asw.locations(),
-            matchedExp <- cexp
+        t : SPL!SelectStat (
+            matchedExp <- hp,
+            selectCases <- s.addresses,
+            selectDefault <- s.otherwise
         ),
-        cexp : SPL!ConstantExp (
-            location <- asw.locations(),
-            value <- bval
-        ),
-        bval : SPL!BooleanConstant (
-            location <- asw.locations(),
-            value <- true
+        hp : SPL!SIPHeaderPlace (
+            header <- if (s.field = 'to') then
+    #TO
+else
+    if (s.field = 'from') then
+    #FROM
+else
+    #CONTACT
+endif
+endif
         )
 }
 
 rule SwitchedAddress2SelectCase {
     from
-        swAddr : CPL!SwitchedAddress
+        s : CPL!SwitchedAddress
     to
-        scase : SPL!SelectCase (
-            location <- swAddr.locations(),
-            values <- Set{sval}
+        t : SPL!SelectCase (
+            values <- Set{val},
+            statements <- s.statement
         ),
-        sval : SPL!StringConstant (
-            location <- swAddr.locations(),
-            value <- 'ADDRESS'
+        val : SPL!StringConstant (
+            value <- if not s.is.oclIsUndefined() then
+    s.is
+else
+    if not s.contains.oclIsUndefined() then
+    s.contains
+else
+    s.subDomainOf
+endif
+endif
         )
 }
 
 rule Otherwise2SelectDefault {
     from
-        oth : CPL!Otherwise
+        s : CPL!Otherwise
     to
-        sdef : SPL!SelectDefault (
-            location <- oth.locations()
+        t : SPL!SelectDefault (
+            statements <- s.statement
         )
 }
 
-rule Location2URIConstant {
+lazy rule Location2URIConstant {
     from
-        loc : CPL!Location
+        s : CPL!Location
     to
-        uri : SPL!URIConstant (
-            location <- loc.locations(),
-            uri <- loc.url
+        t : SPL!ConstantExp (
+            value <- u
+        ),
+        u : SPL!URIConstant (
+            uri <- s.url
         )
 }
 

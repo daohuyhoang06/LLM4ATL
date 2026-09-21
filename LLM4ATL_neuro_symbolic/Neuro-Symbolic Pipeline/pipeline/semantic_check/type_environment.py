@@ -1,4 +1,5 @@
 from typing import List, Dict
+from atl_identifiers import atl_identifier_error
 from .errors import SemanticError
 
 class TypeEnvironment:
@@ -11,12 +12,18 @@ class TypeEnvironment:
         self.helpers = {}  # Dictionary để lưu trữ thông tin về các helper
         self.rules = {}  # Dictionary để lưu trữ thông tin về các rule
 
-        self.bind_variable("thisModule", "Module")
+        self.bind_variable("thisModule", "Module", allow_builtin=True)
 
         if context_class is not None:
-            self.bind_variable("self", context_class)
+            self.bind_variable("self", context_class, allow_builtin=True)
 
-    def bind_variable(self, name: str, type_name: str):
+    def bind_variable(self, name: str, type_name: str, *, allow_builtin: bool = False):
+        identifier_error = atl_identifier_error(name, allow_builtin=allow_builtin)
+        if identifier_error is not None:
+            raise SemanticError(
+                f"Invalid ATL variable name '{name}': {identifier_error}. "
+                "Rename it consistently in its declaration and references."
+            )
         self.scopes[-1][name] = type_name if type_name is not None else "Unknown"
 
     def lookup_variable(self, name: str) -> str:
@@ -41,6 +48,12 @@ class TypeEnvironment:
         self.scopes.pop()
 
     def register_helper(self, name: str, parameter_types: List[str], return_type: str, context_type: str = None, kind: str = "operation"):
+        identifier_error = atl_identifier_error(name)
+        if identifier_error is not None:
+            raise SemanticError(
+                f"Invalid ATL helper name '{name}': {identifier_error}."
+            )
+
         signature = {
             "parameter_types": parameter_types,
             "return_type": return_type,
@@ -78,6 +91,12 @@ class TypeEnvironment:
         rule_kind: str,
         output_variables: Dict[str, str] | None = None,
     ):
+        identifier_error = atl_identifier_error(name)
+        if identifier_error is not None:
+            raise SemanticError(
+                f"Invalid ATL rule name '{name}': {identifier_error}."
+            )
+
         if name in self.rules:
             raise SemanticError(
                 f"Duplicate rule name: '{name}'"

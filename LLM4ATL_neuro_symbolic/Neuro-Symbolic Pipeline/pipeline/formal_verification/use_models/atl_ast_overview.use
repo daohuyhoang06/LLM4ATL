@@ -1,0 +1,98 @@
+-- Simplified ATL AST model for the paper figure.
+-- Only the principal concepts and relationships are shown.
+-- The complete specification is available in atl_ast.use.
+
+model ATL_AST_Overview
+
+class Module
+attributes
+  name : String
+end
+
+class ModelDeclaration
+attributes
+  alias : String
+  metamodel : String
+end
+
+class Helper
+attributes
+  name : String
+  returnType : String
+end
+
+abstract class Rule
+attributes
+  name : String
+end
+
+class MatchedRule < Rule
+end
+
+class LazyMatchedRule < MatchedRule
+end
+
+class CalledRule < Rule
+end
+
+class InPattern
+end
+
+class OutPattern
+end
+
+class Binding
+attributes
+  propertyName : String
+end
+
+abstract class OCLExpression
+end
+
+-- Module-level structure
+association ModuleModels between
+  Module[1] role module
+  ModelDeclaration[0..*] role models
+end
+
+association ModuleHelpers between
+  Module[1] role module
+  Helper[0..*] role helpers
+end
+
+association ModuleRules between
+  Module[1] role module
+  Rule[0..*] role rules
+end
+
+-- Rule and pattern structure
+association MatchedRuleInputPattern between
+  MatchedRule[0..1] role rule
+  InPattern[1] role input
+end
+
+association RuleOutputPattern between
+  Rule[0..1] role rule
+  OutPattern[0..1] role output
+end
+
+association OutPatternBindings between
+  OutPattern[0..1] role pattern
+  Binding[0..*] role bindings
+end
+
+-- OCL expressions occur in helpers, filters, and bindings.
+association HelperBody between
+  Helper[0..1] role helper
+  OCLExpression[1] role body
+end
+
+association InPatternFilter between
+  InPattern[0..1] role pattern
+  OCLExpression[0..1] role filter
+end
+
+association BindingValue between
+  Binding[0..1] role binding
+  OCLExpression[1] role value
+end

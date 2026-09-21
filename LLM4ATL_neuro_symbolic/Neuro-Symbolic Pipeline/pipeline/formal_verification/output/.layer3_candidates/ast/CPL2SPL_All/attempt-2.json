@@ -18,30 +18,6 @@
   "elements": [
     {
       "type": "Helper",
-      "kind": "operation",
-      "context_type": "CPL!NodeContainer",
-      "name": "statement",
-      "parameters": [],
-      "return_type": "SPL!Statement",
-      "body": {
-        "type": "OclUndefined"
-      }
-    },
-    {
-      "type": "Helper",
-      "kind": "operation",
-      "context_type": "CPL!Element",
-      "name": "locations",
-      "parameters": [],
-      "return_type": "String",
-      "body": {
-        "type": "LiteralExpression",
-        "value": "",
-        "literal_type": "String"
-      }
-    },
-    {
-      "type": "Helper",
       "kind": "attribute",
       "context_type": "CPL!Proxy",
       "name": "isSimple",
@@ -65,7 +41,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "self",
+                    "declared_type": null
                   },
                   "property_name": "busy"
                 },
@@ -78,7 +55,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "self"
+                    "name": "self",
+                    "declared_type": null
                   },
                   "property_name": "noAnswer"
                 },
@@ -92,7 +70,8 @@
                 "type": "PropertyCall",
                 "source": {
                   "type": "Variable",
-                  "name": "self"
+                  "name": "self",
+                  "declared_type": null
                 },
                 "property_name": "redirection"
               },
@@ -106,7 +85,8 @@
               "type": "PropertyCall",
               "source": {
                 "type": "Variable",
-                "name": "self"
+                "name": "self",
+                "declared_type": null
               },
               "property_name": "failure"
             },
@@ -120,7 +100,8 @@
             "type": "PropertyCall",
             "source": {
               "type": "Variable",
-              "name": "self"
+              "name": "self",
+              "declared_type": null
             },
             "property_name": "default"
           },
@@ -130,9 +111,338 @@
       }
     },
     {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!Element",
+      "name": "statement",
+      "parameters": [],
+      "return_type": "CPL!Element",
+      "body": {
+        "type": "Variable",
+        "name": "self",
+        "declared_type": null
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!NodeContainer",
+      "name": "statement",
+      "parameters": [],
+      "return_type": "CPL!Element",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "OperationCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "property_name": "contents"
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        },
+        "then_expression": {
+          "type": "Variable",
+          "name": "self",
+          "declared_type": null
+        },
+        "else_expression": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "property_name": "contents"
+          },
+          "property_name": "statement"
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!Element",
+      "name": "firstLocation",
+      "parameters": [],
+      "return_type": "CPL!Location",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "OperationCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "operation_name": "refImmediateComposite",
+            "arguments": []
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        },
+        "then_expression": {
+          "type": "OclUndefined"
+        },
+        "else_expression": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "operation_name": "refImmediateComposite",
+            "arguments": []
+          },
+          "property_name": "firstLocation"
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!Location",
+      "name": "firstLocation",
+      "parameters": [],
+      "return_type": "CPL!Location",
+      "body": {
+        "type": "Variable",
+        "name": "self",
+        "declared_type": null
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!Element",
+      "name": "locations",
+      "parameters": [],
+      "return_type": "Set(CPL!Location)",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "OperationCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "operation_name": "refImmediateComposite",
+            "arguments": []
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        },
+        "then_expression": {
+          "type": "CollectionLiteral",
+          "collection_kind": "Set",
+          "elements": []
+        },
+        "else_expression": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            },
+            "operation_name": "refImmediateComposite",
+            "arguments": []
+          },
+          "property_name": "locations"
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "CPL!Location",
+      "name": "locations",
+      "parameters": [],
+      "return_type": "Set(CPL!Location)",
+      "body": {
+        "type": "CollectionOperation",
+        "source": {
+          "type": "CollectionLiteral",
+          "collection_kind": "Set",
+          "elements": [
+            {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": null
+            }
+          ]
+        },
+        "operation_name": "union",
+        "arguments": [
+          {
+            "type": "IfExpression",
+            "condition": {
+              "type": "OperationCall",
+              "source": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": null
+                },
+                "operation_name": "refImmediateComposite",
+                "arguments": []
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            },
+            "then_expression": {
+              "type": "CollectionLiteral",
+              "collection_kind": "Set",
+              "elements": []
+            },
+            "else_expression": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": null
+                },
+                "operation_name": "refImmediateComposite",
+                "arguments": []
+              },
+              "property_name": "locations"
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "MatchedRule",
       "name": "CPL2Program",
       "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "SPL!Program"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "service",
+                "value": {
+                  "type": "Variable",
+                  "name": "s",
+                  "declared_type": null
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "SPL!Service"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "CPL",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "declarations",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "cpl",
+                    "declared_type": null
+                  },
+                  "property_name": "subActions"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "sessions",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "cpl",
+                          "declared_type": null
+                        },
+                        "property_name": "incoming"
+                      },
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "cpl",
+                          "declared_type": null
+                        },
+                        "property_name": "outgoing"
+                      }
+                    ]
+                  },
+                  "iterator_type": "reject",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": null
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
+                  }
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -143,103 +453,20 @@
               "name": "cpl",
               "declared_type": "CPL!CPL"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": null
       },
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "prog",
-              "declared_type": "SPL!Program"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "cpl"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "service",
-                "value": {
-                  "type": "Variable",
-                  "name": "srv"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "srv",
-              "declared_type": "SPL!Service"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "cpl"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "name",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "Service",
-                  "literal_type": "String"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          }
-        ]
-      }
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "SubAction2Function",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "sa",
-              "declared_type": "CPL!SubAction"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -247,23 +474,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "func",
-              "declared_type": "SPL!RemoteFunctionDeclaration"
+              "name": "t",
+              "declared_type": "SPL!LocalFunctionDeclaration"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "sa"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "name",
@@ -271,7 +485,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "sa"
+                    "name": "s",
+                    "declared_type": null
                   },
                   "property_name": "id"
                 }
@@ -281,42 +496,35 @@
                 "property_name": "returnType",
                 "value": {
                   "type": "Variable",
-                  "name": "retType"
+                  "name": "rt",
+                  "declared_type": null
                 }
               },
               {
                 "type": "Binding",
-                "property_name": "functionLocation",
+                "property_name": "statements",
                 "value": {
-                  "type": "EnumLiteral",
-                  "value": "local"
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "retType",
+              "name": "rt",
               "declared_type": "SPL!SimpleType"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "sa"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "type",
@@ -327,15 +535,11 @@
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
-    },
-    {
-      "type": "MatchedRule",
-      "name": "Incoming2Method",
-      "using": [],
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -343,14 +547,23 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "inc",
-              "declared_type": "CPL!Incoming"
+              "name": "s",
+              "declared_type": "CPL!SubAction"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": null
       },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Incoming2Method",
+      "using": [],
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -358,31 +571,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "mth",
+              "name": "t",
               "declared_type": "SPL!Method"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "type",
-                "value": {
-                  "type": "Variable",
-                  "name": "mthType"
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "direction",
@@ -396,95 +588,44 @@
                 "property_name": "methodName",
                 "value": {
                   "type": "Variable",
-                  "name": "mthName"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "statements",
-                "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "retM"
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "branches",
-                "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "br"
-                    }
-                  ]
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "mthType",
-              "declared_type": "SPL!SimpleType"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
+                  "name": "mn",
+                  "declared_type": null
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "type",
                 "value": {
-                  "type": "EnumLiteral",
-                  "value": "request"
+                  "type": "Variable",
+                  "name": "rt",
+                  "declared_type": null
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "statements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "mthName",
+              "name": "mn",
               "declared_type": "SPL!SIPMethodName"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "name",
@@ -495,104 +636,31 @@
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "br",
-              "declared_type": "SPL!DefaultBranch"
+              "name": "rt",
+              "declared_type": "SPL!SimpleType"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "type",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "statements",
-                "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "retB"
-                    }
-                  ]
+                  "type": "EnumLiteral",
+                  "value": "void"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "retM",
-              "declared_type": "SPL!ReturnStat"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "retB",
-              "declared_type": "SPL!ReturnStat"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "inc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
-    },
-    {
-      "type": "MatchedRule",
-      "name": "Proxy2Return",
-      "using": [],
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -600,21 +668,23 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "prx",
-              "declared_type": "CPL!Proxy"
+              "name": "s",
+              "declared_type": "CPL!Incoming"
             },
-            "model": "IN"
+            "model": null
           }
         ],
-        "filter": {
-          "type": "PropertyCall",
-          "source": {
-            "type": "Variable",
-            "name": "prx"
-          },
-          "property_name": "isSimple"
-        }
+        "filter": null
       },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Proxy2Return",
+      "using": [],
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -622,34 +692,41 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "ret",
+              "name": "t",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "returnedValue",
                 "value": {
                   "type": "OperationCall",
                   "source": {
                     "type": "Variable",
-                    "name": "prx"
+                    "name": "thisModule",
+                    "declared_type": null
                   },
-                  "operation_name": "locations",
-                  "arguments": []
+                  "operation_name": "Location2URIConstant",
+                  "arguments": [
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "firstLocation"
+                    }
+                  ]
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
-    },
-    {
-      "type": "MatchedRule",
-      "name": "Proxy2Select",
-      "using": [],
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -657,10 +734,151 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "prx",
+              "name": "s",
               "declared_type": "CPL!Proxy"
             },
-            "model": "IN"
+            "model": null
+          }
+        ],
+        "filter": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "Variable",
+            "name": "s",
+            "declared_type": null
+          },
+          "property_name": "isSimple"
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Proxy2Select",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "SPL!SelectStat"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "matchedExp",
+                "value": {
+                  "type": "Variable",
+                  "name": "me",
+                  "declared_type": null
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "selectCases",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
+                        },
+                        "property_name": "busy"
+                      },
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
+                        },
+                        "property_name": "noAnswer"
+                      },
+                      {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
+                        },
+                        "property_name": "redirection"
+                      }
+                    ]
+                  },
+                  "iterator_type": "reject",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": null
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "selectDefault",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "default"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "me",
+              "declared_type": "SPL!RequestURIExp"
+            },
+            "bindings": [],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Proxy"
+            },
+            "model": null
           }
         ],
         "filter": {
@@ -670,137 +888,22 @@
             "type": "PropertyCall",
             "source": {
               "type": "Variable",
-              "name": "prx"
+              "name": "s",
+              "declared_type": null
             },
             "property_name": "isSimple"
           }
         }
       },
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "sel",
-              "declared_type": "SPL!SelectStat"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "prx"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "matchedExp",
-                "value": {
-                  "type": "Variable",
-                  "name": "matched"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "matched",
-              "declared_type": "SPL!ConstantExp"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "prx"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "Variable",
-                  "name": "bc"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "bc",
-              "declared_type": "SPL!BooleanConstant"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "prx"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": true,
-                  "literal_type": "Boolean"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
-          }
-        ]
-      }
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "Busy2SelectCase",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "busy",
-              "declared_type": "CPL!Busy"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -808,23 +911,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "scase",
+              "name": "t",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "busy"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "values",
@@ -834,71 +924,97 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "sval"
+                      "name": "rc",
+                      "declared_type": null
                     }
                   ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "statements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sval",
-              "declared_type": "SPL!StringConstant"
+              "name": "rc",
+              "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "response",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "busy"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "BUSY",
-                  "literal_type": "String"
+                  "type": "Variable",
+                  "name": "r",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "SPL!ClientErrorResponse"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "errorKind",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "BUSY_HERE"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Busy"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "NoAnswer2SelectCase",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "noa",
-              "declared_type": "CPL!NoAnswer"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -906,23 +1022,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "scase",
+              "name": "t",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "noa"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "values",
@@ -932,71 +1035,97 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "sval"
+                      "name": "rc",
+                      "declared_type": null
                     }
                   ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "statements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sval",
-              "declared_type": "SPL!StringConstant"
+              "name": "rc",
+              "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "response",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "noa"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "NO_ANSWER",
-                  "literal_type": "String"
+                  "type": "Variable",
+                  "name": "r",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "SPL!ClientErrorResponse"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "errorKind",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "REQUEST_TIMEOUT"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!NoAnswer"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "Redirection2SelectCase",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "red",
-              "declared_type": "CPL!Redirection"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1004,23 +1133,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "scase",
+              "name": "t",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "red"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "values",
@@ -1030,71 +1146,97 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "sval"
+                      "name": "rc",
+                      "declared_type": null
                     }
                   ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "statements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sval",
-              "declared_type": "SPL!StringConstant"
+              "name": "rc",
+              "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "response",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "red"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "REDIRECTION",
-                  "literal_type": "String"
+                  "type": "Variable",
+                  "name": "r",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "SPL!RedirectionErrorResponse"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "errorKind",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "MULTIPLE_CHOICES"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Redirection"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "Default2SelectDefault",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "defIn",
-              "declared_type": "CPL!Default"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1102,49 +1244,54 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sdef",
+              "name": "t",
               "declared_type": "SPL!SelectDefault"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "statements",
                 "value": {
-                  "type": "OperationCall",
+                  "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "defIn"
+                    "name": "s",
+                    "declared_type": null
                   },
-                  "operation_name": "locations",
-                  "arguments": []
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Default"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "SubCall2Return",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "sc",
-              "declared_type": "CPL!SubCall"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1152,127 +1299,130 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "ret",
+              "name": "t",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "sc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "returnedValue",
                 "value": {
                   "type": "Variable",
-                  "name": "cexp"
+                  "name": "fce",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "cexp",
-              "declared_type": "SPL!ConstantExp"
+              "name": "fce",
+              "declared_type": "SPL!FunctionCallExp"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "sc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
+                "property_name": "functionCall",
                 "value": {
                   "type": "Variable",
-                  "name": "sval"
+                  "name": "fc",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sval",
-              "declared_type": "SPL!StringConstant"
+              "name": "fc",
+              "declared_type": "SPL!FunctionCall"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "function",
                 "value": {
-                  "type": "OperationCall",
+                  "type": "IteratorExpression",
                   "source": {
-                    "type": "Variable",
-                    "name": "sc"
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "CPL!SubAction",
+                      "declared_type": null
+                    },
+                    "operation_name": "allInstances",
+                    "arguments": []
                   },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "sc"
-                  },
-                  "property_name": "ref"
+                  "iterator_type": "any",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "sa",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "sa",
+                        "declared_type": null
+                      },
+                      "property_name": "id"
+                    },
+                    "right": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "ref"
+                    }
+                  }
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!SubCall"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "Redirect2Return",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "rdr",
-              "declared_type": "CPL!Redirect"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1280,124 +1430,137 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "ret",
+              "name": "t",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "rdr"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "returnedValue",
                 "value": {
                   "type": "Variable",
-                  "name": "cexp"
+                  "name": "rc",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "cexp",
+              "name": "rc",
               "declared_type": "SPL!ConstantExp"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "rdr"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "value",
                 "value": {
                   "type": "Variable",
-                  "name": "bval"
+                  "name": "rconst",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "bval",
-              "declared_type": "SPL!BooleanConstant"
+              "name": "rconst",
+              "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "response",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "rdr"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": true,
-                  "literal_type": "Boolean"
+                  "type": "Variable",
+                  "name": "r",
+                  "declared_type": null
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "SPL!RedirectionErrorResponse"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "errorKind",
+                "value": {
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "permanent"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": "true",
+                      "literal_type": "String"
+                    }
+                  },
+                  "then_expression": {
+                    "type": "EnumLiteral",
+                    "value": "MOVED_PERMANENTLY"
+                  },
+                  "else_expression": {
+                    "type": "EnumLiteral",
+                    "value": "MOVED_TEMPORARILY"
+                  }
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Redirect"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "AddressSwitch2SelectStat",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "asw",
-              "declared_type": "CPL!AddressSwitch"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1405,109 +1568,122 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sel",
+              "name": "t",
               "declared_type": "SPL!SelectStat"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "asw"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "matchedExp",
                 "value": {
                   "type": "Variable",
-                  "name": "cexp"
+                  "name": "hp",
+                  "declared_type": null
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "selectCases",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "addresses"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "selectDefault",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "otherwise"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "cexp",
-              "declared_type": "SPL!ConstantExp"
+              "name": "hp",
+              "declared_type": "SPL!SIPHeaderPlace"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "header",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "asw"
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "field"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": "to",
+                      "literal_type": "String"
+                    }
                   },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "Variable",
-                  "name": "bval"
+                  "then_expression": {
+                    "type": "EnumLiteral",
+                    "value": "TO"
+                  },
+                  "else_expression": {
+                    "type": "IfExpression",
+                    "condition": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
+                        },
+                        "property_name": "field"
+                      },
+                      "right": {
+                        "type": "LiteralExpression",
+                        "value": "from",
+                        "literal_type": "String"
+                      }
+                    },
+                    "then_expression": {
+                      "type": "EnumLiteral",
+                      "value": "FROM"
+                    },
+                    "else_expression": {
+                      "type": "EnumLiteral",
+                      "value": "CONTACT"
+                    }
+                  }
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
-          },
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "bval",
-              "declared_type": "SPL!BooleanConstant"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "asw"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "value",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": true,
-                  "literal_type": "Boolean"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
-    },
-    {
-      "type": "MatchedRule",
-      "name": "SwitchedAddress2SelectCase",
-      "using": [],
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -1515,14 +1691,23 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "swAddr",
-              "declared_type": "CPL!SwitchedAddress"
+              "name": "s",
+              "declared_type": "CPL!AddressSwitch"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": null
       },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "SwitchedAddress2SelectCase",
+      "using": [],
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1530,23 +1715,10 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "scase",
+              "name": "t",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "swAddr"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
               {
                 "type": "Binding",
                 "property_name": "values",
@@ -1556,71 +1728,141 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "sval"
+                      "name": "val",
+                      "declared_type": null
                     }
                   ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "statements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sval",
+              "name": "val",
               "declared_type": "SPL!StringConstant"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
-                "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "swAddr"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "value",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": "ADDRESS",
-                  "literal_type": "String"
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "UnaryExpression",
+                    "operator": "not",
+                    "expression": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
+                        },
+                        "property_name": "is"
+                      },
+                      "operation_name": "oclIsUndefined",
+                      "arguments": []
+                    }
+                  },
+                  "then_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s",
+                      "declared_type": null
+                    },
+                    "property_name": "is"
+                  },
+                  "else_expression": {
+                    "type": "IfExpression",
+                    "condition": {
+                      "type": "UnaryExpression",
+                      "operator": "not",
+                      "expression": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "PropertyCall",
+                          "source": {
+                            "type": "Variable",
+                            "name": "s",
+                            "declared_type": null
+                          },
+                          "property_name": "contains"
+                        },
+                        "operation_name": "oclIsUndefined",
+                        "arguments": []
+                      }
+                    },
+                    "then_expression": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "contains"
+                    },
+                    "else_expression": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "subDomainOf"
+                    }
+                  }
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!SwitchedAddress"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
     },
     {
       "type": "MatchedRule",
       "name": "Otherwise2SelectDefault",
       "using": [],
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "oth",
-              "declared_type": "CPL!Otherwise"
-            },
-            "model": "IN"
-          }
-        ],
-        "filter": null
-      },
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1628,34 +1870,30 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "sdef",
+              "name": "t",
               "declared_type": "SPL!SelectDefault"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "statements",
                 "value": {
-                  "type": "OperationCall",
+                  "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "oth"
+                    "name": "s",
+                    "declared_type": null
                   },
-                  "operation_name": "locations",
-                  "arguments": []
+                  "property_name": "statement"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
-    },
-    {
-      "type": "MatchedRule",
-      "name": "Location2URIConstant",
-      "using": [],
+      },
+      "action_block": null,
       "in_pattern": {
         "type": "InPattern",
         "elements": [
@@ -1663,14 +1901,23 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "loc",
-              "declared_type": "CPL!Location"
+              "name": "s",
+              "declared_type": "CPL!Otherwise"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": null
       },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "LazyMatchedRule",
+      "name": "Location2URIConstant",
+      "using": [],
       "out_pattern": {
         "type": "OutPattern",
         "elements": [
@@ -1678,23 +1925,31 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "uri",
-              "declared_type": "SPL!URIConstant"
+              "name": "t",
+              "declared_type": "SPL!ConstantExp"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "location",
+                "property_name": "value",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "loc"
-                  },
-                  "operation_name": "locations",
-                  "arguments": []
+                  "type": "Variable",
+                  "name": "u",
+                  "declared_type": null
                 }
-              },
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "u",
+              "declared_type": "SPL!URIConstant"
+            },
+            "bindings": [
               {
                 "type": "Binding",
                 "property_name": "uri",
@@ -1702,17 +1957,39 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "loc"
+                    "name": "s",
+                    "declared_type": null
                   },
                   "property_name": "url"
                 }
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
-      }
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "CPL!Location"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false,
+      "is_unique": true
     }
   ]
 }

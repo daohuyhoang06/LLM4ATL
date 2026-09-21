@@ -79,7 +79,7 @@ LLM4ATL_neuro_symbolic/
 - Python 3.10 trở lên, khuyến nghị Python 3.12.
 - Java JDK 17 trở lên.
 - Maven 3.8 trở lên.
-- Provider, model và API key của LLM được cấu hình trong `.env`.
+- API key của LLM cho model được cấu hình trong `main.py`.
 
 Kiểm tra nhanh:
 
@@ -102,42 +102,17 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Mở `.env`, chọn một provider và thay API key tương ứng. Pipeline hỗ trợ `gemini`, `openai` và `claude`; `LLM_MODEL` dùng để chọn model cụ thể.
+Mở `.env`, thay giá trị `your_llm_api_key_here` bằng API key thật. Tên biến `GEMINI_API_KEY` được giữ nguyên vì `main.py` hiện đọc biến này.
 
 ```dotenv
-LLM_PROVIDER=gemini
-LLM_MODEL=gemini-3.5-flash
-GEMINI_API_KEY=your_gemini_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GEMINI_API_KEY=your_llm_api_key_here
 ABLATION_ENABLE_LAYER1_SCHEMA=true
 ABLATION_ENABLE_LAYER2_SEMANTIC=true
 ABLATION_ENABLE_LAYER2_TYPE_CHECK=true
 ABLATION_ENABLE_LAYER2_EXISTENCE_CHECK=true
 ABLATION_ENABLE_LAYER2_NULL_SAFETY=true
 ABLATION_ENABLE_LAYER3_GENERATION=true
-EFINDER_SCOPE=8
-EFINDER_REFERENCE_SCOPE=8
-EFINDER_TIMEOUT_MS=300000
 ```
-
-Ví dụ chọn OpenAI:
-
-```dotenv
-LLM_PROVIDER=openai
-LLM_MODEL=gpt-5
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-Ví dụ chọn Claude:
-
-```dotenv
-LLM_PROVIDER=claude
-LLM_MODEL=claude-sonnet-4-6
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-```
-
-Sau khi đổi provider, chạy lại `python -m pip install -r requirements.txt`, rồi `python main.py`.
 
 Không commit file `.env` chứa API key.
 
