@@ -283,24 +283,25 @@ def _summarize_atl2tm_failure(output: str, log_path: Path) -> str:
     return f"{summary} Chi tiết trong {log_path.name}."
 
 
-def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path,
+def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path | None,
                 out_dir: Path, check: str | None, scope: int,
                 reference_scope: int, timeout_ms: int, *, verbose: bool = True) -> int:
     if not EFINDER_CHECK.is_file():
         raise FileNotFoundError(f"eFinder wrapper not found: {EFINDER_CHECK}")
-    if not constraints.exists():
+    if constraints is not None and not constraints.exists():
         raise FileNotFoundError(f"constraint profile not found: {constraints}")
 
     command = [
         sys.executable,
         str(EFINDER_CHECK),
         str(atl2tm_ecore),
-        "--constraints", str(constraints),
         "--out-dir", str(out_dir),
         "--scope", str(scope),
         "--reference-scope", str(reference_scope),
         "--timeout-ms", str(timeout_ms),
     ]
+    if constraints is not None:
+        command.extend(["--constraints", str(constraints)])
     if check:
         command.extend(["--check", check])
     else:
@@ -308,7 +309,7 @@ def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path,
 
     if verbose:
         print("[2/2] ATL2TM -> eFinder", flush=True)
-        print("      profile:", constraints, flush=True)
+        print("      profile:", constraints or "embedded Ecore OCL", flush=True)
         print("      result :", out_dir, flush=True)
     completed = subprocess.run(
         command, cwd=EFINDER_DIR, text=True,
@@ -317,9 +318,9 @@ def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path,
     return completed.returncode
 
 
-def _postcondition_text(constraints: Path, check: str) -> str:
+def _postcondition_text(constraints: Path | None, check: str) -> str:
     """Return the relevant OCL property as useful, bounded LLM feedback."""
-    if "::" not in check or not constraints.is_dir():
+    if constraints is None or "::" not in check or not constraints.is_dir():
         return ""
     context, name = check.split("::", 1)
     pattern = re.compile(
@@ -336,7 +337,7 @@ def _postcondition_text(constraints: Path, check: str) -> str:
     return ""
 
 
-def _counterexample_feedback(checks: list[dict], constraints: Path) -> str:
+def _counterexample_feedback(checks: list[dict], constraints: Path | None) -> str:
     lines = [
         "LAYER 3 FORMAL VERIFICATION FAILED: eFinder found a bounded "
         "counterexample for the generated ATL.",
@@ -390,15 +391,11 @@ def verify_atl_for_pipeline(
     case_output = output_root.resolve() / case
     output_ecore = case_output / f"{case}_ATL2TM.ecore"
     work_dir = case_output / "atl2tm-work"
-    constraints = (CONSTRAINTS_DIR / case).resolve()
+    constraint_dir = CONSTRAINTS_DIR / case
+    # A case may rely exclusively on OCL annotations embedded in its Ecore
+    # metamodels. An external profile is only for additional constraints.
+    constraints = constraint_dir.resolve() if constraint_dir.is_dir() else None
     efinder_output = case_output / "efinder"
-
-    if not constraints.is_dir():
-        return Layer3Result(
-            "LAYER3_CONFIGURATION_ERROR",
-            f"LAYER3_CONFIG_ERROR: Không tìm thấy bộ ràng buộc formal cho {case}. "
-            "Layer 3 đã dừng; LLM không được retry.",
-        )
 
     try:
         if verbose:

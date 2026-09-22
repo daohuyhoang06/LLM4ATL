@@ -385,7 +385,7 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-       "CPL2SPL_All"
+       "ER2REL"
     ]
 
     prompt_by_case = {

@@ -1,0 +1,51 @@
+module ER2REL;
+create OUT : REL from IN : ER;
+
+rule ERSchema {
+    from
+        s : ER!ERSchema
+    to
+        t : REL!RELSchema (
+            relations <- s.entities->union(s.relships)
+        )
+}
+
+rule Entity {
+    from
+        s : ER!Entity
+    to
+        t : REL!Relation (
+            name <- s.name,
+            attrs <- s.attrs
+        )
+}
+
+rule Relship {
+    from
+        s : ER!Relship
+    to
+        t : REL!Relation (
+            name <- s.name,
+            attrs <- s.attrs->union(s.ends->collect(e | e.entity.attrs->select(a | a.isKey))->asSet()->collect(k | thisModule.CreateFKAttribute(k)))
+        )
+}
+
+rule ERAttribute {
+    from
+        s : ER!ERAttribute
+    to
+        t : REL!RELAttribute (
+            name <- s.name,
+            isKey <- s.isKey
+        )
+}
+
+lazy rule CreateFKAttribute {
+    from
+        s : ER!ERAttribute
+    to
+        t : REL!RELAttribute (
+            name <- s.name,
+            isKey <- s.isKey
+    )
+}

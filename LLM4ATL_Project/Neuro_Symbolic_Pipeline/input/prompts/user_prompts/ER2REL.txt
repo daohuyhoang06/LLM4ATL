@@ -1,0 +1,22 @@
+Create an ATL transformation that converts an Entity-Relationship (ER) model into a Relational database
+model based on the following requirements:
+
+1. Schema Mapping:
+Transform the overall ER diagram into a relational schema.
+This schema must act as the container for all generated
+tables.
+
+2. Table Generation:
+Both entities and relationships in the ER model should be
+converted into their own relational tables.
+
+3. Attribute Mapping:
+Simple attributes belonging to entities and relationships
+should translate directly into columns within their
+respective tables.
+
+4. Foreign Key Resolution:
+For each relationship, identify every participating entity and copy each of
+its primary-key attributes into the relational table generated for that
+relationship. The copied attributes represent foreign keys and preserve
+their names and key information.
