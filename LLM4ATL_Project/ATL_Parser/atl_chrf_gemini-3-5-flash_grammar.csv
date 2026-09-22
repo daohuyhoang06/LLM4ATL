@@ -1,0 +1,16 @@
+LLM,Strategy,File,CHRF_Score
+gemini-3-5-flash,grammar,AmaltheaToAscet_All,83.6444
+gemini-3-5-flash,grammar,BibTeX2DocBook_All,55.3916
+gemini-3-5-flash,grammar,Class2Interface_All,55.1908
+gemini-3-5-flash,grammar,CPL2SPL_All,58.2298
+gemini-3-5-flash,grammar,Document2Report_All,57.7197
+gemini-3-5-flash,grammar,DSL2KM3_All,41.6338
+gemini-3-5-flash,grammar,FamiliesToPersons_All,90.8194
+gemini-3-5-flash,grammar,Grafcet2PetriNet_All,36.2905
+gemini-3-5-flash,grammar,IEEE1471_2_MoDAF_All,31.0992
+gemini-3-5-flash,grammar,Item2Product_All,59.5907
+gemini-3-5-flash,grammar,Make2Ant_All,48.2854
+gemini-3-5-flash,grammar,NetworkToGraph_All,75.146
+gemini-3-5-flash,grammar,PetriNet2Grafcet_All,35.4065
+gemini-3-5-flash,grammar,User2Account_All,61.3635
+gemini-3-5-flash,grammar,XML2DSL_All,49.5179

@@ -1,0 +1,479 @@
+-- ATL_AST class model for documentation and diagram generation in USE.
+-- Source of truth:
+--   pipeline/schema/atl_ast.py
+--   pipeline/schema/ocl_ast.py
+--
+-- The associations capture the JSON AST nesting structure. Optional
+-- Pydantic fields are represented with multiplicity 0..1.
+
+model ATL_AST
+
+-- --------------------------------------------------------------------------
+-- ATL module and rule hierarchy
+-- --------------------------------------------------------------------------
+
+abstract class ATLNode
+attributes
+  type : String
+end
+
+class ATLDocument
+end
+
+class Module < ATLNode
+attributes
+  name : String
+end
+
+class ModelDeclaration < ATLNode
+attributes
+  alias : String
+  metamodel : String
+end
+
+abstract class ModuleElement < ATLNode
+end
+
+class Helper < ModuleElement
+attributes
+  kind : String
+  contextType : String
+  name : String
+  returnType : String
+end
+
+abstract class Rule < ModuleElement
+attributes
+  name : String
+end
+
+class MatchedRule < Rule
+attributes
+  extendsRule : String
+  isAbstract : Boolean
+  isNoDefault : Boolean
+  isRefining : Boolean
+end
+
+class LazyMatchedRule < MatchedRule
+attributes
+  isUnique : Boolean
+end
+
+class CalledRule < Rule
+attributes
+  isEntrypoint : Boolean
+  isEndpoint : Boolean
+end
+
+-- Parameter inherits the name and declared type of an OCL Variable.
+class Parameter < Variable
+end
+
+class InPattern < ATLNode
+end
+
+class InPatternElement < ATLNode
+attributes
+  modelAlias : String
+end
+
+class OutPattern < ATLNode
+end
+
+abstract class OutPatternElement < ATLNode
+attributes
+  mapsTo : String
+  modelAlias : String
+end
+
+class SimpleOutPatternElement < OutPatternElement
+end
+
+class ForEachOutPatternElement < OutPatternElement
+attributes
+  distinct : Boolean
+end
+
+class Binding < ATLNode
+attributes
+  propertyName : String
+end
+
+class RuleVariableDeclaration < ATLNode
+end
+
+class ActionBlock < ATLNode
+end
+
+-- --------------------------------------------------------------------------
+-- Imperative statements supported in called-rule action blocks
+-- --------------------------------------------------------------------------
+
+abstract class Statement < ATLNode
+end
+
+class ExpressionStatement < Statement
+end
+
+class BindingStatement < Statement
+end
+
+class IfStatement < Statement
+end
+
+class ForStatement < Statement
+end
+
+-- --------------------------------------------------------------------------
+-- OCL expression hierarchy
+-- --------------------------------------------------------------------------
+
+abstract class OCLNode
+attributes
+  type : String
+end
+
+class LiteralExpression < OCLNode
+attributes
+  value : String
+  literalType : String
+end
+
+class OclUndefined < OCLNode
+end
+
+class EnumLiteral < OCLNode
+attributes
+  value : String
+end
+
+class CollectionLiteral < OCLNode
+attributes
+  collectionKind : String
+end
+
+class Variable < OCLNode
+attributes
+  name : String
+  declaredType : String
+end
+
+class PropertyCall < OCLNode
+attributes
+  propertyName : String
+end
+
+class OperationCall < OCLNode
+attributes
+  operationName : String
+end
+
+class BinaryExpression < OCLNode
+attributes
+  operator : String
+end
+
+class UnaryExpression < OCLNode
+attributes
+  operator : String
+end
+
+class IteratorExpression < OCLNode
+attributes
+  iteratorType : String
+end
+
+class CollectionOperation < OCLNode
+attributes
+  operationName : String
+end
+
+class IfExpression < OCLNode
+end
+
+class LetExpression < OCLNode
+end
+
+class OCLConstraint
+attributes
+  contextClass : String
+  contextOperation : String
+  stereotype : String
+  name : String
+end
+
+class OCLDocument
+end
+
+-- --------------------------------------------------------------------------
+-- ATL containment and reference structure
+-- --------------------------------------------------------------------------
+
+association DocumentModule between
+  ATLDocument[1] role document
+  Module[1] role module
+end
+
+association ModuleInputModels between
+  Module[1] role inputOwner
+  ModelDeclaration[0..*] role inputModels
+end
+
+association ModuleOutputModels between
+  Module[1] role outputOwner
+  ModelDeclaration[0..*] role outputModels
+end
+
+association ModuleElements between
+  Module[1] role moduleOwner
+  ModuleElement[0..*] role elements
+end
+
+association HelperParameters between
+  Helper[0..1] role helperOwner
+  Parameter[0..*] role parameters
+end
+
+association HelperBody between
+  Helper[0..1] role bodyOwner
+  OCLNode[1] role body
+end
+
+association RuleVariables between
+  Rule[0..1] role ruleOwner
+  RuleVariableDeclaration[0..*] role usingVariables
+end
+
+association RuleOutputPattern between
+  Rule[0..1] role outputOwner
+  OutPattern[0..1] role outPattern
+end
+
+association RuleActionBlock between
+  Rule[0..1] role actionOwner
+  ActionBlock[0..1] role actionBlock
+end
+
+association MatchedRuleInputPattern between
+  MatchedRule[0..1] role inputOwner
+  InPattern[1] role inPattern
+end
+
+association CalledRuleParameters between
+  CalledRule[0..1] role calledRuleOwner
+  Parameter[0..*] role calledParameters
+end
+
+association InPatternElements between
+  InPattern[0..1] role inPatternOwner
+  InPatternElement[0..*] role inElements
+end
+
+association InPatternFilter between
+  InPattern[0..1] role filterOwner
+  OCLNode[0..1] role filter
+end
+
+association InPatternElementVariable between
+  InPatternElement[0..1] role inElementOwner
+  Variable[1] role inVariable
+end
+
+association OutPatternElements between
+  OutPattern[0..1] role outPatternOwner
+  OutPatternElement[1..*] role outElements
+end
+
+association OutPatternElementVariable between
+  OutPatternElement[0..1] role outElementOwner
+  Variable[1] role outVariable
+end
+
+association OutPatternElementBindings between
+  OutPatternElement[0..1] role bindingOwner
+  Binding[0..*] role bindings
+end
+
+association ForEachIterator between
+  ForEachOutPatternElement[0..1] role forEachIteratorOwner
+  Variable[1] role iterator
+end
+
+association ForEachCollection between
+  ForEachOutPatternElement[0..1] role forEachCollectionOwner
+  OCLNode[1] role collection
+end
+
+association BindingValue between
+  Binding[0..1] role valueOwner
+  OCLNode[1] role valueExpression
+end
+
+association RuleVariable between
+  RuleVariableDeclaration[0..1] role declarationOwner
+  Variable[1] role declaredVariable
+end
+
+association RuleVariableInitialExpression between
+  RuleVariableDeclaration[0..1] role initialValueOwner
+  OCLNode[1] role initialExpression
+end
+
+-- --------------------------------------------------------------------------
+-- Statement containment and expressions
+-- --------------------------------------------------------------------------
+
+association ActionBlockStatements between
+  ActionBlock[0..1] role blockOwner
+  Statement[0..*] role statements
+end
+
+association ExpressionStatementExpression between
+  ExpressionStatement[0..1] role expressionStatementOwner
+  OCLNode[1] role statementExpression
+end
+
+association BindingStatementTarget between
+  BindingStatement[0..1] role bindingStatementTargetOwner
+  OCLNode[1] role bindingTarget
+end
+
+association BindingStatementValue between
+  BindingStatement[0..1] role bindingStatementValueOwner
+  OCLNode[1] role bindingStatementValue
+end
+
+association IfStatementCondition between
+  IfStatement[0..1] role ifConditionOwner
+  OCLNode[1] role ifCondition
+end
+
+association IfStatementThenBranch between
+  IfStatement[0..1] role thenOwner
+  Statement[0..*] role thenStatements
+end
+
+association IfStatementElseBranch between
+  IfStatement[0..1] role elseOwner
+  Statement[0..*] role elseStatements
+end
+
+association ForStatementIterator between
+  ForStatement[0..1] role forIteratorOwner
+  Variable[1] role forIterator
+end
+
+association ForStatementCollection between
+  ForStatement[0..1] role forCollectionOwner
+  OCLNode[1] role forCollection
+end
+
+association ForStatementBody between
+  ForStatement[0..1] role forBodyOwner
+  Statement[0..*] role forBody
+end
+
+-- --------------------------------------------------------------------------
+-- OCL expression nesting
+-- --------------------------------------------------------------------------
+
+association CollectionLiteralElements between
+  CollectionLiteral[0..1] role literalOwner
+  OCLNode[0..*] role literalElements
+end
+
+association PropertyCallSource between
+  PropertyCall[0..1] role propertyOwner
+  OCLNode[1] role propertySource
+end
+
+association OperationCallSource between
+  OperationCall[0..1] role operationOwner
+  OCLNode[1] role operationSource
+end
+
+association OperationCallArguments between
+  OperationCall[0..1] role argumentOwner
+  OCLNode[0..*] role operationArguments
+end
+
+association BinaryExpressionLeft between
+  BinaryExpression[0..1] role binaryLeftOwner
+  OCLNode[1] role leftExpression
+end
+
+association BinaryExpressionRight between
+  BinaryExpression[0..1] role binaryRightOwner
+  OCLNode[1] role rightExpression
+end
+
+association UnaryExpressionOperand between
+  UnaryExpression[0..1] role unaryOwner
+  OCLNode[1] role unaryOperand
+end
+
+association IteratorExpressionSource between
+  IteratorExpression[0..1] role iteratorSourceOwner
+  OCLNode[1] role iteratorSource
+end
+
+association IteratorExpressionVariables between
+  IteratorExpression[0..1] role iteratorVariableOwner
+  Variable[1..*] role iteratorVariables
+end
+
+association IteratorExpressionBody between
+  IteratorExpression[0..1] role iteratorBodyOwner
+  OCLNode[1] role iteratorBody
+end
+
+association CollectionOperationSource between
+  CollectionOperation[0..1] role collectionOperationOwner
+  OCLNode[1] role collectionSource
+end
+
+association CollectionOperationArguments between
+  CollectionOperation[0..1] role collectionArgumentOwner
+  OCLNode[0..*] role collectionArguments
+end
+
+association IfExpressionCondition between
+  IfExpression[0..1] role ifExpressionConditionOwner
+  OCLNode[1] role conditionExpression
+end
+
+association IfExpressionThen between
+  IfExpression[0..1] role ifExpressionThenOwner
+  OCLNode[1] role thenExpression
+end
+
+association IfExpressionElse between
+  IfExpression[0..1] role ifExpressionElseOwner
+  OCLNode[1] role elseExpression
+end
+
+association LetExpressionVariable between
+  LetExpression[0..1] role letVariableOwner
+  Variable[1] role letVariable
+end
+
+association LetExpressionValue between
+  LetExpression[0..1] role letValueOwner
+  OCLNode[1] role letValue
+end
+
+association LetExpressionBody between
+  LetExpression[0..1] role letBodyOwner
+  OCLNode[1] role letBody
+end
+
+association OCLDocumentConstraints between
+  OCLDocument[1] role oclDocument
+  OCLConstraint[0..*] role oclConstraints
+end
+
+association OCLConstraintExpression between
+  OCLConstraint[0..1] role constraintOwner
+  OCLNode[1] role constraintExpression
+end

@@ -1,0 +1,10 @@
+global inv SourceDslInputIsValid:
+  DomainModel.allInstances()->notEmpty() and
+  DomainModel.allInstances()->forAll(dm |
+    dm.name <> '' and dm.name <> 'PrimitiveTypes' and
+    (dm.classifiers->notEmpty() or dm.types->notEmpty())
+  )
+
+context DomainModel
+inv SourceDomainModelIsNonEmpty:
+  self.name <> '' and (self.classifiers->notEmpty() or self.types->notEmpty())

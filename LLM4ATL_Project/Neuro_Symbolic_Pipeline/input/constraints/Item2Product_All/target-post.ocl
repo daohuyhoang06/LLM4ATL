@@ -1,0 +1,7 @@
+-- Item2Product preserves the identifying fields and price, derives a category
+-- from a closed domain, and derives stock status from quantity.
+context Product
+inv ProductHasValidPriceAndCategory:
+  self.name <> '' and self.description <> '' and self.price >= 0.0 and
+  (self.inStock = true or self.inStock = false) and
+  (self.category = 'Tech' or self.category = 'Apparel' or self.category = 'General')

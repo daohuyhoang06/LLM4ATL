@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LLM4ATL EFinder command-line runner
+Bundle-SymbolicName: org.llm4atl.efinder.runner;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.equinox.app,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.ecore.xmi,
+ org.eclipse.ocl.pivot,
+ org.eclipse.ocl.ecore,
+ org.eclipse.ocl.xtext.essentialocl,
+ org.eclipse.ocl.xtext.completeocl,
+ efinder.core,
+ efinder.emfocl,
+ efinder.usemv

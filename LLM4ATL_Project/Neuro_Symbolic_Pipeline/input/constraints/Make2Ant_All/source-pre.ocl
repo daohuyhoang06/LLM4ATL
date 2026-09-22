@@ -1,0 +1,16 @@
+global inv SourceMakeInputIsValid:
+  Makefile.allInstances()->exists(m |
+    m.name <> '' and
+    m.elements->exists(e | e.oclIsKindOf(Rule)) and
+    m.elements->exists(e | e.oclIsKindOf(Macro))
+  ) and
+  Makefile.allInstances()->forAll(m |
+    m.name <> '' and
+    m.elements->exists(e | e.oclIsKindOf(Rule)) and
+    m.elements->exists(e | e.oclIsKindOf(Macro))
+  )
+
+context Makefile
+inv SourceMakefileDeclaresRule:
+  self.name <> '' and self.elements->exists(e | e.oclIsKindOf(Rule)) and
+  self.elements->exists(e | e.oclIsKindOf(Macro))

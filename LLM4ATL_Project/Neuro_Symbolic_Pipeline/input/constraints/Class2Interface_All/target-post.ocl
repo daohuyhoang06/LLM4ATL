@@ -1,0 +1,12 @@
+-- The direct Class/Method/Parameter rules preserve the complete operation
+-- signature under the source input profile.
+context Interface
+inv InterfaceRetainsOperationsAndParameters:
+  self.name <> '' and self.methods->notEmpty() and
+  self.methods->isUnique(m | m.name) and
+  self.methods->forAll(m |
+    m.name <> '' and m.returnType <> '' and
+    m.parameters->notEmpty() and
+    m.parameters->isUnique(p | p.name) and
+    m.parameters->forAll(p | p.name <> '' and p.type <> '')
+  )

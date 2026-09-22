@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.llm4atl.efinder</groupId>
+  <artifactId>efinder-headless-runtime</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <tycho.version>4.0.3</tycho.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <efinder.headless.target>${maven.multiModuleProjectDirectory}/target-platform/efinder-headless.target</efinder.headless.target>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <target>
+            <file>${efinder.headless.target}</file>
+          </target>
+          <environments>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <modules>
+    <module>../../../third_party/efinder/bundles/efinder.core</module>
+    <module>../../../third_party/efinder/bundles/efinder.emfocl</module>
+    <module>../../../third_party/efinder/bundles/efinder.usemv</module>
+    <module>../runner</module>
+    <module>headless-product</module>
+  </modules>
+</project>

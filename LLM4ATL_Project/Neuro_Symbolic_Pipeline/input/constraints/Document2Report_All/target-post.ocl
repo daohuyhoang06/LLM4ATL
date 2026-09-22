@@ -1,0 +1,27 @@
+-- This property deliberately uses only source/target metamodel features.
+-- It does not depend on variable-derived trace properties created by ATL2TM.
+-- A Report must have the same preserved values and Section contents as some
+-- source Document. Section values may legitimately repeat, so the property
+-- compares the number of occurrences of every (title, content, order) tuple.
+
+context Report
+inv ReportRetainsDocumentAndSections:
+  Document.allInstances()->exists(d |
+      self.title = d.title and
+      self.author = d.author and
+
+      self.sections->size() = d.sections->size() and
+
+      d.sections->forAll(s |
+        d.sections->select(ss |
+          ss.title = s.title and
+          ss.content = s.content and
+          ss.order = s.order
+        )->size() =
+        self.sections->select(t |
+          t.title = s.title and
+          t.content = s.content and
+          t.order = s.order
+        )->size()
+      )
+  )

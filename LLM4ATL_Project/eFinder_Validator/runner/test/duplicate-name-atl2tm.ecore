@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="transformationModel"
+    nsURI="http://example.org/duplicate-name-atl2tm"
+    nsPrefix="tm">
+  <eClassifiers xsi:type="ecore:EClass" name="Method">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="source"/>
+      <details key="postConstraints" value=""/>
+      <details key="semConstraints" value="sourceConstraint"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="sourceConstraint"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="sourceConstraint" value="true"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Method">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="target"/>
+      <details key="postConstraints" value="targetConstraint"/>
+      <details key="semConstraints" value="targetSem"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="targetSem targetConstraint"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="targetSem" value="true"/>
+      <details key="targetConstraint" value="self.name = self.name"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+</ecore:EPackage>

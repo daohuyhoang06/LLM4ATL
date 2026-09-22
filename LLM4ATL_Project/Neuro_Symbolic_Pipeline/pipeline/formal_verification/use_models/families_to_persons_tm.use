@@ -1,0 +1,91 @@
+-- Transformation Model used to draw the overlapping-rule witness.
+
+model FamiliesToPersons_TM
+
+class FamilyRegister
+attributes
+  id : String
+end
+
+class Family
+attributes
+  lastName : String
+end
+
+class Member
+attributes
+  firstName : String
+end
+
+class PersonRegister
+attributes
+  id : String
+end
+
+abstract class Person
+attributes
+  fullName : String
+  birthday : String
+end
+
+class Male < Person
+end
+
+class Female < Person
+end
+
+class Member2Male
+end
+
+class Member2Female
+end
+
+association FamilyRegisterFamilies between
+  FamilyRegister[0..1] role register
+  Family[0..*] role families
+end
+
+association FamilySons between
+  Family[0..1] role familySon
+  Member[0..*] role sons
+end
+
+association FamilyDaughters between
+  Family[0..1] role familyDaughter
+  Member[0..*] role daughters
+end
+
+association FamilyFather between
+  Family[0..1] role familyFather
+  Member[0..1] role father
+end
+
+association FamilyMother between
+  Family[0..1] role familyMother
+  Member[0..1] role mother
+end
+
+association PersonRegisterPersons between
+  PersonRegister[0..1] role register
+  Person[0..*] role persons
+end
+
+association Member2Male_mem between
+  Member2Male[0..1] role Member2Male_mem
+  Member[1] role mem
+end
+
+association Member2Male_m between
+  Member2Male[0..1] role Member2Male_m
+  Male[1] role m
+end
+
+association Member2Female_mem between
+  Member2Female[0..1] role Member2Female_mem
+  Member[1] role mem
+end
+
+association Member2Female_f between
+  Member2Female[0..1] role Member2Female_f
+  Female[1] role f
+end

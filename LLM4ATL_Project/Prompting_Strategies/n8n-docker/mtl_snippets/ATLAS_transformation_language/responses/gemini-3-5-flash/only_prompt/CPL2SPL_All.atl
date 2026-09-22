@@ -1,0 +1,234 @@
+module CPL2SPL;
+create OUT : SPL from IN : CPL;
+
+helper context CPL!Element def: statement : CPL!Element =
+	if self.oclIsKindOf(CPL!Action) or self.oclIsKindOf(CPL!Decision) then
+		self
+	else
+		if self.oclIsKindOf(CPL!Transition) then
+			self.next.statement
+		else
+			self.refImmediateComposite().statement
+		endif
+	endif;
+
+helper context CPL!Element def: locations : Sequence(CPL!Location) =
+	if self.refImmediateComposite().oclIsUndefined() then
+		Sequence{}
+	else
+		if self.refImmediateComposite().oclIsKindOf(CPL!Location) then
+			self.refImmediateComposite().locations->append(self.refImmediateComposite())
+		else
+			self.refImmediateComposite().locations
+		endif
+	endif;
+
+helper context CPL!Proxy def: isSimple : Boolean =
+	self.recurse = 'no' and self.ordering = 'firstactive';
+
+rule CPL2Program {
+	from
+		s : CPL!CPL
+	to
+		t : SPL!Program (
+			service := s.incoming
+		)
+}
+
+rule SubAction2Function {
+	from
+		s : CPL!SubAction
+	to
+		t : SPL!Function (
+			name := s.id,
+			statements := s.statement
+		)
+}
+
+rule Incoming2Method {
+	from
+		s : CPL!Incoming
+	to
+		t : SPL!Method (
+			direction := #in,
+			control := s.statement
+		)
+}
+
+rule Proxy2Return {
+	from
+		s : CPL!Proxy (
+			s.isSimple
+		)
+	to
+		t : SPL!Return (
+			value := r
+		),
+		r : SPL!WithExp (
+			exp := if s.locations->isEmpty() then OclUndefined else thisModule.Location2URIConstant(s.locations->first()) endif,
+			msg := m
+		),
+		m : SPL!ResponseConstant (
+			response := #success
+		)
+}
+
+rule Proxy2Select {
+	from
+		s : CPL!Proxy (
+			not s.isSimple
+		)
+	to
+		t : SPL!SelectStat (
+			selectExp := r,
+			cases := s.transitions->select(e | e.oclIsTypeOf(CPL!Busy) or e.oclIsTypeOf(CPL!NoAnswer) or e.oclIsTypeOf(CPL!Redirection)),
+			default := s.transitions->any(e | e.oclIsTypeOf(CPL!Default))
+		),
+		r : SPL!WithExp (
+			exp := if s.locations->isEmpty() then OclUndefined else thisModule.Location2URIConstant(s.locations->first()) endif,
+			msg := m
+		),
+		m : SPL!ResponseConstant (
+			response := #success
+		)
+}
+
+rule Busy2SelectCase {
+	from
+		s : CPL!Busy
+	to
+		t : SPL!SelectCase (
+			values := Sequence{v},
+			statements := s.statement
+		),
+		v : SPL!ResponseConstant (
+			response := #busy
+		)
+}
+
+rule NoAnswer2SelectCase {
+	from
+		s : CPL!NoAnswer
+	to
+		t : SPL!SelectCase (
+			values := Sequence{v},
+			statements := s.statement
+		),
+		v : SPL!ResponseConstant (
+			response := #noanswer
+		)
+}
+
+rule Redirection2SelectCase {
+	from
+		s : CPL!Redirection
+	to
+		t : SPL!SelectCase (
+			values := Sequence{v1, v2, v3},
+			statements := s.statement
+		),
+		v1 : SPL!ResponseConstant (
+			response := #redirection_300
+		),
+		v2 : SPL!ResponseConstant (
+			response := #redirection_301
+		),
+		v3 : SPL!ResponseConstant (
+			response := #redirection_302
+		)
+}
+
+rule Default2SelectDefault {
+	from
+		s : CPL!Default
+	to
+		t : SPL!SelectDefault (
+			statements := s.statement
+		)
+}
+
+rule SubCall2Return {
+	from
+		s : CPL!SubCall
+	to
+		t : SPL!Return (
+			value := r
+		),
+		r : SPL!FunctionCallExp (
+			function := s.subAction
+		)
+}
+
+rule Redirect2Return {
+	from
+		s : CPL!Redirect
+	to
+		t : SPL!Return (
+			value := r
+		),
+		r : SPL!WithExp (
+			exp := if s.locations->isEmpty() then OclUndefined else thisModule.Location2URIConstant(s.locations->first()) endif,
+			msg := m
+		),
+		m : SPL!ResponseConstant (
+			response := if s.permanent = 'yes' then #redirection_301 else #redirection_302 endif
+		)
+}
+
+rule AddressSwitch2SelectStat {
+	from
+		s : CPL!AddressSwitch
+	to
+		t : SPL!SelectStat (
+			selectExp := r,
+			cases := s.addresses,
+			default := s.otherwise
+		),
+		r : SPL!SIPHeaderAsVal (
+			header :=
+				if s.field = 'address-port' then
+					#contact
+				else
+					if s.field = 'to' then
+						#to
+					else
+						if s.field = 'from' then
+							#from
+						else
+							#contact
+						endif
+					endif
+				endif
+		)
+}
+
+rule SwitchedAddress2SelectCase {
+	from
+		s : CPL!SwitchedAddress
+	to
+		t : SPL!SelectCase (
+			values := Sequence{v},
+			statements := s.statement
+		),
+		v : SPL!StringConstant (
+			value := if s.is.oclIsUndefined() then s.contains else s.is endif
+		)
+}
+
+rule Otherwise2SelectDefault {
+	from
+		s : CPL!Otherwise
+	to
+		t : SPL!SelectDefault (
+			statements := s.statement
+		)
+}
+
+unique lazy rule Location2URIConstant {
+	from
+		s : CPL!Location
+	to
+		t : SPL!URIConstant (
+			uri := s.url
+		)
+}

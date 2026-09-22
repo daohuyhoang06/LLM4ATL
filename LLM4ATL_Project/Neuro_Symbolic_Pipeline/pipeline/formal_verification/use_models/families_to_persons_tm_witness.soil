@@ -1,0 +1,43 @@
+-- Witness requested for families_to_persons_tm.use:
+-- one source Member is connected to both ATL rule traces.
+-- Reset the current object state so this snapshot can be loaded repeatedly.
+
+reset
+
+!new FamilyRegister('familyRegister')
+!familyRegister.id := 'FR1'
+
+!new Family('family')
+!family.lastName := 'Doe'
+
+!new Member('overlappingMember')
+!overlappingMember.firstName := 'Alex'
+
+!new PersonRegister('personRegister')
+!personRegister.id := 'PR1'
+
+!new Male('maleResult')
+!maleResult.fullName := 'Alex Doe'
+
+!new Female('femaleResult')
+!femaleResult.fullName := 'Alex Doe'
+
+!new Member2Male('maleTrace')
+!new Member2Female('femaleTrace')
+
+!insert (familyRegister, family) into FamilyRegisterFamilies
+
+-- Conflicting family-role links on the same source Member.
+!insert (family, overlappingMember) into FamilyFather
+!insert (family, overlappingMember) into FamilyDaughters
+
+!insert (personRegister, maleResult) into PersonRegisterPersons
+!insert (personRegister, femaleResult) into PersonRegisterPersons
+
+-- Complete male rule-trace path.
+!insert (maleTrace, overlappingMember) into Member2Male_mem
+!insert (maleTrace, maleResult) into Member2Male_m
+
+-- Complete female rule-trace path, using the same source Member.
+!insert (femaleTrace, femaleResult) into Member2Female_f
+!insert (femaleTrace, overlappingMember) into Member2Female_mem

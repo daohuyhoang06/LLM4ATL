@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="REL" nsURI="http://example.org/REL" nsPrefix="REL">
+  <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+    <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+  </eAnnotations>
+  <eClassifiers xsi:type="ecore:EClass" name="RELSchema">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="REL_RN REL_mult1"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="REL_RN" value="self.relations->forAll(r1,r2 | r1.name=r2.name implies r1=r2)"/>
+      <details key="REL_mult1" value="self.relations->size() > 0"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relations" upperBound="-1"
+        eType="//Relation" containment="true" eOpposite="//Relation/schema"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Relation">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="REL_AN REL_K REL_mult2 REL_mult3"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="REL_AN" value="self.attrs->forAll(a1,a2 | a1.name=a2.name implies a1=a2)"/>
+      <details key="REL_K" value="self.attrs->exists(a | a.isKey)"/>
+      <details key="REL_mult2" value="not self.schema.oclIsUndefined()"/>
+      <details key="REL_mult3" value="self.attrs->size() > 0"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="schema" eType="//RELSchema" eOpposite="//RELSchema/relations"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attrs" upperBound="-1"
+        eType="//RELAttribute" containment="true" eOpposite="//RELAttribute/relation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RELAttribute">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="REL_mult4"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="REL_mult4" value="not self.relation.oclIsUndefined()"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isKey" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relation" eType="//Relation" eOpposite="//Relation/attrs"/>
+  </eClassifiers>
+</ecore:EPackage>

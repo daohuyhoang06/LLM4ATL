@@ -1,0 +1,12 @@
+global inv SourceBibliographyInputIsValid:
+  BibTeXFile.allInstances()->exists(f | f.entries->notEmpty()) and
+  BibTeXEntry.allInstances()->forAll(e | e.id <> '')
+
+-- The canonical DocBook article is meaningful only for a non-empty bibliography.
+context BibTeXFile
+inv SourceBibliographyIsNonEmpty:
+  self.entries->notEmpty()
+
+context BibTeXEntry
+inv SourceEntryHasIdentifier:
+  self.id <> ''

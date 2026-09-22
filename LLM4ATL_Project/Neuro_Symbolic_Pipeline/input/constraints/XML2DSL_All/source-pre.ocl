@@ -1,0 +1,20 @@
+global inv SourceXmlDomainModelExists:
+  Element.allInstances()->exists(e |
+    e.name = 'DomainModel' and
+    e.children->exists(a |
+      a.oclIsKindOf(Attribute) and a.name = 'name' and a.value <> ''
+    )
+  ) and
+  Element.allInstances()->forAll(e |
+    e.name <> 'DomainModel' or
+    e.children->exists(a |
+      a.oclIsKindOf(Attribute) and a.name = 'name' and a.value <> ''
+    )
+  )
+
+context Element
+inv SourceDomainModelHasNameAttribute:
+  self.name <> 'DomainModel' or
+  self.children->exists(a |
+    a.oclIsKindOf(Attribute) and a.name = 'name' and a.value <> ''
+  )

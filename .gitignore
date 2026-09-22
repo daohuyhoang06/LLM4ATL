@@ -1,0 +1,38 @@
+# Local IDE/workspace metadata
+/workspace/
+**/.metadata/
+**/.equinox-workspace/
+**/.settings/
+**/.project
+**/.classpath
+
+# Java/Eclipse/Maven build output
+**/target/
+**/target-plain/
+**/bin/
+**/classes/
+**/*.class
+**/target-platform-effective
+*.log
+hs_err_pid*
+*.bak
+*.orig
+*~
+
+# Python cache and local environments
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+ENV/
+
+# Generated validator results and temporary files
+/LLM4ATL_neuro_symbolic/efinder_validator/output/*
+!/LLM4ATL_neuro_symbolic/efinder_validator/output/.gitignore
+/LLM4ATL_neuro_symbolic/efinder_validator/standalone/
+/LLM4ATL_neuro_symbolic/efinder_validator/runner/src/org/llm4atl/efinder/runner/EFinderCli.java
+/third_party/efinder/mvnw.cmd
+/tmp/
+
+# Local secrets
+.env

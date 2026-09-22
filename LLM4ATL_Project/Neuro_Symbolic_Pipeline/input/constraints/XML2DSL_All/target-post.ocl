@@ -1,0 +1,15 @@
+-- A DomainModel comes from the nested XML ``model`` element, not from its
+-- enclosing ``dmd`` wrapper.  The reference transformation supplies one
+-- instance of each required primitive type; enumerations may be additional
+-- entries in ``types``.
+context DomainModel
+inv DomainModelHasRequiredPrimitiveTypes:
+  self.name <> '' and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'String')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Integer')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Boolean')->size() = 1 and
+  self.types->select(t | t.oclIsKindOf(SimpleType) and t.name = 'Double')->size() = 1
+
+context DomainModel
+inv DomainModelDoesNotUseXmlWrapperName:
+  self.name <> 'dmd'

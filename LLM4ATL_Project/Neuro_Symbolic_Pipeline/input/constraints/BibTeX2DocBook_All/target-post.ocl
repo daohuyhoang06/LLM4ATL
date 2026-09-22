@@ -1,0 +1,10 @@
+-- Main creates one Book containing the fixed four-section article.
+context DocBook
+inv DocBookContainsCanonicalArticle:
+  self.books->size() = 1 and
+  self.books->forAll(b |
+    b.articles->size() = 1 and
+    b.articles->forAll(a |
+      a.title = 'BibTeXML to DocBook' and a.sections_1->size() = 4
+    )
+  )

@@ -1,0 +1,16 @@
+global inv SourceDocumentInputIsValid:
+  DocumentModel.allInstances()->exists(dm |
+    dm.documents->notEmpty() and
+    dm.documents->forAll(d |
+      d.title <> '' and d.author <> '' and d.sections->notEmpty() and
+      d.sections->forAll(s | s.title <> '' and s.content <> '' and s.order > 0)
+    )
+  )
+
+context Document
+inv SourceDocumentHasSections:
+  self.title <> '' and self.author <> '' and self.sections->notEmpty()
+
+context Section
+inv SourceSectionHasPositiveOrder:
+  self.title <> '' and self.content <> '' and self.order > 0

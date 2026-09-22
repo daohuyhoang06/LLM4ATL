@@ -1,0 +1,18 @@
+global inv SourceIeeeInputIsValid:
+  IEEE1471Model.allInstances()->exists(m |
+    m.name <> '' and
+    not m.system.oclIsUndefined() and
+    not m.environment.oclIsUndefined() and
+    not m.architecturalDescription.oclIsUndefined()
+  ) and
+  ArchitecturalDescription.allInstances()->forAll(ad | ad.content <> '')
+
+context IEEE1471Model
+inv SourceModelHasCoreArchitecture:
+  self.name <> '' and not self.system.oclIsUndefined() and
+  not self.environment.oclIsUndefined() and
+  not self.architecturalDescription.oclIsUndefined()
+
+context ArchitecturalDescription
+inv SourceArchitecturalDescriptionHasContent:
+  self.content <> ''

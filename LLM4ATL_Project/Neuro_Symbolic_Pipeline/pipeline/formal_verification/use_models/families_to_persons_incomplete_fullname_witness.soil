@@ -1,0 +1,35 @@
+-- Counterexample for an incomplete Member2Male fullName binding.
+-- Source data: firstName = 'Alex', family lastName = 'Doe'.
+-- Faulty target value: fullName = 'Alex' (expected: 'Alex Doe').
+-- Load families_to_persons_tm.use before loading this snapshot.
+
+reset
+
+!new FamilyRegister('familyRegister')
+!familyRegister.id := 'FR1'
+
+!new Family('family')
+!family.lastName := 'Doe'
+
+!new Member('member')
+!member.firstName := 'Alex'
+
+!new PersonRegister('personRegister')
+!personRegister.id := 'PR1'
+
+!new Male('incorrectMale')
+!incorrectMale.fullName := 'Alex'
+!incorrectMale.birthday := 'null'
+
+!new Member2Male('maleTrace')
+
+-- Valid source structure: Alex is the father of the Doe family.
+!insert (familyRegister, family) into FamilyRegisterFamilies
+!insert (family, member) into FamilyFather
+
+-- Keep the target containment valid so the figure isolates the name error.
+!insert (personRegister, incorrectMale) into PersonRegisterPersons
+
+-- Transformation trace from the source Member to the faulty Male target.
+!insert (maleTrace, member) into Member2Male_mem
+!insert (maleTrace, incorrectMale) into Member2Male_m

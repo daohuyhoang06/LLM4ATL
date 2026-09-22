@@ -1,0 +1,4432 @@
+module ATL2TM;
+
+create OUT: ECORE 
+from 
+    IN :  ATL,
+    SRC : ECORE,
+    TGT : ECORE;
+
+-- Ánh xạ các bước của thuật toán ATL -> Transformation Model:
+-- Step 1: copy source/target metamodel vào TM.
+-- Step 2: tạo trace class và mã hóa match, binding, frame condition.
+-- Step 3: mỗi target object phải do đúng một creator tạo ra.
+-- Step 4: các matched rule có thể overlap phải loại trừ nhau.
+
+-- ================================================================
+-- Step 1: giữ lại OCL có sẵn của source/target metamodel
+-- ================================================================
+
+-- Lấy chuỗi tên constraint gốc từ annotation Ecore.
+helper def : originalConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->select(d |
+            d.key = 'constraints'
+        )
+        ->iterate(
+            d;
+            acc : String = '' |
+
+            if acc = '' then
+                d.value
+            else
+                acc + ' ' + d.value
+            endif
+        );
+
+-- Lấy các detail Pivot OCL gốc để copy sang TM.
+helper def : originalOclDetails(
+    c : ECORE!EClass
+) : Sequence(ECORE!EStringToStringMapEntry) =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->asSequence();
+
+-- ================================================================
+-- Provenance metadata
+-- ================================================================
+
+-- Namespace used by the Converter.  Keeping provenance in a dedicated
+-- annotation avoids mixing it with the Ecore validation/OCL annotations.
+helper def : provenanceSource : String =
+    'urn:llm4atl:provenance';
+
+-- EClass/EEnum/EDataType classifiers are copied from either the source or
+-- target package.  This helper is deliberately package-based rather than
+-- name-based so that equal names in the two metamodels remain distinguishable.
+helper def : classifierOrigin(
+    c : ECORE!EClassifier
+) : String =
+
+    if ECORE!EPackage.allInstancesFrom('SRC')->includes(c.ePackage) then
+        'source'
+    else
+        if ECORE!EPackage.allInstancesFrom('TGT')->includes(c.ePackage) then
+            'target'
+        else
+            'unknown'
+        endif
+    endif;
+
+-- A classifier can participate in more than one matched/creator rule, hence
+-- the plural form of this metadata field.  The list uses the same
+-- space-separated encoding as the constraint lists.
+helper def : matchedRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+            if acc = '' then
+                r.name
+            else
+                acc + ' ' + r.name
+            endif
+        );
+
+helper def : creatorRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.creatorsOf(c)
+        ->collect(o | o.outPattern.rule.name)
+        ->iterate(
+            n;
+            acc : String = '' |
+            if acc = '' then
+                n
+            else
+                acc + ' ' + n
+            endif
+        );
+
+-- Ghép tên constraint gốc với creator constraint của Step 3.
+helper def : targetConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let creation : String =
+        thisModule.creationConstraintName(c)
+
+    in
+
+    if original = '' then
+        creation
+    else
+        original + ' ' + creation
+    endif;
+
+-- Reference-valued target multiplicities are properties to verify, rather
+-- than assumptions of the transformation semantics. Primitive EAttributes
+-- are intentionally excluded: USE/EFinder cannot soundly represent an
+-- unbound primitive value. Their names are recorded as unsupported metadata.
+helper def : targetMultiplicityConstraintName(
+    c : ECORE!EClass,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'targetMultiplicity_'
+    + c.name
+    + '_'
+    + p.name;
+
+helper def : targetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : unsupportedPrimitiveTargetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EAttribute))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : targetPostConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let multiplicities : String =
+        thisModule.targetMultiplicityConstraintNames(c)
+
+    in
+
+    if original = '' then
+        multiplicities
+    else
+        if multiplicities = '' then
+            original
+        else
+            original + ' ' + multiplicities
+        endif
+    endif;
+
+helper def : targetMultiplicityConstraintExpr(
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+        'not self.'
+        + p.name
+        + '.oclIsUndefined()'
+    else
+        'self.'
+        + p.name
+        + '->size() >= '
+        + p.lowerBound.toString()
+    endif;
+
+-- ================================================================
+-- Hỗ trợ chung: biểu diễn ATL/OCL thành chuỗi Pivot OCL
+-- ================================================================
+
+-- Nối hai Sequence mà vẫn giữ thứ tự và phần tử trùng. Điều này rất quan
+-- trọng khi biến cục bộ/iterator shadow một formal parameter cùng tên.
+helper def : appendStrings(
+    base : Sequence(String),
+    additions : Sequence(String)
+) : Sequence(String) =
+
+    additions->iterate(
+        value;
+        acc : Sequence(String) = base |
+        acc->append(value)
+    );
+
+-- Lấy replacement ở scope gần nhất (duyệt từ phải sang trái).
+helper def : replacementOfAt(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    pos : Integer
+) : String =
+
+    if pos = 0 then
+        name
+    else
+        if varNames->at(pos) = name then
+            replacements->at(pos)
+        else
+            thisModule.replacementOfAt(
+                name,
+                varNames,
+                replacements,
+                pos - 1
+            )
+        endif
+    endif;
+
+-- Lấy giá trị thay thế khi biểu diễn biến.
+helper def : replacementOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    thisModule.replacementOfAt(
+        name,
+        varNames,
+        replacements,
+        varNames->size()
+    );
+
+-- A refinement is kept in the ordinary rendering environment under a
+-- reserved marker.  This keeps subtype knowledge lexical: an inner iterator
+-- with the same variable name shadows the refinement of an outer iterator.
+helper def : refinedTypeMarker(name : String) : String =
+
+    '__ATL2TM_REFINED_TYPE__' + name;
+
+helper def : refinedTypeOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    let marker : String = thisModule.refinedTypeMarker(name)
+    in
+    if varNames->includes(marker) then
+        thisModule.replacementOf(marker, varNames, replacements)
+    else
+        ''
+    endif;
+
+-- Helper feature có thể là Operation (có parameter) hoặc Attribute (arity 0).
+helper def : helperArity(h : ATL!Helper) : Integer =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.parameters->size()
+    else
+        0
+    endif;
+
+helper def : helperFormalNames(
+    h : ATL!Helper
+) : Sequence(String) =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.parameters->collect(p | p.varName)->asSequence()
+    else
+        Sequence {}
+    endif;
+
+helper def : helperBody(h : ATL!Helper) : ATL!OclExpression =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.body
+    else
+        let attribute : ATL!Attribute = h.definition.feature
+        in attribute.initExpression
+    endif;
+
+helper def : helperContextTypeName(h : ATL!Helper) : String =
+
+    if h.definition.context_.oclIsUndefined() then
+        ''
+    else
+        h.definition.context_.context_.name
+    endif;
+
+helper def : isModuleReceiver(e : ATL!OclExpression) : Boolean =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+        e.referredVariable.varName = 'thisModule'
+    else
+        false
+    endif;
+
+helper def : helperReceiverTypeName(
+    e : ATL!OclExpression,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        if e.referredVariable.varName = 'self'
+           and varNames->includes(
+               thisModule.helperSelfTypeMarker()
+           )
+        then
+            thisModule.replacementOf(
+                thisModule.helperSelfTypeMarker(),
+                varNames,
+                replacements
+            )
+        else
+            if e.referredVariable.type.oclIsUndefined() then
+                if e.type.oclIsUndefined() then '' else e.type.name endif
+            else
+                e.referredVariable.type.name
+            endif
+        endif
+
+    else
+
+        if e.type.oclIsUndefined() then
+            ''
+        else
+            e.type.name
+        endif
+
+    endif;
+
+-- A navigation receiver may not carry a resolved ATL type in the AST model
+-- (for example, s.relation in s.relation.needTurnOnClass()). If the helper
+-- name and arity identify exactly one context helper, ATL's type checker has
+-- already made the call unambiguous, so it is safe to inline that helper.
+-- If several context helpers share the same signature, keep the call
+-- unresolved and let the caller report it as unsupported rather than
+-- generating an OCL operation that EFinder cannot resolve.
+helper def : uniqueUnknownContextHelper(
+    name : String,
+    arity : Integer
+) : Boolean =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and thisModule.helperArity(h) = arity
+            and not h.definition.context_.oclIsUndefined()
+        )
+        ->size() = 1;
+
+-- Resolve helper theo name + receiver/context type + arity. A context helper
+-- declared on a supertype is also callable on a subtype receiver.
+helper def : helperCallCandidates(
+    e : ATL!OperationCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : Sequence(ATL!Helper) =
+
+    let receiverType : String =
+        thisModule.helperReceiverTypeName(
+            e.source,
+            varNames,
+            replacements
+        )
+    in
+
+    let moduleReceiver : Boolean =
+        thisModule.isModuleReceiver(e.source)
+    in
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = e.operationName
+            and thisModule.helperArity(h) = e.arguments->size()
+            and
+            (
+                if h.definition.context_.oclIsUndefined() then
+                    moduleReceiver
+                else
+                    not moduleReceiver
+                    and (
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
+                        or
+                        (
+                            receiverType = ''
+                            and thisModule.uniqueUnknownContextHelper(
+                                e.operationName,
+                                e.arguments->size()
+                            )
+                        )
+                    )
+                endif
+            )
+        )
+        ->asSequence();
+
+-- Resolve a module-level helper attribute such as thisModule.authorSet.
+helper def : helperAttributeCandidates(
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and h.definition.context_.oclIsUndefined()
+        )
+        ->asSequence();
+
+-- Check source-metaclass conformance in the direction needed for a context
+-- helper: a CPL!Proxy receiver may use a helper declared on CPL!Element.
+-- Keep the lookup defensive because an expression can also have a target or
+-- otherwise unknown type, which must not make ATL2TM crash.
+helper def : sourceTypeConformsTo(
+    actualTypeName : String,
+    contextTypeName : String
+) : Boolean =
+
+    let actuals : Sequence(ECORE!EClass) =
+        ECORE!EClass.allInstancesFrom('SRC')
+            ->select(c | c.name = actualTypeName)
+            ->asSequence()
+
+    in
+
+    if actuals->isEmpty() then
+        false
+    else
+
+        let contexts : Sequence(ECORE!EClass) =
+            ECORE!EClass.allInstancesFrom('SRC')
+                ->select(c | c.name = contextTypeName)
+                ->asSequence()
+
+        in
+
+        if contexts->isEmpty() then
+            false
+        else
+            actuals->first() = contexts->first()
+            or actuals->first().eAllSuperTypes->includes(contexts->first())
+        endif
+    endif;
+
+-- Resolve an attribute helper used through an object receiver, such as
+-- p.locations. The AST represents this as a NavigationOrAttributeCallExp,
+-- even though locations is not an Ecore structural feature.
+helper def : helperAttributeCallCandidates(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : Sequence(ATL!Helper) =
+
+    let receiverType : String =
+        thisModule.helperReceiverTypeName(
+            e.source,
+            varNames,
+            replacements
+        )
+
+    in
+
+    let moduleReceiver : Boolean =
+        thisModule.isModuleReceiver(e.source)
+
+    in
+
+    let contextMatches : Sequence(ATL!Helper) =
+        ATL!Helper.allInstancesFrom('IN')
+            ->select(h |
+                h.definition.feature.name = e.name
+                and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+                and not h.definition.context_.oclIsUndefined()
+            )
+            ->asSequence()
+
+    in
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = e.name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and
+            (
+                if h.definition.context_.oclIsUndefined() then
+                    moduleReceiver
+                else
+                    not moduleReceiver
+                    and
+                    (
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
+                        or (
+                            receiverType = ''
+                            and contextMatches->size() = 1
+                        )
+                    )
+                endif
+            )
+        )
+        ->asSequence();
+
+-- Marker được mang trong substitution environment để phát hiện recursion
+-- trực tiếp và gián tiếp khi inline helper body.
+-- Attribute helpers also participate in source-type analysis. Their OCL
+-- return type, rather than an EStructuralFeature, determines both whether
+-- a navigation is a collection and which source EClass it yields.
+helper def : contextHelperAttributeCandidates(
+    receiverTypeName : String,
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and not h.definition.context_.oclIsUndefined()
+            and thisModule.sourceTypeConformsTo(
+                receiverTypeName,
+                thisModule.helperContextTypeName(h)
+            )
+        )
+        ->asSequence();
+
+helper def : helperAttributeIsCollection(
+    h : ATL!Helper
+) : Boolean =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    attribute.type.oclIsKindOf(ATL!CollectionType);
+
+helper def : helperAttributeElementTypeName(
+    h : ATL!Helper
+) : String =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    if attribute.type.oclIsKindOf(ATL!CollectionType) then
+        let collectionType : ATL!CollectionType = attribute.type
+        in collectionType.elementType.name
+    else
+        ''
+    endif;
+
+helper def : helperMarker(h : ATL!Helper) : String =
+
+    '__atl2tm_active_helper__'
+    + h.definition.feature.name
+    + '__'
+    + thisModule.helperArity(h).toString()
+    + '__'
+    + thisModule.helperContextTypeName(h);
+
+helper def : helperSelfTypeMarker() : String =
+
+    '__atl2tm_helper_self_type__';
+
+helper def : isActiveHelper(
+    h : ATL!Helper,
+    varNames : Sequence(String)
+) : Boolean =
+
+    varNames->includes(thisModule.helperMarker(h));
+
+-- ATL/OCL escape dấu nháy đơn trong string literal: 'O\'Brien'.
+helper def : escapeStringContent(
+    value : String,
+    pos : Integer
+) : String =
+
+    if pos > value.size() then
+        ''
+    else
+        let current : String = value.substring(pos, pos)
+        in
+            if current = '\'' then
+                '\\'
+                + '\''
+                + thisModule.escapeStringContent(value, pos + 1)
+            else
+                current
+                + thisModule.escapeStringContent(value, pos + 1)
+            endif
+    endif;
+
+-- Đặt dấu nháy và escape string literal OCL.
+helper def : renderStringLiteral(value : String) : String =
+
+    '\''
+    + thisModule.escapeStringContent(value, 1)
+    + '\'';
+
+-- Biểu diễn các phần tử của Sequence, cách nhau bởi dấu phẩy.
+helper def : renderCollectionElements(
+    elements : Sequence(ATL!OclExpression),
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    elements->iterate(
+        element;
+        acc : String = '' |
+
+        let rendered : String =
+            thisModule.renderExpr(
+                element,
+                varNames,
+                replacements,
+                selfReplacement
+            )
+
+        in
+
+        if rendered = '' then
+            acc
+        else
+            if acc = ''
+            then
+                rendered
+            else
+                acc + ', ' + rendered
+            endif
+        endif
+    );
+
+-- Biểu diễn danh sách iterator, ví dụ: x hoặc x, y.
+helper def : renderIteratorNames(
+    iterators : Sequence(ATL!Iterator)
+) : String =
+
+    iterators->iterate(
+        iterator;
+        acc : String = '' |
+
+        if acc = '' then
+            iterator.varName
+        else
+            acc + ', ' + iterator.varName
+        endif
+    );
+
+-- Inline helper body dưới environment: self -> receiver và formal -> actual.
+-- Marker helper được giữ trong environment để chặn direct/indirect recursion.
+helper def : renderHelperCall(
+    e : ATL!OperationCallExp,
+    h : ATL!Helper,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let receiver : String =
+        thisModule.renderExpr(
+            e.source,
+            varNames,
+            replacements,
+            selfReplacement
+        )
+
+    in
+
+    let actuals : Sequence(String) =
+        e.arguments->collect(argument |
+            thisModule.renderExpr(
+                argument,
+                varNames,
+                replacements,
+                selfReplacement
+            )
+        )->asSequence()
+
+    in
+
+    let scopedNames : Sequence(String) =
+        thisModule.appendStrings(
+            thisModule.appendStrings(
+                thisModule.appendStrings(
+                    varNames,
+                    Sequence { thisModule.helperMarker(h) }
+                ),
+                Sequence { thisModule.helperSelfTypeMarker() }
+            ),
+            thisModule.helperFormalNames(h)
+        )
+
+    in
+
+    let scopedReplacements : Sequence(String) =
+        thisModule.appendStrings(
+            thisModule.appendStrings(
+                thisModule.appendStrings(
+                    replacements,
+                    Sequence { thisModule.helperMarker(h) }
+                ),
+                Sequence { thisModule.helperContextTypeName(h) }
+            ),
+            actuals
+        )
+
+    in
+
+    thisModule.renderExpr(
+        thisModule.helperBody(h),
+        scopedNames,
+        scopedReplacements,
+        receiver
+    );
+
+-- Inline a module-level helper attribute. It has no receiver or formal
+-- parameters; the recursion marker is still kept in the environment.
+helper def : renderHelperAttribute(
+    h : ATL!Helper,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let scopedNames : Sequence(String) =
+        thisModule.appendStrings(
+            varNames,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    let scopedReplacements : Sequence(String) =
+        thisModule.appendStrings(
+            replacements,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    thisModule.renderExpr(
+        thisModule.helperBody(h),
+        scopedNames,
+        scopedReplacements,
+        selfReplacement
+    );
+
+helper def : renderNavigationCall(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let sourceText : String =
+        thisModule.renderExpr(
+            e.source,
+            varNames,
+            replacements,
+            selfReplacement
+        )
+
+    in
+
+    let refinedType : String =
+        if e.source.oclIsTypeOf(ATL!VariableExp) then
+            thisModule.refinedTypeOf(
+                e.source.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        else
+            ''
+        endif
+
+    in
+
+    sourceText
+    + (if refinedType = '' then '' else '.oclAsType(' + refinedType + ')' endif)
+    + '.'
+    + e.name;
+
+-- Rule calls through thisModule are not ordinary OCL helper calls. A lazy
+-- rule is demand-driven and cannot be represented by universal matched-rule
+-- trace constraints, so leave an explicit marker for the formal runner.
+helper def : isUnsupportedRuleCall(
+    e : ATL!OperationCallExp
+) : Boolean =
+
+    thisModule.isModuleReceiver(e.source)
+    and
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->exists(r | r.name = e.operationName);
+
+-- Biểu diễn expression ATL/OCL hỗ trợ thành Pivot OCL.
+helper def : renderExpr(
+    e : ATL!OclExpression,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    -- 1. Primitive literals
+    if e.oclIsTypeOf(ATL!BooleanExp) then
+
+        if e.booleanSymbol then 'true' else 'false' endif
+
+    else
+    if e.oclIsTypeOf(ATL!IntegerExp) then
+
+        e.integerSymbol.toString()
+
+    else
+    if e.oclIsTypeOf(ATL!RealExp) then
+
+        e.realSymbol.toString()
+
+    else
+    if e.oclIsTypeOf(ATL!OclUndefinedExp) then
+
+        'null'
+
+    else
+    if e.oclIsTypeOf(ATL!StringExp) then
+
+        thisModule.renderStringLiteral(e.stringSymbol)
+
+    -- 2. Model type, ví dụ SRC!A trong oclIsKindOf(SRC!A)
+    else
+    if e.oclIsTypeOf(ATL!OclModelElement) then
+
+        e.name
+
+    -- 3. Explicit collection literal
+    else
+    if e.oclIsKindOf(ATL!CollectionExp) then
+
+        if e.oclIsTypeOf(ATL!SequenceExp) then
+            'Sequence'
+        else
+            if e.oclIsTypeOf(ATL!SetExp) then
+                'Set'
+            else
+                if e.oclIsTypeOf(ATL!OrderedSetExp) then
+                    'OrderedSet'
+                else
+                    'Bag'
+                endif
+            endif
+        endif
+        + ' { '
+        + thisModule.renderCollectionElements(
+            e.elements->asSequence(),
+            varNames,
+            replacements,
+            selfReplacement
+        )
+        + ' }'
+
+    -- 4. Variable
+    else
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+    if varNames->includes(e.referredVariable.varName) then
+        thisModule.replacementOf(
+            e.referredVariable.varName,
+            varNames,
+            replacements
+        )
+
+    else
+
+        if e.referredVariable.varName = 'self' then
+            selfReplacement
+        else
+            thisModule.replacementOf(
+                e.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        endif
+
+    endif
+
+
+    -- 5. Navigation / attribute
+    -- self.familyFather
+    -- m.firstName
+    else
+        if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp) then
+
+            let candidates : Sequence(ATL!Helper) =
+                thisModule.helperAttributeCallCandidates(
+                    e,
+                    varNames,
+                    replacements
+                )
+
+            in
+
+            if candidates->size() = 1 then
+                let h : ATL!Helper = candidates->first()
+                in
+                if thisModule.isActiveHelper(h, varNames) then
+                    '__ATL2TM_UNSUPPORTED_RECURSIVE_HELPER__'
+                    + h.definition.feature.name
+                else
+                    thisModule.renderHelperAttribute(
+                        h,
+                        varNames,
+                        replacements,
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                    )
+                endif
+            else
+                if thisModule.isModuleReceiver(e.source) then
+                    '__ATL2TM_UNSUPPORTED_FEATURE__HELPER_ATTRIBUTE__'
+                    + e.name
+                else
+                    thisModule.renderNavigationCall(
+                        e,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                endif
+            endif
+
+
+        -- 6. OperatorCallExp
+        -- PHẢI check trước OperationCallExp
+        else
+            if e.oclIsTypeOf(ATL!OperatorCallExp) then
+
+                -- unary: not ... hoặc -...
+                if e.operationName = 'not' then
+
+                    '(not '
+                    + thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + ')'
+
+
+                else
+                    if e.operationName = '-'
+                       and e.arguments->isEmpty()
+                    then
+
+                        '(-'
+                        + thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                -- binary operators
+                else
+                    if e.operationName = 'or'
+                       or e.operationName = 'and'
+                       or e.operationName = 'xor'
+                       or e.operationName = 'implies'
+                       or e.operationName = '='
+                       or e.operationName = '<>'
+                       or e.operationName = '<'
+                       or e.operationName = '<='
+                       or e.operationName = '>'
+                       or e.operationName = '>='
+                       or e.operationName = '+'
+                       or e.operationName = '-'
+                       or e.operationName = '*'
+                       or e.operationName = '/'
+                       or e.operationName = 'div'
+                       or e.operationName = 'mod'
+                    then
+
+                        '('
+                        + thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' '
+                        + e.operationName
+                        + ' '
+                        + thisModule.renderExpr(
+                            e.arguments->first(),
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                    else
+                        ''
+                    endif
+                endif
+                endif
+
+
+            -- 7. Iterator call: select, collect, exists, forAll, reject, any.
+            else
+                if e.oclIsTypeOf(ATL!IteratorExp) then
+
+                    let refinedType : String =
+                        thisModule.refinedElementTypeName(e.source)
+
+                    in
+
+                    thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + '->'
+                    + e.name
+                    + '('
+                    + thisModule.renderIteratorNames(
+                        e.iterators->asSequence()
+                    )
+                    + ' | '
+                    + thisModule.renderExpr(
+                        e.body,
+                        thisModule.appendStrings(
+                            thisModule.appendStrings(
+                                varNames,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i |
+                                thisModule.refinedTypeMarker(i.varName)
+                            )->asSequence()
+                        ),
+                        thisModule.appendStrings(
+                            thisModule.appendStrings(
+                                replacements,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i | refinedType)
+                                ->asSequence()
+                        ),
+                        selfReplacement
+                    )
+                    + ')'
+
+            -- 8. Collection operation call
+            else
+                if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+                    thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + '->'
+                    + e.operationName
+                    + '('
+                    + thisModule.renderCollectionElements(
+                        e.arguments->asSequence(),
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + ')'
+
+            -- 9. Normal operation/helper call
+            else
+                if e.oclIsTypeOf(ATL!OperationCallExp) then
+
+                    if thisModule.isUnsupportedRuleCall(e) then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__'
+                        + e.operationName
+                    else
+                    -- ATL exposes refImmediateComposite(), but Pivot/USE does
+                    -- not. eFinder synthesizes the equivalent oclContainer().
+                    if e.operationName = 'refImmediateComposite'
+                       and e.arguments->isEmpty()
+                    then
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + '.oclContainer()'
+                    else
+                    if e.operationName = 'resolveTemp'
+                       and thisModule.isModuleReceiver(e.source)
+                    then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+                    else
+
+                    let candidates : Sequence(ATL!Helper) =
+                        thisModule.helperCallCandidates(
+                            e,
+                            varNames,
+                            replacements
+                        )
+
+                    in
+
+                    -- Chỉ inline khi overload được resolve duy nhất.
+                    if candidates->size() = 1 then
+
+                        let h : ATL!Helper = candidates->first()
+
+                        in
+
+                        if thisModule.isActiveHelper(h, varNames) then
+                            '__ATL2TM_UNSUPPORTED_RECURSIVE_HELPER__'
+                            + h.definition.feature.name
+                        else
+                            thisModule.renderHelperCall(
+                                e,
+                                h,
+                                varNames,
+                                replacements,
+                                selfReplacement
+                            )
+                        endif
+
+                    -- Các operation OCL thường: oclIsUndefined, oclIsKindOf, ...
+                    else
+
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + '.'
+                        + e.operationName
+                        + '('
+                        + thisModule.renderCollectionElements(
+                            e.arguments->asSequence(),
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                    endif
+                    endif
+                    endif
+                    endif
+
+
+                -- 10. Conditional expression
+                -- Example: if cond then value1 else value2 endif
+                else
+                    if e.oclIsTypeOf(ATL!IfExp) then
+                        '(if '
+                        + thisModule.renderExpr(
+                            e.condition,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' then '
+                        + thisModule.renderExpr(
+                            e.thenExpression,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' else '
+                        + thisModule.renderExpr(
+                            e.elseExpression,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' endif)'
+
+                    else
+                        if e.oclIsTypeOf(ATL!LetExp) then
+
+                            '(let '
+                            + e.variable.varName
+                            + ' = '
+                            + thisModule.renderExpr(
+                                e.variable.initExpression,
+                                varNames,
+                                replacements,
+                                selfReplacement
+                            )
+                            + ' in '
+                            + thisModule.renderExpr(
+                                e.in_,
+                                thisModule.appendStrings(
+                                    varNames,
+                                    Sequence { e.variable.varName }
+                                ),
+                                thisModule.appendStrings(
+                                    replacements,
+                                    Sequence { e.variable.varName }
+                                ),
+                                selfReplacement
+                            )
+                            + ')'
+
+                    -- unsupported expression
+                    else
+                        '__ATL2TM_UNSUPPORTED_EXPRESSION__'
+                    endif
+                    endif
+                endif
+                endif
+                endif
+            endif
+        endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif;
+
+-- ================================================================
+-- Step 2: match pattern, binding và trace constraint
+-- ================================================================
+
+-- Biểu diễn filter của matched rule trong ngữ cảnh trace.
+helper def : filterExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+
+    in
+
+    thisModule.renderExpr(
+        r.inPattern.filter,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Lấy các rule có input đầu tiên mang kiểu đã cho.
+helper def : rulesForMatchConstraint(
+    c : ECORE!EClass
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+            r.inPattern.elements->notEmpty()
+            and
+            r.inPattern.elements->first().type.name = c.name
+        )
+        ->asSequence();
+
+-- Tạo các predicate bằng nhau giữa trace và input.
+-- OCL reserves "self" for the context object. ATL input variables may also
+-- use that legal ATL name, so render them with a fresh generated identifier.
+helper def : matchInputVarName(
+    s : ATL!SimpleInPatternElement
+) : String =
+
+    if s.varName = 'self' then
+        '__efinder_src_self'
+    else
+        s.varName
+    endif;
+
+helper def : traceMatchCondition(
+    r : ATL!MatchedRule
+) : String =
+
+    r.inPattern.elements
+        ->iterate(
+            s;
+            acc : String = '' |
+
+            if acc = '' then
+
+                'z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            else
+
+                acc
+                + ' and z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            endif
+        );
+
+-- Bọc đệ quy expression bằng các lượng từ input.
+helper def : wrapForAllAt(
+    inputs : Sequence(ATL!SimpleInPatternElement),
+    pos : Integer,
+    inner : String
+) : String =
+
+    if pos > inputs->size() then
+        inner
+    else
+        let s : ATL!SimpleInPatternElement = inputs->at(pos)
+        in
+            s.type.name
+            + '.allInstances()->forAll('
+            + thisModule.matchInputVarName(s)
+            + ' : '
+            + s.type.name
+            + ' | '
+            + thisModule.wrapForAllAt(
+                inputs,
+                pos + 1,
+                inner
+            )
+            + ')'
+    endif;
+
+-- Lượng từ hóa toàn bộ input pattern của một rule.
+helper def : wrapForAll(
+    r : ATL!MatchedRule,
+    inner : String
+) : String =
+
+    thisModule.wrapForAllAt(
+        r.inPattern.elements->asSequence(),
+        1,
+        inner
+    );
+
+-- Liệt kê tên ràng buộc match của một source class.
+helper def : matchConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+
+            if acc = ''
+            then
+                'match_' + r.name
+            else
+                acc + ' match_' + r.name
+            endif
+        );
+
+-- Triển khai hàm matchExpr(r)
+-- Mã hóa matchExpr(r): mỗi bộ input khớp có đúng một trace.
+helper def : matchExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    -- ở Step 2(d), dùng chính tên iterator:
+    -- a -> a
+    -- b -> b
+    let replacements : Sequence(String) =
+        inputs->collect(s | thisModule.matchInputVarName(s))
+
+    in
+
+    let traceExpr : String =
+        r.name
+        + '.allInstances()->one(z : '
+        + r.name
+        + ' | '
+        + thisModule.traceMatchCondition(r)
+        + ')'
+
+    in
+
+    let body : String =
+
+        if r.inPattern.filter.oclIsUndefined() then
+
+            traceExpr
+
+        else
+
+            thisModule.renderExpr(
+                r.inPattern.filter,
+                varNames,
+                replacements,
+                'self'
+            )
+            + ' implies '
+            + traceExpr
+
+        endif
+
+    in
+
+    thisModule.wrapForAll(
+        r,
+        body
+    );
+
+
+-- Biểu diễn một expression ATL trong ngữ cảnh trace của rule.
+helper def : ruleExpr(
+    r : ATL!MatchedRule,
+    e : ATL!OclExpression
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let outputs : Sequence(ATL!SimpleOutPatternElement) =
+        r.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+            ->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+            ->union(
+                outputs->collect(o | o.varName)
+            )
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+        ->union(
+            outputs->collect(o |
+                'self.' + o.varName
+            )
+        )
+
+    in
+
+    thisModule.renderExpr(
+        e,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Biểu diễn vế phải của một ATL binding.
+helper def : bindingExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    thisModule.ruleExpr(
+        r,
+        b.value
+    );
+
+-- Tạo tên ràng buộc OCL ổn định cho binding.
+helper def : bindingConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'bind_'
+    + r.name
+    + '_'
+    + o.varName
+    + '_'
+    + b.propertyName;
+
+-- Chọn biểu diễn binding trực tiếp, Shape IV hoặc Shape V.
+helper def : bindingResolvedExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    if thisModule.isShapeV(r, b) then
+
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    else
+        if thisModule.isShapeIV(r, b) then
+
+            thisModule.resolveShapeIV(
+                r,
+                b
+            )
+
+        else
+
+            thisModule.bindingExpr(
+                r,
+                b
+            )
+
+        endif
+    endif;
+
+-- Mã hóa ràng buộc bằng nhau của thuộc tính đích.
+helper def : bindingConstraintExpr(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'self.'
+    + o.varName
+    + '.'
+    + b.propertyName
+    + ' = '
+    + thisModule.bindingResolvedExpr(
+        r,
+        b
+    );
+
+-- Gom các binding từ mọi simple output element.
+helper def : bindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->collect(o | o.bindings)
+        ->flatten()
+        ->asSequence();
+
+-- Liệt kê mọi ràng buộc OCL gắn với trace class.
+helper def : traceConstraintNames(
+    r : ATL!MatchedRule
+) : String =
+
+    let filterName : String =
+        if r.inPattern.filter.oclIsUndefined()
+        then ''
+        else 'match_' + r.name + '_cond'
+        endif
+
+    in
+
+    let bindingNames : String =
+
+        thisModule.bindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = filterName |
+
+                let mainName : String =
+                    thisModule.bindingConstraintName(
+                        r,
+                        b.outPatternElement,
+                        b
+                    )
+
+                in
+
+                let names : String =
+
+                    if thisModule.isShapeV(r, b) then
+
+                        mainName
+                        + ' '
+                        + mainName
+                        + '_size'
+
+                    else
+
+                        if thisModule.isShapeIV(r, b) then
+
+                            mainName
+                            + ' '
+                            + mainName
+                            + '_defined'
+
+                        else
+
+                            mainName
+
+                        endif
+
+                    endif
+
+                in
+
+                if acc = ''
+                then
+                    names
+                else
+                    acc + ' ' + names
+                endif
+            )
+
+    in
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->iterate(
+            o;
+            accOut : String = bindingNames |
+
+            thisModule.unboundPropertiesOf(o)
+                ->iterate(
+                    p;
+                    accProp : String = accOut |
+
+                    let name : String =
+                        thisModule.nullConstraintName(
+                            o,
+                            p
+                        )
+
+                    in
+
+                    if accProp = ''
+                    then
+                        name
+                    else
+                        accProp + ' ' + name
+                    endif
+                )
+        );
+
+-- Kiểm tra trace class có cần OCL annotation không.
+helper def : hasTraceConstraints(
+    r : ATL!MatchedRule
+) : Boolean =
+
+    not r.inPattern.filter.oclIsUndefined()
+
+    or
+
+    thisModule.bindingsOf(r)->notEmpty()
+
+    or
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->exists(o |
+            thisModule.unboundPropertiesOf(o)
+                ->notEmpty()
+        );
+
+-- ================================================================
+-- Step 2: phân tích source metamodel phục vụ binding/resolution
+-- ================================================================
+
+-- Tìm source EClass theo tên.
+helper def : sourceEClass(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Suy ra tên EClass của source expression.
+helper def : sourceExprTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        let name : String =
+            e.referredVariable.varName
+
+        in
+
+        let candidates : Sequence(ATL!SimpleInPatternElement) =
+            r.inPattern.elements
+                ->select(s |
+                    s.varName = name
+                )
+
+        in
+
+        if candidates->notEmpty()
+        then
+            candidates->first().type.name
+        else
+            ''
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let sourceTypeName : String =
+                thisModule.sourceExprTypeName(
+                    e.source,
+                    r
+                )
+
+            in
+
+            if sourceTypeName = ''
+            then
+                ''
+            else
+
+                let sourceClass : ECORE!EClass =
+                    thisModule.sourceEClass(
+                        sourceTypeName
+                    )
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    sourceClass.eAllStructuralFeatures
+                        ->select(f |
+                            f.name = e.name
+                        )
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            sourceTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+            -- first()/any() lấy một phần tử từ source collection, do đó
+            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+                if e.operationName = 'first' or e.operationName = 'any' then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Kiểm tra source navigation có đa trị không.
+helper def : sourceExprIsCollection(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(
+        ATL!NavigationOrAttributeCallExp
+    ) then
+
+        let ownerTypeName : String =
+            thisModule.sourceExprTypeName(
+                e.source,
+                r
+            )
+
+        in
+
+        if ownerTypeName = '' then
+            false
+        else
+
+            let ownerClass : ECORE!EClass =
+                thisModule.sourceEClass(
+                    ownerTypeName
+                )
+
+            in
+
+            let features : Sequence(ECORE!EStructuralFeature) =
+                ownerClass.eAllStructuralFeatures
+                    ->select(f | f.name = e.name)
+
+            in
+
+            if features->notEmpty() then
+                features->first().upperBound <> 1
+            else
+                let helpers : Sequence(ATL!Helper) =
+                    thisModule.contextHelperAttributeCandidates(
+                        ownerTypeName,
+                        e.name
+                    )
+                in
+                if helpers->size() = 1 then
+                    thisModule.helperAttributeIsCollection(
+                        helpers->first()
+                    )
+                else
+                    false
+                endif
+            endif
+        endif
+
+    else
+        false
+    endif;
+
+-- Tìm source class theo tên để kiểm tra kế thừa.
+helper def : sourceEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Kiểm tra hai source type bằng nhau hoặc tương thích kế thừa.
+helper def : sourceTypesCompatible(
+    leftName : String,
+    rightName : String
+) : Boolean =
+
+    let left : ECORE!EClass =
+        thisModule.sourceEClassByName(leftName)
+
+    in
+
+    let right : ECORE!EClass =
+        thisModule.sourceEClassByName(rightName)
+
+    in
+
+    left = right
+    or
+    left.eAllSuperTypes->includes(right)
+    or
+    right.eAllSuperTypes->includes(left);
+
+-- ================================================================
+-- Step 2: phân giải ngầm (Shape IV và V)
+-- ================================================================
+
+-- Nhận diện binding object nguồn đơn trị (Shape IV).
+helper def : isShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    thisModule.sourceExprTypeName(
+        b.value,
+        r
+    ) <> ''
+
+    and not thisModule.sourceExprIsCollection(
+        b.value,
+        r
+    );
+
+-- Tìm unary matched rule có thể phân giải source object.
+helper def : resolverRules(
+    sourceTypeName : String
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+
+            r.inPattern.elements->size() = 1
+
+            and
+
+            thisModule.sourceTypesCompatible(
+                sourceTypeName,
+                r.inPattern.elements
+                    ->first()
+                    .type.name
+            )
+
+            and
+
+            r.outPattern.elements
+                ->select(o |
+                    o.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+                )
+                ->notEmpty()
+        )
+        ->asSequence();
+
+-- Tạo một đường dẫn trace cho resolver đơn trị.
+helper def : resolverPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    exprText
+    + '.oclAsType('
+    + input.type.name
+    + ').'
+    + resolver.name
+    + '_'
+    + input.varName
+    + '.'
+    + output.varName;
+
+-- Lấy các target của resolver từ những trace thực sự tồn tại.
+-- Điều kiện trên input type tránh tạo navigation undefined khi resolver
+-- không áp dụng cho object hiện tại.
+helper def : resolverTraceTargetCollection(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    '(if '
+    + exprText
+    + '.oclIsKindOf('
+    + input.type.name
+    + ') then '
+    + resolver.name
+    + '.allInstances()->select(z : '
+    + resolver.name
+    + ' | z.'
+    + thisModule.matchInputVarName(input)
+    + ' = '
+    + exprText
+    + '.oclAsType('
+    + input.type.name
+    + '))->collect(z | z.'
+    + output.varName
+    + ') else Sequence {} endif)';
+
+-- Ghép các đường dẫn resolver đơn trị khi q > 1.
+helper def : resolverPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverTraceTargetCollection(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Phân giải source object đơn trị qua các trace link.
+helper def : resolveShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceExprTypeName(
+            b.value,
+            r
+        )
+
+    in
+
+    let exprText : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolvers : Sequence(ATL!MatchedRule) =
+        thisModule.resolverRules(
+            sourceTypeName
+        )
+
+    in
+
+    if resolvers->isEmpty() then
+
+        'null'
+
+    else
+        if resolvers->size() = 1 then
+
+            -- q = 1
+            thisModule.resolverPath(
+                exprText,
+                resolvers->first()
+            )
+
+        else
+
+            -- q > 1
+            'Set { '
+            + thisModule.resolverPaths(
+                exprText,
+                resolvers
+            )
+            + ' }->flatten()->any(true)'
+
+        endif
+    endif;
+
+-- Đặt tên ràng buộc bảo toàn definedness của Shape IV.
+helper def : shapeIVDefinedConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r, o, b
+    )
+    + '_defined';
+
+-- Bảo toàn definedness trước và sau khi phân giải Shape IV.
+helper def : shapeIVDefinedConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeIV(
+            r,
+            b
+        )
+
+    in
+
+    '(not '
+    + original
+    + '.oclIsUndefined())'
+    + ' = '
+    + '(not '
+    + resolved
+    + '.oclIsUndefined())';
+
+-- Lấy kiểu EClass của một biểu thức trong thân iterator. Hiện dùng cho
+-- collect(x | x.referenceToSourceObject), nơi x là phần tử của source
+-- collection và kết quả collect vẫn là source object cần resolve.
+helper def : iteratorBodySourceTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule,
+    iteratorName : String,
+    iteratorTypeName : String
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        if e.referredVariable.varName = iteratorName then
+            iteratorTypeName
+        else
+            thisModule.sourceExprTypeName(e, r)
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let ownerTypeName : String =
+                thisModule.iteratorBodySourceTypeName(
+                    e.source,
+                    r,
+                    iteratorName,
+                    iteratorTypeName
+                )
+
+            in
+
+            if ownerTypeName = '' then
+                ''
+            else
+
+                let ownerClass : ECORE!EClass =
+                    thisModule.sourceEClass(ownerTypeName)
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    ownerClass.eAllStructuralFeatures
+                        ->select(f | f.name = e.name)
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            ownerTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+
+            -- first()/any() lấy một phần tử từ source collection, do đó
+            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            if e.oclIsTypeOf(
+                ATL!CollectionOperationCallExp
+            )
+            or e.oclIsKindOf(
+                ATL!OperationCallExp
+            ) then
+
+                if e.operationName = 'first'
+                   or e.operationName = 'any'
+                then
+                    thisModule.sourceCollectionElementTypeName(
+                        e.source,
+                        r
+                    )
+                else
+                    ''
+                endif
+
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Nếu select dùng oclIsTypeOf(T), kết quả chỉ chứa T. Thông tin này giúp
+-- chọn đúng resolver T -> target thay vì mọi subtype của collection gốc.
+helper def : selectedElementTypeName(
+    e : ATL!IteratorExp
+) : String =
+
+    if e.name <> 'select' then
+        ''
+    else
+
+        if not e.body.oclIsTypeOf(ATL!OperationCallExp) then
+            ''
+        else
+
+            let body : ATL!OperationCallExp =
+                e.body
+
+            in
+
+            if (body.operationName <> 'oclIsTypeOf'
+                and body.operationName <> 'oclIsKindOf')
+               or body.arguments->isEmpty()
+               or e.iterators->size() <> 1
+            then
+                ''
+            else
+                if not body.source.oclIsTypeOf(ATL!VariableExp) then
+                    ''
+                else
+                    if body.source.referredVariable.varName
+                        <> e.iterators->first().varName
+                    then
+                        ''
+                    else
+                        let typeArgument : ATL!OclExpression =
+                            body.arguments->first()
+
+                        in
+
+                        if typeArgument.oclIsTypeOf(
+                            ATL!OclModelElement
+                        ) then
+                            let modelType : ATL!OclModelElement =
+                                typeArgument
+                            in
+                            modelType.name
+                        else
+                            ''
+                        endif
+                    endif
+                endif
+            endif
+
+        endif
+
+    endif;
+
+-- A collection produced directly by select(x | x.oclIsTypeOf/KindOf(T))
+-- contains values safely castable to T.  The next iterator receives that
+-- type fact in its lexical rendering environment.
+helper def : refinedElementTypeName(
+    e : ATL!OclExpression
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        thisModule.selectedElementTypeName(e)
+    else
+        ''
+    endif;
+
+-- Suy ra kiểu phần tử của source collection sau select/reject/collect.
+-- collect chỉ được coi là Shape V khi body trả về một EClass nguồn; collect
+-- ra primitive như x.name sẽ không bị implicit resolution.
+helper def : sourceCollectionElementTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+
+        let iteratorExpr : ATL!IteratorExp = e
+
+        in
+
+        if iteratorExpr.name = 'select' then
+
+            let selectedType : String =
+                thisModule.selectedElementTypeName(iteratorExpr)
+
+            in
+
+            if selectedType = '' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+                selectedType
+            endif
+
+        else
+
+            if iteratorExpr.name = 'reject' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+
+                if iteratorExpr.name = 'collect'
+                   and iteratorExpr.iterators->notEmpty()
+                then
+
+                    let inputType : String =
+                        thisModule.sourceCollectionElementTypeName(
+                            iteratorExpr.source,
+                            r
+                        )
+
+                    in
+
+                    if inputType = '' then
+                        ''
+                    else
+                        thisModule.iteratorBodySourceTypeName(
+                            iteratorExpr.body,
+                            r,
+                            iteratorExpr.iterators->first().varName,
+                            inputType
+                        )
+                    endif
+
+                else
+                    ''
+                endif
+
+            endif
+
+        endif
+
+    else
+
+        if thisModule.sourceExprIsCollection(e, r) then
+            thisModule.sourceExprTypeName(e, r)
+        else
+            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+                if e.operationName = 'first' or e.operationName = 'any' then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Nhận diện collection nguồn, gồm navigation trực tiếp, select/reject,
+-- collect trả về source object, và union của các collection đó.
+helper def : isShapeVExpr(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            thisModule.isShapeVExpr(e.source, r)
+            or
+            thisModule.isShapeVExpr(e.arguments->first(), r)
+        else
+            false
+        endif
+
+    else
+
+        thisModule.sourceCollectionElementTypeName(e, r) <> ''
+
+    endif;
+
+-- Nhận diện binding Shape V.
+helper def : isShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    thisModule.isShapeVExpr(b.value, r);
+
+-- Tạo một đường dẫn trace theo từng phần tử.
+helper def : resolverCollectPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let outputs : Sequence(ATL!OutPatternElement) =
+        resolver.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        outputs->first()
+
+    in
+
+    exprText
+    + '->collect(x | '
+    + thisModule.resolverTraceTargetCollection(
+        'x',
+        resolver
+    )
+    + ')->flatten()';
+
+-- Ghép các đường dẫn resolver collection khi q > 1.
+helper def : resolverCollectPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverCollectPath(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Resolve một source collection, kể cả collection đã qua select/reject/collect.
+helper def : resolveShapeVDirectParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceCollectionElementTypeName(e, r)
+
+    in
+
+    if sourceTypeName = '' then
+        ''
+    else
+
+        let resolvers : Sequence(ATL!MatchedRule) =
+            thisModule.resolverRules(sourceTypeName)
+
+        in
+
+        thisModule.resolverCollectPaths(
+            thisModule.ruleExpr(r, e),
+            resolvers
+        )
+
+    endif;
+
+-- Trả về các nhánh collect đã resolve của một Shape V expression.
+helper def : resolveShapeVParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            let left : String =
+                thisModule.resolveShapeVParts(e.source, r)
+            in
+            let right : String =
+                thisModule.resolveShapeVParts(e.arguments->first(), r)
+            in
+            if left = '' then
+                right
+            else
+                if right = '' then
+                    left
+                else
+                    left + ', ' + right
+                endif
+            endif
+        else
+            thisModule.resolveShapeVDirectParts(e, r)
+        endif
+
+    else
+        thisModule.resolveShapeVDirectParts(e, r)
+    endif;
+
+-- Phân giải source collection, gồm cả union, qua các trace link.
+helper def : resolveShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    'Set { '
+    + thisModule.resolveShapeVParts(b.value, r)
+    + ' }->flatten()';
+
+-- Đặt tên ràng buộc bảo toàn số lượng của Shape V.
+helper def : shapeVSizeConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r,
+        o,
+        b
+    )
+    + '_size';
+
+-- Bảo toàn kích thước collection sau khi phân giải Shape V.
+helper def : shapeVSizeConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    in
+
+    '('
+    + original
+    + ')->size() = ('
+    + resolved
+    + ')->size()';
+
+-- ================================================================
+-- Step 2: điều kiện frame cho thuộc tính đích chưa bind
+-- ================================================================
+
+-- Tìm target EClass của một output pattern element.
+helper def : targetEClassOf(
+    o : ATL!SimpleOutPatternElement
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c |
+            c.name = o.type.name
+        )
+        ->first();
+
+-- Lấy các thuộc tính đích không xuất hiện trong output pattern.
+-- Một eReference cũng được coi là đã bind nếu eOpposite của nó được
+-- bind trực tiếp trên target object khác (EMF sẽ đồng bộ hai đầu).
+helper def : isBoundThroughOpposite(
+    p : ECORE!EStructuralFeature
+) : Boolean =
+
+    ECORE!EReference.allInstancesFrom('TGT')
+        ->select(ref |
+            ref.name = p.name
+            and ref.eContainingClass.name = p.eContainingClass.name
+            and not ref.eOpposite.oclIsUndefined()
+        )
+        ->exists(ref |
+            ATL!Binding.allInstancesFrom('IN')
+                ->exists(b |
+                    b.propertyName = ref.eOpposite.name
+
+                    and
+
+                    b.outPatternElement.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+
+                    and
+
+                    thisModule.targetEClassOf(
+                        b.outPatternElement
+                    ).name = ref.eOpposite.eContainingClass.name
+                )
+        );
+
+-- Lấy các thuộc tính đích chưa bind trực tiếp hoặc qua eOpposite.
+helper def : unboundPropertiesOf(
+    o : ATL!SimpleOutPatternElement
+) : Sequence(ECORE!EStructuralFeature) =
+
+    thisModule.targetEClassOf(o)
+        .eAllStructuralFeatures
+        ->select(p |
+            not o.bindings->exists(b |
+                b.propertyName = p.name
+            )
+
+            and
+
+            not thisModule.isBoundThroughOpposite(p)
+        )
+        ->asSequence();
+
+-- Tạo tên điều kiện frame.
+helper def : nullConstraintName(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'null_'
+    + o.outPattern.rule.name
+    + '_'
+    + o.varName
+    + '_'
+    + p.name;
+
+-- Yêu cầu thuộc tính đơn/reference chưa bind phải rỗng.
+helper def : nullConstraintExpr(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '.oclIsUndefined()'
+
+    else
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '->isEmpty()'
+
+    endif;
+
+-- ================================================================
+-- Step 3: creator constraints cho target class
+-- ================================================================
+
+-- Tìm target EClass theo tên.
+helper def : targetEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Kiểm tra target type bằng nhau hoặc tương thích kế thừa.
+helper def : isTargetSubtypeOrSame(
+    childName : String,
+    parentName : String
+) : Boolean =
+
+    let child : ECORE!EClass =
+        thisModule.targetEClassByName(childName)
+
+    in
+
+    let parent : ECORE!EClass =
+        thisModule.targetEClassByName(parentName)
+
+    in
+
+    child = parent
+    or
+    child.eAllSuperTypes->includes(parent);
+
+-- Lấy output pattern có thể tạo object của target class.
+helper def : creatorsOf(
+    c : ECORE!EClass
+) : Sequence(ATL!SimpleOutPatternElement) =
+
+    ATL!SimpleOutPatternElement
+        .allInstancesFrom('IN')
+        ->select(o |
+            thisModule.isTargetSubtypeOrSame(
+                o.type.name,
+                c.name
+            )
+        )
+        ->asSequence();
+
+-- Tạo một hạng tử đếm trace creator.
+helper def : creationTerm(
+    c : ECORE!EClass,
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    if o.type.name = c.name then
+
+        '(if self.'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif)'
+
+    else
+
+        '(if self.oclIsKindOf('
+        + o.type.name
+        + ') then (if self.oclAsType('
+        + o.type.name
+        + ').'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif) else 0 endif)'
+
+    endif;
+
+-- Tạo tên inverse reference từ target object về creator trace.
+helper def : creatorRefName(
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    o.outPattern.rule.name
+    + '_'
+    + o.varName;
+
+-- Cộng số trace của mọi creator khả dụng.
+helper def : creationSum(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+
+        '0'
+
+    else
+
+        creators->iterate(
+            o;
+            acc : String = '' |
+
+            let term : String =
+                thisModule.creationTerm(
+                    c,
+                    o
+                )
+
+            in
+
+            if acc = '' then
+                term
+            else
+                acc + ' + ' + term
+            endif
+        )
+
+    endif;
+
+-- Tạo tên constraint Step 3 cho target class.
+helper def : creationConstraintName(
+    c : ECORE!EClass
+) : String =
+
+    'create_' + c.name;
+
+-- Mã hóa: target object có đúng một creator, hoặc false nếu không có.
+helper def : creationConstraintExpr(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+        'false'
+    else
+        thisModule.creationSum(c)
+        + ' = 1'
+    endif;
+
+-- ================================================================
+-- Step 4: mutex giữa các matched rule overlap
+-- ================================================================
+
+-- Kiểm tra source type bằng nhau hoặc tương thích kế thừa.
+helper def : isSourceSubtypeOrSame(
+    childName : String,
+    parentName : String
+) : Boolean =
+
+    let child : ECORE!EClass =
+        thisModule.sourceEClassByName(childName)
+
+    in
+
+    let parent : ECORE!EClass =
+        thisModule.sourceEClassByName(parentName)
+
+    in
+
+    child = parent
+    or
+    child.eAllSuperTypes->includes(parent);
+
+-- Lấy các subtype chung của hai source type.
+helper def : commonOverlapTypes(
+    leftName : String,
+    rightName : String
+) : Sequence(ECORE!EClass) =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c |
+            thisModule.isSourceSubtypeOrSame(
+                c.name,
+                leftName
+            )
+            and
+            thisModule.isSourceSubtypeOrSame(
+                c.name,
+                rightName
+            )
+        )
+        ->asSequence();
+
+-- Kiểm tra arity và overlap tại từng vị trí input.
+helper def : potentiallyOverlap(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : Boolean =
+
+    let inputs1 : Sequence(ATL!SimpleInPatternElement) =
+        r1.inPattern.elements->asSequence()
+
+    in
+
+    let inputs2 : Sequence(ATL!SimpleInPatternElement) =
+        r2.inPattern.elements->asSequence()
+
+    in
+
+    if inputs1->size() <> inputs2->size() then
+        false
+    else
+        inputs1->forAll(s1 |
+            let pos : Integer =
+                inputs1->indexOf(s1)
+            in
+            thisModule.commonOverlapTypes(
+                s1.type.name,
+                inputs2->at(pos).type.name
+            )->notEmpty()
+        )
+    endif;
+
+-- Lấy toàn bộ matched rule trong ATL input.
+helper def : matchedRules()
+: Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->asSequence();
+
+-- Lấy rule overlap đứng sau để tránh sinh mutex trùng lặp.
+helper def : laterOverlappingRules(
+    r : ATL!MatchedRule
+) : Sequence(ATL!MatchedRule) =
+
+    let rules : Sequence(ATL!MatchedRule) =
+        thisModule.matchedRules()
+
+    in
+
+    rules->select(r2 |
+        rules->indexOf(r2) >
+        rules->indexOf(r)
+
+        and
+
+        thisModule.potentiallyOverlap(
+            r,
+            r2
+        )
+
+        and
+
+        -- Some pairs overlap by nominal type but have no concrete common
+        -- subtype combination. Do not advertise a mutex constraint when its
+        -- renderer would produce an empty specification body.
+        thisModule.mutexExpr(
+            r,
+            r2
+        ) <> ''
+    )
+    ->asSequence();
+
+-- Tạo điều kiện trace khớp với bộ iterator hiện tại.
+helper def : traceExistsCondition(
+    r : ATL!MatchedRule,
+    iteratorNames : Sequence(String),
+    traceVar : String
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    inputs->iterate(
+        s;
+        acc : String = '' |
+
+        let pos : Integer =
+            inputs->indexOf(s)
+
+        in
+
+        if pos > iteratorNames->size()
+        then
+            acc
+        else
+            let term : String =
+                traceVar
+                + '.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + iteratorNames->at(pos)
+
+            in
+
+            if acc = ''
+            then
+                term
+            else
+                acc + ' and ' + term
+            endif
+        endif
+    );
+
+-- Tạo biểu thức tồn tại một trace khớp input.
+helper def : traceExistsExpr(
+    r : ATL!MatchedRule,
+    iteratorNames : Sequence(String),
+    traceVar : String
+) : String =
+
+    r.name
+    + '.allInstances()->exists('
+    + traceVar
+    + ' : '
+    + r.name
+    + ' | '
+    + thisModule.traceExistsCondition(
+        r,
+        iteratorNames,
+        traceVar
+    )
+    + ')';
+
+-- Tạo lõi mutex: không tồn tại đồng thời hai trace khớp.
+helper def : mutexInnerExpr(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    let iteratorNames : Sequence(String) =
+        r1.inPattern.elements
+            ->asSequence()
+            ->collect(s | thisModule.matchInputVarName(s))
+
+    in
+
+    'not ('
+    + thisModule.traceExistsExpr(
+        r1,
+        iteratorNames,
+        'z1'
+    )
+    + ' and '
+    + thisModule.traceExistsExpr(
+        r2,
+        iteratorNames,
+        'z2'
+    )
+    + ')';
+
+-- Bọc lõi mutex bằng lượng từ cho từng overlap type.
+helper def : wrapMutexForAllAt(
+    r : ATL!MatchedRule,
+    types : Sequence(ECORE!EClass),
+    pos : Integer,
+    inner : String
+) : String =
+
+    if pos > types->size() then
+
+        inner
+
+    else
+
+        let s : ATL!SimpleInPatternElement =
+            r.inPattern.elements
+                ->asSequence()
+                ->at(pos)
+
+        in
+
+        let t : ECORE!EClass =
+            types->at(pos)
+
+        in
+
+        t.name
+        + '.allInstances()->forAll('
+        + thisModule.matchInputVarName(s)
+        + ' : '
+        + t.name
+        + ' | '
+        + thisModule.wrapMutexForAllAt(
+            r,
+            types,
+            pos + 1,
+            inner
+        )
+        + ')'
+
+    endif;
+
+-- Duyệt mọi tổ hợp overlap type của các input position.
+helper def : mutexCombinationsAt(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule,
+    pos : Integer,
+    selectedTypes : Sequence(ECORE!EClass)
+) : String =
+
+    let inputs1 : Sequence(ATL!SimpleInPatternElement) =
+        r1.inPattern.elements->asSequence()
+
+    in
+
+    let inputs2 : Sequence(ATL!SimpleInPatternElement) =
+        r2.inPattern.elements->asSequence()
+
+    in
+
+    if pos > inputs1->size()
+       or pos > inputs2->size()
+    then
+
+        thisModule.wrapMutexForAllAt(
+            r1,
+            selectedTypes,
+            1,
+            thisModule.mutexInnerExpr(
+                r1,
+                r2
+            )
+        )
+
+    else
+
+        let candidates : Sequence(ECORE!EClass) =
+            thisModule.commonOverlapTypes(
+                inputs1->at(pos).type.name,
+                inputs2->at(pos).type.name
+            )
+
+        in
+
+        candidates->iterate(
+            t;
+            acc : String = '' |
+
+            let expr : String =
+                thisModule.mutexCombinationsAt(
+                    r1,
+                    r2,
+                    pos + 1,
+                    selectedTypes->append(t)
+                )
+
+            in
+
+            if acc = '' then
+                '(' + expr + ')'
+            else
+                acc + ' and (' + expr + ')'
+            endif
+        )
+
+    endif;
+
+-- Tạo toàn bộ OCL expression cho một cặp rule mutex.
+helper def : mutexExpr(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    thisModule.mutexCombinationsAt(
+        r1,
+        r2,
+        1,
+        Sequence {}
+    );
+
+-- Tạo tên constraint mutex của hai rule.
+helper def : mutexConstraintName(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    'mutex_'
+    + r1.name
+    + '_'
+    + r2.name;
+
+-- Lấy rule tạo mutex cần gắn vào source class hiện tại.
+helper def : mutexRulesForContext(
+    c : ECORE!EClass
+) : Sequence(ATL!MatchedRule) =
+
+    thisModule.matchedRules()
+        ->select(r |
+            r.inPattern.elements->notEmpty()
+
+            and
+
+            r.inPattern.elements
+                ->first()
+                .type.name = c.name
+
+            and
+
+            thisModule.laterOverlappingRules(r)
+                ->notEmpty()
+        )
+        ->asSequence();
+
+-- Liệt kê tên mutex constraint của source class.
+helper def : mutexConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.mutexRulesForContext(c)
+        ->iterate(
+            r1;
+            acc1 : String = '' |
+
+            let names : String =
+                thisModule.laterOverlappingRules(r1)
+                    ->iterate(
+                        r2;
+                        acc2 : String = '' |
+
+                        let name : String =
+                            thisModule.mutexConstraintName(
+                                r1,
+                                r2
+                            )
+
+                        in
+
+                        if acc2 = ''
+                        then name
+                        else acc2 + ' ' + name
+                        endif
+                    )
+
+            in
+
+            if acc1 = '' then
+                names
+            else
+                acc1 + ' ' + names
+            endif
+        );
+
+
+helper def : generatedSourceConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let matchNames : String =
+        thisModule.matchConstraintNames(c)
+
+    in
+
+    let mutexNames : String =
+        thisModule.mutexConstraintNames(c)
+
+    in
+
+    if matchNames = '' then
+        mutexNames
+    else
+        if mutexNames = '' then
+            matchNames
+        else
+            matchNames + ' ' + mutexNames
+        endif
+    endif;
+
+-- Gom tên match constraint và mutex constraint trên source class.
+helper def : sourceConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let generated : String =
+        thisModule.generatedSourceConstraintNames(c)
+
+    in
+
+    if original = '' then
+        generated
+    else
+        if generated = '' then
+            original
+        else
+            original + ' ' + generated
+        endif
+    endif;
+
+-- ================================================================
+-- Rule tạo transformation model
+-- ================================================================
+
+-- Root-level provenance record.  The Converter can use the schema version
+-- to evolve its reader without confusing old transformation models.
+unique lazy rule TransformationProvenanceAnnotation {
+    from
+        m : ATL!Module
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                schemaDetail,
+                moduleDetail,
+                encodingDetail
+            }
+        ),
+
+        schemaDetail : ECORE!EStringToStringMapEntry (
+            key <- 'schemaVersion',
+            value <- '1'
+        ),
+
+        moduleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlModule',
+            value <- m.name
+        ),
+
+        encodingDetail : ECORE!EStringToStringMapEntry (
+            key <- 'constraintLists',
+            value <- 'space-separated-names'
+        )
+}
+
+-- Provenance attached to copied source/target classifiers.  Constraint names
+-- are grouped by role instead of being encoded in the OCL annotation itself:
+-- this keeps USE/OCL consumers from trying to parse metadata as OCL details.
+unique lazy rule EClassProvenanceAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <-
+                Sequence {
+                    originDetail,
+                    nameDetail,
+                    ruleDetail,
+                    preDetail,
+                    postDetail,
+                    multiplicityNamesDetail,
+                    unsupportedPrimitiveMultiplicityNamesDetail,
+                    semDetail
+                }
+                ->union(
+                    if thisModule.classifierOrigin(c) = 'target' then
+                        c.eStructuralFeatures
+                            ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                            ->collect(p |
+                                thisModule.TargetMultiplicityProvenanceDetail(
+                                    c,
+                                    p
+                                )
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(c)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- c.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.matchedRuleNamesFor(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creatorRuleNamesFor(c)
+                    else
+                        ''
+                    endif
+                endif
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.originalConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.targetPostConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        multiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'targetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.targetMultiplicityConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        unsupportedPrimitiveMultiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'unsupportedPrimitiveTargetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.unsupportedPrimitiveTargetMultiplicityConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.generatedSourceConstraintNames(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creationConstraintName(c)
+                    else
+                        ''
+                    endif
+                endif
+        )
+}
+
+-- One provenance entry per relaxed target feature. The value is deliberately
+-- human-readable so reports distinguish these generated Posts from user OCL.
+lazy rule TargetMultiplicityProvenanceDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'constraintRole.'
+                + thisModule.targetMultiplicityConstraintName(c, p),
+            value <- 'POST / TARGET_MULTIPLICITY'
+        )
+}
+
+-- EEnum and custom EDataType do not own ATL/OCL constraints, but still need
+-- an origin marker so the Converter can distinguish source and target types.
+unique lazy rule EDataTypeProvenanceAnnotation {
+    from
+        d : ECORE!EDataType
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                nameDetail,
+                ruleDetail,
+                preDetail,
+                postDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(d)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- d.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <- ''
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <- ''
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <- ''
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- ''
+        )
+}
+
+-- Provenance attached to a trace class generated from one matched rule.
+unique lazy rule TraceProvenanceAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                ruleDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- 'trace'
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRule',
+            value <- r.name
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
+-- Tạo EPackage gốc và cấu hình validation của TM.
+rule Module2EPackage {
+    from 
+        m : ATL!Module
+    to 
+        p : ECORE!EPackage (
+            name <- 'transformationModel',
+            nsPrefix <- 'tm',
+            nsURI <- 'http://example.org/transformationModel',
+
+            eClassifiers <-
+                -- Chỉ đưa các classifier thuộc package nguồn/đích vào TM.
+                -- Không dùng ECORE!EClass.allInstances() ở đây vì biểu thức đó
+                -- có thể kéo theo classifier của các model Ecore khác.
+                ECORE!EClass.allInstancesFrom('SRC')
+                ->union(
+                    ECORE!EClass.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('SRC')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('SRC')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('SRC')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('TGT')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('TGT')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    -- Các trace class được sinh từ matched rules.
+                    -- Giữ union này để không thay đổi semantics hiện tại.
+                    m.elements
+                        ->select(e | e.oclIsKindOf(ATL!MatchedRule))
+                ),
+            eAnnotations <- Sequence {
+                validationAnnotation,
+                thisModule.TransformationProvenanceAnnotation(m)
+            }
+        ),
+
+        validationAnnotation : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                validationDetail
+            }
+        ),
+
+        validationDetail : ECORE!EStringToStringMapEntry (
+            key <- 'validationDelegates',
+            value <- 'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+}
+
+helper def : hasSourceConstraints(
+    c : ECORE!EClass
+) : Boolean =
+
+    thisModule.sourceConstraintNames(c) <> '';
+
+-- Step 1: copy source EClass và OCL gốc; Step 2/4: gắn match và mutex.
+rule SourceEClass2Eclass {
+    from
+        c : ECORE!EClass in SRC
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleInPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(s |
+                                s.type.name = c.name
+                            )
+                            ->collect(s |
+                                thisModule.resolveTemp(
+                                    s,
+                                    'inverse'
+                                )
+                            )
+                    ),
+
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.EClassProvenanceAnnotation(c)
+                }
+                ->union(
+                    if thisModule.hasSourceConstraints(c) then
+
+                        Sequence {
+                            thisModule.MatchingConstraintNamesAnnotation(c),
+                            thisModule.MatchingOclAnnotation(c)
+                        }
+
+                    else
+
+                        Sequence {}
+
+                    endif
+                )
+
+        )
+}
+
+-- Step 1: copy target EClass và OCL gốc; Step 3: gắn creator constraint.
+rule TargetEClass2EClass {
+    from
+        c : ECORE!EClass in TGT
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleOutPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(o |
+                                o.type.name = c.name
+                            )
+                            ->collect(o |
+                                thisModule.resolveTemp(
+                                    o,
+                                    'inverse'
+                                )
+                            )
+                    ),
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <- Sequence {
+                thisModule.EClassProvenanceAnnotation(c),
+                thisModule.CreationConstraintNamesAnnotation(c),
+                thisModule.CreationOclAnnotation(c)
+            }
+        )
+}
+
+-- Step 1: copy EAttribute và các thuộc tính Ecore.
+rule EAttribute2EAttribute {
+    from
+        a : ECORE!EAttribute
+    to
+        out : ECORE!EAttribute (
+            name <- a.name,
+
+            -- Keep source multiplicities intact. Target bounds are relaxed;
+            -- required references become selectable postconditions, while
+            -- primitive multiplicities are reported as unsupported.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(a.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    a.lowerBound
+                endif,
+            upperBound <- a.upperBound,
+            ordered <- a.ordered,
+            unique <- a.unique,
+            eType <- a.eType,
+
+            changeable <- a.changeable,
+            volatile <- a.volatile,
+            transient <- a.transient,
+            defaultValueLiteral <- a.defaultValueLiteral,
+            unsettable <- a.unsettable,
+            derived <- a.derived,
+
+            iD <- a.iD
+        )
+}
+
+-- Step 1: copy EReference và các thuộc tính Ecore.
+rule EReference2EReference {
+    from
+        r : ECORE!EReference
+    to
+        out : ECORE!EReference (
+            name <- r.name,
+
+            -- See EAttribute2EAttribute: target lower bounds must not make
+            -- Sem inconsistent before a target Post_i is selected.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(r.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    r.lowerBound
+                endif,
+            upperBound <- r.upperBound,
+            ordered <- r.ordered,
+            unique <- r.unique,
+            eType <- r.eType,
+
+            changeable <- r.changeable,
+            volatile <- r.volatile,
+            transient <- r.transient,
+            defaultValueLiteral <- r.defaultValueLiteral,
+            unsettable <- r.unsettable,
+            derived <- r.derived,
+
+            containment <- r.containment,
+            resolveProxies <- r.resolveProxies,
+            eOpposite <- r.eOpposite,
+            eKeys <- r.eKeys
+        )
+}
+
+-- Step 1: copy EEnum và các literal của nó.
+rule EEnum2EEnum {
+    from
+        e : ECORE!EEnum
+    to
+        out : ECORE!EEnum (
+            name <- e.name,
+            instanceClassName <- e.instanceClassName,
+            serializable <- e.serializable,
+            eLiterals <- e.eLiterals,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(e)
+            }
+        )
+}
+
+rule EEnumLiteral2EEnumLiteral {
+    from
+        l : ECORE!EEnumLiteral
+    to
+        out : ECORE!EEnumLiteral (
+            name <- l.name,
+            value <- l.value,
+            literal <- l.literal
+        )
+}
+
+-- Step 1: copy custom EDataType.  EEnum is also an EDataType, therefore it
+-- is excluded here and handled by EEnum2EEnum above.  The ePackage guard
+-- prevents Ecore built-in datatypes (EString, EInt, ...) from being copied
+-- into the transformation-model package.
+rule CustomEDataType2EDataType {
+    from
+        d : ECORE!EDataType (
+            not d.oclIsKindOf(ECORE!EEnum)
+            and
+            (
+                ECORE!EPackage.allInstancesFrom('SRC')
+                    ->includes(d.ePackage)
+                or
+                ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(d.ePackage)
+            )
+        )
+    to
+        out : ECORE!EDataType (
+            name <- d.name,
+            instanceClassName <- d.instanceClassName,
+            serializable <- d.serializable,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(d)
+            }
+        )
+}
+
+-- Step 2: tạo một trace EClass cho mỗi matched rule.
+rule MatchRule2EClass {
+    from 
+        r : ATL!MatchedRule
+    to
+        c : ECORE!EClass (
+            name <- r.name,
+
+            eStructuralFeatures <-
+                r.inPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleInPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                ->union(
+                r.outPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleOutPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                ), 
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.TraceProvenanceAnnotation(r)
+                }
+                ->union(
+                    if thisModule.hasTraceConstraints(r)
+                    then
+                        Sequence {
+                            thisModule.TraceConstraintNamesAnnotation(r),
+                            thisModule.TraceOclAnnotation(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
+        )
+}
+
+
+-- Step 2: nối trace class với source input element.
+rule InPatternElement2SourceAssociation {
+    from
+        s : ATL!SimpleInPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.matchInputVarName(s),
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('SRC')
+                    ->select(c | c.name = s.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                s.inPattern.rule.name
+                + '_'
+                + s.varName,
+
+            lowerBound <- 0,
+
+            upperBound <-
+                if s.inPattern.elements->size() = 1
+                then 1
+                else -1
+                endif,
+
+            eType <- s.inPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+
+-- Step 2: nối trace class với target output element.
+rule OutPatternElement2TargetAssociation {
+    from
+        o : ATL!SimpleOutPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- o.varName,
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('TGT')
+                    ->select(c | c.name = o.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                o.outPattern.rule.name
+                + '_'
+                + o.varName,
+
+            lowerBound <- 0,
+            upperBound <- 1,
+
+            eType <- o.outPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+
+-- Step 1: copy nguyên key/value của một Pivot OCL detail gốc.
+unique lazy rule CopyOriginalOclDetail {
+
+    from
+        d : ECORE!EStringToStringMapEntry
+
+    to
+        out : ECORE!EStringToStringMapEntry (
+            key <- d.key,
+            value <- d.value
+        )
+}
+
+-- Preserve every original required target reference as a Post property.
+-- Primitive EAttribute multiplicities are emitted only as unsupported
+-- provenance, not as OCL details, because EFinder/USE cannot model their
+-- absent-value state soundly.
+lazy rule TargetMultiplicityConstraintDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.targetMultiplicityConstraintName(c, p),
+            value <- thisModule.targetMultiplicityConstraintExpr(p)
+        )
+}
+
+-- ================================================================
+-- Rule tạo OCL annotation theo Step 2, 3 và 4
+-- ================================================================
+
+-- Step 2: lưu một invariant match phía nguồn.
+unique lazy rule MatchConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'match_' + r.name,
+            value <- thisModule.matchExpr(r)
+        )
+}
+
+-- Step 2/4: khai báo tên ràng buộc match và mutex phía nguồn.
+unique lazy rule MatchingConstraintNamesAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.sourceConstraintNames(c)
+        )
+}
+
+-- Step 2/4: lưu expression OCL match và mutex phía nguồn.
+unique lazy rule MatchingOclAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: OCL gốc của SRC
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 2: match constraint
+                ->union(
+                    thisModule.rulesForMatchConstraint(c)
+                        ->collect(r |
+                            thisModule.MatchConstraintDetail(r)
+                        )
+                )
+
+                -- Step 4: mutex constraint
+                ->union(
+
+                    thisModule.mutexRulesForContext(c)
+                        ->collect(r1 |
+
+                            thisModule.laterOverlappingRules(r1)
+                                ->collect(r2 |
+                                    thisModule.MutexConstraintDetail(
+                                        r1,
+                                        r2
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+
+-- Step 2: lưu filter của matched rule trên trace class.
+unique lazy rule FilterConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'match_'
+                + r.name
+                + '_cond',
+
+            value <-
+                thisModule.filterExpr(r)
+        )
+}
+
+-- Step 2: khai báo tên ràng buộc gắn với trace class.
+unique lazy rule TraceConstraintNamesAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
+
+-- Step 2: lưu invariant bằng nhau chính của một binding.
+unique lazy rule BindingConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                thisModule.bindingConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.bindingConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                )
+        )
+}
+
+-- Step 2: gom invariant filter, binding, resolution và frame.
+unique lazy rule TraceOclAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+                (
+                    if r.inPattern.filter.oclIsUndefined()
+                    then
+                        Sequence {}
+                    else
+                        Sequence {
+                            thisModule.FilterConstraintDetail(r)
+                        }
+                    endif
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->collect(b |
+                            thisModule.BindingConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeIV(r, b)
+                        )
+                        ->collect(b |
+                            thisModule.ShapeIVDefinedConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeV(
+                                r,
+                                b
+                            )
+                        )
+                        ->collect(b |
+                            thisModule.ShapeVSizeConstraintDetail(
+                                b
+                            )
+                        )
+                )
+                ->union(
+                    r.outPattern.elements
+                        ->select(o |
+                            o.oclIsTypeOf(
+                                ATL!SimpleOutPatternElement
+                            )
+                        )
+                        ->collect(o |
+                            thisModule.unboundPropertiesOf(o)
+                                ->collect(p |
+                                    thisModule.NullConstraintDetail(
+                                        o,
+                                        p
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+-- Step 2: lưu ràng buộc bảo toàn definedness của Shape IV.
+unique lazy rule ShapeIVDefinedConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeIVDefinedConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeIVDefinedConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: lưu ràng buộc bảo toàn số lượng của Shape V.
+unique lazy rule ShapeVSizeConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeVSizeConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeVSizeConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: lưu invariant frame cho thuộc tính chưa bind.
+-- One detail is required for every (out-pattern element, unbound feature)
+-- pair. A unique lazy rule reused the first detail for the other features.
+lazy rule NullConstraintDetail {
+
+    from
+        o : ATL!SimpleOutPatternElement,
+        p : ECORE!EStructuralFeature
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.nullConstraintName(
+                    o,
+                    p
+                ),
+
+            value <-
+                thisModule.nullConstraintExpr(
+                    o,
+                    p
+                )
+        )
+}
+
+-- Step 3: khai báo tên creator constraint trên target class.
+unique lazy rule CreationConstraintNamesAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+
+            value <- thisModule.targetConstraintNames(c)
+        )
+}
+
+-- Step 3: lưu OCL expression "đúng một creator".
+unique lazy rule CreationConstraintDetail {
+
+    from
+        c : ECORE!EClass
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+
+                thisModule.creationConstraintName(c),
+
+            value <-
+                thisModule.creationConstraintExpr(c)
+        )
+}
+
+-- Step 3: gắn creator constraint vào target class.
+unique lazy rule CreationOclAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: OCL gốc của TGT
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 3: creator constraint
+                ->union(
+                    Sequence {
+                        thisModule.CreationConstraintDetail(c)
+                    }
+                )
+
+                -- Do not add these names to CreationConstraintNamesAnnotation:
+                -- USE/eFinder must not treat them as semantic assumptions.
+                ->union(
+                    c.eStructuralFeatures
+                        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                        ->collect(p |
+                            thisModule.TargetMultiplicityConstraintDetail(c, p)
+                        )
+                )
+        )
+}
+
+-- Step 4: lưu OCL expression mutex cho một cặp matched rule.
+-- A mutex detail is parameterised by an ordered pair of matched rules. Do
+-- not memoise it as a unique lazy rule: ATL may reuse the cached result for
+-- a partial source tuple, leaving later mutex names without a Pivot body.
+lazy rule MutexConstraintDetail {
+
+    from
+        r1 : ATL!MatchedRule,
+        r2 : ATL!MatchedRule
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.mutexConstraintName(
+                    r1,
+                    r2
+                ),
+
+            value <-
+                thisModule.mutexExpr(
+                    r1,
+                    r2
+                )
+        )
+}

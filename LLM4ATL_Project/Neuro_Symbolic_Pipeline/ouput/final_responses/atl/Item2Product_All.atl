@@ -1,0 +1,35 @@
+module Item2Product_All;
+create OUT : Product from IN : Item;
+
+helper context Item!Item def: getCategory() : String =
+    if (self.type = 'Electronics') then
+        'Tech'
+    else
+        if (self.type = 'Clothing') then
+        'Apparel'
+    else
+        'General'
+    endif
+    endif;
+
+rule ItemModel2ProductModel {
+    from
+        im : Item!ItemModel
+    to
+        pm : Product!ProductModel (
+            products <- im.items
+        )
+}
+
+rule Item2Product {
+    from
+        i : Item!Item
+    to
+        p : Product!Product (
+            name <- i.name,
+            price <- i.price,
+            description <- i.description,
+            inStock <- (i.quantity > 0),
+            category <- i.getCategory()
+        )
+}
