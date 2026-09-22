@@ -33,7 +33,7 @@ load_dotenv(PROJECT_DIR / '.env', override=True)
 try:
     LLM_CLIENT = create_llm_client()
 except LLMConfigurationError as error:
-    print(f"[Lỗi cấu hình LLM] {error}")
+    print(f"[LLM configuration error] {error}")
     sys.exit(1)
 ABLATION_CONFIG = AblationConfig.from_env()
 
@@ -189,11 +189,11 @@ def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
         candidate_atl.write_text(atl_code, encoding='utf-8')
     except Exception as error:
         detail = f"ast2atl could not generate ATL from the validated AST: {error}"
-        print(f"[{basename}] Layer 3 dừng: AST2ATL_ERROR: Không thể tạo ATL từ AST.", flush=True)
+        print(f"[{basename}] Layer 3 stopped: AST2ATL_ERROR: Could not generate ATL from the AST.", flush=True)
         return "GENERATION_ERROR", detail, None
 
-    print(f"[{basename}] Đã tạo ATL thành công.", flush=True)
-    print(f"[{basename}] Đang chuyển ATL -> ATL2TM...", flush=True)
+    print(f"[{basename}] Generated ATL successfully.", flush=True)
+    print(f"[{basename}] Converting ATL -> ATL2TM...", flush=True)
 
     try:
         from pipeline.formal_verification.run_case import verify_atl_for_pipeline
@@ -216,29 +216,29 @@ def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
 
     if not result.status.startswith("ATL2TM_") \
             and result.status != "LAYER3_CONFIGURATION_ERROR":
-        print(f"[{basename}] Đã tạo ATL -> ATL2TM thành công.", flush=True)
-        print(f"[{basename}] Đang chạy eFinder...", flush=True)
+        print(f"[{basename}] Generated ATL -> ATL2TM successfully.", flush=True)
+        print(f"[{basename}] Running eFinder...", flush=True)
 
     if result.status == "VERIFIED":
-        print(f"[{basename}] Layer 3: PASS - không tìm thấy phản ví dụ.", flush=True)
+        print(f"[{basename}] Layer 3: PASS - no counterexample found.", flush=True)
         final_atl = Path(AST2ATL_DIR) / f'{basename}.atl'
         final_atl.parent.mkdir(parents=True, exist_ok=True)
         final_atl.write_text(atl_code, encoding='utf-8')
         return "VERIFIED", "", final_atl
     if result.status == "COUNTEREXAMPLE":
-        print(f"[{basename}] Layer 3: SAT - phát hiện phản ví dụ; gửi cho LLM sửa.", flush=True)
+        print(f"[{basename}] Layer 3: SAT - counterexample found; sending it to the LLM for repair.", flush=True)
         return "COUNTEREXAMPLE", result.feedback, candidate_atl
-    print(f"[{basename}] Layer 3 dừng: {result.detail}", flush=True)
+    print(f"[{basename}] Layer 3 stopped: {result.detail}", flush=True)
     return result.status, result.detail, candidate_atl
 
 def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     basename = os.path.splitext(os.path.basename(prompt_file_path))[0]
     output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
     if os.path.exists(output_path):
-        print(f"\n--- Bỏ qua: {basename} (File đã tồn tại) ---")
+        print(f"\n--- Skipping: {basename} (file already exists) ---")
         return
 
-    print(f"\n--- Đang xử lý: {basename} ---")
+    print(f"\n--- Processing: {basename} ---")
     
     # Read prompt content
     with open(prompt_file_path, 'r', encoding='utf-8') as f:
@@ -247,7 +247,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     # Get models
     model_files = mapping.get(basename)
     if not model_files:
-        print(f"[Cảnh báo] Không tìm thấy mapping model cho {basename}")
+        print(f"[Warning] No model mapping found for {basename}")
         return
         
     model_content = ""
@@ -258,7 +258,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             model_content += full_path.read_text(encoding='utf-8') + "\n\n"
             model_full_paths.append(str(full_path))
         else:
-            print(f"[Lỗi] Không tìm thấy file model: {full_path}")
+            print(f"[Error] Model file not found: {full_path}")
             
     MAX_RETRIES = 5
     validation_error = ""
@@ -269,13 +269,13 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         data = None
         current_atl = None
         if attempt > 0:
-            print(f"[{basename}] Bắt đầu lặp Auto-Fix (lần {attempt}/{MAX_RETRIES})...")
+            print(f"[{basename}] Starting Auto-Fix iteration ({attempt}/{MAX_RETRIES})...")
             
         full_prompt = build_prompt(prompt_content, model_content, validation_error)
         
         try:
             print(
-                f"[{basename}] Đang gửi request tới "
+                f"[{basename}] Sending request to "
                 f"{LLM_CLIENT.provider}/{LLM_CLIENT.model_name}..."
             )
             raw_json = extract_json(
@@ -289,10 +289,10 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             ast_obj = None
             needs_typed_ast = ablation_config.is_enabled("enable_layer2_semantic")
             if ablation_config.is_enabled("enable_layer1_schema"):
-                print(f"[{basename}] Đang kiểm tra Pydantic Validation (Layer 1)...")
+                print(f"[{basename}] Running Pydantic validation (Layer 1)...")
                 ast_obj = Module(**data)
                 data = ast_obj.model_dump()
-                print(f"[{basename}] Layer 1: PASS - AST hợp lệ.", flush=True)
+                print(f"[{basename}] Layer 1: PASS - valid AST.", flush=True)
             elif needs_typed_ast:
                 print(f"[{basename}] Layer 1 disabled as a validation gate; building typed AST for downstream checks.")
                 ast_obj = Module(**data)
@@ -302,11 +302,11 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             
             # Layer 2: Semantic Check
             if ablation_config.is_enabled("enable_layer2_semantic"):
-                print(f"[{basename}] Đang kiểm tra Ngữ nghĩa (Layer 2)...")
+                print(f"[{basename}] Running semantic check (Layer 2)...")
                 registry = ATLEcoreRegistry(model_full_paths)
                 env = TypeEnvironment(registry=registry)
                 ATLSemanticChecker.check_module(ast_obj, env, ablation_config)
-                print(f"[{basename}] Layer 2: PASS - ngữ nghĩa hợp lệ.", flush=True)
+                print(f"[{basename}] Layer 2: PASS - valid semantics.", flush=True)
             else:
                 print(f"[{basename}] Skipping semantic check (Layer 2).")
             
@@ -324,30 +324,30 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                 continue
             if layer3_status not in {"VERIFIED", "SKIPPED"}:
                 save_last_candidate(basename, data, final_atl)
-                print(f"[{basename}] Layer 3 kết thúc với trạng thái {layer3_status}; "
-                      "bản nháp cuối đã được lưu, chưa được xác nhận.", flush=True)
+                print(f"[{basename}] Layer 3 ended with status {layer3_status}; "
+                      "the last draft was saved but is not verified.", flush=True)
                 return
 
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
             with open(output_path, 'w', encoding='utf-8') as out_f:
                 json.dump(data, out_f, indent=2, ensure_ascii=False)
-            print(f"[Thành công] {basename} đã qua kiểm duyệt và được lưu.")
+            print(f"[Success] {basename} passed validation and was saved.")
             return
             
         except json.JSONDecodeError as e:
-            validation_error = f"JSONDecodeError: {str(e)}\n\nLưu ý: Bạn phải trả về ĐÚNG chuẩn JSON, không chứa text thừa."
-            print(f"[Lỗi Cú pháp JSON] {str(e)}")
+            validation_error = f"JSONDecodeError: {str(e)}\n\nNote: Return valid JSON only, without extra text."
+            print(f"[JSON syntax error] {str(e)}")
         except ValidationError as e:
             save_last_candidate(basename, data, current_atl)
             validation_error = str(e)
-            print(f"[Lỗi Pydantic Layer 1] Phát hiện {e.error_count()} lỗi cấu trúc.")
+            print(f"[Pydantic Layer 1 error] Found {e.error_count()} structural error(s).")
             print(validation_error)
         except SemanticError as e:
             save_last_candidate(basename, data, current_atl)
             if data is not None:
                 last_layer2_data = data
-            validation_error = f"SemanticError: {str(e)}\n\nLưu ý: Sửa lỗi ngữ nghĩa liên quan đến Type Environment và UML constraints."
-            print(f"[Lỗi Ngữ nghĩa Layer 2] {str(e)}")
+            validation_error = f"SemanticError: {str(e)}\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+            print(f"[Semantic Layer 2 error] {str(e)}")
         except Exception as e:
             save_last_candidate(basename, data, current_atl)
             validation_error = f"Unexpected Error: {str(e)}"
@@ -359,15 +359,15 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                     or "certificate verify" in err_str.lower()
                     or "SSL_ERROR" in err_str
                     or isinstance(e, TimeoutError)):
-                print(f"[Lỗi API] {err_str.splitlines()[0] if str(e) else 'Lỗi kết nối API'}")
+                print(f"[API error] {err_str.splitlines()[0] if str(e) else 'API connection error'}")
                 break
-            print(f"[Lỗi API/Hệ thống] {err_str}")
+            print(f"[API/system error] {err_str}")
             
         # Nghỉ 10 giây tránh Rate Limit
         if attempt < MAX_RETRIES:
             time.sleep(10)
             
-    print(f"[Thất bại] {basename} không thể sửa lỗi sau {MAX_RETRIES} lần lặp.")
+    print(f"[Failure] {basename} could not be repaired after {MAX_RETRIES} iteration(s).")
     final_data = data
     final_atl = current_atl
     if final_atl is None and last_layer2_data is not None:
@@ -380,12 +380,27 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
 def main():
     prompt_files = glob.glob(os.path.join(PROMPTS_DIR, "*.txt"))
     if not prompt_files:
-        print("Không tìm thấy file prompt nào trong thư mục!")
+        print("No prompt files found in the directory.")
         return
         
-    print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
+    print(f"Found {len(prompt_files)} prompt file(s). Starting batch processing...")
     selected_cases = [
-       "ER2REL"
+        "Class2Interface_All",
+        "Document2Report_All",
+        "Item2Product_All",
+        "User2Account_All",
+        "NetworkToGraph_All",
+        "FamiliesToPersons_All",
+        "AmaltheaToAscet_All",
+        "BibTeX2DocBook_All",
+        "XML2DSL_All",
+        "PetriNet2Grafcet_All",
+        "Grafcet2PetriNet_All",
+        "DSL2KM3_All",
+        "IEEE1471_2_MoDAF_All",
+        "Make2Ant_All",
+        "CPL2SPL_All"
+
     ]
 
     prompt_by_case = {

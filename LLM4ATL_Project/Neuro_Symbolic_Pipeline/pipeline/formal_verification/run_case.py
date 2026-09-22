@@ -95,17 +95,17 @@ def atl2tm_unsupported_markers(ecore: Path) -> list[str]:
 def describe_atl2tm_features(features: list[str]) -> str:
     """Convert backend marker names into a stable user-facing diagnostic."""
     descriptions = {
-        "LAZY_RULE": "ATL2TM chưa hỗ trợ lazy rule",
-        "RECURSIVE_HELPER": "ATL2TM chưa hỗ trợ helper đệ quy",
+        "LAZY_RULE": "ATL2TM does not support lazy rules",
+        "RECURSIVE_HELPER": "ATL2TM does not support recursive helpers",
         "__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__":
-            "ATL2TM chưa hỗ trợ gọi rule qua thisModule (lazy/called rule)",
+            "ATL2TM does not support rule calls through thisModule (lazy/called rules)",
         "__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__":
-            "ATL2TM chưa hỗ trợ resolveTemp",
+            "ATL2TM does not support resolveTemp",
         "__ATL2TM_UNSUPPORTED_FEATURE__HELPER_ATTRIBUTE__":
-            "ATL2TM chưa hỗ trợ thuộc tính helper dạng này",
+            "ATL2TM does not support this kind of helper attribute",
         "__ATL2TM_UNSUPPORTED_EXPRESSION__":
-            "ATL2TM chưa hỗ trợ một biểu thức ATL/OCL",
-        "RUNNER_REPORTED_FEATURE": "ATL2TM báo có cấu trúc chưa được hỗ trợ",
+            "ATL2TM does not support an ATL/OCL expression",
+        "RUNNER_REPORTED_FEATURE": "ATL2TM reported an unsupported construct",
     }
     return "; ".join(descriptions.get(feature, feature) for feature in features)
 
@@ -228,7 +228,7 @@ def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
             features = ["RUNNER_REPORTED_FEATURE"]
         detail = (
             describe_atl2tm_features(features)
-            + "; Layer 3 đã dừng, eFinder không được chạy."
+            + "; Layer 3 stopped, and eFinder was not run."
         )
         result = write_atl2tm_status(
             case, output_ecore, features,
@@ -247,7 +247,7 @@ def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
         result = write_atl2tm_status(case, output_ecore, markers)
         raise Atl2TmUnsupported(
             describe_atl2tm_features(markers)
-            + "; Layer 3 đã dừng, eFinder không được chạy."
+            + "; Layer 3 stopped, and eFinder was not run."
         )
 
 
@@ -260,27 +260,27 @@ def _summarize_atl2tm_failure(output: str, log_path: Path) -> str:
     missing_atl = re.search(r"ATL file not found:\s*([^\r\n]+)", output)
     if missing_atl:
         summary = (
-            "Không tìm thấy ATL đầu vào '"
+            "Input ATL not found: '"
             + Path(missing_atl.group(1).strip()).name
-            + "'. Hãy tạo hoặc lưu ATL trước khi chạy Layer 3."
+            + "'. Generate or save the ATL before running Layer 3."
         )
     elif "Unable to access elements on OclUndefined" in output:
         rule = re.search(r"local variables:.*?r=IN!([A-Za-z_][A-Za-z0-9_]*)", output)
-        rule_name = rule.group(1) if rule else "một rule"
+        rule_name = rule.group(1) if rule else "a rule"
         summary = (
-            f"ATL2TM không đọc được out-pattern của rule '{rule_name}'. "
-            "Kiểm tra phần 'to' của rule và tránh dùng ATL/OCL keyword làm tên biến."
+            f"ATL2TM could not read the out-pattern of rule '{rule_name}'. "
+            "Check the rule's 'to' section and avoid ATL/OCL keywords as variable names."
         )
     elif "ATL parsing failed" in output or "ATLParseException" in output:
-        summary = "ATL đầu vào không parse được. Kiểm tra cú pháp và các identifier reserved."
+        summary = "The input ATL could not be parsed. Check its syntax and reserved identifiers."
     else:
         exception = re.search(r"(?:Exception|Error):\s*([^\r\n]+)", output)
         summary = (
-            "ATL2TM thực thi thất bại: "
-            + (exception.group(1).strip() if exception else "không tạo được Ecore đầu ra")
+            "ATL2TM execution failed: "
+            + (exception.group(1).strip() if exception else "could not generate the output Ecore")
         )
 
-    return f"{summary} Chi tiết trong {log_path.name}."
+    return f"{summary} See {log_path.name} for details."
 
 
 def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path | None,
@@ -341,7 +341,7 @@ def _counterexample_feedback(checks: list[dict], constraints: Path | None) -> st
     lines = [
         "LAYER 3 FORMAL VERIFICATION FAILED: eFinder found a bounded "
         "counterexample for the generated ATL.",
-        "The checked formula is Sem AND Pre AND NOT Post_i. Repair the AST "
+        "Repair the AST "
         "so the generated ATL satisfies every property below; return JSON only.",
     ]
     for result in checks:
@@ -399,10 +399,10 @@ def verify_atl_for_pipeline(
 
     try:
         if verbose:
-            print("[Layer 3] Đang chuyển ATL -> ATL2TM...", flush=True)
+            print("[Layer 3] Converting ATL -> ATL2TM...", flush=True)
         run_atl2tm(case, atl, source, target, output_ecore, work_dir, verbose=verbose)
         if verbose:
-            print("[Layer 3] Đã tạo ATL -> ATL2TM thành công.", flush=True)
+            print("[Layer 3] Generated ATL -> ATL2TM successfully.", flush=True)
     except Atl2TmUnsupported as error:
         report = output_ecore.parent / f"{case}_ATL2TM.result.json"
         if not report.is_file():
@@ -422,18 +422,18 @@ def verify_atl_for_pipeline(
         return Layer3Result(
             "ATL2TM_ERROR",
             "ATL2TM_ERROR: " + str(error)
-            + " Layer 3 đã dừng; LLM không được retry.",
+            + " Layer 3 stopped; the LLM will not retry.",
         )
     except (FileNotFoundError, RuntimeError) as error:
         return Layer3Result(
             "ATL2TM_ERROR",
-            "ATL2TM_ERROR: Không thể hoàn thành chuyển ATL -> ATL2TM. "
-            "Layer 3 đã dừng; LLM không được retry.",
+            "ATL2TM_ERROR: Could not complete ATL -> ATL2TM conversion. "
+            "Layer 3 stopped; the LLM will not retry.",
         )
 
     try:
         if verbose:
-            print("[Layer 3] Đang chạy eFinder...", flush=True)
+            print("[Layer 3] Running eFinder...", flush=True)
         exit_code = run_efinder(
             case, output_ecore, constraints, efinder_output, None, scope,
             reference_scope, timeout_ms, verbose=verbose,
@@ -441,16 +441,16 @@ def verify_atl_for_pipeline(
     except (FileNotFoundError, RuntimeError) as error:
         return Layer3Result(
             "EFINDER_ERROR",
-            "EFINDER_ERROR: Không thể khởi động eFinder. "
-            "Layer 3 đã dừng; LLM không được retry.",
+            "EFINDER_ERROR: Could not start eFinder. "
+            "Layer 3 stopped; the LLM will not retry.",
         )
 
     report = efinder_output / f"{output_ecore.stem}.all.result.json"
     if exit_code != 0 or not report.is_file():
         return Layer3Result(
             "EFINDER_ERROR",
-            f"EFINDER_ERROR: eFinder không tạo được kết quả kiểm tra (exit={exit_code}). "
-            "Layer 3 đã dừng; LLM không được retry.",
+            f"EFINDER_ERROR: eFinder did not produce a verification result (exit={exit_code}). "
+            "Layer 3 stopped; the LLM will not retry.",
             report=report if report.is_file() else None,
         )
     try:
@@ -458,8 +458,8 @@ def verify_atl_for_pipeline(
     except (OSError, json.JSONDecodeError) as error:
         return Layer3Result(
             "EFINDER_ERROR",
-            "EFINDER_ERROR: Kết quả eFinder không đọc được. "
-            "Layer 3 đã dừng; LLM không được retry.",
+            "EFINDER_ERROR: The eFinder result could not be read. "
+            "Layer 3 stopped; the LLM will not retry.",
             report=report,
         )
 
@@ -467,8 +467,8 @@ def verify_atl_for_pipeline(
     if summary.get("status") != "BATCH_COMPLETED" or not isinstance(checks, list) or not checks:
         return Layer3Result(
             "EFINDER_NO_CHECKS",
-            f"EFINDER_NO_CHECKS: eFinder không tìm thấy postcondition cần kiểm tra "
-            f"(status={summary.get('status')!r}). Layer 3 đã dừng; LLM không được retry.",
+            f"EFINDER_NO_CHECKS: eFinder found no postcondition to verify "
+            f"(status={summary.get('status')!r}). Layer 3 stopped; the LLM will not retry.",
             report=report,
         )
 
@@ -485,14 +485,14 @@ def verify_atl_for_pipeline(
             else:
                 diagnostics.append(f"{check_name} ({status})")
         if unsupported:
-            message = "eFinder chưa hỗ trợ feature trong ràng buộc: " + "; ".join(diagnostics)
+            message = "eFinder does not support a feature in the constraint: " + "; ".join(diagnostics)
             status = "EFINDER_UNSUPPORTED_FEATURE"
         else:
-            message = "eFinder không thể kiểm tra an toàn: " + "; ".join(diagnostics)
+            message = "eFinder could not safely verify: " + "; ".join(diagnostics)
             status = "EFINDER_UNSUPPORTED_OR_ERROR"
         return Layer3Result(
             status,
-            message + ". Layer 3 đã dừng; LLM không được retry.",
+            message + ". Layer 3 stopped; the LLM will not retry.",
             report=report,
         )
 
@@ -514,8 +514,8 @@ def verify_atl_for_pipeline(
         )
         return Layer3Result(
             "EFINDER_ERROR",
-            "EFINDER_ERROR: eFinder trả về trạng thái không nhận diện được: " + statuses
-            + ". Layer 3 đã dừng; LLM không được retry.",
+            "EFINDER_ERROR: eFinder returned an unrecognized status: " + statuses
+            + ". Layer 3 stopped; the LLM will not retry.",
             report=report,
         )
 

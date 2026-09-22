@@ -26,7 +26,7 @@ def _required_key(provider: str, name: str) -> str:
     value = _clean(os.getenv(name))
     if not value or value.startswith("your_"):
         raise LLMConfigurationError(
-            f"Thiếu {name}. Hãy đặt API key cho provider '{provider}' trong file .env."
+            f"{name} is missing. Set the API key for provider '{provider}' in the .env file."
         )
     return value
 
@@ -66,7 +66,7 @@ class LLMClient:
             reasoning_effort = _clean(os.getenv("OPENAI_REASONING_EFFORT", "medium")).lower()
             if reasoning_effort not in {"none", "low", "medium", "high"}:
                 raise LLMConfigurationError(
-                    "OPENAI_REASONING_EFFORT phải là: none, low, medium hoặc high."
+                    "OPENAI_REASONING_EFFORT must be one of: none, low, medium, or high."
                 )
             request_kwargs = {
                 "model": self.model_name,
@@ -111,11 +111,11 @@ class LLMClient:
                 if getattr(block, "type", None) == "text"
             )
         else:
-            raise LLMConfigurationError(f"Provider không được hỗ trợ: {self.provider}")
+            raise LLMConfigurationError(f"Unsupported provider: {self.provider}")
 
         if not text or not text.strip():
             raise RuntimeError(
-                f"Provider '{self.provider}' trả về response rỗng cho model '{self.model_name}'."
+                f"Provider '{self.provider}' returned an empty response for model '{self.model_name}'."
             )
         return text.strip()
 
@@ -132,7 +132,7 @@ def create_llm_client() -> LLMClient:
     if provider not in _DEFAULT_MODELS:
         supported = ", ".join(_DEFAULT_MODELS)
         raise LLMConfigurationError(
-            f"LLM_PROVIDER='{provider}' không hợp lệ. Chọn một trong: {supported}."
+            f"LLM_PROVIDER='{provider}' is invalid. Choose one of: {supported}."
         )
 
     model_name = _clean(os.getenv("LLM_MODEL")) or _clean(
@@ -157,8 +157,8 @@ def create_llm_client() -> LLMClient:
             from anthropic import Anthropic
         except ImportError as error:
             raise LLMConfigurationError(
-                "Provider 'claude' cần package 'anthropic'. "
-                "Chạy: python -m pip install -r requirements.txt"
+                "Provider 'claude' requires the 'anthropic' package. "
+                "Run: python -m pip install -r requirements.txt"
             ) from error
 
         kwargs = {"api_key": _required_key(provider, "ANTHROPIC_API_KEY")}
