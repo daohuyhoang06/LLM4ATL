@@ -1,7 +1,7 @@
 import re
-from atl_identifiers import atl_identifier_error
-from schema.atl_ast import *
-from ablation_config import is_enabled
+from common.atl_identifiers import atl_identifier_error
+from config.ablation_config import is_enabled
+from pipeline.structural_checking.schema.atl_ast import *
 from .type_environment import TypeEnvironment
 from .ocl_semantic_checker import OCLSemanticChecker
 from .errors import SemanticError
@@ -112,7 +112,7 @@ class ATLSemanticChecker:
         A bare collection name is useful internally as an inferred
         ``Kind(Unknown)`` type, but is not legal in an ATL declaration.  The
         AST generator emits declared types verbatim, so declarations must
-        carry their element type (for example, ``Set(CPL!Location)``).
+        carry their element type.
         """
         normalized = str(type_name).strip()
         match = cls._BARE_COLLECTION_TYPE.fullmatch(normalized)
@@ -120,8 +120,7 @@ class ATLSemanticChecker:
             kind = match.group(1)
             raise SemanticError(
                 f"{label} cannot be bare '{kind}'. "
-                f"Use '{kind}(ElementType)' (for example, "
-                f"'{kind}(CPL!Location)')."
+                f"Use '{kind}(ElementType)'."
             )
 
     @classmethod

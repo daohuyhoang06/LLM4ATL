@@ -1,7 +1,7 @@
 from typing import Optional
 import re
-from schema.ocl_ast import OCLExpression
-from ablation_config import is_enabled
+from config.ablation_config import is_enabled
+from pipeline.structural_checking.schema.ocl_ast import OCLExpression
 from .type_environment import TypeEnvironment
 from .errors import SemanticError
 from .ecore_registry import ATLEcoreRegistry
@@ -788,7 +788,7 @@ class OCLSemanticChecker:
         if op == "includes": return "Boolean"
         if op == "excludes": return "Boolean"
         if op in ("includesAll", "excludesAll"): return "Boolean"
-        if op in ("union", "intersection", "symmetricDifference"):
+        if op in ("union", "intersection", "symmetricDifference", "including"):
             return source_type
         if op == "flatten": return source_type
         if op == "asSet": 

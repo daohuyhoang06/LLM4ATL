@@ -12,17 +12,6 @@ from dotenv import load_dotenv
 
 PROJECT_DIR = Path(__file__).resolve().parent
 PIPELINE_DIR = PROJECT_DIR / "pipeline"
-COMMON_DIR = PROJECT_DIR / "common"
-CONFIG_DIR = PROJECT_DIR / "config"
-STRUCTURAL_CHECKING_DIR = PIPELINE_DIR / "structural_checking"
-
-# Compatibility imports for modules which have not yet been refactored to
-# package-qualified imports. New code should import through pipeline/... .
-for import_dir in (COMMON_DIR, CONFIG_DIR, STRUCTURAL_CHECKING_DIR):
-    import_dir_text = str(import_dir)
-    if import_dir_text not in sys.path:
-        sys.path.insert(0, import_dir_text)
-
 from config.ablation_config import AblationConfig
 from pipeline.generation.llm_client import LLMConfigurationError, create_llm_client
 from pipeline.static_analysis.ecore_registry import ATLEcoreRegistry
@@ -88,7 +77,7 @@ AST_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl_ast'
 ATL_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl'
 FORMAL_VERIFICATION_OUTPUT_DIR = OUTPUT_DIR / 'formal_verification'
 LAYER3_OUTPUT_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'pipeline_attempts'
-LAYER3_CANDIDATE_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / '.layer3_candidates'
+CANDIDATES_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'candidates'
 
 # Existing function names are preserved while the rest of main.py is
 # incrementally refactored.
@@ -156,6 +145,21 @@ def save_last_candidate(basename, data, atl_path=None):
         )
 
 
+def generate_final_atl_from_ast(basename, data):
+    """Convert a valid final AST to ATL when Layer 2 exhausts its retries."""
+    try:
+        from pipeline.formal_verification.ast2atl import ATLGenerator
+
+        atl_code = ATLGenerator(data).generate()
+        final_atl = Path(AST2ATL_DIR) / f'{basename}.atl'
+        final_atl.parent.mkdir(parents=True, exist_ok=True)
+        final_atl.write_text(atl_code, encoding='utf-8')
+        return final_atl
+    except Exception as error:
+        print(f"[{basename}] Could not convert the final AST to ATL: {error}")
+        return None
+
+
 def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
     """Generate ATL, translate it with ATL2TM, then query eFinder.
 
@@ -169,8 +173,8 @@ def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
 
     # Keep attempt-specific Layer 3 artefacts with formal-verification output,
     # separate from the normal LLM response directories.
-    candidate_ast_dir = LAYER3_CANDIDATE_DIR / 'ast' / basename
-    candidate_atl_dir = LAYER3_CANDIDATE_DIR / 'ast2atl' / basename
+    candidate_ast_dir = CANDIDATES_DIR / 'atl_ast' / basename
+    candidate_atl_dir = CANDIDATES_DIR / 'atl' / basename
     candidate_ast = candidate_ast_dir / f'attempt-{attempt + 1}.json'
     candidate_atl = candidate_atl_dir / f'attempt-{attempt + 1}.atl'
     candidate_ast.parent.mkdir(parents=True, exist_ok=True)
@@ -259,6 +263,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     MAX_RETRIES = 5
     validation_error = ""
     data = None
+    last_layer2_data = None
     
     for attempt in range(MAX_RETRIES + 1):
         data = None
@@ -339,6 +344,8 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             print(validation_error)
         except SemanticError as e:
             save_last_candidate(basename, data, current_atl)
+            if data is not None:
+                last_layer2_data = data
             validation_error = f"SemanticError: {str(e)}\n\nLưu ý: Sửa lỗi ngữ nghĩa liên quan đến Type Environment và UML constraints."
             print(f"[Lỗi Ngữ nghĩa Layer 2] {str(e)}")
         except Exception as e:
@@ -361,9 +368,14 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             time.sleep(10)
             
     print(f"[Thất bại] {basename} không thể sửa lỗi sau {MAX_RETRIES} lần lặp.")
-    if data is not None:
-        save_last_candidate(basename, data, current_atl)
-        print("[Layer 3] The last AST/ATL candidate was saved to the normal output locations.")
+    final_data = data
+    final_atl = current_atl
+    if final_atl is None and last_layer2_data is not None:
+        final_data = last_layer2_data
+        final_atl = generate_final_atl_from_ast(basename, final_data)
+    if final_data is not None:
+        save_last_candidate(basename, final_data, final_atl)
+        print("[Pipeline] The last AST/ATL candidate was saved to the normal output locations.")
 
 def main():
     prompt_files = glob.glob(os.path.join(PROMPTS_DIR, "*.txt"))
@@ -373,10 +385,9 @@ def main():
         
     print(f"Tìm thấy {len(prompt_files)} file prompt. Bắt đầu xử lý hàng loạt...")
     selected_cases = [
-        "IEEE1471_2_MoDAF_All",
-        "Make2Ant_All",
-        "CPL2SPL_All"
+       "CPL2SPL_All"
     ]
+
     prompt_by_case = {
         os.path.splitext(os.path.basename(p))[0]: p
         for p in prompt_files

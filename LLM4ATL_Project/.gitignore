@@ -88,10 +88,8 @@ docs/_build/
 target/
 
 
-# Generated LLM AST and ATL candidates. Keep these local; the pipeline
-# regenerates them under final_responses/atl_ast and final_responses/atl.
-Neuro_Symbolic_Pipeline/output/final_responses/
-Neuro_Symbolic_Pipeline/ouput/final_responses/
+# Generated verification artifacts. Keep these local; the pipeline
+# regenerates them under formal_verification/.
 Neuro_Symbolic_Pipeline/output/formal_verification/
 Neuro_Symbolic_Pipeline/ouput/formal_verification/
 
@@ -100,6 +98,11 @@ ATL_Parser/atl_chrf_similarity.csv
 ATL_Parser/atl_parser_chrf_results.csv
 ATL_Tests/atl_pass_rate_summary.csv
 ATL_Tests/atl_test_results.csv
+ATL_Parser/atl_chrf_similarity_*.csv
+ATL_Parser/atl_parser_chrf_results_*.csv
+ATL_Parser/atl_parsed_rate_*.csv
+ATL_Tests/atl_pass_rate_summary_*.csv
+ATL_Tests/atl_test_results_*.csv
 
 # Jupyter Notebook
 .ipynb_checkpoints

@@ -1,0 +1,185 @@
+{
+  "type": "Module",
+  "name": "NetworkToGraph_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "network"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "graph"
+    }
+  ],
+  "elements": [
+    {
+      "type": "MatchedRule",
+      "name": "Component2Entity",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "graph!Entity"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "c",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "c",
+              "declared_type": "network!Component"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "System2Root",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "graph!Root"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "entities",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "components"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "network!System"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Link2Link",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "gl",
+              "declared_type": "graph!Link"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "Entitys",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "l",
+                    "declared_type": null
+                  },
+                  "property_name": "components"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "l",
+              "declared_type": "network!Link"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    }
+  ]
+}

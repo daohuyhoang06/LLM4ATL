@@ -2,8 +2,10 @@
 """
 Reads atl_parser_chrf_results.csv, runs JUnit tests for each (LLM, Strategy, File)
 combination where Parsed=True, then outputs:
-  1. atl_test_results.csv       - full results with test_pass column
-  2. atl_pass_rate_summary.csv  - pass rate per LLM x Strategy combination
+  1. atl_test_results_<llm>_<strategy>.csv
+                                - full results with test_pass column
+  2. atl_pass_rate_summary_<llm>_<strategy>.csv
+                                - pass rate per LLM x Strategy combination
 
 Logic: test_pass = True  only if  Parsed=True AND JUnit test passes
        test_pass = False if Parsed=False OR JUnit test fails/errors
@@ -29,10 +31,11 @@ OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
 AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
+RESULT_TAG = "gemini-3-5-flash_neuro_symbolic"
 ATL_SRC_DIR = PROJECT_DIR / "src" / "main" / "atl"
-INPUT_CSV = REPO_DIR / "ATL_Parser" / "atl_parser_chrf_results.csv"
-OUTPUT_CSV = PROJECT_DIR / "atl_test_results.csv"
-SUMMARY_CSV = PROJECT_DIR / "atl_pass_rate_summary.csv"
+INPUT_CSV = REPO_DIR / "ATL_Parser" / f"atl_parser_chrf_results_{RESULT_TAG}.csv"
+OUTPUT_CSV = PROJECT_DIR / f"atl_test_results_{RESULT_TAG}.csv"
+SUMMARY_CSV = PROJECT_DIR / f"atl_pass_rate_summary_{RESULT_TAG}.csv"
 
 # Mapping from ATL file base name to JUnit test class (fully qualified)
 FILE_TO_TEST = {

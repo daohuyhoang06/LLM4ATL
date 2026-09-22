@@ -3,7 +3,7 @@ import json
 import glob
 from pathlib import Path
 
-from atl_identifiers import ATL_IDENTIFIER_RE, ATL_RESERVED_WORDS
+from common.atl_identifiers import ATL_IDENTIFIER_RE, ATL_RESERVED_WORDS
 
 # Mappings to normalize model aliases (case-sensitive)
 ALIAS_MAPPING = {

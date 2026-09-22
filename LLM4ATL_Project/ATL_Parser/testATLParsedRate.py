@@ -6,9 +6,9 @@ This script reads:
 - Prompting_Strategies/n8n-docker/mtl_snippets/ATLAS_transformation_language/references/*.atl
 
 It writes:
-- atl_parser_chrf_results.csv
-- atl_parsed_rate.csv
-- atl_chrf_similarity.csv
+- atl_parser_chrf_results_<llm>_<strategy>.csv
+- atl_parsed_rate_<llm>_<strategy>.csv
+- atl_chrf_similarity_<llm>_<strategy>.csv
 """
 
 from __future__ import annotations
@@ -43,16 +43,18 @@ ATL_REFERENCES_DIR = (
     / "ATLAS_transformation_language"
     / "references"
 )
+# The filename tag identifies the generation method used for this batch.
+LLM_LABEL = "gemini-3-5-flash"
+STRATEGY_LABEL = "neuro_symbolic"
+RESULT_TAG = f"{LLM_LABEL}_{STRATEGY_LABEL}"
+
 # Keep the default parser unit-test fixtures separate from generated ATL
 # variants. The evaluator temporarily replaces these files and restores them.
 TEST_RESOURCES_DIR = SCRIPT_DIR / "src" / "test" / "resources" / "other_references"
 
-MERGED_CSV = SCRIPT_DIR / "atl_parser_chrf_results.csv"
-PARSED_CSV = SCRIPT_DIR / "atl_parsed_rate.csv"
-CHRF_CSV = SCRIPT_DIR / "atl_chrf_similarity.csv"
-
-LLM_LABEL = "ast2atl"
-STRATEGY_LABEL = "direct"
+MERGED_CSV = SCRIPT_DIR / f"atl_parser_chrf_results_{RESULT_TAG}.csv"
+PARSED_CSV = SCRIPT_DIR / f"atl_parsed_rate_{RESULT_TAG}.csv"
+CHRF_CSV = SCRIPT_DIR / f"atl_chrf_similarity_{RESULT_TAG}.csv"
 
 
 def get_response_files() -> list[Path]:

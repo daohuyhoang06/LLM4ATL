@@ -1,5 +1,5 @@
 from typing import List, Dict
-from atl_identifiers import atl_identifier_error
+from common.atl_identifiers import atl_identifier_error
 from .errors import SemanticError
 
 class TypeEnvironment:
