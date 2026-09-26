@@ -6,7 +6,7 @@ The `main` branch contains the primary project code.
 
 ## Pipeline Overview
 
-![Neuro-symbolic pipeline for ATL transformation generation and verification](docs/images/pipeline_v3.png)
+![Neuro-symbolic pipeline for ATL transformation generation and verification](docs/images/pipeline.png)
 
 ## Getting Started
 
