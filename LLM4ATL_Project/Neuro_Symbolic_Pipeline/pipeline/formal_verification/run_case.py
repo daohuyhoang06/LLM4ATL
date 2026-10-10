@@ -95,7 +95,10 @@ def atl2tm_unsupported_markers(ecore: Path) -> list[str]:
 def describe_atl2tm_features(features: list[str]) -> str:
     """Convert backend marker names into a stable user-facing diagnostic."""
     descriptions = {
-        "LAZY_RULE": "ATL2TM does not support lazy rules",
+        "LAZY_RULE": (
+            "ATL2TM supports only direct ordinary lazy-rule calls with one input "
+            "and one output; this lazy-rule form is unsupported"
+        ),
         "RECURSIVE_HELPER": "ATL2TM does not support recursive helpers",
         "__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__":
             "ATL2TM does not support rule calls through thisModule (lazy/called rules)",

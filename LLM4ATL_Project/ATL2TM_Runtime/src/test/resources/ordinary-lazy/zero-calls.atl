@@ -1,0 +1,14 @@
+module ZeroCalls;
+create OUT : Target from IN : Source;
+
+rule Box2Box {
+    from s : Source!Box
+    to t : Target!BoxOut
+}
+
+lazy rule Item2Tag {
+    from s : Source!Item
+    to t : Target!Tag (
+        name <- s.name
+    )
+}

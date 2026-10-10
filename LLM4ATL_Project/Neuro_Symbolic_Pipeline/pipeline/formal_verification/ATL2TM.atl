@@ -844,9 +844,8 @@ helper def : renderNavigationCall(
     + '.'
     + e.name;
 
--- Rule calls through thisModule are not ordinary OCL helper calls. A lazy
--- rule is demand-driven and cannot be represented by universal matched-rule
--- trace constraints, so leave an explicit marker for the formal runner.
+-- Rule calls through thisModule are not ordinary OCL helper calls. Calls
+-- outside the directly encoded ordinary-lazy subset leave a rejection marker.
 helper def : isUnsupportedRuleCall(
     e : ATL!OperationCallExp
 ) : Boolean =
@@ -855,6 +854,132 @@ helper def : isUnsupportedRuleCall(
     and
     ATL!MatchedRule.allInstancesFrom('IN')
         ->exists(r | r.name = e.operationName);
+
+-- The first supported lazy subset consists of a direct, scalar call in a
+-- binding of an ordinary matched rule. All other rule calls remain rejected.
+helper def : isDirectLazyBinding(
+    b : ATL!Binding
+) : Boolean =
+
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!OperationCallExp)
+    then
+        let e : ATL!OperationCallExp = b.value
+        in
+        thisModule.isModuleReceiver(e.source)
+        and e.arguments->size() = 1
+        and ATL!LazyMatchedRule.allInstancesFrom('IN')
+            ->exists(r |
+                not r.isUnique
+                and r.name = e.operationName
+            )
+    else
+        false
+    endif;
+
+helper def : directLazyRule(
+    b : ATL!Binding
+) : ATL!LazyMatchedRule =
+
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(r | r.name = b.value.operationName)
+        ->first();
+
+helper def : directLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isDirectLazyBinding(b))
+        ->asSequence();
+
+helper def : directCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!Binding) =
+
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isDirectLazyBinding(b))
+        ->select(b | b.value.operationName = r.name)
+        ->asSequence();
+
+helper def : directLazyCallName(
+    b : ATL!Binding
+) : String =
+
+    '__atl2tm_call_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+helper def : directLazyCallerName(
+    b : ATL!Binding
+) : String =
+
+    '__atl2tm_caller_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+helper def : directLazyArgumentConstraintName(
+    b : ATL!Binding
+) : String =
+
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_argument';
+
+helper def : directLazyArgumentConstraintExpr(
+    b : ATL!Binding
+) : String =
+
+    'self.'
+    + thisModule.directLazyCallName(b)
+    + '.'
+    + thisModule.matchInputVarName(
+        thisModule.directLazyRule(b).inPattern.elements->first()
+    )
+    + ' = '
+    + thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.arguments->first()
+    );
+
+helper def : directLazyOwnerConstraintName(
+    r : ATL!LazyMatchedRule
+) : String =
+
+    'call_'
+    + r.name
+    + '_owner';
+
+helper def : directLazyOwnerConstraintExpr(
+    r : ATL!LazyMatchedRule
+) : String =
+
+    let calls : Sequence(ATL!Binding) =
+        thisModule.directCallsToLazyRule(r)
+    in
+    if calls->isEmpty() then
+        'false'
+    else
+        calls->iterate(
+            b;
+            acc : String = '' |
+            let term : String =
+                '(if self.'
+                + thisModule.directLazyCallerName(b)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        + ' = 1'
+    endif;
 
 -- Biểu diễn expression ATL/OCL hỗ trợ thành Pivot OCL.
 helper def : renderExpr(
@@ -1336,6 +1461,8 @@ helper def : rulesForMatchConstraint(
 
     ATL!MatchedRule.allInstancesFrom('IN')
         ->select(r |
+            r.oclIsTypeOf(ATL!MatchedRule)
+            and
             r.inPattern.elements->notEmpty()
             and
             r.inPattern.elements->first().type.name = c.name
@@ -1579,6 +1706,14 @@ helper def : bindingResolvedExpr(
     b : ATL!Binding
 ) : String =
 
+    if thisModule.isDirectLazyBinding(b) then
+
+        'self.'
+        + thisModule.directLazyCallName(b)
+        + '.'
+        + thisModule.directLazyRule(b).outPattern.elements->first().varName
+
+    else
     if thisModule.isShapeV(r, b) then
 
         thisModule.resolveShapeV(
@@ -1602,6 +1737,7 @@ helper def : bindingResolvedExpr(
             )
 
         endif
+    endif
     endif;
 
 -- Mã hóa ràng buộc bằng nhau của thuộc tính đích.
@@ -1635,6 +1771,27 @@ helper def : bindingsOf(
         ->collect(o | o.bindings)
         ->flatten()
         ->asSequence();
+
+helper def : directLazyConstraintNames(
+    r : ATL!MatchedRule
+) : String =
+
+    let callerNames : String =
+        thisModule.directLazyBindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = '' |
+                let name : String =
+                    thisModule.directLazyArgumentConstraintName(b)
+                in
+                if acc = '' then name else acc + ' ' + name endif
+            )
+    in
+    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+        thisModule.directLazyOwnerConstraintName(r)
+    else
+        callerNames
+    endif;
 
 -- Liệt kê mọi ràng buộc OCL gắn với trace class.
 helper def : traceConstraintNames(
@@ -1703,7 +1860,7 @@ helper def : traceConstraintNames(
 
     in
 
-    r.outPattern.elements
+    let existingNames : String = r.outPattern.elements
         ->select(o |
             o.oclIsTypeOf(
                 ATL!SimpleOutPatternElement
@@ -1733,12 +1890,32 @@ helper def : traceConstraintNames(
                         accProp + ' ' + name
                     endif
                 )
-        );
+        )
+    in
+    let callNames : String = thisModule.directLazyConstraintNames(r)
+    in
+    if existingNames = '' then
+        callNames
+    else
+        if callNames = '' then
+            existingNames
+        else
+            existingNames + ' ' + callNames
+        endif
+    endif;
 
 -- Kiểm tra trace class có cần OCL annotation không.
 helper def : hasTraceConstraints(
     r : ATL!MatchedRule
 ) : Boolean =
+
+    r.oclIsTypeOf(ATL!LazyMatchedRule)
+
+    or
+
+    thisModule.directLazyBindingsOf(r)->notEmpty()
+
+    or
 
     not r.inPattern.filter.oclIsUndefined()
 
@@ -1992,6 +2169,10 @@ helper def : resolverRules(
 
     ATL!MatchedRule.allInstancesFrom('IN')
         ->select(r |
+
+            r.oclIsTypeOf(ATL!MatchedRule)
+
+            and
 
             r.inPattern.elements->size() = 1
 
@@ -2990,6 +3171,7 @@ helper def : matchedRules()
 : Sequence(ATL!MatchedRule) =
 
     ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r | r.oclIsTypeOf(ATL!MatchedRule))
         ->asSequence();
 
 -- Lấy rule overlap đứng sau để tránh sinh mutex trùng lặp.
@@ -3926,7 +4108,23 @@ rule MatchRule2EClass {
                             'forward'
                         )
                     )
-                ), 
+                )
+                ->union(
+                    thisModule.directLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.resolveTemp(b, 'forward')
+                        )
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.directCallsToLazyRule(r)
+                            ->collect(b |
+                                thisModule.resolveTemp(b, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                ),
 
             eAnnotations <-
                 Sequence {
@@ -3975,7 +4173,8 @@ rule InPatternElement2SourceAssociation {
             lowerBound <- 0,
 
             upperBound <-
-                if s.inPattern.elements->size() = 1
+                if s.inPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+                   and s.inPattern.elements->size() = 1
                 then 1
                 else -1
                 endif,
@@ -4016,6 +4215,32 @@ rule OutPatternElement2TargetAssociation {
 
             eType <- o.outPattern.rule,
 
+            eOpposite <- forward
+        )
+}
+
+-- One scalar binding call denotes one lazy-rule execution. The forward slot
+-- is mandatory on the caller; the inverse is optional here and is made
+-- exclusive across all call sites by the lazy trace's owner invariant.
+rule DirectLazyCall2Association {
+    from
+        b : ATL!Binding (
+            thisModule.isDirectLazyBinding(b)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.directLazyCallName(b),
+            lowerBound <- 1,
+            upperBound <- 1,
+            eType <- thisModule.directLazyRule(b),
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <- thisModule.directLazyCallerName(b),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- b.outPatternElement.outPattern.rule,
             eOpposite <- forward
         )
 }
@@ -4184,6 +4409,26 @@ unique lazy rule BindingConstraintDetail {
         )
 }
 
+unique lazy rule DirectLazyArgumentConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.directLazyArgumentConstraintName(b),
+            value <- thisModule.directLazyArgumentConstraintExpr(b)
+        )
+}
+
+unique lazy rule DirectLazyOwnerConstraintDetail {
+    from
+        r : ATL!LazyMatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.directLazyOwnerConstraintName(r),
+            value <- thisModule.directLazyOwnerConstraintExpr(r)
+        )
+}
+
 -- Step 2: gom invariant filter, binding, resolution và frame.
 unique lazy rule TraceOclAnnotation {
     from
@@ -4209,6 +4454,21 @@ unique lazy rule TraceOclAnnotation {
                         ->collect(b |
                             thisModule.BindingConstraintDetail(b)
                         )
+                )
+                ->union(
+                    thisModule.directLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.DirectLazyArgumentConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        Sequence {
+                            thisModule.DirectLazyOwnerConstraintDetail(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
                 )
                 ->union(
                     thisModule.bindingsOf(r)

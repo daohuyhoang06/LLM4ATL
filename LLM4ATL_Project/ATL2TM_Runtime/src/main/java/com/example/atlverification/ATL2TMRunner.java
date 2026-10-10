@@ -20,10 +20,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 public final class ATL2TMRunner {
@@ -57,12 +57,9 @@ public final class ATL2TMRunner {
         IModel inputAtlModel =
                 atlModelLoader.loadAsModel(inputAtl);
 
-        // Keep unsupported-construct handling inside the ATL2TM runtime. A
-        // lazy rule is demand-driven and cannot be represented by the
-        // universal matched-rule constraints produced by ATL2TM. Detect it
-        // from the parsed ATL model and use the same unsupported result path
-        // as recursive helpers and unsupported expressions.
-        rejectUnsupportedLazyRules(inputAtlModel);
+        // Only the direct scalar ordinary-lazy subset has an invocation
+        // encoding. Reject other forms before the HOT can emit a partial TM.
+        validateLazyRuleSubset(inputAtlModel);
 
         System.out.println(
                 "Loaded ATL input model: " + inputAtl
@@ -222,31 +219,110 @@ public final class ATL2TMRunner {
         );
     }
 
-    private static void rejectUnsupportedLazyRules(IModel inputModel)
+    private static void validateLazyRuleSubset(IModel inputModel)
             throws UnsupportedAtlConstructException {
         if (!(inputModel instanceof EMFModel emfModel)
                 || emfModel.getResource() == null) {
             return;
         }
 
-        Set<String> names = new LinkedHashSet<>();
+        Map<String, EObject> lazyRules = new HashMap<>();
+        List<EObject> ruleCalls = new ArrayList<>();
         TreeIterator<EObject> contents = emfModel.getResource().getAllContents();
         while (contents.hasNext()) {
             EObject element = contents.next();
-            if (!"LazyMatchedRule".equals(element.eClass().getName())) {
+            String type = element.eClass().getName();
+            if ("LazyMatchedRule".equals(type)) {
+                lazyRules.put(String.valueOf(feature(element, "name")), element);
+            } else if ("OperationCallExp".equals(type)) {
+                ruleCalls.add(element);
+            }
+        }
+
+        for (Map.Entry<String, EObject> entry : lazyRules.entrySet()) {
+            EObject rule = entry.getValue();
+            String name = entry.getKey();
+            if (Boolean.TRUE.equals(feature(rule, "isUnique"))) {
+                throw unsupportedLazy(name, "unique lazy rule semantics");
+            }
+            EObject inPattern = (EObject) feature(rule, "inPattern");
+            EObject outPattern = (EObject) feature(rule, "outPattern");
+            List<?> inputs = inPattern == null ? List.of()
+                    : (List<?>) feature(inPattern, "elements");
+            List<?> outputs = outPattern == null ? List.of()
+                    : (List<?>) feature(outPattern, "elements");
+            if (inputs.size() != 1 || outputs.size() != 1
+                    || !"SimpleInPatternElement".equals(
+                            ((EObject) inputs.get(0)).eClass().getName())
+                    || !"SimpleOutPatternElement".equals(
+                            ((EObject) outputs.get(0)).eClass().getName())) {
+                throw unsupportedLazy(name, "expected one simple input and one simple output");
+            }
+            if (feature(inPattern, "filter") != null) {
+                throw unsupportedLazy(name, "input filter");
+            }
+            if (feature(rule, "actionBlock") != null
+                    || hasElements(feature(rule, "variables"))
+                    || feature(rule, "superRule") != null) {
+                throw unsupportedLazy(name, "action block, using variables, or rule inheritance");
+            }
+        }
+
+        for (EObject call : ruleCalls) {
+            String name = String.valueOf(feature(call, "operationName"));
+            if (!lazyRules.containsKey(name)) {
                 continue;
             }
-            EStructuralFeature nameFeature = element.eClass()
-                    .getEStructuralFeature("name");
-            Object value = nameFeature == null ? null : element.eGet(nameFeature);
-            names.add(value == null || value.toString().isBlank()
-                    ? "<unnamed>" : value.toString());
+            EObject binding = call.eContainer();
+            EObject output = binding == null ? null
+                    : (EObject) feature(binding, "outPatternElement");
+            EObject outPattern = output == null ? null
+                    : (EObject) feature(output, "outPattern");
+            EObject caller = outPattern == null ? null
+                    : (EObject) feature(outPattern, "rule");
+            Object args = feature(call, "arguments");
+            if (binding == null || !"Binding".equals(binding.eClass().getName())
+                    || feature(binding, "value") != call
+                    || caller == null
+                    || !"MatchedRule".equals(caller.eClass().getName())
+                    || feature(caller, "actionBlock") != null
+                    || hasElements(feature(caller, "variables"))
+                    || feature(caller, "superRule") != null
+                    || !(args instanceof List<?> arguments)
+                    || arguments.size() != 1
+                    || !isThisModule(feature(call, "source"))) {
+                throw unsupportedLazy(name,
+                        "only a direct one-argument call in a matched-rule binding is supported");
+            }
         }
-        if (!names.isEmpty()) {
-            throw new UnsupportedAtlConstructException(
-                    "ATL2TM does not support lazy rule(s): "
-                            + String.join(", ", names));
+    }
+
+    private static Object feature(EObject object, String name) {
+        if (object == null) {
+            return null;
         }
+        EStructuralFeature feature = object.eClass().getEStructuralFeature(name);
+        return feature == null ? null : object.eGet(feature);
+    }
+
+    private static boolean hasElements(Object value) {
+        return value instanceof List<?> list && !list.isEmpty();
+    }
+
+    private static boolean isThisModule(Object source) {
+        if (!(source instanceof EObject variable)
+                || !"VariableExp".equals(variable.eClass().getName())) {
+            return false;
+        }
+        Object declaration = feature(variable, "referredVariable");
+        return declaration instanceof EObject declared
+                && "thisModule".equals(feature(declared, "varName"));
+    }
+
+    private static UnsupportedAtlConstructException unsupportedLazy(
+            String rule, String reason) {
+        return new UnsupportedAtlConstructException(
+                "ATL2TM does not support lazy rule " + rule + ": " + reason);
     }
 
     /**

@@ -1,0 +1,17 @@
+module TwoCalls;
+create OUT : Target from IN : Source;
+
+rule Box2Box {
+    from s : Source!Box
+    to t : Target!BoxOut (
+        tag1 <- thisModule.Item2Tag(s.item),
+        tag2 <- thisModule.Item2Tag(s.item)
+    )
+}
+
+lazy rule Item2Tag {
+    from s : Source!Item
+    to t : Target!Tag (
+        name <- s.name
+    )
+}
