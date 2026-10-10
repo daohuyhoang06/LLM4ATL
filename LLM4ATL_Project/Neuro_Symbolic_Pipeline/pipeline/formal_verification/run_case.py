@@ -104,7 +104,7 @@ def describe_atl2tm_features(features: list[str]) -> str:
         "__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__":
             "ATL2TM does not support rule calls through thisModule (lazy/called rules)",
         "__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__":
-            "ATL2TM does not support resolveTemp",
+            "ATL2TM cannot resolve this resolveTemp call safely",
         "__ATL2TM_UNSUPPORTED_FEATURE__HELPER_ATTRIBUTE__":
             "ATL2TM does not support this kind of helper attribute",
         "__ATL2TM_UNSUPPORTED_EXPRESSION__":

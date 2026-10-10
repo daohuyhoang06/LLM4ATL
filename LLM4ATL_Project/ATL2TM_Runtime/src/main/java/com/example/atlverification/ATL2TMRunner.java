@@ -40,6 +40,8 @@ public final class ATL2TMRunner {
     /** Marker emitted by ATL2TM when an OCL expression cannot be rendered. */
     private static final String UNSUPPORTED_EXPRESSION_MARKER =
             "__ATL2TM_UNSUPPORTED_EXPRESSION__";
+    private static final String UNSUPPORTED_FEATURE_MARKER =
+            "__ATL2TM_UNSUPPORTED_FEATURE__";
 
     private final ATLModelLoader atlModelLoader;
 
@@ -536,6 +538,12 @@ public final class ATL2TMRunner {
                 if (text.contains(UNSUPPORTED_EXPRESSION_MARKER)) {
                     throw new UnsupportedAtlConstructException(
                             "Unsupported ATL/OCL expression encountered by ATL2TM: "
+                                    + text
+                    );
+                }
+                if (text.contains(UNSUPPORTED_FEATURE_MARKER)) {
+                    throw new UnsupportedAtlConstructException(
+                            "Unsupported ATL feature encountered by ATL2TM: "
                                     + text
                     );
                 }

@@ -1,0 +1,17 @@
+module CollectResolveTemp;
+create OUT : Target from IN : Source;
+
+rule Item2Tag {
+    from s : Source!Item
+    to
+        primary : Target!Tag (name <- s.name),
+        secondary : Target!Tag (name <- s.name)
+}
+
+rule Box2Box {
+    from s : Source!Box
+    to
+        t : Target!BoxOut (
+            tags <- s.items->collect(i | thisModule.resolveTemp(i, 'secondary'))
+        )
+}
