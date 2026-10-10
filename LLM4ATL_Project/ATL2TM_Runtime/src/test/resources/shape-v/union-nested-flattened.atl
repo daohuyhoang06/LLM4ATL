@@ -1,0 +1,19 @@
+module UnionNestedFlattened;
+create OUT : Target from IN : Source;
+
+rule Box2Box {
+    from s : Source!Box
+    to t : Target!BoxOut (
+        tags <- s.primary->union(
+            s.groups->collect(g | g.items->select(i | i.isKey))
+                ->flatten()->asSet()
+        )
+    )
+}
+
+rule Item2Tag {
+    from s : Source!Item
+    to t : Target!Tag (
+        name <- s.name
+    )
+}

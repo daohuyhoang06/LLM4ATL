@@ -3,6 +3,9 @@ package com.example.atlverification;
 import com.example.atlparser.ATLModelLoader;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.m2m.atl.core.IModel;
@@ -22,8 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public final class ATL2TMRunner {
@@ -57,9 +62,8 @@ public final class ATL2TMRunner {
         IModel inputAtlModel =
                 atlModelLoader.loadAsModel(inputAtl);
 
-        // Only the direct scalar ordinary-lazy subset has an invocation
-        // encoding. Reject other forms before the HOT can emit a partial TM.
-        validateLazyRuleSubset(inputAtlModel);
+        // Fail closed before the HOT emits a partial invocation encoding.
+        validateLazyRuleSubset(inputAtlModel, sourceEcore, targetEcore);
 
         System.out.println(
                 "Loaded ATL input model: " + inputAtl
@@ -219,7 +223,8 @@ public final class ATL2TMRunner {
         );
     }
 
-    private static void validateLazyRuleSubset(IModel inputModel)
+    private static void validateLazyRuleSubset(IModel inputModel,
+            Path sourceEcore, Path targetEcore)
             throws UnsupportedAtlConstructException {
         if (!(inputModel instanceof EMFModel emfModel)
                 || emfModel.getResource() == null) {
@@ -228,12 +233,15 @@ public final class ATL2TMRunner {
 
         Map<String, EObject> lazyRules = new HashMap<>();
         List<EObject> ruleCalls = new ArrayList<>();
+        List<EObject> matchedRules = new ArrayList<>();
         TreeIterator<EObject> contents = emfModel.getResource().getAllContents();
         while (contents.hasNext()) {
             EObject element = contents.next();
             String type = element.eClass().getName();
             if ("LazyMatchedRule".equals(type)) {
                 lazyRules.put(String.valueOf(feature(element, "name")), element);
+            } else if ("MatchedRule".equals(type)) {
+                matchedRules.add(element);
             } else if ("OperationCallExp".equals(type)) {
                 ruleCalls.add(element);
             }
@@ -268,12 +276,18 @@ public final class ATL2TMRunner {
             }
         }
 
+        Set<EObject> checkedUnionBindings = new HashSet<>();
         for (EObject call : ruleCalls) {
             String name = String.valueOf(feature(call, "operationName"));
             if (!lazyRules.containsKey(name)) {
                 continue;
             }
-            EObject binding = call.eContainer();
+            EObject container = call.eContainer();
+            EObject iterator = container != null
+                    && "IteratorExp".equals(container.eClass().getName())
+                    ? container : null;
+            EObject binding = iterator == null ? container
+                    : collectBinding(iterator);
             EObject output = binding == null ? null
                     : (EObject) feature(binding, "outPatternElement");
             EObject outPattern = output == null ? null
@@ -281,8 +295,10 @@ public final class ATL2TMRunner {
             EObject caller = outPattern == null ? null
                     : (EObject) feature(outPattern, "rule");
             Object args = feature(call, "arguments");
+            boolean direct = binding != null && feature(binding, "value") == call;
+            boolean collect = iterator != null && binding != null;
             if (binding == null || !"Binding".equals(binding.eClass().getName())
-                    || feature(binding, "value") != call
+                    || (!direct && !collect)
                     || caller == null
                     || !"MatchedRule".equals(caller.eClass().getName())
                     || feature(caller, "actionBlock") != null
@@ -292,9 +308,172 @@ public final class ATL2TMRunner {
                     || arguments.size() != 1
                     || !isThisModule(feature(call, "source"))) {
                 throw unsupportedLazy(name,
-                        "only a direct one-argument call in a matched-rule binding is supported");
+                        "only a direct call or a Set collect call in a matched-rule binding is supported");
+            }
+            if (collect) {
+                validateSetCollectCall(name, call, iterator, binding, caller,
+                        lazyRules.get(name), sourceEcore, targetEcore);
+                if (feature(binding, "value") != iterator
+                        && checkedUnionBindings.add(binding)) {
+                    validateMixedUnionBinding(name, binding, caller, matchedRules,
+                            lazyRules, sourceEcore, targetEcore);
+                }
             }
         }
+    }
+
+    private static EObject collectBinding(EObject iterator) {
+        EObject child = iterator;
+        EObject parent = iterator.eContainer();
+        while (parent != null && "CollectionOperationCallExp".equals(
+                parent.eClass().getName())) {
+            List<?> arguments = (List<?>) feature(parent, "arguments");
+            if (!"union".equals(feature(parent, "operationName"))
+                    || arguments.size() != 1
+                    || (feature(parent, "source") != child
+                            && arguments.get(0) != child)) {
+                return null;
+            }
+            child = parent;
+            parent = parent.eContainer();
+        }
+        return parent != null && "Binding".equals(parent.eClass().getName())
+                && feature(parent, "value") == child ? parent : null;
+    }
+
+    private static void validateMixedUnionBinding(String lazyName, EObject binding,
+            EObject caller, List<EObject> matchedRules,
+            Map<String, EObject> lazyRules, Path sourceEcore, Path targetEcore)
+            throws UnsupportedAtlConstructException {
+        EPackage sourcePackage = new EcoreModelLoader().load(sourceEcore);
+        EPackage targetPackage = new EcoreModelLoader().load(targetEcore);
+        EObject output = (EObject) feature(binding, "outPatternElement");
+        EReference targetSet = setReference(targetPackage, typeName(output),
+                String.valueOf(feature(binding, "propertyName")));
+        if (targetSet == null) {
+            throw unsupportedLazy(lazyName,
+                    "union with lazy collect requires an unordered, unique target Set");
+        }
+        validateMixedUnionBranch(lazyName, (EObject) feature(binding, "value"),
+                caller, sourcePackage, targetSet.getEReferenceType(),
+                matchedRules, lazyRules);
+    }
+
+    private static void validateMixedUnionBranch(String lazyName, EObject expression,
+            EObject caller, EPackage sourcePackage, EClass targetElement,
+            List<EObject> matchedRules, Map<String, EObject> lazyRules)
+            throws UnsupportedAtlConstructException {
+        if (expression != null && "CollectionOperationCallExp".equals(
+                expression.eClass().getName())
+                && "union".equals(feature(expression, "operationName"))) {
+            List<?> arguments = (List<?>) feature(expression, "arguments");
+            if (arguments.size() != 1) {
+                throw unsupportedLazy(lazyName, "union requires one collection argument");
+            }
+            validateMixedUnionBranch(lazyName,
+                    (EObject) feature(expression, "source"), caller,
+                    sourcePackage, targetElement, matchedRules, lazyRules);
+            validateMixedUnionBranch(lazyName, (EObject) arguments.get(0), caller,
+                    sourcePackage, targetElement, matchedRules, lazyRules);
+            return;
+        }
+        if (expression != null && "IteratorExp".equals(expression.eClass().getName())
+                && "collect".equals(feature(expression, "name"))) {
+            EObject body = (EObject) feature(expression, "body");
+            if (body != null && "OperationCallExp".equals(body.eClass().getName())
+                    && lazyRules.containsKey(String.valueOf(feature(body, "operationName")))) {
+                return; // Each call site is checked by validateSetCollectCall.
+            }
+        }
+        EClass sourceElement;
+        try {
+            sourceElement = PureOclSetTypeInferrer.inferCollection(
+                    expression, sourcePackage, caller);
+        } catch (IllegalArgumentException error) {
+            throw unsupportedLazy(lazyName, error.getMessage());
+        }
+        List<EObject> resolvers = matchedRules.stream().filter(rule -> {
+            EObject input = firstElement(feature((EObject) feature(rule, "inPattern"),
+                    "elements"));
+            EClass inputType = sourcePackage.getEClassifier(typeName(input)) instanceof EClass type
+                    ? type : null;
+            return inputType != null && ((List<?>) feature(
+                    (EObject) feature(rule, "inPattern"), "elements")).size() == 1
+                    && (sourceElement.isSuperTypeOf(inputType)
+                            || inputType.isSuperTypeOf(sourceElement));
+        }).toList();
+        if (resolvers.isEmpty() || resolvers.stream().anyMatch(rule -> {
+            EObject result = firstElement(feature((EObject) feature(rule, "outPattern"),
+                    "elements"));
+            return result == null || !targetElement.getName().equals(typeName(result));
+        })) {
+            throw unsupportedLazy(lazyName,
+                    "union source branch requires compatible unary matched resolvers producing "
+                            + targetElement.getName());
+        }
+    }
+
+    private static void validateSetCollectCall(String name, EObject call,
+            EObject iterator, EObject binding, EObject caller, EObject lazyRule,
+            Path sourceEcore, Path targetEcore)
+            throws UnsupportedAtlConstructException {
+        List<?> iterators = (List<?>) feature(iterator, "iterators");
+        EObject inputCollection = (EObject) feature(iterator, "source");
+        EObject argument = (EObject) ((List<?>) feature(call, "arguments")).get(0);
+        if (!"collect".equals(feature(iterator, "name"))
+                || iterators == null || iterators.size() != 1
+                || feature(iterator, "body") != call
+                || inputCollection == null
+                || !"VariableExp".equals(argument.eClass().getName())
+                || feature(argument, "referredVariable") != iterators.get(0)) {
+            throw unsupportedLazy(name,
+                    "collect must pass its iterator variable to the lazy rule");
+        }
+
+        EPackage sourcePackage = new EcoreModelLoader().load(sourceEcore);
+        EPackage targetPackage = new EcoreModelLoader().load(targetEcore);
+        EClass sourceElement;
+        try {
+            sourceElement = PureOclSetTypeInferrer.infer(
+                    inputCollection, sourcePackage, caller);
+        } catch (IllegalArgumentException error) {
+            throw unsupportedLazy(name, error.getMessage());
+        }
+        EObject output = (EObject) feature(binding, "outPatternElement");
+        EObject lazyInput = firstElement(feature((EObject) feature(lazyRule,
+                "inPattern"), "elements"));
+        EObject lazyOutput = firstElement(feature((EObject) feature(lazyRule,
+                "outPattern"), "elements"));
+        EReference targetSet = setReference(targetPackage,
+                typeName(output), String.valueOf(feature(binding, "propertyName")));
+        if (targetSet == null
+                || !sourceElement.getName().equals(typeName(lazyInput))
+                || !targetSet.getEReferenceType().getName().equals(typeName(lazyOutput))) {
+            throw unsupportedLazy(name,
+                    "collect requires a Set source and an unordered, unique, "
+                            + "multivalued target reference with element types matching the lazy rule");
+        }
+    }
+
+    private static EObject firstElement(Object value) {
+        return value instanceof List<?> list && !list.isEmpty()
+                ? (EObject) list.get(0) : null;
+    }
+
+    private static String typeName(EObject patternElement) {
+        EObject type = patternElement == null ? null
+                : (EObject) feature(patternElement, "type");
+        return String.valueOf(feature(type, "name"));
+    }
+
+    private static EReference setReference(EPackage ecore, String className,
+            String propertyName) {
+        if (!(ecore.getEClassifier(className) instanceof EClass type)
+                || !(type.getEStructuralFeature(propertyName) instanceof EReference ref)
+                || !ref.isMany() || ref.isOrdered() || !ref.isUnique()) {
+            return null;
+        }
+        return ref;
     }
 
     private static Object feature(EObject object, String name) {

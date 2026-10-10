@@ -1,0 +1,17 @@
+module CollectUnionSource;
+create OUT : Target from IN : Source;
+
+rule Box2Box {
+    from s : Source!Box
+    to t : Target!BoxOut (
+        tags <- s.primary->union(s.secondary)
+            ->collect(i | thisModule.Item2Tag(i))
+    )
+}
+
+lazy rule Item2Tag {
+    from s : Source!Item
+    to t : Target!Tag (
+        name <- s.name
+    )
+}

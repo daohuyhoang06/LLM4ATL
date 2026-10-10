@@ -96,8 +96,9 @@ def describe_atl2tm_features(features: list[str]) -> str:
     """Convert backend marker names into a stable user-facing diagnostic."""
     descriptions = {
         "LAZY_RULE": (
-            "ATL2TM supports only direct ordinary lazy-rule calls with one input "
-            "and one output; this lazy-rule form is unsupported"
+            "ATL2TM supports direct ordinary lazy-rule calls and collect calls "
+            "over a supported pure OCL Set expression, with one input and one "
+            "output; this lazy-rule form is unsupported"
         ),
         "RECURSIVE_HELPER": "ATL2TM does not support recursive helpers",
         "__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__":
@@ -108,6 +109,11 @@ def describe_atl2tm_features(features: list[str]) -> str:
             "ATL2TM does not support this kind of helper attribute",
         "__ATL2TM_UNSUPPORTED_EXPRESSION__":
             "ATL2TM does not support an ATL/OCL expression",
+        "__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_BRANCH__":
+            "ATL2TM cannot resolve a collection binding branch through matched-rule traces; "
+            "if collect returns collections, flatten it explicitly before union",
+        "__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_UNION_BRANCH__":
+            "ATL2TM cannot resolve every operand of this collection union through matched-rule traces",
         "RUNNER_REPORTED_FEATURE": "ATL2TM reported an unsupported construct",
     }
     return "; ".join(descriptions.get(feature, feature) for feature in features)
@@ -223,7 +229,12 @@ def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
     # result token, not Maven's wrapper exit value, is the reliable signal.
     if completed.returncode != 0 and "RESULT:UNSUPPORTED" in runner_output:
         lower_output = runner_output.lower()
-        if "lazy rule" in lower_output:
+        reported_markers = list(dict.fromkeys(re.findall(
+            r"__ATL2TM_UNSUPPORTED_[A-Z0-9_]+__", runner_output
+        )))
+        if reported_markers:
+            features = reported_markers
+        elif "lazy rule" in lower_output:
             features = ["LAZY_RULE"]
         elif "recursive atl helper" in lower_output:
             features = ["RECURSIVE_HELPER"]

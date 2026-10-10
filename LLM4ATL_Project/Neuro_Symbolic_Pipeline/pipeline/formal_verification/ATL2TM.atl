@@ -902,6 +902,281 @@ helper def : directCallsToLazyRule(
         ->select(b | b.value.operationName = r.name)
         ->asSequence();
 
+-- A collect call is an invocation per Set member, not one invocation for
+-- the binding as a whole. The Java preflight validates the restricted shape
+-- and the source/target Set types before this helper is evaluated.
+helper def : isCollectLazyBinding(
+    b : ATL!Binding
+) : Boolean =
+
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!IteratorExp)
+    then
+        let e : ATL!IteratorExp = b.value
+        in
+        if e.name = 'collect'
+           and e.iterators->size() = 1
+           and e.body.oclIsTypeOf(ATL!OperationCallExp)
+        then
+            let call : ATL!OperationCallExp = e.body
+            in
+            thisModule.isModuleReceiver(call.source)
+            and call.arguments->size() = 1
+            and ATL!LazyMatchedRule.allInstancesFrom('IN')
+                ->exists(r |
+                    not r.isUnique
+                    and r.name = call.operationName
+                )
+        else
+            false
+        endif
+    else
+        false
+    endif;
+
+helper def : collectLazyRule(
+    b : ATL!Binding
+) : ATL!LazyMatchedRule =
+
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(r | r.name = b.value.body.operationName)
+        ->first();
+
+helper def : collectLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isCollectLazyBinding(b))
+        ->asSequence();
+
+helper def : collectCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!Binding) =
+
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isCollectLazyBinding(b))
+        ->select(b | b.value.body.operationName = r.name)
+        ->asSequence();
+
+helper def : collectLazyCallName(b : ATL!Binding) : String =
+    '__atl2tm_calls_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+helper def : collectLazyCallerName(b : ATL!Binding) : String =
+    thisModule.directLazyCallerName(b);
+
+helper def : collectLazyCoverageConstraintName(b : ATL!Binding) : String =
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_coverage';
+
+helper def : collectLazyNoExtraConstraintName(b : ATL!Binding) : String =
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_noExtra';
+
+helper def : collectLazyCoverageConstraintExpr(b : ATL!Binding) : String =
+    thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.source
+    )
+    + '->forAll(i | self.'
+    + thisModule.collectLazyCallName(b)
+    + '->one(c | c.'
+    + thisModule.matchInputVarName(
+        thisModule.collectLazyRule(b).inPattern.elements->first()
+    )
+    + ' = i))';
+
+helper def : collectLazyNoExtraConstraintExpr(b : ATL!Binding) : String =
+    'self.'
+    + thisModule.collectLazyCallName(b)
+    + '->forAll(c | '
+    + thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.source
+    )
+    + '->includes(c.'
+    + thisModule.matchInputVarName(
+        thisModule.collectLazyRule(b).inPattern.elements->first()
+    )
+    + '))';
+
+-- Locate lazy collect calls under union nodes, independent of which operand
+-- contains the call. Each iterator is one call site with its own trace slot.
+helper def : isLazyCollectExpr(e : ATL!OclExpression) : Boolean =
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        let it : ATL!IteratorExp = e
+        in
+        if it.name = 'collect'
+           and it.iterators->size() = 1
+           and it.body.oclIsTypeOf(ATL!OperationCallExp)
+        then
+            let call : ATL!OperationCallExp = it.body
+            in
+            thisModule.isModuleReceiver(call.source)
+            and call.arguments->size() = 1
+            and ATL!LazyMatchedRule.allInstancesFrom('IN')
+                ->exists(l | not l.isUnique and l.name = call.operationName)
+        else
+            false
+        endif
+    else
+        false
+    endif;
+
+helper def : lazyCollectSitesInUnion(
+    e : ATL!OclExpression
+) : Sequence(ATL!IteratorExp) =
+    if thisModule.isLazyCollectExpr(e) then
+        Sequence { e }
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'union' and e.arguments->size() = 1 then
+                thisModule.lazyCollectSitesInUnion(e.source)
+                    ->union(thisModule.lazyCollectSitesInUnion(
+                        e.arguments->first()
+                    ))
+                    ->asSequence()
+            else
+                Sequence {}
+            endif
+        else
+            Sequence {}
+        endif
+    endif;
+
+helper def : isUnionLazyBinding(b : ATL!Binding) : Boolean =
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!CollectionOperationCallExp)
+    then
+        b.value.operationName = 'union'
+        and thisModule.lazyCollectSitesInUnion(b.value)->notEmpty()
+    else
+        false
+    endif;
+
+helper def : unionLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->asSequence();
+
+helper def : unionLazySitesOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!IteratorExp) =
+    thisModule.unionLazyBindingsOf(r)
+        ->collect(b | thisModule.lazyCollectSitesInUnion(b.value))
+        ->flatten()
+        ->asSequence();
+
+helper def : unionLazyCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!IteratorExp) =
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->collect(b | thisModule.lazyCollectSitesInUnion(b.value))
+        ->flatten()
+        ->select(e | e.body.operationName = r.name)
+        ->asSequence();
+
+helper def : unionLazyBindingOfSite(
+    e : ATL!IteratorExp
+) : ATL!Binding =
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->select(b | thisModule.lazyCollectSitesInUnion(b.value)->includes(e))
+        ->first();
+
+helper def : isUnionLazySite(e : ATL!IteratorExp) : Boolean =
+    ATL!Binding.allInstancesFrom('IN')
+        ->exists(b | thisModule.isUnionLazyBinding(b)
+            and thisModule.lazyCollectSitesInUnion(b.value)->includes(e));
+
+helper def : unionLazyRule(e : ATL!IteratorExp) : ATL!LazyMatchedRule =
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(l | l.name = e.body.operationName)
+        ->first();
+
+helper def : unionLazySiteSuffix(e : ATL!IteratorExp) : String =
+    '_u'
+    + thisModule.lazyCollectSitesInUnion(
+        thisModule.unionLazyBindingOfSite(e).value
+    )->indexOf(e).toString();
+
+helper def : unionLazyCallName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.collectLazyCallName(b)
+    + thisModule.unionLazySiteSuffix(e);
+
+helper def : unionLazyCallerName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.collectLazyCallerName(b)
+    + thisModule.unionLazySiteSuffix(e);
+
+helper def : unionLazyCoverageConstraintName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + thisModule.unionLazySiteSuffix(e)
+    + '_coverage';
+
+helper def : unionLazyNoExtraConstraintName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + thisModule.unionLazySiteSuffix(e)
+    + '_noExtra';
+
+helper def : unionLazyCoverageConstraintExpr(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.ruleExpr(b.outPatternElement.outPattern.rule, e.source)
+    + '->forAll(i | self.'
+    + thisModule.unionLazyCallName(e)
+    + '->one(c | c.'
+    + thisModule.matchInputVarName(
+        thisModule.unionLazyRule(e).inPattern.elements->first()
+    )
+    + ' = i))';
+
+helper def : unionLazyNoExtraConstraintExpr(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'self.'
+    + thisModule.unionLazyCallName(e)
+    + '->forAll(c | '
+    + thisModule.ruleExpr(b.outPatternElement.outPattern.rule, e.source)
+    + '->includes(c.'
+    + thisModule.matchInputVarName(
+        thisModule.unionLazyRule(e).inPattern.elements->first()
+    )
+    + '))';
+
 helper def : directLazyCallName(
     b : ATL!Binding
 ) : String =
@@ -962,13 +1237,20 @@ helper def : directLazyOwnerConstraintExpr(
     r : ATL!LazyMatchedRule
 ) : String =
 
-    let calls : Sequence(ATL!Binding) =
+    let directCalls : Sequence(ATL!Binding) =
         thisModule.directCallsToLazyRule(r)
     in
-    if calls->isEmpty() then
+    let collectCalls : Sequence(ATL!Binding) =
+        thisModule.collectCallsToLazyRule(r)
+    in
+    let unionCalls : Sequence(ATL!IteratorExp) =
+        thisModule.unionLazyCallsToLazyRule(r)
+    in
+    if directCalls->isEmpty() and collectCalls->isEmpty()
+       and unionCalls->isEmpty() then
         'false'
     else
-        calls->iterate(
+        let directTerms : String = directCalls->iterate(
             b;
             acc : String = '' |
             let term : String =
@@ -978,6 +1260,30 @@ helper def : directLazyOwnerConstraintExpr(
             in
             if acc = '' then term else acc + ' + ' + term endif
         )
+        in
+        let collectTerms : String = collectCalls->iterate(
+            b;
+            acc : String = directTerms |
+            let term : String =
+                '(if self.'
+                + thisModule.collectLazyCallerName(b)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        in
+        let unionTerms : String = unionCalls->iterate(
+            e;
+            acc : String = collectTerms |
+            let term : String =
+                '(if self.'
+                + thisModule.unionLazyCallerName(e)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        in
+        unionTerms
         + ' = 1'
     endif;
 
@@ -1714,6 +2020,20 @@ helper def : bindingResolvedExpr(
         + thisModule.directLazyRule(b).outPattern.elements->first().varName
 
     else
+    if thisModule.isCollectLazyBinding(b) then
+
+        'self.'
+        + thisModule.collectLazyCallName(b)
+        + '->collect(c | c.'
+        + thisModule.collectLazyRule(b).outPattern.elements->first().varName
+        + ')->asSet()'
+
+    else
+    if thisModule.isUnionLazyBinding(b) then
+
+        thisModule.resolveUnionLazyExpr(r, b.value)
+
+    else
     if thisModule.isShapeV(r, b) then
 
         thisModule.resolveShapeV(
@@ -1737,6 +2057,8 @@ helper def : bindingResolvedExpr(
             )
 
         endif
+    endif
+    endif
     endif
     endif;
 
@@ -1776,7 +2098,7 @@ helper def : directLazyConstraintNames(
     r : ATL!MatchedRule
 ) : String =
 
-    let callerNames : String =
+    let directNames : String =
         thisModule.directLazyBindingsOf(r)
             ->iterate(
                 b;
@@ -1787,10 +2109,36 @@ helper def : directLazyConstraintNames(
                 if acc = '' then name else acc + ' ' + name endif
             )
     in
+    let collectNames : String =
+        thisModule.collectLazyBindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = directNames |
+                let names : String =
+                    thisModule.collectLazyCoverageConstraintName(b)
+                    + ' '
+                    + thisModule.collectLazyNoExtraConstraintName(b)
+                in
+                if acc = '' then names else acc + ' ' + names endif
+            )
+    in
+    let unionNames : String =
+        thisModule.unionLazySitesOf(r)
+            ->iterate(
+                e;
+                acc : String = collectNames |
+                let names : String =
+                    thisModule.unionLazyCoverageConstraintName(e)
+                    + ' '
+                    + thisModule.unionLazyNoExtraConstraintName(e)
+                in
+                if acc = '' then names else acc + ' ' + names endif
+            )
+    in
     if r.oclIsTypeOf(ATL!LazyMatchedRule) then
         thisModule.directLazyOwnerConstraintName(r)
     else
-        callerNames
+        unionNames
     endif;
 
 -- Liệt kê mọi ràng buộc OCL gắn với trace class.
@@ -1914,6 +2262,14 @@ helper def : hasTraceConstraints(
     or
 
     thisModule.directLazyBindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.collectLazyBindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.unionLazySitesOf(r)->notEmpty()
 
     or
 
@@ -2460,6 +2816,15 @@ helper def : iteratorBodySourceTypeName(
 
             -- first()/any() lấy một phần tử từ source collection, do đó
             -- kết quả vẫn là source object để Shape IV có thể resolve.
+            if e.oclIsTypeOf(ATL!IteratorExp) then
+                if e.name = 'select' or e.name = 'reject' then
+                    thisModule.iteratorBodySourceTypeName(
+                        e.source, r, iteratorName, iteratorTypeName
+                    )
+                else
+                    ''
+                endif
+            else
             if e.oclIsTypeOf(
                 ATL!CollectionOperationCallExp
             )
@@ -2481,8 +2846,84 @@ helper def : iteratorBodySourceTypeName(
             else
                 ''
             endif
+            endif
         endif
 
+    endif;
+
+-- ATL collect keeps collection-valued bodies nested.  The element type is
+-- usable for implicit resolution only after an explicit flatten().
+helper def : iteratorBodyReturnsCollection(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule,
+    iteratorName : String,
+    iteratorTypeName : String
+) : Boolean =
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        e.name = 'select' or e.name = 'reject'
+        or e.name = 'collect' or e.name = 'sortedBy'
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            e.operationName = 'flatten'
+            or e.operationName = 'asSet'
+            or e.operationName = 'asOrderedSet'
+            or e.operationName = 'asSequence'
+            or e.operationName = 'asBag'
+            or e.operationName = 'union'
+            or e.operationName = 'intersection'
+            or e.operationName = 'including'
+            or e.operationName = 'excluding'
+            or e.operationName = 'append'
+            or e.operationName = 'prepend'
+        else
+            if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp) then
+                let ownerTypeName : String =
+                    thisModule.iteratorBodySourceTypeName(
+                        e.source, r, iteratorName, iteratorTypeName
+                    )
+                in
+                if ownerTypeName = '' then
+                    false
+                else
+                    let features : Sequence(ECORE!EStructuralFeature) =
+                        thisModule.sourceEClass(ownerTypeName)
+                            .eAllStructuralFeatures
+                            ->select(f | f.name = e.name)
+                    in
+                    features->notEmpty()
+                    and features->first().upperBound <> 1
+                endif
+            else
+                false
+            endif
+        endif
+    endif;
+
+-- One flatten is enough for a collect whose body is a direct navigation or
+-- select/reject collection.  Deeper nesting remains unsupported.
+helper def : flattenedCollectElementTypeName(
+    e : ATL!IteratorExp,
+    r : ATL!MatchedRule
+) : String =
+    if e.name <> 'collect' or e.iterators->size() <> 1 then
+        thisModule.sourceCollectionElementTypeName(e, r)
+    else
+        let inputType : String =
+            thisModule.sourceCollectionElementTypeName(e.source, r)
+        in
+        if inputType = '' then
+            ''
+        else
+            if thisModule.iteratorBodyReturnsCollection(
+                e.body, r, e.iterators->first().varName, inputType
+            ) then
+                thisModule.iteratorBodySourceTypeName(
+                    e.body, r, e.iterators->first().varName, inputType
+                )
+            else
+                thisModule.sourceCollectionElementTypeName(e, r)
+            endif
+        endif
     endif;
 
 -- Nếu select dùng oclIsTypeOf(T), kết quả chỉ chứa T. Thông tin này giúp
@@ -2609,12 +3050,20 @@ helper def : sourceCollectionElementTypeName(
                     if inputType = '' then
                         ''
                     else
-                        thisModule.iteratorBodySourceTypeName(
-                            iteratorExpr.body,
-                            r,
+                        if thisModule.iteratorBodyReturnsCollection(
+                            iteratorExpr.body, r,
                             iteratorExpr.iterators->first().varName,
                             inputType
-                        )
+                        ) then
+                            ''
+                        else
+                            thisModule.iteratorBodySourceTypeName(
+                                iteratorExpr.body,
+                                r,
+                                iteratorExpr.iterators->first().varName,
+                                inputType
+                            )
+                        endif
                     endif
 
                 else
@@ -2627,18 +3076,30 @@ helper def : sourceCollectionElementTypeName(
 
     else
 
-        if thisModule.sourceExprIsCollection(e, r) then
-            thisModule.sourceExprTypeName(e, r)
-        else
-            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
-                if e.operationName = 'first' or e.operationName = 'any' then
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'flatten' then
+                if e.source.oclIsTypeOf(ATL!IteratorExp) then
+                    thisModule.flattenedCollectElementTypeName(e.source, r)
+                else
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                endif
+            else
+                if e.operationName = 'asSet'
+                   or e.operationName = 'asOrderedSet'
+                   or e.operationName = 'asSequence'
+                   or e.operationName = 'asBag'
+                then
                     thisModule.sourceCollectionElementTypeName(e.source, r)
                 else
                     ''
                 endif
-            else
-                ''
             endif
+        else
+        if thisModule.sourceExprIsCollection(e, r) then
+            thisModule.sourceExprTypeName(e, r)
+        else
+            ''
+        endif
         endif
 
     endif;
@@ -2674,7 +3135,11 @@ helper def : isShapeV(
     b : ATL!Binding
 ) : Boolean =
 
-    thisModule.isShapeVExpr(b.value, r);
+    if thisModule.isUnionLazyBinding(b) then
+        false
+    else
+        thisModule.isShapeVExpr(b.value, r)
+    endif;
 
 -- Tạo một đường dẫn trace theo từng phần tử.
 helper def : resolverCollectPath(
@@ -2779,21 +3244,29 @@ helper def : resolveShapeVParts(
             let right : String =
                 thisModule.resolveShapeVParts(e.arguments->first(), r)
             in
-            if left = '' then
-                right
+            if left = '' or right = '' then
+                '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_UNION_BRANCH__'
             else
-                if right = '' then
-                    left
-                else
-                    left + ', ' + right
-                endif
+                left + ', ' + right
             endif
         else
-            thisModule.resolveShapeVDirectParts(e, r)
+            let part : String = thisModule.resolveShapeVDirectParts(e, r)
+            in
+            if part = '' then
+                '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_BRANCH__'
+            else
+                part
+            endif
         endif
 
     else
-        thisModule.resolveShapeVDirectParts(e, r)
+        let part : String = thisModule.resolveShapeVDirectParts(e, r)
+        in
+        if part = '' then
+            '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_BRANCH__'
+        else
+            part
+        endif
     endif;
 
 -- Phân giải source collection, gồm cả union, qua các trace link.
@@ -2805,6 +3278,38 @@ helper def : resolveShapeV(
     'Set { '
     + thisModule.resolveShapeVParts(b.value, r)
     + ' }->flatten()';
+
+-- Resolve each union operand independently: matched source objects use their
+-- matched trace, while a lazy collect uses the call-site trace collection.
+helper def : resolveUnionLazyExpr(
+    r : ATL!MatchedRule,
+    e : ATL!OclExpression
+) : String =
+    if thisModule.isLazyCollectExpr(e) then
+        'self.'
+        + thisModule.unionLazyCallName(e)
+        + '->collect(c | c.'
+        + thisModule.unionLazyRule(e).outPattern.elements->first().varName
+        + ')->asSet()'
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'union' and e.arguments->size() = 1 then
+                '('
+                + thisModule.resolveUnionLazyExpr(r, e.source)
+                + ')->union('
+                + thisModule.resolveUnionLazyExpr(r, e.arguments->first())
+                + ')'
+            else
+                'Set { '
+                + thisModule.resolveShapeVDirectParts(e, r)
+                + ' }->flatten()->asSet()'
+            endif
+        else
+            'Set { '
+            + thisModule.resolveShapeVDirectParts(e, r)
+            + ' }->flatten()->asSet()'
+        endif
+    endif;
 
 -- Đặt tên ràng buộc bảo toàn số lượng của Shape V.
 helper def : shapeVSizeConstraintName(
@@ -4116,10 +4621,42 @@ rule MatchRule2EClass {
                         )
                 )
                 ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.resolveTemp(b, 'forward')
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.resolveTemp(e, 'forward')
+                        )
+                )
+                ->union(
                     if r.oclIsTypeOf(ATL!LazyMatchedRule) then
                         thisModule.directCallsToLazyRule(r)
                             ->collect(b |
                                 thisModule.resolveTemp(b, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.collectCallsToLazyRule(r)
+                            ->collect(b |
+                                thisModule.resolveTemp(b, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.unionLazyCallsToLazyRule(r)
+                            ->collect(e |
+                                thisModule.resolveTemp(e, 'inverse')
                             )
                     else
                         Sequence {}
@@ -4241,6 +4778,54 @@ rule DirectLazyCall2Association {
             lowerBound <- 0,
             upperBound <- 1,
             eType <- b.outPatternElement.outPattern.rule,
+            eOpposite <- forward
+        )
+}
+
+-- Each member of the source Set owns one distinct ordinary-lazy invocation.
+rule CollectLazyCall2Association {
+    from
+        b : ATL!Binding (
+            thisModule.isCollectLazyBinding(b)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.collectLazyCallName(b),
+            lowerBound <- 0,
+            upperBound <- -1,
+            eType <- thisModule.collectLazyRule(b),
+            ordered <- false,
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <- thisModule.collectLazyCallerName(b),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- b.outPatternElement.outPattern.rule,
+            eOpposite <- forward
+        )
+}
+
+rule UnionLazyCall2Association {
+    from
+        e : ATL!IteratorExp (
+            thisModule.isUnionLazySite(e)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.unionLazyCallName(e),
+            lowerBound <- 0,
+            upperBound <- -1,
+            eType <- thisModule.unionLazyRule(e),
+            ordered <- false,
+            eOpposite <- inverse
+        ),
+        inverse : ECORE!EReference (
+            name <- thisModule.unionLazyCallerName(e),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- thisModule.unionLazyBindingOfSite(e).outPatternElement.outPattern.rule,
             eOpposite <- forward
         )
 }
@@ -4419,6 +5004,46 @@ unique lazy rule DirectLazyArgumentConstraintDetail {
         )
 }
 
+unique lazy rule CollectLazyCoverageConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.collectLazyCoverageConstraintName(b),
+            value <- thisModule.collectLazyCoverageConstraintExpr(b)
+        )
+}
+
+unique lazy rule CollectLazyNoExtraConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.collectLazyNoExtraConstraintName(b),
+            value <- thisModule.collectLazyNoExtraConstraintExpr(b)
+        )
+}
+
+unique lazy rule UnionLazyCoverageConstraintDetail {
+    from
+        e : ATL!IteratorExp
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.unionLazyCoverageConstraintName(e),
+            value <- thisModule.unionLazyCoverageConstraintExpr(e)
+        )
+}
+
+unique lazy rule UnionLazyNoExtraConstraintDetail {
+    from
+        e : ATL!IteratorExp
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.unionLazyNoExtraConstraintName(e),
+            value <- thisModule.unionLazyNoExtraConstraintExpr(e)
+        )
+}
+
 unique lazy rule DirectLazyOwnerConstraintDetail {
     from
         r : ATL!LazyMatchedRule
@@ -4459,6 +5084,30 @@ unique lazy rule TraceOclAnnotation {
                     thisModule.directLazyBindingsOf(r)
                         ->collect(b |
                             thisModule.DirectLazyArgumentConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.CollectLazyCoverageConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.CollectLazyNoExtraConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.UnionLazyCoverageConstraintDetail(e)
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.UnionLazyNoExtraConstraintDetail(e)
                         )
                 )
                 ->union(

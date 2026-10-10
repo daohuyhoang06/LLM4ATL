@@ -1,0 +1,18 @@
+module CollectER2RELFlattened;
+create OUT : Target from IN : ER;
+
+rule Relship2Box {
+    from s : ER!Relship
+    to t : Target!BoxOut (
+        tags <- s.ends->collect(e |
+            e.entity.attrs->select(a | a.isKey))
+            ->flatten()->asSet()->collect(k | thisModule.CreateFKAttribute(k))
+    )
+}
+
+lazy rule CreateFKAttribute {
+    from s : ER!ERAttribute
+    to t : Target!Tag (
+        name <- s.name
+    )
+}

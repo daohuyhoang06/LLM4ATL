@@ -73,13 +73,157 @@ class ATL2TMOrdinaryLazyTest {
     }
 
     @Test
-    void collectionCallsAndUniqueLazyRulesRemainUnsupported() {
+    void unsupportedCollectionShapeAndUniqueLazyRulesRemainRejected() {
         assertTrue(assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
                 () -> transform("collect-calls.atl", "collect-calls"))
-                .getMessage().contains("only a direct one-argument call"));
+                .getMessage().contains("direct call or a Set collect call"));
         assertTrue(assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
                 () -> transform("unique-call.atl", "unique-call"))
                 .getMessage().contains("unique lazy rule semantics"));
+        String nonSetMessage = assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
+                () -> transformCollect("collect-nonset.atl", "collect-nonset"))
+                .getMessage();
+        assertTrue(nonSetMessage.contains("pure OCL Set"), nonSetMessage);
+        Path orderedWork = Path.of("target", "ordinary-lazy-collect-ordered");
+        assertTrue(assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
+                () -> new ATL2TMRunner().run(FIXTURE.resolve("collect-set.atl"),
+                        FIXTURE.resolve("collect-ordered-src.ecore"),
+                        FIXTURE.resolve("collect-tgt.ecore"), ATL2TM, orderedWork,
+                        orderedWork.resolve("tm.ecore")))
+                .getMessage().contains("pure OCL Set"));
+    }
+
+    @Test
+    void nestedPureOclSetFeedsLazyCollect() throws Exception {
+        EPackage model = transformCollectExpression(
+                "collect-pure-expression.atl", "collect-pure-expression");
+        EClass caller = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        String coverage = annotation(caller, PIVOT).getDetails()
+                .get("call_Box2Box_t_tags_coverage");
+        String noExtra = annotation(caller, PIVOT).getDetails()
+                .get("call_Box2Box_t_tags_noExtra");
+        assertTrue(coverage.contains("self.s.groups->collect(g | "
+                + "g.items->select(i | i.isKey))->flatten()->asSet()->forAll"));
+        assertTrue(noExtra.contains("self.s.groups->collect(g | "
+                + "g.items->select(i | i.isKey))->flatten()->asSet()->includes(c.s)"));
+    }
+
+    @Test
+    void setUnionIsAnotherPureOclSourceExpression() throws Exception {
+        EPackage model = transformCollectExpression(
+                "collect-union-source.atl", "collect-union-source");
+        EClass caller = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        assertTrue(annotation(caller, PIVOT).getDetails()
+                .get("call_Box2Box_t_tags_coverage")
+                .contains("self.s.primary->union(self.s.secondary)->forAll"));
+    }
+
+    @Test
+    void unionCombinesMatchedOutputsWithOneLazyCollectSite() throws Exception {
+        EPackage model = transformCollectExpression(
+                "union-matched-lazy.atl", "union-matched-lazy");
+        EClass caller = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        EClass lazy = assertInstanceOf(EClass.class, model.getEClassifier("Item2Tag"));
+        EReference call = assertInstanceOf(EReference.class,
+                caller.getEStructuralFeature("__atl2tm_calls_t_tags_u1"));
+        assertEquals(lazy, call.getEType());
+        assertEquals(-1, call.getUpperBound());
+        assertFalse(call.isOrdered());
+        String binding = annotation(caller, PIVOT).getDetails().get("bind_Box2Box_t_tags");
+        assertTrue(binding.contains("ItemMatched"), binding);
+        assertTrue(binding.contains("->union(self.__atl2tm_calls_t_tags_u1"), binding);
+        assertTrue(annotation(caller, PIVOT).getDetails()
+                .get("call_Box2Box_t_tags_u1_coverage")
+                .contains("self.s.secondary->forAll"));
+        assertTrue(annotation(lazy, PIVOT).getDetails()
+                .get("call_Item2Tag_owner")
+                .contains("__atl2tm_caller_Box2Box_t_tags_u1"));
+    }
+
+    @Test
+    void nestedUnionKeepsTwoLazyCallSitesDistinct() throws Exception {
+        EPackage model = transformCollectExpression(
+                "union-nested-lazy.atl", "union-nested-lazy");
+        EClass caller = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        EClass lazy = assertInstanceOf(EClass.class, model.getEClassifier("Item2Tag"));
+        assertInstanceOf(EReference.class,
+                caller.getEStructuralFeature("__atl2tm_calls_t_tags_u1"));
+        assertInstanceOf(EReference.class,
+                caller.getEStructuralFeature("__atl2tm_calls_t_tags_u2"));
+        String binding = annotation(caller, PIVOT).getDetails().get("bind_Box2Box_t_tags");
+        assertTrue(binding.contains("__atl2tm_calls_t_tags_u1"), binding);
+        assertTrue(binding.contains("__atl2tm_calls_t_tags_u2"), binding);
+        String owner = annotation(lazy, PIVOT).getDetails().get("call_Item2Tag_owner");
+        assertTrue(owner.contains("__atl2tm_caller_Box2Box_t_tags_u1"), owner);
+        assertTrue(owner.contains("__atl2tm_caller_Box2Box_t_tags_u2"), owner);
+    }
+
+    @Test
+    void er2relKeyExpressionCanFeedLazyCollectWithoutOuterUnion() throws Exception {
+        Path workDir = Path.of("target", "ordinary-lazy-er2rel-source");
+        Path output = workDir.resolve("tm.ecore");
+        Path erEcore = Path.of("..", "Neuro_Symbolic_Pipeline", "input",
+                "ATL_metamodel", "ER.ecore");
+        new ATL2TMRunner().run(FIXTURE.resolve("collect-er2rel-flattened.atl"),
+                erEcore, FIXTURE.resolve("collect-tgt.ecore"), ATL2TM,
+                workDir, output);
+        EPackage model = new EcoreModelLoader().load(output);
+        EClass caller = assertInstanceOf(EClass.class,
+                model.getEClassifier("Relship2Box"));
+        assertTrue(annotation(caller, PIVOT).getDetails()
+                .get("call_Relship2Box_t_tags_coverage")
+                .contains("self.s.ends->collect(e | "
+                        + "e.entity.attrs->select(a | a.isKey))->flatten()->asSet()->forAll"));
+    }
+
+    @Test
+    void nestedCollectWithoutFlattenIsNotASetOfLazyInputs() {
+        Path workDir = Path.of("target", "ordinary-lazy-er2rel-unflattened");
+        Path erEcore = Path.of("..", "Neuro_Symbolic_Pipeline", "input",
+                "ATL_metamodel", "ER.ecore");
+        String message = assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
+                () -> new ATL2TMRunner().run(
+                        FIXTURE.resolve("collect-er2rel-source.atl"),
+                        erEcore, FIXTURE.resolve("collect-tgt.ecore"),
+                        ATL2TM, workDir, workDir.resolve("tm.ecore")))
+                .getMessage();
+        assertTrue(message.contains("pure OCL Set of source objects"), message);
+    }
+
+    @Test
+    void setCollectCreatesOneTracePerSourceMemberWithoutOrphans() throws Exception {
+        EPackage model = transformCollect("collect-set.atl", "collect-set");
+        EClass caller = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        EClass lazy = assertInstanceOf(EClass.class, model.getEClassifier("Item2Tag"));
+        EClass target = assertInstanceOf(EClass.class, model.getEClassifier("BoxOut"));
+        EReference calls = assertInstanceOf(EReference.class,
+                caller.getEStructuralFeature("__atl2tm_calls_t_tags"));
+        assertEquals(0, calls.getLowerBound());
+        assertEquals(-1, calls.getUpperBound());
+        assertFalse(calls.isOrdered());
+        assertEquals(lazy, calls.getEType());
+        assertEquals("self.t.tags = self.__atl2tm_calls_t_tags->collect(c | c.t)->asSet()",
+                annotation(caller, PIVOT).getDetails().get("bind_Box2Box_t_tags"));
+        assertEquals("self.s.items->forAll(i | self.__atl2tm_calls_t_tags"
+                        + "->one(c | c.s = i))",
+                annotation(caller, PIVOT).getDetails().get("call_Box2Box_t_tags_coverage"));
+        assertEquals("self.__atl2tm_calls_t_tags->forAll(c | self.s.items->includes(c.s))",
+                annotation(caller, PIVOT).getDetails().get("call_Box2Box_t_tags_noExtra"));
+        assertEquals("(if self.__atl2tm_caller_Box2Box_t_tags.oclIsUndefined()"
+                        + " then 0 else 1 endif) = 1",
+                annotation(lazy, PIVOT).getDetails().get("call_Item2Tag_owner"));
+        assertEquals(-1, ((EReference) target.getEStructuralFeature("tags")).getUpperBound());
+    }
+
+    @Test
+    void directAndCollectCallsShareExclusiveOwnerConstraint() throws Exception {
+        EPackage model = transformCollect("collect-and-direct.atl", "collect-and-direct");
+        EClass lazy = assertInstanceOf(EClass.class, model.getEClassifier("Item2Tag"));
+        assertEquals("(if self.__atl2tm_caller_Box2Box_t_tag1.oclIsUndefined()"
+                        + " then 0 else 1 endif) + "
+                        + "(if self.__atl2tm_caller_Box2Box_t_tags.oclIsUndefined()"
+                        + " then 0 else 1 endif) = 1",
+                annotation(lazy, PIVOT).getDetails().get("call_Item2Tag_owner"));
     }
 
     @Test
@@ -102,6 +246,24 @@ class ATL2TMOrdinaryLazyTest {
         Path output = workDir.resolve("tm.ecore");
         new ATL2TMRunner().run(FIXTURE.resolve(atl), FIXTURE.resolve("src.ecore"),
                 FIXTURE.resolve("tgt.ecore"), ATL2TM, workDir, output);
+        return new EcoreModelLoader().load(output);
+    }
+
+    private static EPackage transformCollect(String atl, String work) throws Exception {
+        Path workDir = Path.of("target", "ordinary-lazy-" + work);
+        Path output = workDir.resolve("tm.ecore");
+        new ATL2TMRunner().run(FIXTURE.resolve(atl), FIXTURE.resolve("collect-src.ecore"),
+                FIXTURE.resolve("collect-tgt.ecore"), ATL2TM, workDir, output);
+        return new EcoreModelLoader().load(output);
+    }
+
+    private static EPackage transformCollectExpression(String atl, String work)
+            throws Exception {
+        Path workDir = Path.of("target", "ordinary-lazy-" + work);
+        Path output = workDir.resolve("tm.ecore");
+        new ATL2TMRunner().run(FIXTURE.resolve(atl),
+                FIXTURE.resolve("collect-expression-src.ecore"),
+                FIXTURE.resolve("collect-tgt.ecore"), ATL2TM, workDir, output);
         return new EcoreModelLoader().load(output);
     }
 
