@@ -1,0 +1,18 @@
+-- Verification profile for the serialized SysML v2 subset used by the ten
+-- fixtures. The real containment path is ownedRelationship/ownedRelatedElement.
+global inv SourceSysMLContainsTransformablePackage:
+  Package.allInstances()->exists(p |
+    not p.declaredName.oclIsUndefined() and
+    p.declaredName <> '' and
+    p.ownedRelationship->notEmpty()
+  )
+
+context Package
+inv SourcePackageHasNameAndOwnedContent:
+  not self.declaredName.oclIsUndefined() and
+  self.declaredName <> '' and
+  self.ownedRelationship->notEmpty()
+
+context FeatureMembership
+inv SourceFeatureMembershipOwnsElement:
+  self.ownedRelatedElement->notEmpty()

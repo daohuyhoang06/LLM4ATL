@@ -1,0 +1,1706 @@
+-- @hot-atl2tm-part 0080
+helper def : filterExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+
+    in
+
+    thisModule.renderExpr(
+        r.inPattern.filter,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Lấy các rule có input đầu tiên mang kiểu đã cho.
+-- @hot-atl2tm-part 0081
+helper def : rulesForMatchConstraint(
+    c : ECORE!EClass
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+            r.oclIsTypeOf(ATL!MatchedRule)
+            and
+            r.inPattern.elements->notEmpty()
+            and
+            r.inPattern.elements->first().type.name = c.name
+        )
+        ->asSequence();
+
+-- Tạo các predicate bằng nhau giữa trace và input.
+-- OCL reserves "self" for the context object. ATL input variables may also
+-- use that legal ATL name, so render them with a fresh generated identifier.
+-- @hot-atl2tm-part 0082
+helper def : matchInputVarName(
+    s : ATL!SimpleInPatternElement
+) : String =
+
+    if s.varName = 'self' then
+        '__efinder_src_self'
+    else
+        s.varName
+    endif;
+
+-- @hot-atl2tm-part 0083
+helper def : traceMatchCondition(
+    r : ATL!MatchedRule
+) : String =
+
+    r.inPattern.elements
+        ->iterate(
+            s;
+            acc : String = '' |
+
+            if acc = '' then
+
+                'z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            else
+
+                acc
+                + ' and z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            endif
+        );
+
+-- Bọc đệ quy expression bằng các lượng từ input.
+-- @hot-atl2tm-part 0084
+helper def : wrapForAllAt(
+    inputs : Sequence(ATL!SimpleInPatternElement),
+    pos : Integer,
+    inner : String
+) : String =
+
+    if pos > inputs->size() then
+        inner
+    else
+        let s : ATL!SimpleInPatternElement = inputs->at(pos)
+        in
+            s.type.name
+            + '.allInstances()->forAll('
+            + thisModule.matchInputVarName(s)
+            + ' : '
+            + s.type.name
+            + ' | '
+            + thisModule.wrapForAllAt(
+                inputs,
+                pos + 1,
+                inner
+            )
+            + ')'
+    endif;
+
+-- Lượng từ hóa toàn bộ input pattern của một rule.
+-- @hot-atl2tm-part 0085
+helper def : wrapForAll(
+    r : ATL!MatchedRule,
+    inner : String
+) : String =
+
+    thisModule.wrapForAllAt(
+        r.inPattern.elements->asSequence(),
+        1,
+        inner
+    );
+
+-- Liệt kê tên ràng buộc match của một source class.
+-- @hot-atl2tm-part 0086
+helper def : matchConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+
+            if acc = ''
+            then
+                'match_' + r.name
+            else
+                acc + ' match_' + r.name
+            endif
+        );
+
+-- Triển khai hàm matchExpr(r)
+-- Mã hóa matchExpr(r): mỗi bộ input khớp có đúng một trace.
+-- @hot-atl2tm-part 0087
+helper def : matchExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    -- ở Step 2(d), dùng chính tên iterator:
+    -- a -> a
+    -- b -> b
+    let replacements : Sequence(String) =
+        inputs->collect(s | thisModule.matchInputVarName(s))
+
+    in
+
+    let traceExpr : String =
+        r.name
+        + '.allInstances()->one(z : '
+        + r.name
+        + ' | '
+        + thisModule.traceMatchCondition(r)
+        + ')'
+
+    in
+
+    let body : String =
+
+        if r.inPattern.filter.oclIsUndefined() then
+
+            traceExpr
+
+        else
+
+            thisModule.renderExpr(
+                r.inPattern.filter,
+                varNames,
+                replacements,
+                'self'
+            )
+            + ' implies '
+            + traceExpr
+
+        endif
+
+    in
+
+    thisModule.wrapForAll(
+        r,
+        body
+    );
+
+
+-- Biểu diễn một expression ATL trong ngữ cảnh trace của rule.
+-- @hot-atl2tm-part 0088
+helper def : ruleExpr(
+    r : ATL!MatchedRule,
+    e : ATL!OclExpression
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let outputs : Sequence(ATL!SimpleOutPatternElement) =
+        r.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+            ->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+            ->union(
+                outputs->collect(o | o.varName)
+            )
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+        ->union(
+            outputs->collect(o |
+                'self.' + o.varName
+            )
+        )
+
+    in
+
+    thisModule.renderExpr(
+        e,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Biểu diễn vế phải của một ATL binding.
+-- @hot-atl2tm-part 0089
+helper def : bindingExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    thisModule.ruleExpr(
+        r,
+        b.value
+    );
+
+-- Tạo tên ràng buộc OCL ổn định cho binding.
+-- @hot-atl2tm-part 0090
+helper def : bindingConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'bind_'
+    + r.name
+    + '_'
+    + o.varName
+    + '_'
+    + b.propertyName;
+
+-- Chọn biểu diễn binding trực tiếp, Shape IV hoặc Shape V.
+-- Resolve a named output only when one unfiltered unary matched rule can
+-- produce it. Other resolveTemp forms stay explicit unsupported markers.
+-- @hot-atl2tm-part 0093
+helper def : bindingResolvedExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    if thisModule.isDirectResolveTempBinding(b) then
+
+        thisModule.directResolveTempExpr(r, b)
+
+    else
+    if thisModule.isDirectLazyBinding(b) then
+
+        'self.'
+        + thisModule.directLazyCallName(b)
+        + '.'
+        + thisModule.directLazyRule(b).outPattern.elements->first().varName
+
+    else
+    if thisModule.isCollectLazyBinding(b) then
+
+        'self.'
+        + thisModule.collectLazyCallName(b)
+        + '->collect(c | c.'
+        + thisModule.collectLazyRule(b).outPattern.elements->first().varName
+        + ')->asSet()'
+
+    else
+    if thisModule.isUnionLazyBinding(b) then
+
+        thisModule.resolveUnionLazyExpr(r, b.value)
+
+    else
+    if thisModule.isShapeV(r, b) then
+
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    else
+        if thisModule.isShapeIV(r, b) then
+
+            thisModule.resolveShapeIV(
+                r,
+                b
+            )
+
+        else
+
+            thisModule.bindingExpr(
+                r,
+                b
+            )
+
+        endif
+    endif
+    endif
+    endif
+    endif
+    endif;
+
+-- Mã hóa ràng buộc bằng nhau của thuộc tính đích.
+-- @hot-atl2tm-part 0094
+helper def : bindingConstraintExpr(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'self.'
+    + o.varName
+    + '.'
+    + b.propertyName
+    + ' = '
+    + thisModule.bindingResolvedExpr(
+        r,
+        b
+    );
+
+-- Gom các binding từ mọi simple output element.
+-- @hot-atl2tm-part 0095
+helper def : bindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->collect(o | o.bindings)
+        ->flatten()
+        ->asSequence();
+
+-- @hot-atl2tm-part 0096
+helper def : directLazyConstraintNames(
+    r : ATL!MatchedRule
+) : String =
+
+    let directNames : String =
+        thisModule.directLazyBindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = '' |
+                let name : String =
+                    thisModule.directLazyArgumentConstraintName(b)
+                in
+                if acc = '' then name else acc + ' ' + name endif
+            )
+    in
+    let collectNames : String =
+        thisModule.collectLazyBindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = directNames |
+                let names : String =
+                    thisModule.collectLazyCoverageConstraintName(b)
+                    + ' '
+                    + thisModule.collectLazyNoExtraConstraintName(b)
+                in
+                if acc = '' then names else acc + ' ' + names endif
+            )
+    in
+    let unionNames : String =
+        thisModule.unionLazySitesOf(r)
+            ->iterate(
+                e;
+                acc : String = collectNames |
+                let names : String =
+                    thisModule.unionLazyCoverageConstraintName(e)
+                    + ' '
+                    + thisModule.unionLazyNoExtraConstraintName(e)
+                in
+                if acc = '' then names else acc + ' ' + names endif
+            )
+    in
+    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+        thisModule.directLazyOwnerConstraintName(r)
+    else
+        unionNames
+    endif;
+
+-- Liệt kê mọi ràng buộc OCL gắn với trace class.
+-- @hot-atl2tm-part 0097
+helper def : traceConstraintNames(
+    r : ATL!MatchedRule
+) : String =
+
+    let filterName : String =
+        if r.inPattern.filter.oclIsUndefined()
+        then ''
+        else 'match_' + r.name + '_cond'
+        endif
+
+    in
+
+    let bindingNames : String =
+
+        thisModule.bindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = filterName |
+
+                let mainName : String =
+                    thisModule.bindingConstraintName(
+                        r,
+                        b.outPatternElement,
+                        b
+                    )
+
+                in
+
+                let names : String =
+
+                    if thisModule.isShapeV(r, b) then
+
+                        mainName
+                        + ' '
+                        + mainName
+                        + '_size'
+
+                    else
+
+                        if thisModule.isShapeIV(r, b) then
+
+                            mainName
+                            + ' '
+                            + mainName
+                            + '_defined'
+
+                        else
+
+                            mainName
+
+                        endif
+
+                    endif
+
+                in
+
+                if acc = ''
+                then
+                    names
+                else
+                    acc + ' ' + names
+                endif
+            )
+
+    in
+
+    let existingNames : String = r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->iterate(
+            o;
+            accOut : String = bindingNames |
+
+            thisModule.unboundPropertiesOf(o)
+                ->iterate(
+                    p;
+                    accProp : String = accOut |
+
+                    let name : String =
+                        thisModule.nullConstraintName(
+                            o,
+                            p
+                        )
+
+                    in
+
+                    if accProp = ''
+                    then
+                        name
+                    else
+                        accProp + ' ' + name
+                    endif
+                )
+        )
+    in
+    let callNames : String = thisModule.directLazyConstraintNames(r)
+    in
+    if existingNames = '' then
+        callNames
+    else
+        if callNames = '' then
+            existingNames
+        else
+            existingNames + ' ' + callNames
+        endif
+    endif;
+
+-- Kiểm tra trace class có cần OCL annotation không.
+-- @hot-atl2tm-part 0098
+helper def : hasTraceConstraints(
+    r : ATL!MatchedRule
+) : Boolean =
+
+    r.oclIsTypeOf(ATL!LazyMatchedRule)
+
+    or
+
+    thisModule.directLazyBindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.collectLazyBindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.unionLazySitesOf(r)->notEmpty()
+
+    or
+
+    not r.inPattern.filter.oclIsUndefined()
+
+    or
+
+    thisModule.bindingsOf(r)->notEmpty()
+
+    or
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->exists(o |
+            thisModule.unboundPropertiesOf(o)
+                ->notEmpty()
+        );
+
+-- ================================================================
+-- Step 2: phân tích source metamodel phục vụ binding/resolution
+-- ================================================================
+
+-- Tìm source EClass theo tên.
+-- @hot-atl2tm-part 0104
+helper def : isShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    thisModule.sourceExprTypeName(
+        b.value,
+        r
+    ) <> ''
+
+    and not thisModule.sourceExprIsCollection(
+        b.value,
+        r
+    );
+
+-- Tìm unary matched rule có thể phân giải source object.
+-- @hot-atl2tm-part 0105
+helper def : resolverRules(
+    sourceTypeName : String
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+
+            r.oclIsTypeOf(ATL!MatchedRule)
+
+            and
+
+            r.inPattern.elements->size() = 1
+
+            and
+
+            thisModule.sourceTypesCompatible(
+                sourceTypeName,
+                r.inPattern.elements
+                    ->first()
+                    .type.name
+            )
+
+            and
+
+            r.outPattern.elements
+                ->select(o |
+                    o.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+                )
+                ->notEmpty()
+        )
+        ->asSequence();
+
+-- Tạo một đường dẫn trace cho resolver đơn trị.
+-- @hot-atl2tm-part 0106
+helper def : resolverPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    exprText
+    + '.oclAsType('
+    + input.type.name
+    + ').'
+    + resolver.name
+    + '_'
+    + input.varName
+    + '.'
+    + output.varName;
+
+-- Lấy các target của resolver từ những trace thực sự tồn tại.
+-- Điều kiện trên input type tránh tạo navigation undefined khi resolver
+-- không áp dụng cho object hiện tại.
+-- @hot-atl2tm-part 0107
+helper def : resolverTraceTargetCollection(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    '(if '
+    + exprText
+    + '.oclIsKindOf('
+    + input.type.name
+    + ') then '
+    + resolver.name
+    + '.allInstances()->select(z : '
+    + resolver.name
+    + ' | z.'
+    + thisModule.matchInputVarName(input)
+    + ' = '
+    + exprText
+    + '.oclAsType('
+    + input.type.name
+    + '))->collect(z | z.'
+    + output.varName
+    + ') else Sequence {} endif)';
+
+-- Ghép các đường dẫn resolver đơn trị khi q > 1.
+-- @hot-atl2tm-part 0108
+helper def : resolverPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverTraceTargetCollection(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Phân giải source object đơn trị qua các trace link.
+-- @hot-atl2tm-part 0109
+helper def : resolveShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceExprTypeName(
+            b.value,
+            r
+        )
+
+    in
+
+    let exprText : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolvers : Sequence(ATL!MatchedRule) =
+        thisModule.resolverRules(
+            sourceTypeName
+        )
+
+    in
+
+    if resolvers->isEmpty() then
+
+        'null'
+
+    else
+        if resolvers->size() = 1 then
+
+            -- q = 1
+            thisModule.resolverPath(
+                exprText,
+                resolvers->first()
+            )
+
+        else
+
+            -- q > 1
+            'Set { '
+            + thisModule.resolverPaths(
+                exprText,
+                resolvers
+            )
+            + ' }->flatten()->any(true)'
+
+        endif
+    endif;
+
+-- Đặt tên ràng buộc bảo toàn definedness của Shape IV.
+-- @hot-atl2tm-part 0110
+helper def : shapeIVDefinedConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r, o, b
+    )
+    + '_defined';
+
+-- Bảo toàn definedness trước và sau khi phân giải Shape IV.
+-- @hot-atl2tm-part 0111
+helper def : shapeIVDefinedConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeIV(
+            r,
+            b
+        )
+
+    in
+
+    '(not '
+    + original
+    + '.oclIsUndefined())'
+    + ' = '
+    + '(not '
+    + resolved
+    + '.oclIsUndefined())';
+
+-- Lấy kiểu EClass của một biểu thức trong thân iterator. Hiện dùng cho
+-- collect(x | x.referenceToSourceObject), nơi x là phần tử của source
+-- collection và kết quả collect vẫn là source object cần resolve.
+-- @hot-atl2tm-part 0118
+helper def : isShapeVExpr(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            thisModule.isShapeVExpr(e.source, r)
+            or
+            thisModule.isShapeVExpr(e.arguments->first(), r)
+        else
+            false
+        endif
+
+    else
+
+        thisModule.sourceCollectionElementTypeName(e, r) <> ''
+
+    endif;
+
+-- Nhận diện binding Shape V.
+-- @hot-atl2tm-part 0119
+helper def : isShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    if thisModule.isUnionLazyBinding(b) then
+        false
+    else
+        thisModule.isShapeVExpr(b.value, r)
+    endif;
+
+-- Tạo một đường dẫn trace theo từng phần tử.
+-- @hot-atl2tm-part 0120
+helper def : resolverCollectPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let outputs : Sequence(ATL!OutPatternElement) =
+        resolver.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        outputs->first()
+
+    in
+
+    exprText
+    + '->collect(x | '
+    + thisModule.resolverTraceTargetCollection(
+        'x',
+        resolver
+    )
+    + ')->flatten()';
+
+-- Ghép các đường dẫn resolver collection khi q > 1.
+-- @hot-atl2tm-part 0121
+helper def : resolverCollectPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverCollectPath(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Resolve một source collection, kể cả collection đã qua select/reject/collect.
+-- @hot-atl2tm-part 0122
+helper def : resolveShapeVDirectParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceCollectionElementTypeName(e, r)
+
+    in
+
+    if sourceTypeName = '' then
+        ''
+    else
+
+        let resolvers : Sequence(ATL!MatchedRule) =
+            thisModule.resolverRules(sourceTypeName)
+
+        in
+
+        thisModule.resolverCollectPaths(
+            thisModule.ruleExpr(r, e),
+            resolvers
+        )
+
+    endif;
+
+-- Trả về các nhánh collect đã resolve của một Shape V expression.
+-- @hot-atl2tm-part 0123
+helper def : resolveShapeVParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            let left : String =
+                thisModule.resolveShapeVParts(e.source, r)
+            in
+            let right : String =
+                thisModule.resolveShapeVParts(e.arguments->first(), r)
+            in
+            if left = '' or right = '' then
+                '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_UNION_BRANCH__'
+            else
+                left + ', ' + right
+            endif
+        else
+            let part : String = thisModule.resolveShapeVDirectParts(e, r)
+            in
+            if part = '' then
+                '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_BRANCH__'
+            else
+                part
+            endif
+        endif
+
+    else
+        let part : String = thisModule.resolveShapeVDirectParts(e, r)
+        in
+        if part = '' then
+            '__ATL2TM_UNSUPPORTED_EXPRESSION__SHAPE_V_BRANCH__'
+        else
+            part
+        endif
+    endif;
+
+-- Phân giải source collection, gồm cả union, qua các trace link.
+-- @hot-atl2tm-part 0124
+helper def : resolveShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    'Set { '
+    + thisModule.resolveShapeVParts(b.value, r)
+    + ' }->flatten()';
+
+-- Resolve each union operand independently: matched source objects use their
+-- matched trace, while a lazy collect uses the call-site trace collection.
+-- @hot-atl2tm-part 0125
+helper def : resolveUnionLazyExpr(
+    r : ATL!MatchedRule,
+    e : ATL!OclExpression
+) : String =
+    if thisModule.isLazyCollectExpr(e) then
+        'self.'
+        + thisModule.unionLazyCallName(e)
+        + '->collect(c | c.'
+        + thisModule.unionLazyRule(e).outPattern.elements->first().varName
+        + ')->asSet()'
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'union' and e.arguments->size() = 1 then
+                '('
+                + thisModule.resolveUnionLazyExpr(r, e.source)
+                + ')->union('
+                + thisModule.resolveUnionLazyExpr(r, e.arguments->first())
+                + ')'
+            else
+                'Set { '
+                + thisModule.resolveShapeVDirectParts(e, r)
+                + ' }->flatten()->asSet()'
+            endif
+        else
+            'Set { '
+            + thisModule.resolveShapeVDirectParts(e, r)
+            + ' }->flatten()->asSet()'
+        endif
+    endif;
+
+-- Đặt tên ràng buộc bảo toàn số lượng của Shape V.
+-- @hot-atl2tm-part 0126
+helper def : shapeVSizeConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r,
+        o,
+        b
+    )
+    + '_size';
+
+-- Bảo toàn kích thước collection sau khi phân giải Shape V.
+-- @hot-atl2tm-part 0127
+helper def : shapeVSizeConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    in
+
+    '('
+    + original
+    + ')->size() = ('
+    + resolved
+    + ')->size()';
+
+-- ================================================================
+-- Step 2: điều kiện frame cho thuộc tính đích chưa bind
+-- ================================================================
+
+-- Tìm target EClass của một output pattern element.
+-- @hot-atl2tm-part 0128
+helper def : targetEClassOf(
+    o : ATL!SimpleOutPatternElement
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c |
+            c.name = o.type.name
+        )
+        ->first();
+
+-- Lấy các thuộc tính đích không xuất hiện trong output pattern.
+-- Một eReference cũng được coi là đã bind nếu eOpposite của nó được
+-- bind trực tiếp trên target object khác (EMF sẽ đồng bộ hai đầu).
+-- @hot-atl2tm-part 0129
+helper def : isBoundThroughOpposite(
+    p : ECORE!EStructuralFeature
+) : Boolean =
+
+    ECORE!EReference.allInstancesFrom('TGT')
+        ->select(ref |
+            ref.name = p.name
+            and ref.eContainingClass.name = p.eContainingClass.name
+            and not ref.eOpposite.oclIsUndefined()
+        )
+        ->exists(ref |
+            ATL!Binding.allInstancesFrom('IN')
+                ->exists(b |
+                    b.propertyName = ref.eOpposite.name
+
+                    and
+
+                    b.outPatternElement.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+
+                    and
+
+                    thisModule.targetEClassOf(
+                        b.outPatternElement
+                    ).name = ref.eOpposite.eContainingClass.name
+                )
+        );
+
+-- Lấy các thuộc tính đích chưa bind trực tiếp hoặc qua eOpposite.
+-- @hot-atl2tm-part 0130
+helper def : unboundPropertiesOf(
+    o : ATL!SimpleOutPatternElement
+) : Sequence(ECORE!EStructuralFeature) =
+
+    thisModule.targetEClassOf(o)
+        .eAllStructuralFeatures
+        ->select(p |
+            not o.bindings->exists(b |
+                b.propertyName = p.name
+            )
+
+            and
+
+            not thisModule.isBoundThroughOpposite(p)
+        )
+        ->asSequence();
+
+-- Tạo tên điều kiện frame.
+-- @hot-atl2tm-part 0131
+helper def : nullConstraintName(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'null_'
+    + o.outPattern.rule.name
+    + '_'
+    + o.varName
+    + '_'
+    + p.name;
+
+-- Yêu cầu thuộc tính đơn/reference chưa bind phải rỗng.
+-- @hot-atl2tm-part 0132
+helper def : nullConstraintExpr(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '.oclIsUndefined()'
+
+    else
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '->isEmpty()'
+
+    endif;
+
+-- ================================================================
+-- Step 3: creator constraints cho target class
+-- ================================================================
+
+-- Tìm target EClass theo tên.
+-- @hot-atl2tm-part 0171
+rule MatchRule2EClass {
+    from 
+        r : ATL!MatchedRule
+    to
+        c : ECORE!EClass (
+            name <- r.name,
+
+            eStructuralFeatures <-
+                r.inPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleInPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                ->union(
+                r.outPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleOutPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                )
+                ->union(
+                    thisModule.directLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.resolveTemp(b, 'forward')
+                        )
+                )
+                ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.resolveTemp(b, 'forward')
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.resolveTemp(e, 'forward')
+                        )
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.directCallsToLazyRule(r)
+                            ->collect(b |
+                                thisModule.resolveTemp(b, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.collectCallsToLazyRule(r)
+                            ->collect(b |
+                                thisModule.resolveTemp(b, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        thisModule.unionLazyCallsToLazyRule(r)
+                            ->collect(e |
+                                thisModule.resolveTemp(e, 'inverse')
+                            )
+                    else
+                        Sequence {}
+                    endif
+                ),
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.TraceProvenanceAnnotation(r)
+                }
+                ->union(
+                    if thisModule.hasTraceConstraints(r)
+                    then
+                        Sequence {
+                            thisModule.TraceConstraintNamesAnnotation(r),
+                            thisModule.TraceOclAnnotation(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
+        )
+}
+
+
+-- Step 2: nối trace class với source input element.
+-- @hot-atl2tm-part 0172
+rule InPatternElement2SourceAssociation {
+    from
+        s : ATL!SimpleInPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.matchInputVarName(s),
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('SRC')
+                    ->select(c | c.name = s.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                s.inPattern.rule.name
+                + '_'
+                + s.varName,
+
+            lowerBound <- 0,
+
+            upperBound <-
+                if s.inPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+                   and s.inPattern.elements->size() = 1
+                then 1
+                else -1
+                endif,
+
+            eType <- s.inPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+
+-- Step 2: nối trace class với target output element.
+-- @hot-atl2tm-part 0173
+rule OutPatternElement2TargetAssociation {
+    from
+        o : ATL!SimpleOutPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- o.varName,
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('TGT')
+                    ->select(c | c.name = o.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                o.outPattern.rule.name
+                + '_'
+                + o.varName,
+
+            lowerBound <- 0,
+            upperBound <- 1,
+
+            eType <- o.outPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+
+-- One scalar binding call denotes one lazy-rule execution. The forward slot
+-- is mandatory on the caller; the inverse is optional here and is made
+-- exclusive across all call sites by the lazy trace's owner invariant.
+-- @hot-atl2tm-part 0179
+unique lazy rule MatchConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'match_' + r.name,
+            value <- thisModule.matchExpr(r)
+        )
+}
+
+-- Step 2/4: khai báo tên ràng buộc match và mutex phía nguồn.
+-- @hot-atl2tm-part 0180
+unique lazy rule MatchingConstraintNamesAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.sourceConstraintNames(c)
+        )
+}
+
+-- Step 2/4: lưu expression OCL match và mutex phía nguồn.
+-- @hot-atl2tm-part 0181
+unique lazy rule MatchingOclAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: OCL gốc của SRC
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 2: match constraint
+                ->union(
+                    thisModule.rulesForMatchConstraint(c)
+                        ->collect(r |
+                            thisModule.MatchConstraintDetail(r)
+                        )
+                )
+
+                -- Step 4: mutex constraint
+                ->union(
+
+                    thisModule.mutexRulesForContext(c)
+                        ->collect(r1 |
+
+                            thisModule.laterOverlappingRules(r1)
+                                ->collect(r2 |
+                                    thisModule.MutexConstraintDetail(
+                                        r1,
+                                        r2
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+
+-- Step 2: lưu filter của matched rule trên trace class.
+-- @hot-atl2tm-part 0182
+unique lazy rule FilterConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'match_'
+                + r.name
+                + '_cond',
+
+            value <-
+                thisModule.filterExpr(r)
+        )
+}
+
+-- Step 2: khai báo tên ràng buộc gắn với trace class.
+-- @hot-atl2tm-part 0183
+unique lazy rule TraceConstraintNamesAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
+
+-- Step 2: lưu invariant bằng nhau chính của một binding.
+-- @hot-atl2tm-part 0184
+unique lazy rule BindingConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                thisModule.bindingConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.bindingConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                )
+        )
+}
+
+-- @hot-atl2tm-part 0191
+unique lazy rule TraceOclAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+                (
+                    if r.inPattern.filter.oclIsUndefined()
+                    then
+                        Sequence {}
+                    else
+                        Sequence {
+                            thisModule.FilterConstraintDetail(r)
+                        }
+                    endif
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->collect(b |
+                            thisModule.BindingConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.directLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.DirectLazyArgumentConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.CollectLazyCoverageConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.collectLazyBindingsOf(r)
+                        ->collect(b |
+                            thisModule.CollectLazyNoExtraConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.UnionLazyCoverageConstraintDetail(e)
+                        )
+                )
+                ->union(
+                    thisModule.unionLazySitesOf(r)
+                        ->collect(e |
+                            thisModule.UnionLazyNoExtraConstraintDetail(e)
+                        )
+                )
+                ->union(
+                    if r.oclIsTypeOf(ATL!LazyMatchedRule) then
+                        Sequence {
+                            thisModule.DirectLazyOwnerConstraintDetail(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeIV(r, b)
+                        )
+                        ->collect(b |
+                            thisModule.ShapeIVDefinedConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeV(
+                                r,
+                                b
+                            )
+                        )
+                        ->collect(b |
+                            thisModule.ShapeVSizeConstraintDetail(
+                                b
+                            )
+                        )
+                )
+                ->union(
+                    r.outPattern.elements
+                        ->select(o |
+                            o.oclIsTypeOf(
+                                ATL!SimpleOutPatternElement
+                            )
+                        )
+                        ->collect(o |
+                            thisModule.unboundPropertiesOf(o)
+                                ->collect(p |
+                                    thisModule.NullConstraintDetail(
+                                        o,
+                                        p
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+-- Step 2: lưu ràng buộc bảo toàn definedness của Shape IV.
+-- @hot-atl2tm-part 0192
+unique lazy rule ShapeIVDefinedConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeIVDefinedConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeIVDefinedConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: lưu ràng buộc bảo toàn số lượng của Shape V.
+-- @hot-atl2tm-part 0193
+unique lazy rule ShapeVSizeConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeVSizeConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeVSizeConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: lưu invariant frame cho thuộc tính chưa bind.
+-- One detail is required for every (out-pattern element, unbound feature)
+-- pair. A unique lazy rule reused the first detail for the other features.
+-- @hot-atl2tm-part 0194
+lazy rule NullConstraintDetail {
+
+    from
+        o : ATL!SimpleOutPatternElement,
+        p : ECORE!EStructuralFeature
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.nullConstraintName(
+                    o,
+                    p
+                ),
+
+            value <-
+                thisModule.nullConstraintExpr(
+                    o,
+                    p
+                )
+        )
+}
+
+-- Step 3: khai báo tên creator constraint trên target class.

@@ -1,0 +1,105 @@
+-- @hot-atl2tm-part 0013
+helper def : appendStrings(
+    base : Sequence(String),
+    additions : Sequence(String)
+) : Sequence(String) =
+
+    additions->iterate(
+        value;
+        acc : Sequence(String) = base |
+        acc->append(value)
+    );
+
+-- Lấy replacement ở scope gần nhất (duyệt từ phải sang trái).
+-- @hot-atl2tm-part 0014
+helper def : replacementOfAt(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    pos : Integer
+) : String =
+
+    if pos = 0 then
+        name
+    else
+        if varNames->at(pos) = name then
+            replacements->at(pos)
+        else
+            thisModule.replacementOfAt(
+                name,
+                varNames,
+                replacements,
+                pos - 1
+            )
+        endif
+    endif;
+
+-- Lấy giá trị thay thế khi biểu diễn biến.
+-- @hot-atl2tm-part 0015
+helper def : replacementOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    thisModule.replacementOfAt(
+        name,
+        varNames,
+        replacements,
+        varNames->size()
+    );
+
+-- A refinement is kept in the ordinary rendering environment under a
+-- reserved marker.  This keeps subtype knowledge lexical: an inner iterator
+-- with the same variable name shadows the refinement of an outer iterator.
+-- @hot-atl2tm-part 0016
+helper def : refinedTypeMarker(name : String) : String =
+
+    '__ATL2TM_REFINED_TYPE__' + name;
+
+-- @hot-atl2tm-part 0017
+helper def : refinedTypeOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    let marker : String = thisModule.refinedTypeMarker(name)
+    in
+    if varNames->includes(marker) then
+        thisModule.replacementOf(marker, varNames, replacements)
+    else
+        ''
+    endif;
+
+-- Helper feature có thể là Operation (có parameter) hoặc Attribute (arity 0).
+-- @hot-atl2tm-part 0035
+helper def : escapeStringContent(
+    value : String,
+    pos : Integer
+) : String =
+
+    if pos > value.size() then
+        ''
+    else
+        let current : String = value.substring(pos, pos)
+        in
+            if current = '\'' then
+                '\\'
+                + '\''
+                + thisModule.escapeStringContent(value, pos + 1)
+            else
+                current
+                + thisModule.escapeStringContent(value, pos + 1)
+            endif
+    endif;
+
+-- Đặt dấu nháy và escape string literal OCL.
+-- @hot-atl2tm-part 0036
+helper def : renderStringLiteral(value : String) : String =
+
+    '\''
+    + thisModule.escapeStringContent(value, 1)
+    + '\'';
+
+-- Biểu diễn các phần tử của Sequence, cách nhau bởi dấu phẩy.

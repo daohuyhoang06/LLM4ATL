@@ -62,5 +62,13 @@
   "ER2REL": [
     "ATL_model/ER.ecore",
     "ATL_model/REL.ecore"
+  ],
+  "UML2Java_All": [
+    "ATL_model/UML.ecore",
+    "ATL_model/java.ecore"
+  ],
+  "SysMLv2ToAAS_All": [
+    "ATL_model/SysMLv2.ecore",
+    "ATL_model/AAS.ecore"
   ]
 }

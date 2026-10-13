@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AAS:AasModelRoot xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AAS="www.jku.at/AAS" name="ModelContainer">
+  <assetadministrationshells idShort="Interaction Example-1">
+    <submodel idShort="Hierarchical Structures">
+      <submodelelement xsi:type="AAS:Entity" idShort="SetSpeed">
+        <qualifier type="ItemDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="SensedSpeed">
+        <qualifier type="ItemDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="FuelCommand">
+        <qualifier type="ItemDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="CruiseControlInteraction">
+        <qualifier type="OccurrenceDefinition"/>
+        <submodelelement xsi:type="AAS:Entity" idShort="driver">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="driver">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.0"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="vehicle">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="vehicle">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.1"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="setSpeedMessage">
+          <qualifier type="FlowConnectionUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="setSpeedMessage">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.2"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="sensedSpeedMessage">
+          <qualifier type="FlowConnectionUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="sensedSpeedMessage">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.3"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="fuelCommandMessage">
+          <qualifier type="FlowConnectionUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="fuelCommandMessage">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.4"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity">
+          <qualifier type="SuccessionAsUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first>
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.3/@submodelelement.5"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+      </submodelelement>
+    </submodel>
+  </assetadministrationshells>
+</AAS:AasModelRoot>

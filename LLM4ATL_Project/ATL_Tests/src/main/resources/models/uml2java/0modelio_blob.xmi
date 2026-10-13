@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML"
+    xmi:id="_OqmJ8CzPEeWrLrqyNkcLwA"
+    name="blob">
+  <ownedRule xmi:type="uml:Constraint" xmi:id="_OqmJ9CzPEeWrLrqyNkcLwA" name="minbytes" constrainedElement="_OqmJ9yzPEeWrLrqyNkcLwA">
+    <specification xmi:type="uml:LiteralString" xmi:id="_OqmJ9SzPEeWrLrqyNkcLwA" value="42"/>
+  </ownedRule>
+  <packagedElement xmi:type="uml:Class" xmi:id="_OqmJ9izPEeWrLrqyNkcLwA" name="MyClass">
+    <ownedAttribute xmi:type="uml:Property" xmi:id="_OqmJ9yzPEeWrLrqyNkcLwA" name="myAttribute" visibility="public" type="_OqmJ-izPEeWrLrqyNkcLwA" isUnique="false"/>
+    <ownedAttribute xmi:type="uml:Property" xmi:id="_OqmJ-CzPEeWrLrqyNkcLwA" name="myAttribute2" visibility="public" type="_OqmJ-yzPEeWrLrqyNkcLwA" isUnique="false"/>
+    <ownedAttribute xmi:type="uml:Property" xmi:id="_OqmJ-SzPEeWrLrqyNkcLwA" name="myAttribute3" visibility="public" type="_OqmJ_CzPEeWrLrqyNkcLwA" isUnique="false"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_OqmJ-izPEeWrLrqyNkcLwA" name="ImageBlob"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_OqmJ-yzPEeWrLrqyNkcLwA" name="Blob"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_OqmJ_CzPEeWrLrqyNkcLwA" name="AnyBlob"/>
+</uml:Model>

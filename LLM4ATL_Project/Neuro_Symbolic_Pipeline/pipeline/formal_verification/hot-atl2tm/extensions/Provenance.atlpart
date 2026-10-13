@@ -1,0 +1,440 @@
+-- @hot-atl2tm-part 0003
+helper def : provenanceSource : String =
+    'urn:llm4atl:provenance';
+
+-- EClass/EEnum/EDataType classifiers are copied from either the source or
+-- target package.  This helper is deliberately package-based rather than
+-- name-based so that equal names in the two metamodels remain distinguishable.
+-- @hot-atl2tm-part 0004
+helper def : classifierOrigin(
+    c : ECORE!EClassifier
+) : String =
+
+    if ECORE!EPackage.allInstancesFrom('SRC')->includes(c.ePackage) then
+        'source'
+    else
+        if ECORE!EPackage.allInstancesFrom('TGT')->includes(c.ePackage) then
+            'target'
+        else
+            'unknown'
+        endif
+    endif;
+
+-- A classifier can participate in more than one matched/creator rule, hence
+-- the plural form of this metadata field.  The list uses the same
+-- space-separated encoding as the constraint lists.
+-- @hot-atl2tm-part 0005
+helper def : matchedRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+            if acc = '' then
+                r.name
+            else
+                acc + ' ' + r.name
+            endif
+        );
+
+-- @hot-atl2tm-part 0006
+helper def : creatorRuleNamesFor(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.creatorsOf(c)
+        ->collect(o | o.outPattern.rule.name)
+        ->iterate(
+            n;
+            acc : String = '' |
+            if acc = '' then
+                n
+            else
+                acc + ' ' + n
+            endif
+        );
+
+-- Ghép tên constraint gốc với creator constraint của Step 3.
+-- @hot-atl2tm-part 0007
+helper def : targetConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let creation : String =
+        thisModule.creationConstraintName(c)
+
+    in
+
+    if original = '' then
+        creation
+    else
+        original + ' ' + creation
+    endif;
+
+-- Reference-valued target multiplicities are properties to verify, rather
+-- than assumptions of the transformation semantics. Primitive EAttributes
+-- are intentionally excluded: USE/EFinder cannot soundly represent an
+-- unbound primitive value. Their names are recorded as unsupported metadata.
+-- @hot-atl2tm-part 0008
+helper def : targetMultiplicityConstraintName(
+    c : ECORE!EClass,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'targetMultiplicity_'
+    + c.name
+    + '_'
+    + p.name;
+
+-- @hot-atl2tm-part 0009
+helper def : targetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+-- @hot-atl2tm-part 0010
+helper def : unsupportedPrimitiveTargetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EAttribute))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+-- @hot-atl2tm-part 0011
+helper def : targetPostConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let multiplicities : String =
+        thisModule.targetMultiplicityConstraintNames(c)
+
+    in
+
+    if original = '' then
+        multiplicities
+    else
+        if multiplicities = '' then
+            original
+        else
+            original + ' ' + multiplicities
+        endif
+    endif;
+
+-- @hot-atl2tm-part 0012
+helper def : targetMultiplicityConstraintExpr(
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+        'not self.'
+        + p.name
+        + '.oclIsUndefined()'
+    else
+        'self.'
+        + p.name
+        + '->size() >= '
+        + p.lowerBound.toString()
+    endif;
+
+-- ================================================================
+-- Hỗ trợ chung: biểu diễn ATL/OCL thành chuỗi Pivot OCL
+-- ================================================================
+
+-- Nối hai Sequence mà vẫn giữ thứ tự và phần tử trùng. Điều này rất quan
+-- trọng khi biến cục bộ/iterator shadow một formal parameter cùng tên.
+-- @hot-atl2tm-part 0157
+unique lazy rule TransformationProvenanceAnnotation {
+    from
+        m : ATL!Module
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                schemaDetail,
+                moduleDetail,
+                encodingDetail
+            }
+        ),
+
+        schemaDetail : ECORE!EStringToStringMapEntry (
+            key <- 'schemaVersion',
+            value <- '1'
+        ),
+
+        moduleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlModule',
+            value <- m.name
+        ),
+
+        encodingDetail : ECORE!EStringToStringMapEntry (
+            key <- 'constraintLists',
+            value <- 'space-separated-names'
+        )
+}
+
+-- Provenance attached to copied source/target classifiers.  Constraint names
+-- are grouped by role instead of being encoded in the OCL annotation itself:
+-- this keeps USE/OCL consumers from trying to parse metadata as OCL details.
+-- @hot-atl2tm-part 0158
+unique lazy rule EClassProvenanceAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <-
+                Sequence {
+                    originDetail,
+                    nameDetail,
+                    ruleDetail,
+                    preDetail,
+                    postDetail,
+                    multiplicityNamesDetail,
+                    unsupportedPrimitiveMultiplicityNamesDetail,
+                    semDetail
+                }
+                ->union(
+                    if thisModule.classifierOrigin(c) = 'target' then
+                        c.eStructuralFeatures
+                            ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                            ->collect(p |
+                                thisModule.TargetMultiplicityProvenanceDetail(
+                                    c,
+                                    p
+                                )
+                            )
+                    else
+                        Sequence {}
+                    endif
+                )
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(c)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- c.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.matchedRuleNamesFor(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creatorRuleNamesFor(c)
+                    else
+                        ''
+                    endif
+                endif
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.originalConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.targetPostConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        multiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'targetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.targetMultiplicityConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        unsupportedPrimitiveMultiplicityNamesDetail : ECORE!EStringToStringMapEntry (
+            key <- 'unsupportedPrimitiveTargetMultiplicityConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'target'
+                then
+                    thisModule.unsupportedPrimitiveTargetMultiplicityConstraintNames(c)
+                else
+                    ''
+                endif
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <-
+                if thisModule.classifierOrigin(c) = 'source'
+                then
+                    thisModule.generatedSourceConstraintNames(c)
+                else
+                    if thisModule.classifierOrigin(c) = 'target'
+                    then
+                        thisModule.creationConstraintName(c)
+                    else
+                        ''
+                    endif
+                endif
+        )
+}
+
+-- One provenance entry per relaxed target feature. The value is deliberately
+-- human-readable so reports distinguish these generated Posts from user OCL.
+-- @hot-atl2tm-part 0159
+lazy rule TargetMultiplicityProvenanceDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'constraintRole.'
+                + thisModule.targetMultiplicityConstraintName(c, p),
+            value <- 'POST / TARGET_MULTIPLICITY'
+        )
+}
+
+-- EEnum and custom EDataType do not own ATL/OCL constraints, but still need
+-- an origin marker so the Converter can distinguish source and target types.
+-- @hot-atl2tm-part 0160
+unique lazy rule EDataTypeProvenanceAnnotation {
+    from
+        d : ECORE!EDataType
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                nameDetail,
+                ruleDetail,
+                preDetail,
+                postDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- thisModule.classifierOrigin(d)
+        ),
+
+        nameDetail : ECORE!EStringToStringMapEntry (
+            key <- 'originalName',
+            value <- d.name
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRules',
+            value <- ''
+        ),
+
+        preDetail : ECORE!EStringToStringMapEntry (
+            key <- 'preConstraints',
+            value <- ''
+        ),
+
+        postDetail : ECORE!EStringToStringMapEntry (
+            key <- 'postConstraints',
+            value <- ''
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- ''
+        )
+}
+
+-- Provenance attached to a trace class generated from one matched rule.
+-- @hot-atl2tm-part 0161
+unique lazy rule TraceProvenanceAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- thisModule.provenanceSource,
+            details <- Sequence {
+                originDetail,
+                ruleDetail,
+                semDetail
+            }
+        ),
+
+        originDetail : ECORE!EStringToStringMapEntry (
+            key <- 'origin',
+            value <- 'trace'
+        ),
+
+        ruleDetail : ECORE!EStringToStringMapEntry (
+            key <- 'atlRule',
+            value <- r.name
+        ),
+
+        semDetail : ECORE!EStringToStringMapEntry (
+            key <- 'semConstraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
+-- Tạo EPackage gốc và cấu hình validation của TM.

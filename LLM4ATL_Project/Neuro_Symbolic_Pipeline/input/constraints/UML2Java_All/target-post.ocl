@@ -1,0 +1,30 @@
+-- Structural guarantees expected from one general UML2Java_All module.
+-- Enumeration is not constrained because java.ecore has no Enum classifier.
+context Package
+inv JavaPackageContainsNamedClasses:
+  self.name <> '' and
+  self.classes->notEmpty() and
+  self.classes->isUnique(c | c.name)
+
+context Class
+inv JavaClassMembersAreWellFormed:
+  self.name <> '' and
+  self.fields->isUnique(f | f.name) and
+  self.methods->isUnique(m | m.name)
+
+context Field
+inv JavaFieldHasValidTypeAndMultiplicity:
+  self.name <> '' and self.typeName <> '' and
+  self.lowerBound >= 0 and
+  (self.upperBound = -1 or self.upperBound >= self.lowerBound) and
+  (self.visibility = 'public' or self.visibility = 'protected' or
+   self.visibility = 'private' or self.visibility = 'package')
+
+context Method
+inv JavaMethodHasValidSignature:
+  self.name <> '' and self.returnTypeName <> '' and
+  self.params->isUnique(p | p.name)
+
+context Param
+inv JavaParamHasNameAndType:
+  self.name <> '' and self.typeName <> ''

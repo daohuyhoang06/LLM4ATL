@@ -1,0 +1,20 @@
+-- Verification profile for the UML subset handled by UML2Java_All.
+-- Names are intentionally not required here: the benchmark includes UML
+-- elements with missing names and the transformation must handle them safely.
+global inv SourceUMLContainsTransformableClass:
+  Model.allInstances()->notEmpty() and
+  Class.allInstances()->notEmpty() and
+  Model.allInstances()->exists(m | m.packagedElement->notEmpty())
+
+context Model
+inv SourceModelHasPackagedElements:
+  self.packagedElement->notEmpty()
+
+context Class
+inv SourceClassMembersAreUniqueWhenNamed:
+  self.ownedAttribute->select(a |
+    not a.name.oclIsUndefined() and a.name <> ''
+  )->isUnique(a | a.name) and
+  self.ownedOperation->select(o |
+    not o.name.oclIsUndefined() and o.name <> ''
+  )->isUnique(o | o.name)

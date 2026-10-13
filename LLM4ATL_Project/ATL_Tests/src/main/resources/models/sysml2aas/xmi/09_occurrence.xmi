@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="09_occurrence-1" declaredName="Event Occurrence Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="09_occurrence-2" declaredName="Driver" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-3">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="09_occurrence-3" declaredName="CruiseController" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-4">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="09_occurrence-4" declaredName="Speedometer" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-5">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="09_occurrence-5" declaredName="Engine" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-6">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="09_occurrence-6" declaredName="Vehicle" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-7">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="09_occurrence-7" declaredName="driver">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-8">
+        <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-8" declaredName="setSpeedSent" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-9">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="09_occurrence-9" declaredName="vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-10">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="09_occurrence-10" declaredName="cruiseController">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-11">
+            <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-11" declaredName="setSpeedReceived" />
+          </ownedRelationship>
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-12">
+            <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-12" declaredName="sensedSpeedReceived" />
+          </ownedRelationship>
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-13">
+            <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-13" declaredName="fuelCommandSent" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-14">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="09_occurrence-14" declaredName="speedometer">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-15">
+            <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-15" declaredName="sensedSpeedSent" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-16">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="09_occurrence-16" declaredName="engine">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="09_occurrence-membership-17">
+            <ownedRelatedElement xsi:type="sysml:EventOccurrenceUsage" elementId="09_occurrence-17" declaredName="fuelCommandReceived" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

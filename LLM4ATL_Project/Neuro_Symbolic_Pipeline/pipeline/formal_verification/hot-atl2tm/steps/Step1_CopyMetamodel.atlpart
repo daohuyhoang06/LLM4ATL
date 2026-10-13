@@ -1,0 +1,373 @@
+-- @hot-atl2tm-part 0001
+helper def : originalConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->select(d |
+            d.key = 'constraints'
+        )
+        ->iterate(
+            d;
+            acc : String = '' |
+
+            if acc = '' then
+                d.value
+            else
+                acc + ' ' + d.value
+            endif
+        );
+
+-- Lấy các detail Pivot OCL gốc để copy sang TM.
+-- @hot-atl2tm-part 0002
+helper def : originalOclDetails(
+    c : ECORE!EClass
+) : Sequence(ECORE!EStringToStringMapEntry) =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->asSequence();
+
+-- ================================================================
+-- Provenance metadata
+-- ================================================================
+
+-- Namespace used by the Converter.  Keeping provenance in a dedicated
+-- annotation avoids mixing it with the Ecore validation/OCL annotations.
+-- @hot-atl2tm-part 0162
+rule Module2EPackage {
+    from 
+        m : ATL!Module
+    to 
+        p : ECORE!EPackage (
+            name <- 'transformationModel',
+            nsPrefix <- 'tm',
+            nsURI <- 'http://example.org/transformationModel',
+
+            eClassifiers <-
+                -- Chỉ đưa các classifier thuộc package nguồn/đích vào TM.
+                -- Không dùng ECORE!EClass.allInstances() ở đây vì biểu thức đó
+                -- có thể kéo theo classifier của các model Ecore khác.
+                ECORE!EClass.allInstancesFrom('SRC')
+                ->union(
+                    ECORE!EClass.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('SRC')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('SRC')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('SRC')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('TGT')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('TGT')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    -- Các trace class được sinh từ matched rules.
+                    -- Giữ union này để không thay đổi semantics hiện tại.
+                    m.elements
+                        ->select(e | e.oclIsKindOf(ATL!MatchedRule))
+                ),
+            eAnnotations <- Sequence {
+                validationAnnotation,
+                thisModule.TransformationProvenanceAnnotation(m)
+            }
+        ),
+
+        validationAnnotation : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                validationDetail
+            }
+        ),
+
+        validationDetail : ECORE!EStringToStringMapEntry (
+            key <- 'validationDelegates',
+            value <- 'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+}
+
+-- @hot-atl2tm-part 0163
+helper def : hasSourceConstraints(
+    c : ECORE!EClass
+) : Boolean =
+
+    thisModule.sourceConstraintNames(c) <> '';
+
+-- Step 1: copy source EClass và OCL gốc; Step 2/4: gắn match và mutex.
+-- @hot-atl2tm-part 0164
+rule SourceEClass2Eclass {
+    from
+        c : ECORE!EClass in SRC
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleInPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(s |
+                                s.type.name = c.name
+                            )
+                            ->collect(s |
+                                thisModule.resolveTemp(
+                                    s,
+                                    'inverse'
+                                )
+                            )
+                    ),
+
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.EClassProvenanceAnnotation(c)
+                }
+                ->union(
+                    if thisModule.hasSourceConstraints(c) then
+
+                        Sequence {
+                            thisModule.MatchingConstraintNamesAnnotation(c),
+                            thisModule.MatchingOclAnnotation(c)
+                        }
+
+                    else
+
+                        Sequence {}
+
+                    endif
+                )
+
+        )
+}
+
+-- Step 1: copy target EClass và OCL gốc; Step 3: gắn creator constraint.
+-- @hot-atl2tm-part 0165
+rule TargetEClass2EClass {
+    from
+        c : ECORE!EClass in TGT
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleOutPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(o |
+                                o.type.name = c.name
+                            )
+                            ->collect(o |
+                                thisModule.resolveTemp(
+                                    o,
+                                    'inverse'
+                                )
+                            )
+                    ),
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <- Sequence {
+                thisModule.EClassProvenanceAnnotation(c),
+                thisModule.CreationConstraintNamesAnnotation(c),
+                thisModule.CreationOclAnnotation(c)
+            }
+        )
+}
+
+-- Step 1: copy EAttribute và các thuộc tính Ecore.
+-- @hot-atl2tm-part 0166
+rule EAttribute2EAttribute {
+    from
+        a : ECORE!EAttribute
+    to
+        out : ECORE!EAttribute (
+            name <- a.name,
+
+            -- Keep source multiplicities intact. Target bounds are relaxed;
+            -- required references become selectable postconditions, while
+            -- primitive multiplicities are reported as unsupported.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(a.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    a.lowerBound
+                endif,
+            upperBound <- a.upperBound,
+            ordered <- a.ordered,
+            unique <- a.unique,
+            eType <- a.eType,
+
+            changeable <- a.changeable,
+            volatile <- a.volatile,
+            transient <- a.transient,
+            defaultValueLiteral <- a.defaultValueLiteral,
+            unsettable <- a.unsettable,
+            derived <- a.derived,
+
+            iD <- a.iD
+        )
+}
+
+-- Step 1: copy EReference và các thuộc tính Ecore.
+-- @hot-atl2tm-part 0167
+rule EReference2EReference {
+    from
+        r : ECORE!EReference
+    to
+        out : ECORE!EReference (
+            name <- r.name,
+
+            -- See EAttribute2EAttribute: target lower bounds must not make
+            -- Sem inconsistent before a target Post_i is selected.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(r.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    r.lowerBound
+                endif,
+            upperBound <- r.upperBound,
+            ordered <- r.ordered,
+            unique <- r.unique,
+            eType <- r.eType,
+
+            changeable <- r.changeable,
+            volatile <- r.volatile,
+            transient <- r.transient,
+            defaultValueLiteral <- r.defaultValueLiteral,
+            unsettable <- r.unsettable,
+            derived <- r.derived,
+
+            containment <- r.containment,
+            resolveProxies <- r.resolveProxies,
+            eOpposite <- r.eOpposite,
+            eKeys <- r.eKeys
+        )
+}
+
+-- Step 1: copy EEnum và các literal của nó.
+-- @hot-atl2tm-part 0168
+rule EEnum2EEnum {
+    from
+        e : ECORE!EEnum
+    to
+        out : ECORE!EEnum (
+            name <- e.name,
+            instanceClassName <- e.instanceClassName,
+            serializable <- e.serializable,
+            eLiterals <- e.eLiterals,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(e)
+            }
+        )
+}
+
+-- @hot-atl2tm-part 0169
+rule EEnumLiteral2EEnumLiteral {
+    from
+        l : ECORE!EEnumLiteral
+    to
+        out : ECORE!EEnumLiteral (
+            name <- l.name,
+            value <- l.value,
+            literal <- l.literal
+        )
+}
+
+-- Step 1: copy custom EDataType.  EEnum is also an EDataType, therefore it
+-- is excluded here and handled by EEnum2EEnum above.  The ePackage guard
+-- prevents Ecore built-in datatypes (EString, EInt, ...) from being copied
+-- into the transformation-model package.
+-- @hot-atl2tm-part 0170
+rule CustomEDataType2EDataType {
+    from
+        d : ECORE!EDataType (
+            not d.oclIsKindOf(ECORE!EEnum)
+            and
+            (
+                ECORE!EPackage.allInstancesFrom('SRC')
+                    ->includes(d.ePackage)
+                or
+                ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(d.ePackage)
+            )
+        )
+    to
+        out : ECORE!EDataType (
+            name <- d.name,
+            instanceClassName <- d.instanceClassName,
+            serializable <- d.serializable,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(d)
+            }
+        )
+}
+
+-- Step 2: tạo một trace EClass cho mỗi matched rule.
+-- @hot-atl2tm-part 0177
+unique lazy rule CopyOriginalOclDetail {
+
+    from
+        d : ECORE!EStringToStringMapEntry
+
+    to
+        out : ECORE!EStringToStringMapEntry (
+            key <- d.key,
+            value <- d.value
+        )
+}
+
+-- Preserve every original required target reference as a Post property.
+-- Primitive EAttribute multiplicities are emitted only as unsupported
+-- provenance, not as OCL details, because EFinder/USE cannot model their
+-- absent-value state soundly.
+-- @hot-atl2tm-part 0178
+lazy rule TargetMultiplicityConstraintDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.targetMultiplicityConstraintName(c, p),
+            value <- thisModule.targetMultiplicityConstraintExpr(p)
+        )
+}
+
+-- ================================================================
+-- Rule tạo OCL annotation theo Step 2, 3 và 4
+-- ================================================================
+
+-- Step 2: lưu một invariant match phía nguồn.

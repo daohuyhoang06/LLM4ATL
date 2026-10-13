@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="02_part_definition-1" declaredName="Part Definition Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="02_part_definition-2" declaredName="Vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-3">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="02_part_definition-3" declaredName="mass" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-4">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="02_part_definition-4" declaredName="status" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-5">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="02_part_definition-5" declaredName="eng" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-6">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="02_part_definition-6" declaredName="driver" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-7">
+    <ownedRelatedElement xsi:type="sysml:AttributeDefinition" elementId="02_part_definition-7" declaredName="VehicleStatus">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-8">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="02_part_definition-8" declaredName="gearSetting" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-9">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="02_part_definition-9" declaredName="acceleratorPosition" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-10">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="02_part_definition-10" declaredName="Engine" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="02_part_definition-membership-11">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="02_part_definition-11" declaredName="Person" />
+  </ownedRelationship>
+</sysml:Package>

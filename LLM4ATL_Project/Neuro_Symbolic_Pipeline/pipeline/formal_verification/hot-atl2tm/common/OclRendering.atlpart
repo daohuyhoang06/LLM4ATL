@@ -1,0 +1,498 @@
+-- @hot-atl2tm-part 0037
+helper def : renderCollectionElements(
+    elements : Sequence(ATL!OclExpression),
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    elements->iterate(
+        element;
+        acc : String = '' |
+
+        let rendered : String =
+            thisModule.renderExpr(
+                element,
+                varNames,
+                replacements,
+                selfReplacement
+            )
+
+        in
+
+        if rendered = '' then
+            acc
+        else
+            if acc = ''
+            then
+                rendered
+            else
+                acc + ', ' + rendered
+            endif
+        endif
+    );
+
+-- Biểu diễn danh sách iterator, ví dụ: x hoặc x, y.
+-- @hot-atl2tm-part 0038
+helper def : renderIteratorNames(
+    iterators : Sequence(ATL!Iterator)
+) : String =
+
+    iterators->iterate(
+        iterator;
+        acc : String = '' |
+
+        if acc = '' then
+            iterator.varName
+        else
+            acc + ', ' + iterator.varName
+        endif
+    );
+
+-- Inline helper body dưới environment: self -> receiver và formal -> actual.
+-- Marker helper được giữ trong environment để chặn direct/indirect recursion.
+-- @hot-atl2tm-part 0079
+helper def : renderExpr(
+    e : ATL!OclExpression,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    -- 1. Primitive literals
+    if e.oclIsTypeOf(ATL!BooleanExp) then
+
+        if e.booleanSymbol then 'true' else 'false' endif
+
+    else
+    if e.oclIsTypeOf(ATL!IntegerExp) then
+
+        e.integerSymbol.toString()
+
+    else
+    if e.oclIsTypeOf(ATL!RealExp) then
+
+        e.realSymbol.toString()
+
+    else
+    if e.oclIsTypeOf(ATL!OclUndefinedExp) then
+
+        'null'
+
+    else
+    if e.oclIsTypeOf(ATL!StringExp) then
+
+        thisModule.renderStringLiteral(e.stringSymbol)
+
+    -- 2. Model type, ví dụ SRC!A trong oclIsKindOf(SRC!A)
+    else
+    if e.oclIsTypeOf(ATL!OclModelElement) then
+
+        e.name
+
+    -- 3. Explicit collection literal
+    else
+    if e.oclIsKindOf(ATL!CollectionExp) then
+
+        if e.oclIsTypeOf(ATL!SequenceExp) then
+            'Sequence'
+        else
+            if e.oclIsTypeOf(ATL!SetExp) then
+                'Set'
+            else
+                if e.oclIsTypeOf(ATL!OrderedSetExp) then
+                    'OrderedSet'
+                else
+                    'Bag'
+                endif
+            endif
+        endif
+        + ' { '
+        + thisModule.renderCollectionElements(
+            e.elements->asSequence(),
+            varNames,
+            replacements,
+            selfReplacement
+        )
+        + ' }'
+
+    -- 4. Variable
+    else
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+    if varNames->includes(e.referredVariable.varName) then
+        thisModule.replacementOf(
+            e.referredVariable.varName,
+            varNames,
+            replacements
+        )
+
+    else
+
+        if e.referredVariable.varName = 'self' then
+            selfReplacement
+        else
+            thisModule.replacementOf(
+                e.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        endif
+
+    endif
+
+
+    -- 5. Navigation / attribute
+    -- self.familyFather
+    -- m.firstName
+    else
+        if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp) then
+
+            let candidates : Sequence(ATL!Helper) =
+                thisModule.helperAttributeCallCandidates(
+                    e,
+                    varNames,
+                    replacements
+                )
+
+            in
+
+            if candidates->size() = 1 then
+                let h : ATL!Helper = candidates->first()
+                in
+                if thisModule.isActiveHelper(h, varNames) then
+                    '__ATL2TM_UNSUPPORTED_RECURSIVE_HELPER__'
+                    + h.definition.feature.name
+                else
+                    thisModule.renderHelperAttribute(
+                        h,
+                        varNames,
+                        replacements,
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                    )
+                endif
+            else
+                if thisModule.isModuleReceiver(e.source) then
+                    '__ATL2TM_UNSUPPORTED_FEATURE__HELPER_ATTRIBUTE__'
+                    + e.name
+                else
+                    thisModule.renderNavigationCall(
+                        e,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                endif
+            endif
+
+
+        -- 6. OperatorCallExp
+        -- PHẢI check trước OperationCallExp
+        else
+            if e.oclIsTypeOf(ATL!OperatorCallExp) then
+
+                -- unary: not ... hoặc -...
+                if e.operationName = 'not' then
+
+                    '(not '
+                    + thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + ')'
+
+
+                else
+                    if e.operationName = '-'
+                       and e.arguments->isEmpty()
+                    then
+
+                        '(-'
+                        + thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                -- binary operators
+                else
+                    if e.operationName = 'or'
+                       or e.operationName = 'and'
+                       or e.operationName = 'xor'
+                       or e.operationName = 'implies'
+                       or e.operationName = '='
+                       or e.operationName = '<>'
+                       or e.operationName = '<'
+                       or e.operationName = '<='
+                       or e.operationName = '>'
+                       or e.operationName = '>='
+                       or e.operationName = '+'
+                       or e.operationName = '-'
+                       or e.operationName = '*'
+                       or e.operationName = '/'
+                       or e.operationName = 'div'
+                       or e.operationName = 'mod'
+                    then
+
+                        '('
+                        + thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' '
+                        + e.operationName
+                        + ' '
+                        + thisModule.renderExpr(
+                            e.arguments->first(),
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                    else
+                        ''
+                    endif
+                endif
+                endif
+
+
+            -- 7. Iterator call: select, collect, exists, forAll, reject, any.
+            else
+                if e.oclIsTypeOf(ATL!IteratorExp) then
+
+                    let refinedType : String =
+                        thisModule.refinedElementTypeName(e.source)
+
+                    in
+
+                    thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + '->'
+                    + e.name
+                    + '('
+                    + thisModule.renderIteratorNames(
+                        e.iterators->asSequence()
+                    )
+                    + ' | '
+                    + thisModule.renderExpr(
+                        e.body,
+                        thisModule.appendStrings(
+                            thisModule.appendStrings(
+                                varNames,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i |
+                                thisModule.refinedTypeMarker(i.varName)
+                            )->asSequence()
+                        ),
+                        thisModule.appendStrings(
+                            thisModule.appendStrings(
+                                replacements,
+                                e.iterators->collect(i | i.varName)
+                                    ->asSequence()
+                            ),
+                            e.iterators->collect(i | refinedType)
+                                ->asSequence()
+                        ),
+                        selfReplacement
+                    )
+                    + ')'
+
+            -- 8. Collection operation call
+            else
+                if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+                    thisModule.renderExpr(
+                        e.source,
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + '->'
+                    + e.operationName
+                    + '('
+                    + thisModule.renderCollectionElements(
+                        e.arguments->asSequence(),
+                        varNames,
+                        replacements,
+                        selfReplacement
+                    )
+                    + ')'
+
+            -- 9. Normal operation/helper call
+            else
+                if e.oclIsTypeOf(ATL!OperationCallExp) then
+
+                    if thisModule.isUnsupportedRuleCall(e) then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RULE_CALL__'
+                        + e.operationName
+                    else
+                    -- ATL exposes refImmediateComposite(), but Pivot/USE does
+                    -- not. eFinder synthesizes the equivalent oclContainer().
+                    if e.operationName = 'refImmediateComposite'
+                       and e.arguments->isEmpty()
+                    then
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + '.oclContainer()'
+                    else
+                    if e.operationName = 'resolveTemp'
+                       and thisModule.isModuleReceiver(e.source)
+                    then
+                        '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+                    else
+
+                    let candidates : Sequence(ATL!Helper) =
+                        thisModule.helperCallCandidates(
+                            e,
+                            varNames,
+                            replacements
+                        )
+
+                    in
+
+                    -- Chỉ inline khi overload được resolve duy nhất.
+                    if candidates->size() = 1 then
+
+                        let h : ATL!Helper = candidates->first()
+
+                        in
+
+                        if thisModule.isActiveHelper(h, varNames) then
+                            '__ATL2TM_UNSUPPORTED_RECURSIVE_HELPER__'
+                            + h.definition.feature.name
+                        else
+                            thisModule.renderHelperCall(
+                                e,
+                                h,
+                                varNames,
+                                replacements,
+                                selfReplacement
+                            )
+                        endif
+
+                    -- Các operation OCL thường: oclIsUndefined, oclIsKindOf, ...
+                    else
+
+                        thisModule.renderExpr(
+                            e.source,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + '.'
+                        + e.operationName
+                        + '('
+                        + thisModule.renderCollectionElements(
+                            e.arguments->asSequence(),
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ')'
+
+                    endif
+                    endif
+                    endif
+                    endif
+
+
+                -- 10. Conditional expression
+                -- Example: if cond then value1 else value2 endif
+                else
+                    if e.oclIsTypeOf(ATL!IfExp) then
+                        '(if '
+                        + thisModule.renderExpr(
+                            e.condition,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' then '
+                        + thisModule.renderExpr(
+                            e.thenExpression,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' else '
+                        + thisModule.renderExpr(
+                            e.elseExpression,
+                            varNames,
+                            replacements,
+                            selfReplacement
+                        )
+                        + ' endif)'
+
+                    else
+                        if e.oclIsTypeOf(ATL!LetExp) then
+
+                            '(let '
+                            + e.variable.varName
+                            + ' = '
+                            + thisModule.renderExpr(
+                                e.variable.initExpression,
+                                varNames,
+                                replacements,
+                                selfReplacement
+                            )
+                            + ' in '
+                            + thisModule.renderExpr(
+                                e.in_,
+                                thisModule.appendStrings(
+                                    varNames,
+                                    Sequence { e.variable.varName }
+                                ),
+                                thisModule.appendStrings(
+                                    replacements,
+                                    Sequence { e.variable.varName }
+                                ),
+                                selfReplacement
+                            )
+                            + ')'
+
+                    -- unsupported expression
+                    else
+                        '__ATL2TM_UNSUPPORTED_EXPRESSION__'
+                    endif
+                    endif
+                endif
+                endif
+                endif
+            endif
+        endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif
+    endif;
+
+-- ================================================================
+-- Step 2: match pattern, binding và trace constraint
+-- ================================================================
+
+-- Biểu diễn filter của matched rule trong ngữ cảnh trace.

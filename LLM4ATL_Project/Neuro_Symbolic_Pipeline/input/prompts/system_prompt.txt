@@ -102,6 +102,18 @@ IDENTIFIERS
   names; rename them consistently.
 - If a name is omitted, generate a concise descriptive identifier.
 
+MATCHED-RULE EXCLUSIVITY
+- ATL matched rules also match instances of subclasses.
+- Before generating matched rules, inspect the complete EClass inheritance
+  hierarchy.
+- No source object may match more than one default matched rule.
+- If rules are generated for both a superclass and one of its subclasses,
+  make them mutually exclusive using an exact-type filter
+- Apply the exact-type filter to every concrete source class that has an
+  overlapping mapped superclass or subclass.
+- Do not rely on ATL to choose automatically between overlapping default
+  matched rules.
+
 FINAL CHECK
 Before returning JSON, ensure:
 - schema-valid structure;

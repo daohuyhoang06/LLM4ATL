@@ -44,7 +44,8 @@ if not OUTPUT_DIR.exists() and LEGACY_OUTPUT_DIR.exists():
     OUTPUT_DIR = LEGACY_OUTPUT_DIR
 
 ATL_DIR = OUTPUT_DIR / "final_responses" / "atl"
-ATL2TM_ATL = FORMAL_DIR / "ATL2TM.atl"
+HOT_ATL2TM_DIR = FORMAL_DIR / "hot-atl2tm"
+ATL2TM_ATL = HOT_ATL2TM_DIR / "ATL2TM.generated.atl"
 ATL2TM_RUNTIME = PROJECT_ROOT / "ATL2TM_Runtime"
 ATL_TESTS = PROJECT_ROOT / "ATL_Tests"
 EFINDER_DIR = PROJECT_ROOT / "eFinder_Validator"
@@ -186,7 +187,7 @@ def resolve_case(case: str, mapping: dict[str, list[str]]) -> tuple[Path, Path, 
     atl = ATL_DIR / f"{case}.atl"
     source = resolve_metamodel_path(metamodels[0])
     target = resolve_metamodel_path(metamodels[1])
-    for path in (atl, source, target, ATL2TM_ATL):
+    for path in (atl, source, target):
         if not path.is_file():
             raise FileNotFoundError(f"required formal-verification input not found: {path}")
     return atl, source, target
@@ -195,6 +196,12 @@ def resolve_case(case: str, mapping: dict[str, list[str]]) -> tuple[Path, Path, 
 def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
                output_ecore: Path, work_dir: Path, *, verbose: bool = True) -> None:
     """Invoke ATL2TMRunnerMain through the runtime Maven project."""
+    subprocess.run(
+        [sys.executable, str(HOT_ATL2TM_DIR / "build.py")],
+        cwd=HOT_ATL2TM_DIR, check=True, capture_output=not verbose, text=True
+    )
+    if not ATL2TM_ATL.is_file():
+        raise FileNotFoundError(f"generated ATL2TM not found: {ATL2TM_ATL}")
     work_dir.mkdir(parents=True, exist_ok=True)
     output_ecore.parent.mkdir(parents=True, exist_ok=True)
     exec_args = " ".join(quoted_exec_arg(path) for path in (

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AAS:AasModelRoot xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AAS="www.jku.at/AAS" name="ModelContainer">
+  <assetadministrationshells idShort="Items Example">
+    <submodel idShort="Hierarchical Structures">
+      <submodelelement xsi:type="AAS:Entity" idShort="Fuel">
+        <qualifier type="ItemDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="Person">
+        <qualifier type="ItemDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="Vehicle">
+        <qualifier type="PartDefinition"/>
+        <submodelelement xsi:type="AAS:Entity" idShort="driver">
+          <qualifier type="ItemUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="driver">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.2/@submodelelement.0"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="fuelTank">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="fuelTank">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.2/@submodelelement.1"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+      </submodelelement>
+    </submodel>
+  </assetadministrationshells>
+</AAS:AasModelRoot>

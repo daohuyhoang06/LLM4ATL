@@ -18,7 +18,7 @@
   "elements": [
     {
       "type": "MatchedRule",
-      "name": "ERSchema",
+      "name": "ERSchema2RELSchema",
       "using": [],
       "out_pattern": {
         "type": "OutPattern",
@@ -61,7 +61,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -76,7 +76,7 @@
               "name": "s",
               "declared_type": "ER!ERSchema"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -88,7 +88,7 @@
     },
     {
       "type": "MatchedRule",
-      "name": "Entity",
+      "name": "Entity2Relation",
       "using": [],
       "out_pattern": {
         "type": "OutPattern",
@@ -129,7 +129,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -144,7 +144,7 @@
               "name": "s",
               "declared_type": "ER!Entity"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -156,7 +156,7 @@
     },
     {
       "type": "MatchedRule",
-      "name": "Relship",
+      "name": "Relship2Relation",
       "using": [],
       "out_pattern": {
         "type": "OutPattern",
@@ -201,86 +201,54 @@
                     {
                       "type": "IteratorExpression",
                       "source": {
-                        "type": "CollectionOperation",
+                        "type": "PropertyCall",
                         "source": {
-                          "type": "IteratorExpression",
-                          "source": {
-                            "type": "PropertyCall",
-                            "source": {
-                              "type": "Variable",
-                              "name": "s",
-                              "declared_type": null
-                            },
-                            "property_name": "ends"
-                          },
-                          "iterator_type": "collect",
-                          "iterators": [
-                            {
-                              "type": "Variable",
-                              "name": "e",
-                              "declared_type": null
-                            }
-                          ],
-                          "body": {
-                            "type": "IteratorExpression",
-                            "source": {
-                              "type": "PropertyCall",
-                              "source": {
-                                "type": "PropertyCall",
-                                "source": {
-                                  "type": "Variable",
-                                  "name": "e",
-                                  "declared_type": null
-                                },
-                                "property_name": "entity"
-                              },
-                              "property_name": "attrs"
-                            },
-                            "iterator_type": "select",
-                            "iterators": [
-                              {
-                                "type": "Variable",
-                                "name": "a",
-                                "declared_type": null
-                              }
-                            ],
-                            "body": {
-                              "type": "PropertyCall",
-                              "source": {
-                                "type": "Variable",
-                                "name": "a",
-                                "declared_type": null
-                              },
-                              "property_name": "isKey"
-                            }
-                          }
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": null
                         },
-                        "operation_name": "asSet",
-                        "arguments": []
+                        "property_name": "ends"
                       },
                       "iterator_type": "collect",
                       "iterators": [
                         {
                           "type": "Variable",
-                          "name": "k",
+                          "name": "e",
                           "declared_type": null
                         }
                       ],
                       "body": {
-                        "type": "OperationCall",
+                        "type": "IteratorExpression",
                         "source": {
-                          "type": "Variable",
-                          "name": "thisModule",
-                          "declared_type": null
+                          "type": "PropertyCall",
+                          "source": {
+                            "type": "PropertyCall",
+                            "source": {
+                              "type": "Variable",
+                              "name": "e",
+                              "declared_type": null
+                            },
+                            "property_name": "entity"
+                          },
+                          "property_name": "attrs"
                         },
-                        "operation_name": "CreateFKAttribute",
-                        "arguments": [
+                        "iterator_type": "select",
+                        "iterators": [
                           {
                             "type": "Variable",
-                            "name": "k",
+                            "name": "a",
                             "declared_type": null
                           }
-                        ]
+                        ],
+                        "body": {
+                          "type": "PropertyCall",
+                          "source": {
+                            "type": "Variable",
+                            "name": "a",
+                            "declared_type": null
+                          },
+                          "property_name": "isKey"
+                        }
                       }
                     }
                   ]
@@ -288,7 +256,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -303,7 +271,7 @@
               "name": "s",
               "declared_type": "ER!Relship"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -315,7 +283,7 @@
     },
     {
       "type": "MatchedRule",
-      "name": "ERAttribute",
+      "name": "ERAttribute2RELAttribute",
       "using": [],
       "out_pattern": {
         "type": "OutPattern",
@@ -356,7 +324,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -371,7 +339,7 @@
               "name": "s",
               "declared_type": "ER!ERAttribute"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -380,75 +348,6 @@
       "is_abstract": false,
       "is_nodefault": false,
       "is_refining": false
-    },
-    {
-      "type": "LazyMatchedRule",
-      "name": "CreateFKAttribute",
-      "using": [],
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "t",
-              "declared_type": "REL!RELAttribute"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "name",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "name"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "isKey",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "isKey"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": null
-          }
-        ]
-      },
-      "action_block": null,
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "s",
-              "declared_type": "ER!ERAttribute"
-            },
-            "model": null
-          }
-        ],
-        "filter": null
-      },
-      "extends": null,
-      "is_abstract": false,
-      "is_nodefault": false,
-      "is_refining": false,
-      "is_unique": false
     }
   ]
 }

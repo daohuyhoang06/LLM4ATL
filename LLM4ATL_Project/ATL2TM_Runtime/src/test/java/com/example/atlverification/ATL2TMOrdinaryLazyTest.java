@@ -18,7 +18,7 @@ class ATL2TMOrdinaryLazyTest {
     private static final String ECORE = "http://www.eclipse.org/emf/2002/Ecore";
     private static final Path FIXTURE = Path.of("src", "test", "resources", "ordinary-lazy");
     private static final Path ATL2TM = Path.of("..", "Neuro_Symbolic_Pipeline",
-            "pipeline", "formal_verification", "ATL2TM.atl");
+            "pipeline", "formal_verification", "hot-atl2tm", "ATL2TM.generated.atl");
 
     @Test
     void twoDirectCallsToSameSourceProduceDistinctLazyExecutions() throws Exception {

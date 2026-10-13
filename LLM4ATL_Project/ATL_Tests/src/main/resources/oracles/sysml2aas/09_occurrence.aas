@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AAS:AasModelRoot xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AAS="www.jku.at/AAS" name="ModelContainer">
+  <assetadministrationshells idShort="Event Occurrence Example">
+    <submodel idShort="Hierarchical Structures">
+      <submodelelement xsi:type="AAS:Entity" idShort="Driver">
+        <qualifier type="PartDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="CruiseController">
+        <qualifier type="PartDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="Speedometer">
+        <qualifier type="PartDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="Engine">
+        <qualifier type="PartDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="Vehicle">
+        <qualifier type="PartDefinition"/>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="driver">
+        <qualifier type="PartUsage"/>
+        <submodelelement xsi:type="AAS:Entity" idShort="setSpeedSent">
+          <qualifier type="EventOccurrenceUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="setSpeedSent">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.5/@submodelelement.0"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+      </submodelelement>
+      <submodelelement xsi:type="AAS:Entity" idShort="vehicle">
+        <qualifier type="PartUsage"/>
+        <submodelelement xsi:type="AAS:Entity" idShort="cruiseController">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="cruiseController">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.6/@submodelelement.0"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="speedometer">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="speedometer">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.6/@submodelelement.1"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+        <submodelelement xsi:type="AAS:Entity" idShort="engine">
+          <qualifier type="PartUsage"/>
+          <submodelelement xsi:type="AAS:RelationshipElement" name="defined by">
+            <first name="engine">
+              <key referable="//@assetadministrationshells.0/@submodel.0/@submodelelement.6/@submodelelement.2"/>
+            </first>
+            <second>
+              <key/>
+            </second>
+          </submodelelement>
+        </submodelelement>
+      </submodelelement>
+    </submodel>
+  </assetadministrationshells>
+</AAS:AasModelRoot>

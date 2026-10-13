@@ -1,0 +1,236 @@
+-- @hot-atl2tm-part 0133
+helper def : targetEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Kiểm tra target type bằng nhau hoặc tương thích kế thừa.
+-- @hot-atl2tm-part 0134
+helper def : isTargetSubtypeOrSame(
+    childName : String,
+    parentName : String
+) : Boolean =
+
+    let child : ECORE!EClass =
+        thisModule.targetEClassByName(childName)
+
+    in
+
+    let parent : ECORE!EClass =
+        thisModule.targetEClassByName(parentName)
+
+    in
+
+    child = parent
+    or
+    child.eAllSuperTypes->includes(parent);
+
+-- Lấy output pattern có thể tạo object của target class.
+-- @hot-atl2tm-part 0135
+helper def : creatorsOf(
+    c : ECORE!EClass
+) : Sequence(ATL!SimpleOutPatternElement) =
+
+    ATL!SimpleOutPatternElement
+        .allInstancesFrom('IN')
+        ->select(o |
+            thisModule.isTargetSubtypeOrSame(
+                o.type.name,
+                c.name
+            )
+        )
+        ->asSequence();
+
+-- Tạo một hạng tử đếm trace creator.
+-- @hot-atl2tm-part 0136
+helper def : creationTerm(
+    c : ECORE!EClass,
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    if o.type.name = c.name then
+
+        '(if self.'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif)'
+
+    else
+
+        '(if self.oclIsKindOf('
+        + o.type.name
+        + ') then (if self.oclAsType('
+        + o.type.name
+        + ').'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif) else 0 endif)'
+
+    endif;
+
+-- Tạo tên inverse reference từ target object về creator trace.
+-- @hot-atl2tm-part 0137
+helper def : creatorRefName(
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    o.outPattern.rule.name
+    + '_'
+    + o.varName;
+
+-- Cộng số trace của mọi creator khả dụng.
+-- @hot-atl2tm-part 0138
+helper def : creationSum(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+
+        '0'
+
+    else
+
+        creators->iterate(
+            o;
+            acc : String = '' |
+
+            let term : String =
+                thisModule.creationTerm(
+                    c,
+                    o
+                )
+
+            in
+
+            if acc = '' then
+                term
+            else
+                acc + ' + ' + term
+            endif
+        )
+
+    endif;
+
+-- Tạo tên constraint Step 3 cho target class.
+-- @hot-atl2tm-part 0139
+helper def : creationConstraintName(
+    c : ECORE!EClass
+) : String =
+
+    'create_' + c.name;
+
+-- Mã hóa: target object có đúng một creator, hoặc false nếu không có.
+-- @hot-atl2tm-part 0140
+helper def : creationConstraintExpr(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+        'false'
+    else
+        thisModule.creationSum(c)
+        + ' = 1'
+    endif;
+
+-- ================================================================
+-- Step 4: mutex giữa các matched rule overlap
+-- ================================================================
+
+-- Kiểm tra source type bằng nhau hoặc tương thích kế thừa.
+-- @hot-atl2tm-part 0195
+unique lazy rule CreationConstraintNamesAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+
+            value <- thisModule.targetConstraintNames(c)
+        )
+}
+
+-- Step 3: lưu OCL expression "đúng một creator".
+-- @hot-atl2tm-part 0196
+unique lazy rule CreationConstraintDetail {
+
+    from
+        c : ECORE!EClass
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+
+                thisModule.creationConstraintName(c),
+
+            value <-
+                thisModule.creationConstraintExpr(c)
+        )
+}
+
+-- Step 3: gắn creator constraint vào target class.
+-- @hot-atl2tm-part 0197
+unique lazy rule CreationOclAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: OCL gốc của TGT
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 3: creator constraint
+                ->union(
+                    Sequence {
+                        thisModule.CreationConstraintDetail(c)
+                    }
+                )
+
+                -- Do not add these names to CreationConstraintNamesAnnotation:
+                -- USE/eFinder must not treat them as semantic assumptions.
+                ->union(
+                    c.eStructuralFeatures
+                        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                        ->collect(p |
+                            thisModule.TargetMultiplicityConstraintDetail(c, p)
+                        )
+                )
+        )
+}
+
+-- Step 4: lưu OCL expression mutex cho một cặp matched rule.
+-- A mutex detail is parameterised by an ordered pair of matched rules. Do
+-- not memoise it as a unique lazy rule: ATL may reuse the cached result for
+-- a partial source tuple, leaving later mutex names without a Pivot body.

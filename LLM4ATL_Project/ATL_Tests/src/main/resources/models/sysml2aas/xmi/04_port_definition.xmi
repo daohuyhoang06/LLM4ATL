@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="04_port_definition-1" declaredName="Port Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-2">
+    <ownedRelatedElement xsi:type="sysml:AttributeDefinition" elementId="04_port_definition-2" declaredName="Temp" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-3">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="04_port_definition-3" declaredName="Fuel" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-4">
+    <ownedRelatedElement xsi:type="sysml:PortDefinition" elementId="04_port_definition-4" declaredName="FuelOutPort">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-5">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="04_port_definition-5" declaredName="temperature" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-6">
+        <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="04_port_definition-6" declaredName="fuelSupply" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-7">
+        <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="04_port_definition-7" declaredName="fuelReturn" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-8">
+    <ownedRelatedElement xsi:type="sysml:PortDefinition" elementId="04_port_definition-8" declaredName="FuelInPort">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-9">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="04_port_definition-9" declaredName="temperature" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-10">
+        <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="04_port_definition-10" declaredName="fuelSupply" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-11">
+        <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="04_port_definition-11" declaredName="fuelReturn" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-12">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="04_port_definition-12" declaredName="FuelTankAssembly">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-13">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="04_port_definition-13" declaredName="fuelTankPort" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-14">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="04_port_definition-14" declaredName="Engine">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="04_port_definition-membership-15">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="04_port_definition-15" declaredName="engineFuelPort" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

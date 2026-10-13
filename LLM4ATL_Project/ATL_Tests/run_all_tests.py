@@ -54,6 +54,8 @@ FILE_TO_TEST = {
     "PetriNet2Grafcet_All": "org.example.PetriNet2GrafcetAllExecutionTest",
     "User2Account_All":     "org.example.User2AccountAllExecutionTest",
     "XML2DSL_All":          "org.example.XML2DSLAllExecutionTest",
+    "UML2Java_All":         "org.example.UML2JavaAllExecutionTest",
+    "SysMLv2ToAAS_All":     "org.example.SysMLv2ToAASAllExecutionTest",
 }
 
 

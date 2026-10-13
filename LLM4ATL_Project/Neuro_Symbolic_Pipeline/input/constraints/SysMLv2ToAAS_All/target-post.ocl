@@ -1,0 +1,37 @@
+-- Structural guarantees represented by both AAS.ecore and the oracle subset.
+context AasModelRoot
+inv AasRootContainsNamedShell:
+  self.name <> '' and
+  self.assetadministrationshells->notEmpty() and
+  self.assetadministrationshells->forAll(a | a.idShort <> '')
+
+context AssetAdministrationShell
+inv AasShellContainsHierarchicalSubmodel:
+  self.idShort <> '' and
+  self.submodel->exists(s | s.idShort = 'Hierarchical Structures')
+
+context Submodel
+inv AasSubmodelHasExpectedName:
+  self.idShort = 'Hierarchical Structures'
+
+context Entity
+inv AasEntityHasSysMLKind:
+  self.idShort <> '' and
+  self.qualifier->notEmpty() and
+  self.qualifier->forAll(q |
+    q.type = 'PartDefinition' or q.type = 'PartUsage' or
+    q.type = 'PortDefinition' or q.type = 'PortUsage' or
+    q.type = 'InterfaceDefinition' or q.type = 'InterfaceUsage' or
+    q.type = 'OccurrenceDefinition' or q.type = 'OccurrenceUsage' or
+    q.type = 'EventOccurrenceUsage' or q.type = 'FlowConnectionUsage' or
+    q.type = 'SuccessionAsUsage' or q.type = 'ItemDefinition' or
+    q.type = 'ItemUsage'
+  )
+
+context Property
+inv AasPropertyHasAttributeKind:
+  self.idShort <> '' and
+  self.qualifier->notEmpty() and
+  self.qualifier->forAll(q |
+    q.type = 'AttributeDefinition' or q.type = 'AttributeUsage'
+  )

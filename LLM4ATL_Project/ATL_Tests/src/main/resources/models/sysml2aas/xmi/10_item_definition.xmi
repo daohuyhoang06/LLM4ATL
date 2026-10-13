@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="10_item_definition-1" declaredName="Items Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-2">
+    <ownedRelatedElement xsi:type="sysml:ItemDefinition" elementId="10_item_definition-2" declaredName="Fuel" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-3">
+    <ownedRelatedElement xsi:type="sysml:ItemDefinition" elementId="10_item_definition-3" declaredName="Person" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-4">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="10_item_definition-4" declaredName="Vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-5">
+        <ownedRelatedElement xsi:type="sysml:AttributeUsage" elementId="10_item_definition-5" declaredName="mass" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-6">
+        <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="10_item_definition-6" declaredName="driver" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-7">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="10_item_definition-7" declaredName="fuelTank">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="10_item_definition-membership-8">
+            <ownedRelatedElement xsi:type="sysml:ItemUsage" elementId="10_item_definition-8" declaredName="fuel" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

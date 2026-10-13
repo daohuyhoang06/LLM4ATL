@@ -1,0 +1,583 @@
+-- @hot-atl2tm-part 0099
+helper def : sourceEClass(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Suy ra tên EClass của source expression.
+-- @hot-atl2tm-part 0100
+helper def : sourceExprTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        let name : String =
+            e.referredVariable.varName
+
+        in
+
+        let candidates : Sequence(ATL!SimpleInPatternElement) =
+            r.inPattern.elements
+                ->select(s |
+                    s.varName = name
+                )
+
+        in
+
+        if candidates->notEmpty()
+        then
+            candidates->first().type.name
+        else
+            ''
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let sourceTypeName : String =
+                thisModule.sourceExprTypeName(
+                    e.source,
+                    r
+                )
+
+            in
+
+            if sourceTypeName = ''
+            then
+                ''
+            else
+
+                let sourceClass : ECORE!EClass =
+                    thisModule.sourceEClass(
+                        sourceTypeName
+                    )
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    sourceClass.eAllStructuralFeatures
+                        ->select(f |
+                            f.name = e.name
+                        )
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            sourceTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+            -- first()/any() lấy một phần tử từ source collection, do đó
+            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+                if e.operationName = 'first' or e.operationName = 'any' then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Kiểm tra source navigation có đa trị không.
+-- @hot-atl2tm-part 0101
+helper def : sourceExprIsCollection(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(
+        ATL!NavigationOrAttributeCallExp
+    ) then
+
+        let ownerTypeName : String =
+            thisModule.sourceExprTypeName(
+                e.source,
+                r
+            )
+
+        in
+
+        if ownerTypeName = '' then
+            false
+        else
+
+            let ownerClass : ECORE!EClass =
+                thisModule.sourceEClass(
+                    ownerTypeName
+                )
+
+            in
+
+            let features : Sequence(ECORE!EStructuralFeature) =
+                ownerClass.eAllStructuralFeatures
+                    ->select(f | f.name = e.name)
+
+            in
+
+            if features->notEmpty() then
+                features->first().upperBound <> 1
+            else
+                let helpers : Sequence(ATL!Helper) =
+                    thisModule.contextHelperAttributeCandidates(
+                        ownerTypeName,
+                        e.name
+                    )
+                in
+                if helpers->size() = 1 then
+                    thisModule.helperAttributeIsCollection(
+                        helpers->first()
+                    )
+                else
+                    false
+                endif
+            endif
+        endif
+
+    else
+        false
+    endif;
+
+-- Tìm source class theo tên để kiểm tra kế thừa.
+-- @hot-atl2tm-part 0102
+helper def : sourceEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Kiểm tra hai source type bằng nhau hoặc tương thích kế thừa.
+-- @hot-atl2tm-part 0103
+helper def : sourceTypesCompatible(
+    leftName : String,
+    rightName : String
+) : Boolean =
+
+    let left : ECORE!EClass =
+        thisModule.sourceEClassByName(leftName)
+
+    in
+
+    let right : ECORE!EClass =
+        thisModule.sourceEClassByName(rightName)
+
+    in
+
+    left = right
+    or
+    left.eAllSuperTypes->includes(right)
+    or
+    right.eAllSuperTypes->includes(left);
+
+-- ================================================================
+-- Step 2: phân giải ngầm (Shape IV và V)
+-- ================================================================
+
+-- Nhận diện binding object nguồn đơn trị (Shape IV).
+-- @hot-atl2tm-part 0112
+helper def : iteratorBodySourceTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule,
+    iteratorName : String,
+    iteratorTypeName : String
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        if e.referredVariable.varName = iteratorName then
+            iteratorTypeName
+        else
+            thisModule.sourceExprTypeName(e, r)
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let ownerTypeName : String =
+                thisModule.iteratorBodySourceTypeName(
+                    e.source,
+                    r,
+                    iteratorName,
+                    iteratorTypeName
+                )
+
+            in
+
+            if ownerTypeName = '' then
+                ''
+            else
+
+                let ownerClass : ECORE!EClass =
+                    thisModule.sourceEClass(ownerTypeName)
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    ownerClass.eAllStructuralFeatures
+                        ->select(f | f.name = e.name)
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            ownerTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+
+            -- first()/any() lấy một phần tử từ source collection, do đó
+            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            if e.oclIsTypeOf(ATL!IteratorExp) then
+                if e.name = 'select' or e.name = 'reject' then
+                    thisModule.iteratorBodySourceTypeName(
+                        e.source, r, iteratorName, iteratorTypeName
+                    )
+                else
+                    ''
+                endif
+            else
+            if e.oclIsTypeOf(
+                ATL!CollectionOperationCallExp
+            )
+            or e.oclIsKindOf(
+                ATL!OperationCallExp
+            ) then
+
+                if e.operationName = 'first'
+                   or e.operationName = 'any'
+                then
+                    thisModule.sourceCollectionElementTypeName(
+                        e.source,
+                        r
+                    )
+                else
+                    ''
+                endif
+
+            else
+                ''
+            endif
+            endif
+        endif
+
+    endif;
+
+-- ATL collect keeps collection-valued bodies nested.  The element type is
+-- usable for implicit resolution only after an explicit flatten().
+-- @hot-atl2tm-part 0113
+helper def : iteratorBodyReturnsCollection(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule,
+    iteratorName : String,
+    iteratorTypeName : String
+) : Boolean =
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        e.name = 'select' or e.name = 'reject'
+        or e.name = 'collect' or e.name = 'sortedBy'
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            e.operationName = 'flatten'
+            or e.operationName = 'asSet'
+            or e.operationName = 'asOrderedSet'
+            or e.operationName = 'asSequence'
+            or e.operationName = 'asBag'
+            or e.operationName = 'union'
+            or e.operationName = 'intersection'
+            or e.operationName = 'including'
+            or e.operationName = 'excluding'
+            or e.operationName = 'append'
+            or e.operationName = 'prepend'
+        else
+            if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp) then
+                let ownerTypeName : String =
+                    thisModule.iteratorBodySourceTypeName(
+                        e.source, r, iteratorName, iteratorTypeName
+                    )
+                in
+                if ownerTypeName = '' then
+                    false
+                else
+                    let features : Sequence(ECORE!EStructuralFeature) =
+                        thisModule.sourceEClass(ownerTypeName)
+                            .eAllStructuralFeatures
+                            ->select(f | f.name = e.name)
+                    in
+                    features->notEmpty()
+                    and features->first().upperBound <> 1
+                endif
+            else
+                false
+            endif
+        endif
+    endif;
+
+-- One flatten is enough for a collect whose body is a direct navigation or
+-- select/reject collection.  Deeper nesting remains unsupported.
+-- @hot-atl2tm-part 0114
+helper def : flattenedCollectElementTypeName(
+    e : ATL!IteratorExp,
+    r : ATL!MatchedRule
+) : String =
+    if e.name <> 'collect' or e.iterators->size() <> 1 then
+        thisModule.sourceCollectionElementTypeName(e, r)
+    else
+        let inputType : String =
+            thisModule.sourceCollectionElementTypeName(e.source, r)
+        in
+        if inputType = '' then
+            ''
+        else
+            if thisModule.iteratorBodyReturnsCollection(
+                e.body, r, e.iterators->first().varName, inputType
+            ) then
+                thisModule.iteratorBodySourceTypeName(
+                    e.body, r, e.iterators->first().varName, inputType
+                )
+            else
+                thisModule.sourceCollectionElementTypeName(e, r)
+            endif
+        endif
+    endif;
+
+-- Nếu select dùng oclIsTypeOf(T), kết quả chỉ chứa T. Thông tin này giúp
+-- chọn đúng resolver T -> target thay vì mọi subtype của collection gốc.
+-- @hot-atl2tm-part 0115
+helper def : selectedElementTypeName(
+    e : ATL!IteratorExp
+) : String =
+
+    if e.name <> 'select' then
+        ''
+    else
+
+        if not e.body.oclIsTypeOf(ATL!OperationCallExp) then
+            ''
+        else
+
+            let body : ATL!OperationCallExp =
+                e.body
+
+            in
+
+            if (body.operationName <> 'oclIsTypeOf'
+                and body.operationName <> 'oclIsKindOf')
+               or body.arguments->isEmpty()
+               or e.iterators->size() <> 1
+            then
+                ''
+            else
+                if not body.source.oclIsTypeOf(ATL!VariableExp) then
+                    ''
+                else
+                    if body.source.referredVariable.varName
+                        <> e.iterators->first().varName
+                    then
+                        ''
+                    else
+                        let typeArgument : ATL!OclExpression =
+                            body.arguments->first()
+
+                        in
+
+                        if typeArgument.oclIsTypeOf(
+                            ATL!OclModelElement
+                        ) then
+                            let modelType : ATL!OclModelElement =
+                                typeArgument
+                            in
+                            modelType.name
+                        else
+                            ''
+                        endif
+                    endif
+                endif
+            endif
+
+        endif
+
+    endif;
+
+-- A collection produced directly by select(x | x.oclIsTypeOf/KindOf(T))
+-- contains values safely castable to T.  The next iterator receives that
+-- type fact in its lexical rendering environment.
+-- @hot-atl2tm-part 0116
+helper def : refinedElementTypeName(
+    e : ATL!OclExpression
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        thisModule.selectedElementTypeName(e)
+    else
+        ''
+    endif;
+
+-- Suy ra kiểu phần tử của source collection sau select/reject/collect.
+-- collect chỉ được coi là Shape V khi body trả về một EClass nguồn; collect
+-- ra primitive như x.name sẽ không bị implicit resolution.
+-- @hot-atl2tm-part 0117
+helper def : sourceCollectionElementTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+
+        let iteratorExpr : ATL!IteratorExp = e
+
+        in
+
+        if iteratorExpr.name = 'select' then
+
+            let selectedType : String =
+                thisModule.selectedElementTypeName(iteratorExpr)
+
+            in
+
+            if selectedType = '' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+                selectedType
+            endif
+
+        else
+
+            if iteratorExpr.name = 'reject' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+
+                if iteratorExpr.name = 'collect'
+                   and iteratorExpr.iterators->notEmpty()
+                then
+
+                    let inputType : String =
+                        thisModule.sourceCollectionElementTypeName(
+                            iteratorExpr.source,
+                            r
+                        )
+
+                    in
+
+                    if inputType = '' then
+                        ''
+                    else
+                        if thisModule.iteratorBodyReturnsCollection(
+                            iteratorExpr.body, r,
+                            iteratorExpr.iterators->first().varName,
+                            inputType
+                        ) then
+                            ''
+                        else
+                            thisModule.iteratorBodySourceTypeName(
+                                iteratorExpr.body,
+                                r,
+                                iteratorExpr.iterators->first().varName,
+                                inputType
+                            )
+                        endif
+                    endif
+
+                else
+                    ''
+                endif
+
+            endif
+
+        endif
+
+    else
+
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'flatten' then
+                if e.source.oclIsTypeOf(ATL!IteratorExp) then
+                    thisModule.flattenedCollectElementTypeName(e.source, r)
+                else
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                endif
+            else
+                if e.operationName = 'asSet'
+                   or e.operationName = 'asOrderedSet'
+                   or e.operationName = 'asSequence'
+                   or e.operationName = 'asBag'
+                then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            endif
+        else
+        if thisModule.sourceExprIsCollection(e, r) then
+            thisModule.sourceExprTypeName(e, r)
+        else
+            ''
+        endif
+        endif
+
+    endif;
+
+-- Nhận diện collection nguồn, gồm navigation trực tiếp, select/reject,
+-- collect trả về source object, và union của các collection đó.

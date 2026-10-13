@@ -1,0 +1,477 @@
+-- @hot-atl2tm-part 0018
+helper def : helperArity(h : ATL!Helper) : Integer =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.parameters->size()
+    else
+        0
+    endif;
+
+-- @hot-atl2tm-part 0019
+helper def : helperFormalNames(
+    h : ATL!Helper
+) : Sequence(String) =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.parameters->collect(p | p.varName)->asSequence()
+    else
+        Sequence {}
+    endif;
+
+-- @hot-atl2tm-part 0020
+helper def : helperBody(h : ATL!Helper) : ATL!OclExpression =
+
+    if h.definition.feature.oclIsTypeOf(ATL!Operation) then
+        let operation : ATL!Operation = h.definition.feature
+        in operation.body
+    else
+        let attribute : ATL!Attribute = h.definition.feature
+        in attribute.initExpression
+    endif;
+
+-- @hot-atl2tm-part 0021
+helper def : helperContextTypeName(h : ATL!Helper) : String =
+
+    if h.definition.context_.oclIsUndefined() then
+        ''
+    else
+        h.definition.context_.context_.name
+    endif;
+
+-- @hot-atl2tm-part 0022
+helper def : isModuleReceiver(e : ATL!OclExpression) : Boolean =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+        e.referredVariable.varName = 'thisModule'
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0023
+helper def : helperReceiverTypeName(
+    e : ATL!OclExpression,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        if e.referredVariable.varName = 'self'
+           and varNames->includes(
+               thisModule.helperSelfTypeMarker()
+           )
+        then
+            thisModule.replacementOf(
+                thisModule.helperSelfTypeMarker(),
+                varNames,
+                replacements
+            )
+        else
+            if e.referredVariable.type.oclIsUndefined() then
+                if e.type.oclIsUndefined() then '' else e.type.name endif
+            else
+                e.referredVariable.type.name
+            endif
+        endif
+
+    else
+
+        if e.type.oclIsUndefined() then
+            ''
+        else
+            e.type.name
+        endif
+
+    endif;
+
+-- A navigation receiver may not carry a resolved ATL type in the AST model
+-- (for example, s.relation in s.relation.needTurnOnClass()). If the helper
+-- name and arity identify exactly one context helper, ATL's type checker has
+-- already made the call unambiguous, so it is safe to inline that helper.
+-- If several context helpers share the same signature, keep the call
+-- unresolved and let the caller report it as unsupported rather than
+-- generating an OCL operation that EFinder cannot resolve.
+-- @hot-atl2tm-part 0024
+helper def : uniqueUnknownContextHelper(
+    name : String,
+    arity : Integer
+) : Boolean =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and thisModule.helperArity(h) = arity
+            and not h.definition.context_.oclIsUndefined()
+        )
+        ->size() = 1;
+
+-- Resolve helper theo name + receiver/context type + arity. A context helper
+-- declared on a supertype is also callable on a subtype receiver.
+-- @hot-atl2tm-part 0025
+helper def : helperCallCandidates(
+    e : ATL!OperationCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : Sequence(ATL!Helper) =
+
+    let receiverType : String =
+        thisModule.helperReceiverTypeName(
+            e.source,
+            varNames,
+            replacements
+        )
+    in
+
+    let moduleReceiver : Boolean =
+        thisModule.isModuleReceiver(e.source)
+    in
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = e.operationName
+            and thisModule.helperArity(h) = e.arguments->size()
+            and
+            (
+                if h.definition.context_.oclIsUndefined() then
+                    moduleReceiver
+                else
+                    not moduleReceiver
+                    and (
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
+                        or
+                        (
+                            receiverType = ''
+                            and thisModule.uniqueUnknownContextHelper(
+                                e.operationName,
+                                e.arguments->size()
+                            )
+                        )
+                    )
+                endif
+            )
+        )
+        ->asSequence();
+
+-- Resolve a module-level helper attribute such as thisModule.authorSet.
+-- @hot-atl2tm-part 0026
+helper def : helperAttributeCandidates(
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and h.definition.context_.oclIsUndefined()
+        )
+        ->asSequence();
+
+-- Check source-metaclass conformance in the direction needed for a context
+-- helper: a CPL!Proxy receiver may use a helper declared on CPL!Element.
+-- Keep the lookup defensive because an expression can also have a target or
+-- otherwise unknown type, which must not make ATL2TM crash.
+-- @hot-atl2tm-part 0027
+helper def : sourceTypeConformsTo(
+    actualTypeName : String,
+    contextTypeName : String
+) : Boolean =
+
+    let actuals : Sequence(ECORE!EClass) =
+        ECORE!EClass.allInstancesFrom('SRC')
+            ->select(c | c.name = actualTypeName)
+            ->asSequence()
+
+    in
+
+    if actuals->isEmpty() then
+        false
+    else
+
+        let contexts : Sequence(ECORE!EClass) =
+            ECORE!EClass.allInstancesFrom('SRC')
+                ->select(c | c.name = contextTypeName)
+                ->asSequence()
+
+        in
+
+        if contexts->isEmpty() then
+            false
+        else
+            actuals->first() = contexts->first()
+            or actuals->first().eAllSuperTypes->includes(contexts->first())
+        endif
+    endif;
+
+-- Resolve an attribute helper used through an object receiver, such as
+-- p.locations. The AST represents this as a NavigationOrAttributeCallExp,
+-- even though locations is not an Ecore structural feature.
+-- @hot-atl2tm-part 0028
+helper def : helperAttributeCallCandidates(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : Sequence(ATL!Helper) =
+
+    let receiverType : String =
+        thisModule.helperReceiverTypeName(
+            e.source,
+            varNames,
+            replacements
+        )
+
+    in
+
+    let moduleReceiver : Boolean =
+        thisModule.isModuleReceiver(e.source)
+
+    in
+
+    let contextMatches : Sequence(ATL!Helper) =
+        ATL!Helper.allInstancesFrom('IN')
+            ->select(h |
+                h.definition.feature.name = e.name
+                and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+                and not h.definition.context_.oclIsUndefined()
+            )
+            ->asSequence()
+
+    in
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = e.name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and
+            (
+                if h.definition.context_.oclIsUndefined() then
+                    moduleReceiver
+                else
+                    not moduleReceiver
+                    and
+                    (
+                        thisModule.sourceTypeConformsTo(
+                            receiverType,
+                            thisModule.helperContextTypeName(h)
+                        )
+                        or (
+                            receiverType = ''
+                            and contextMatches->size() = 1
+                        )
+                    )
+                endif
+            )
+        )
+        ->asSequence();
+
+-- Marker được mang trong substitution environment để phát hiện recursion
+-- trực tiếp và gián tiếp khi inline helper body.
+-- Attribute helpers also participate in source-type analysis. Their OCL
+-- return type, rather than an EStructuralFeature, determines both whether
+-- a navigation is a collection and which source EClass it yields.
+-- @hot-atl2tm-part 0029
+helper def : contextHelperAttributeCandidates(
+    receiverTypeName : String,
+    name : String
+) : Sequence(ATL!Helper) =
+
+    ATL!Helper.allInstancesFrom('IN')
+        ->select(h |
+            h.definition.feature.name = name
+            and h.definition.feature.oclIsTypeOf(ATL!Attribute)
+            and not h.definition.context_.oclIsUndefined()
+            and thisModule.sourceTypeConformsTo(
+                receiverTypeName,
+                thisModule.helperContextTypeName(h)
+            )
+        )
+        ->asSequence();
+
+-- @hot-atl2tm-part 0030
+helper def : helperAttributeIsCollection(
+    h : ATL!Helper
+) : Boolean =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    attribute.type.oclIsKindOf(ATL!CollectionType);
+
+-- @hot-atl2tm-part 0031
+helper def : helperAttributeElementTypeName(
+    h : ATL!Helper
+) : String =
+
+    let attribute : ATL!Attribute = h.definition.feature
+    in
+    if attribute.type.oclIsKindOf(ATL!CollectionType) then
+        let collectionType : ATL!CollectionType = attribute.type
+        in collectionType.elementType.name
+    else
+        ''
+    endif;
+
+-- @hot-atl2tm-part 0032
+helper def : helperMarker(h : ATL!Helper) : String =
+
+    '__atl2tm_active_helper__'
+    + h.definition.feature.name
+    + '__'
+    + thisModule.helperArity(h).toString()
+    + '__'
+    + thisModule.helperContextTypeName(h);
+
+-- @hot-atl2tm-part 0033
+helper def : helperSelfTypeMarker() : String =
+
+    '__atl2tm_helper_self_type__';
+
+-- @hot-atl2tm-part 0034
+helper def : isActiveHelper(
+    h : ATL!Helper,
+    varNames : Sequence(String)
+) : Boolean =
+
+    varNames->includes(thisModule.helperMarker(h));
+
+-- ATL/OCL escape dấu nháy đơn trong string literal: 'O\'Brien'.
+-- @hot-atl2tm-part 0039
+helper def : renderHelperCall(
+    e : ATL!OperationCallExp,
+    h : ATL!Helper,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let receiver : String =
+        thisModule.renderExpr(
+            e.source,
+            varNames,
+            replacements,
+            selfReplacement
+        )
+
+    in
+
+    let actuals : Sequence(String) =
+        e.arguments->collect(argument |
+            thisModule.renderExpr(
+                argument,
+                varNames,
+                replacements,
+                selfReplacement
+            )
+        )->asSequence()
+
+    in
+
+    let scopedNames : Sequence(String) =
+        thisModule.appendStrings(
+            thisModule.appendStrings(
+                thisModule.appendStrings(
+                    varNames,
+                    Sequence { thisModule.helperMarker(h) }
+                ),
+                Sequence { thisModule.helperSelfTypeMarker() }
+            ),
+            thisModule.helperFormalNames(h)
+        )
+
+    in
+
+    let scopedReplacements : Sequence(String) =
+        thisModule.appendStrings(
+            thisModule.appendStrings(
+                thisModule.appendStrings(
+                    replacements,
+                    Sequence { thisModule.helperMarker(h) }
+                ),
+                Sequence { thisModule.helperContextTypeName(h) }
+            ),
+            actuals
+        )
+
+    in
+
+    thisModule.renderExpr(
+        thisModule.helperBody(h),
+        scopedNames,
+        scopedReplacements,
+        receiver
+    );
+
+-- Inline a module-level helper attribute. It has no receiver or formal
+-- parameters; the recursion marker is still kept in the environment.
+-- @hot-atl2tm-part 0040
+helper def : renderHelperAttribute(
+    h : ATL!Helper,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let scopedNames : Sequence(String) =
+        thisModule.appendStrings(
+            varNames,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    let scopedReplacements : Sequence(String) =
+        thisModule.appendStrings(
+            replacements,
+            Sequence { thisModule.helperMarker(h) }
+        )
+
+    in
+
+    thisModule.renderExpr(
+        thisModule.helperBody(h),
+        scopedNames,
+        scopedReplacements,
+        selfReplacement
+    );
+
+-- @hot-atl2tm-part 0041
+helper def : renderNavigationCall(
+    e : ATL!NavigationOrAttributeCallExp,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    selfReplacement : String
+) : String =
+
+    let sourceText : String =
+        thisModule.renderExpr(
+            e.source,
+            varNames,
+            replacements,
+            selfReplacement
+        )
+
+    in
+
+    let refinedType : String =
+        if e.source.oclIsTypeOf(ATL!VariableExp) then
+            thisModule.refinedTypeOf(
+                e.source.referredVariable.varName,
+                varNames,
+                replacements
+            )
+        else
+            ''
+        endif
+
+    in
+
+    sourceText
+    + (if refinedType = '' then '' else '.oclAsType(' + refinedType + ')' endif)
+    + '.'
+    + e.name;
+
+-- Rule calls through thisModule are not ordinary OCL helper calls. Calls
+-- outside the directly encoded ordinary-lazy subset leave a rejection marker.

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="03_part-1" declaredName="Parts Example-1">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="03_part-2" declaredName="Vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-3">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-3" declaredName="eng" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-4">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="03_part-4" declaredName="Engine">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-5">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-5" declaredName="cyl" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-6">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="03_part-6" declaredName="Cylinder" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-7">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-7" declaredName="smallVehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-8">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-8" declaredName="eng">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-9">
+            <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-9" declaredName="cyl" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-10">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-10" declaredName="bigVehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-11">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-11" declaredName="eng">
+          <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="03_part-membership-12">
+            <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="03_part-12" declaredName="cyl" />
+          </ownedRelationship>
+        </ownedRelatedElement>
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

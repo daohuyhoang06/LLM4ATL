@@ -35,7 +35,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familyFather"
             },
@@ -50,7 +50,7 @@
             "source": {
               "type": "Variable",
               "name": "self",
-              "declared_type": null
+              "declared_type": "families!Member"
             },
             "property_name": "familyFather"
           },
@@ -68,7 +68,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": null
+                  "declared_type": "families!Member"
                 },
                 "property_name": "familyMother"
               },
@@ -83,7 +83,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familyMother"
             },
@@ -101,7 +101,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "self",
-                    "declared_type": null
+                    "declared_type": "families!Member"
                   },
                   "property_name": "familySon"
                 },
@@ -116,7 +116,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": null
+                  "declared_type": "families!Member"
                 },
                 "property_name": "familySon"
               },
@@ -129,7 +129,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": null
+                  "declared_type": "families!Member"
                 },
                 "property_name": "familyDaughter"
               },
@@ -159,7 +159,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familyMother"
             },
@@ -177,7 +177,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familyDaughter"
             },
@@ -207,7 +207,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familyFather"
             },
@@ -225,7 +225,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "families!Member"
               },
               "property_name": "familySon"
             },
@@ -246,7 +246,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "persons!Male"
             },
             "bindings": [
@@ -263,8 +263,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "m",
-                        "declared_type": null
+                        "name": "s",
+                        "declared_type": "families!Member"
                       },
                       "property_name": "firstName"
                     },
@@ -278,8 +278,8 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m",
-                      "declared_type": null
+                      "name": "s",
+                      "declared_type": "families!Member"
                     },
                     "operation_name": "familyLastName",
                     "arguments": []
@@ -288,7 +288,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -300,18 +300,18 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "families!Member"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "Variable",
-            "name": "m",
-            "declared_type": null
+            "name": "s",
+            "declared_type": "families!Member"
           },
           "operation_name": "isMale",
           "arguments": []
@@ -333,7 +333,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "persons!Female"
             },
             "bindings": [
@@ -350,8 +350,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "m",
-                        "declared_type": null
+                        "name": "s",
+                        "declared_type": "families!Member"
                       },
                       "property_name": "firstName"
                     },
@@ -365,8 +365,8 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m",
-                      "declared_type": null
+                      "name": "s",
+                      "declared_type": "families!Member"
                     },
                     "operation_name": "familyLastName",
                     "arguments": []
@@ -375,7 +375,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -387,18 +387,18 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "families!Member"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "Variable",
-            "name": "m",
-            "declared_type": null
+            "name": "s",
+            "declared_type": "families!Member"
           },
           "operation_name": "isFemale",
           "arguments": []

@@ -31,7 +31,7 @@ class ATL2TMOclCopyTest {
                 "Neuro_Symbolic_Pipeline",
                 "pipeline",
                 "formal_verification",
-                "ATL2TM.atl"
+                "hot-atl2tm", "ATL2TM.generated.atl"
         );
 
         new ATL2TMRunner().run(
@@ -78,7 +78,7 @@ class ATL2TMOclCopyTest {
                 "Neuro_Symbolic_Pipeline",
                 "pipeline",
                 "formal_verification",
-                "ATL2TM.atl"
+                "hot-atl2tm", "ATL2TM.generated.atl"
         );
 
         new ATL2TMRunner().run(

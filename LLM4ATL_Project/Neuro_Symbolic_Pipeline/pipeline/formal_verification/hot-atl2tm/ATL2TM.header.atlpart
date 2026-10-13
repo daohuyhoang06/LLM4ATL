@@ -1,0 +1,20 @@
+-- @hot-atl2tm-part 0000
+module ATL2TM;
+
+create OUT: ECORE 
+from 
+    IN :  ATL,
+    SRC : ECORE,
+    TGT : ECORE;
+
+-- Ánh xạ các bước của thuật toán ATL -> Transformation Model:
+-- Step 1: copy source/target metamodel vào TM.
+-- Step 2: tạo trace class và mã hóa match, binding, frame condition.
+-- Step 3: mỗi target object phải do đúng một creator tạo ra.
+-- Step 4: các matched rule có thể overlap phải loại trừ nhau.
+
+-- ================================================================
+-- Step 1: giữ lại OCL có sẵn của source/target metamodel
+-- ================================================================
+
+-- Lấy chuỗi tên constraint gốc từ annotation Ecore.

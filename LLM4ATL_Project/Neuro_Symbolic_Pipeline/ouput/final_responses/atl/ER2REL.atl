@@ -1,7 +1,7 @@
 module ER2REL;
 create OUT : REL from IN : ER;
 
-rule ERSchema {
+rule ERSchema2RELSchema {
     from
         s : ER!ERSchema
     to
@@ -10,7 +10,7 @@ rule ERSchema {
         )
 }
 
-rule Entity {
+rule Entity2Relation {
     from
         s : ER!Entity
     to
@@ -20,17 +20,17 @@ rule Entity {
         )
 }
 
-rule Relship {
+rule Relship2Relation {
     from
         s : ER!Relship
     to
         t : REL!Relation (
             name <- s.name,
-            attrs <- s.attrs->union(s.ends->collect(e | e.entity.attrs->select(a | a.isKey))->asSet()->collect(k | thisModule.CreateFKAttribute(k)))
+            attrs <- s.attrs->union(s.ends->collect(e | e.entity.attrs->select(a | a.isKey)))
         )
 }
 
-rule ERAttribute {
+rule ERAttribute2RELAttribute {
     from
         s : ER!ERAttribute
     to
@@ -40,12 +40,3 @@ rule ERAttribute {
         )
 }
 
-lazy rule CreateFKAttribute {
-    from
-        s : ER!ERAttribute
-    to
-        t : REL!RELAttribute (
-            name <- s.name,
-            isKey <- s.isKey
-    )
-}

@@ -1,6 +1,8 @@
 Create an ATL transformation that converts an Entity-Relationship (ER) model into a Relational database
 model based on the following requirements:
 
+Use only ATL matched rules to implement the transformation. Do not use lazy rules or called rules.
+
 1. Schema Mapping:
 Transform the overall ER diagram into a relational schema.
 This schema must act as the container for all generated

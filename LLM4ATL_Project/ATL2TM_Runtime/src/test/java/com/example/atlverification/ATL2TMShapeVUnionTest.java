@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ATL2TMShapeVUnionTest {
     private static final Path FIXTURE = Path.of("src", "test", "resources");
     private static final Path ATL2TM = Path.of("..", "Neuro_Symbolic_Pipeline",
-            "pipeline", "formal_verification", "ATL2TM.atl");
+            "pipeline", "formal_verification", "hot-atl2tm", "ATL2TM.generated.atl");
     private static final String PIVOT = "http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot";
 
     @Test

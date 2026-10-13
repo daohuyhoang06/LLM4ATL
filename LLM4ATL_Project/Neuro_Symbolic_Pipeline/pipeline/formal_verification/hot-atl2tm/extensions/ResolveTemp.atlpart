@@ -1,0 +1,87 @@
+-- @hot-atl2tm-part 0091
+helper def : isDirectResolveTempBinding(b : ATL!Binding) : Boolean =
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!OperationCallExp) then
+        let e : ATL!OperationCallExp = b.value
+        in
+        e.operationName = 'resolveTemp'
+        and thisModule.isModuleReceiver(e.source)
+        and e.arguments->size() = 2
+        and e.arguments->last().oclIsTypeOf(ATL!StringExp)
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0092
+helper def : directResolveTempExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+    let e : ATL!OperationCallExp = b.value
+    in
+    let sourceExpr : ATL!OclExpression = e.arguments->first()
+    in
+    let outputName : String = e.arguments->last().stringSymbol
+    in
+    let sourceTypeName : String = thisModule.sourceExprTypeName(sourceExpr, r)
+    in
+    if sourceTypeName = ''
+       or thisModule.sourceExprIsCollection(sourceExpr, r) then
+        '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+    else
+        let rules : Sequence(ATL!MatchedRule) =
+            ATL!MatchedRule.allInstancesFrom('IN')
+                ->select(candidate |
+                    candidate.oclIsTypeOf(ATL!MatchedRule)
+                    and
+                    if candidate.inPattern.elements->size() <> 1 then
+                        false
+                    else
+                        candidate.inPattern.filter.oclIsUndefined()
+                        and candidate.inPattern.elements->first().type.name
+                            = sourceTypeName
+                        and candidate.outPattern.elements
+                            ->select(o |
+                                o.oclIsTypeOf(ATL!SimpleOutPatternElement)
+                                and o.varName = outputName
+                            )->size() = 1
+                    endif
+                )->asSequence()
+        in
+        if rules->size() <> 1 then
+            '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+        else
+            let resolver : ATL!MatchedRule = rules->first()
+            in
+            let input : ATL!SimpleInPatternElement =
+                resolver.inPattern.elements->first()
+            in
+            let output : ATL!SimpleOutPatternElement =
+                resolver.outPattern.elements
+                    ->select(o |
+                        o.oclIsTypeOf(ATL!SimpleOutPatternElement)
+                        and o.varName = outputName
+                    )->first()
+            in
+            let features : Sequence(ECORE!EStructuralFeature) =
+                thisModule.targetEClassOf(b.outPatternElement)
+                    .eAllStructuralFeatures
+                    ->select(f | f.name = b.propertyName)->asSequence()
+            in
+            if features->size() <> 1 then
+                '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+            else
+                if not features->first().oclIsKindOf(ECORE!EReference)
+                   or features->first().upperBound <> 1
+                   or features->first().eType.name <> output.type.name then
+                    '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+                else
+                    '(' + thisModule.ruleExpr(r, sourceExpr) + ')'
+                    + '.oclAsType(' + input.type.name + ')'
+                    + '.' + resolver.name + '_' + input.varName
+                    + '.' + output.varName
+                endif
+            endif
+        endif
+    endif;
+

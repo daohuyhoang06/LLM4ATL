@@ -154,13 +154,13 @@ def generate_reports() -> None:
         stem = path.stem
         parsed, problem_count = parsed_map.get(stem, (False, -1))
         ref_path = references.get(stem)
-        if ref_path is None:
-            print(f"Warning: no reference found for {path.name}")
-            continue
-
-        generated = path.read_text(encoding="utf-8")
-        reference = ref_path.read_text(encoding="utf-8")
-        chrf = round(_chrf_score(generated, reference), 4)
+        chrf = ""
+        if ref_path is not None:
+            generated = path.read_text(encoding="utf-8")
+            reference = ref_path.read_text(encoding="utf-8")
+            chrf = round(_chrf_score(generated, reference), 4)
+        else:
+            print(f"No reference ATL for {path.name}; parsing is still reported, ChrF is N/A")
 
         merged_rows.append({
             "LLM": LLM_LABEL,
@@ -177,12 +177,13 @@ def generate_reports() -> None:
             "Parsed": parsed,
             "ProblemCount": problem_count,
         })
-        chrf_rows.append({
-            "LLM": LLM_LABEL,
-            "Strategy": STRATEGY_LABEL,
-            "File": stem,
-            "CHRF_Score": chrf,
-        })
+        if ref_path is not None:
+            chrf_rows.append({
+                "LLM": LLM_LABEL,
+                "Strategy": STRATEGY_LABEL,
+                "File": stem,
+                "CHRF_Score": chrf,
+            })
 
     with MERGED_CSV.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["LLM", "Strategy", "File", "Parsed", "ProblemCount", "CHRF_Score"])
@@ -201,7 +202,8 @@ def generate_reports() -> None:
 
     total = len(merged_rows)
     parsed_count = sum(1 for row in merged_rows if row["Parsed"])
-    mean_chrf = sum(float(row["CHRF_Score"]) for row in merged_rows) / total if total else 0.0
+    scored = [float(row["CHRF_Score"]) for row in merged_rows if row["CHRF_Score"] != ""]
+    mean_chrf = sum(scored) / len(scored) if scored else 0.0
 
     print(f"\nCSV: {MERGED_CSV}")
     print(f"Files: {total}")

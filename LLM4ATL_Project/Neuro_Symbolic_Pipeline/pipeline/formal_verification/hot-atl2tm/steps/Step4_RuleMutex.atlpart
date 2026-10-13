@@ -1,0 +1,487 @@
+-- @hot-atl2tm-part 0141
+helper def : isSourceSubtypeOrSame(
+    childName : String,
+    parentName : String
+) : Boolean =
+
+    let child : ECORE!EClass =
+        thisModule.sourceEClassByName(childName)
+
+    in
+
+    let parent : ECORE!EClass =
+        thisModule.sourceEClassByName(parentName)
+
+    in
+
+    child = parent
+    or
+    child.eAllSuperTypes->includes(parent);
+
+-- Lấy các subtype chung của hai source type.
+-- @hot-atl2tm-part 0142
+helper def : commonOverlapTypes(
+    leftName : String,
+    rightName : String
+) : Sequence(ECORE!EClass) =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c |
+            thisModule.isSourceSubtypeOrSame(
+                c.name,
+                leftName
+            )
+            and
+            thisModule.isSourceSubtypeOrSame(
+                c.name,
+                rightName
+            )
+        )
+        ->asSequence();
+
+-- Kiểm tra arity và overlap tại từng vị trí input.
+-- @hot-atl2tm-part 0143
+helper def : potentiallyOverlap(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : Boolean =
+
+    let inputs1 : Sequence(ATL!SimpleInPatternElement) =
+        r1.inPattern.elements->asSequence()
+
+    in
+
+    let inputs2 : Sequence(ATL!SimpleInPatternElement) =
+        r2.inPattern.elements->asSequence()
+
+    in
+
+    if inputs1->size() <> inputs2->size() then
+        false
+    else
+        inputs1->forAll(s1 |
+            let pos : Integer =
+                inputs1->indexOf(s1)
+            in
+            thisModule.commonOverlapTypes(
+                s1.type.name,
+                inputs2->at(pos).type.name
+            )->notEmpty()
+        )
+    endif;
+
+-- Lấy toàn bộ matched rule trong ATL input.
+-- @hot-atl2tm-part 0144
+helper def : matchedRules()
+: Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r | r.oclIsTypeOf(ATL!MatchedRule))
+        ->asSequence();
+
+-- Lấy rule overlap đứng sau để tránh sinh mutex trùng lặp.
+-- @hot-atl2tm-part 0145
+helper def : laterOverlappingRules(
+    r : ATL!MatchedRule
+) : Sequence(ATL!MatchedRule) =
+
+    let rules : Sequence(ATL!MatchedRule) =
+        thisModule.matchedRules()
+
+    in
+
+    rules->select(r2 |
+        rules->indexOf(r2) >
+        rules->indexOf(r)
+
+        and
+
+        thisModule.potentiallyOverlap(
+            r,
+            r2
+        )
+
+        and
+
+        -- Some pairs overlap by nominal type but have no concrete common
+        -- subtype combination. Do not advertise a mutex constraint when its
+        -- renderer would produce an empty specification body.
+        thisModule.mutexExpr(
+            r,
+            r2
+        ) <> ''
+    )
+    ->asSequence();
+
+-- Tạo điều kiện trace khớp với bộ iterator hiện tại.
+-- @hot-atl2tm-part 0146
+helper def : traceExistsCondition(
+    r : ATL!MatchedRule,
+    iteratorNames : Sequence(String),
+    traceVar : String
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    inputs->iterate(
+        s;
+        acc : String = '' |
+
+        let pos : Integer =
+            inputs->indexOf(s)
+
+        in
+
+        if pos > iteratorNames->size()
+        then
+            acc
+        else
+            let term : String =
+                traceVar
+                + '.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + iteratorNames->at(pos)
+
+            in
+
+            if acc = ''
+            then
+                term
+            else
+                acc + ' and ' + term
+            endif
+        endif
+    );
+
+-- Tạo biểu thức tồn tại một trace khớp input.
+-- @hot-atl2tm-part 0147
+helper def : traceExistsExpr(
+    r : ATL!MatchedRule,
+    iteratorNames : Sequence(String),
+    traceVar : String
+) : String =
+
+    r.name
+    + '.allInstances()->exists('
+    + traceVar
+    + ' : '
+    + r.name
+    + ' | '
+    + thisModule.traceExistsCondition(
+        r,
+        iteratorNames,
+        traceVar
+    )
+    + ')';
+
+-- Tạo lõi mutex: không tồn tại đồng thời hai trace khớp.
+-- @hot-atl2tm-part 0148
+helper def : mutexInnerExpr(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    let iteratorNames : Sequence(String) =
+        r1.inPattern.elements
+            ->asSequence()
+            ->collect(s | thisModule.matchInputVarName(s))
+
+    in
+
+    'not ('
+    + thisModule.traceExistsExpr(
+        r1,
+        iteratorNames,
+        'z1'
+    )
+    + ' and '
+    + thisModule.traceExistsExpr(
+        r2,
+        iteratorNames,
+        'z2'
+    )
+    + ')';
+
+-- Bọc lõi mutex bằng lượng từ cho từng overlap type.
+-- @hot-atl2tm-part 0149
+helper def : wrapMutexForAllAt(
+    r : ATL!MatchedRule,
+    types : Sequence(ECORE!EClass),
+    pos : Integer,
+    inner : String
+) : String =
+
+    if pos > types->size() then
+
+        inner
+
+    else
+
+        let s : ATL!SimpleInPatternElement =
+            r.inPattern.elements
+                ->asSequence()
+                ->at(pos)
+
+        in
+
+        let t : ECORE!EClass =
+            types->at(pos)
+
+        in
+
+        t.name
+        + '.allInstances()->forAll('
+        + thisModule.matchInputVarName(s)
+        + ' : '
+        + t.name
+        + ' | '
+        + thisModule.wrapMutexForAllAt(
+            r,
+            types,
+            pos + 1,
+            inner
+        )
+        + ')'
+
+    endif;
+
+-- Duyệt mọi tổ hợp overlap type của các input position.
+-- @hot-atl2tm-part 0150
+helper def : mutexCombinationsAt(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule,
+    pos : Integer,
+    selectedTypes : Sequence(ECORE!EClass)
+) : String =
+
+    let inputs1 : Sequence(ATL!SimpleInPatternElement) =
+        r1.inPattern.elements->asSequence()
+
+    in
+
+    let inputs2 : Sequence(ATL!SimpleInPatternElement) =
+        r2.inPattern.elements->asSequence()
+
+    in
+
+    if pos > inputs1->size()
+       or pos > inputs2->size()
+    then
+
+        thisModule.wrapMutexForAllAt(
+            r1,
+            selectedTypes,
+            1,
+            thisModule.mutexInnerExpr(
+                r1,
+                r2
+            )
+        )
+
+    else
+
+        let candidates : Sequence(ECORE!EClass) =
+            thisModule.commonOverlapTypes(
+                inputs1->at(pos).type.name,
+                inputs2->at(pos).type.name
+            )
+
+        in
+
+        candidates->iterate(
+            t;
+            acc : String = '' |
+
+            let expr : String =
+                thisModule.mutexCombinationsAt(
+                    r1,
+                    r2,
+                    pos + 1,
+                    selectedTypes->append(t)
+                )
+
+            in
+
+            if acc = '' then
+                '(' + expr + ')'
+            else
+                acc + ' and (' + expr + ')'
+            endif
+        )
+
+    endif;
+
+-- Tạo toàn bộ OCL expression cho một cặp rule mutex.
+-- @hot-atl2tm-part 0151
+helper def : mutexExpr(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    thisModule.mutexCombinationsAt(
+        r1,
+        r2,
+        1,
+        Sequence {}
+    );
+
+-- Tạo tên constraint mutex của hai rule.
+-- @hot-atl2tm-part 0152
+helper def : mutexConstraintName(
+    r1 : ATL!MatchedRule,
+    r2 : ATL!MatchedRule
+) : String =
+
+    'mutex_'
+    + r1.name
+    + '_'
+    + r2.name;
+
+-- Lấy rule tạo mutex cần gắn vào source class hiện tại.
+-- @hot-atl2tm-part 0153
+helper def : mutexRulesForContext(
+    c : ECORE!EClass
+) : Sequence(ATL!MatchedRule) =
+
+    thisModule.matchedRules()
+        ->select(r |
+            r.inPattern.elements->notEmpty()
+
+            and
+
+            r.inPattern.elements
+                ->first()
+                .type.name = c.name
+
+            and
+
+            thisModule.laterOverlappingRules(r)
+                ->notEmpty()
+        )
+        ->asSequence();
+
+-- Liệt kê tên mutex constraint của source class.
+-- @hot-atl2tm-part 0154
+helper def : mutexConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.mutexRulesForContext(c)
+        ->iterate(
+            r1;
+            acc1 : String = '' |
+
+            let names : String =
+                thisModule.laterOverlappingRules(r1)
+                    ->iterate(
+                        r2;
+                        acc2 : String = '' |
+
+                        let name : String =
+                            thisModule.mutexConstraintName(
+                                r1,
+                                r2
+                            )
+
+                        in
+
+                        if acc2 = ''
+                        then name
+                        else acc2 + ' ' + name
+                        endif
+                    )
+
+            in
+
+            if acc1 = '' then
+                names
+            else
+                acc1 + ' ' + names
+            endif
+        );
+
+
+-- @hot-atl2tm-part 0155
+helper def : generatedSourceConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let matchNames : String =
+        thisModule.matchConstraintNames(c)
+
+    in
+
+    let mutexNames : String =
+        thisModule.mutexConstraintNames(c)
+
+    in
+
+    if matchNames = '' then
+        mutexNames
+    else
+        if mutexNames = '' then
+            matchNames
+        else
+            matchNames + ' ' + mutexNames
+        endif
+    endif;
+
+-- Gom tên match constraint và mutex constraint trên source class.
+-- @hot-atl2tm-part 0156
+helper def : sourceConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let generated : String =
+        thisModule.generatedSourceConstraintNames(c)
+
+    in
+
+    if original = '' then
+        generated
+    else
+        if generated = '' then
+            original
+        else
+            original + ' ' + generated
+        endif
+    endif;
+
+-- ================================================================
+-- Rule tạo transformation model
+-- ================================================================
+
+-- Root-level provenance record.  The Converter can use the schema version
+-- to evolve its reader without confusing old transformation models.
+-- @hot-atl2tm-part 0198
+lazy rule MutexConstraintDetail {
+
+    from
+        r1 : ATL!MatchedRule,
+        r2 : ATL!MatchedRule
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.mutexConstraintName(
+                    r1,
+                    r2
+                ),
+
+            value <-
+                thisModule.mutexExpr(
+                    r1,
+                    r2
+                )
+        )
+}

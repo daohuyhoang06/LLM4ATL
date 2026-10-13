@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="01_package-1" declaredName="Package Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="01_package-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="01_package-2" declaredName="Automobile" />
+  </ownedRelationship>
+</sysml:Package>

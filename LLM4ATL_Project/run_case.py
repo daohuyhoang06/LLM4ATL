@@ -52,6 +52,7 @@ CASES = [
     "AmaltheaToAscet_All", "BibTeX2DocBook_All", "XML2DSL_All",
     "PetriNet2Grafcet_All", "Grafcet2PetriNet_All", "DSL2KM3_All",
     "IEEE1471_2_MoDAF_All", "Make2Ant_All", "CPL2SPL_All",
+    "UML2Java_All", "SysMLv2ToAAS_All",
 ]
 FILE_TO_TEST = {c: f"org.example.{c.replace('_All','')}AllExecutionTest" for c in CASES}
 FILE_TO_TEST["IEEE1471_2_MoDAF_All"] = "org.example.IEEE1471_2_MoDAFAllExecutionTest"
@@ -280,6 +281,14 @@ def stage_tests(case, atl: Path, args):
         r = subprocess.run(cmd, cwd=ATL_TESTS, capture_output=True, text=True, timeout=600)
         ok = r.returncode == 0
         print(f"  {tag(ok)}  mvn exit {r.returncode}")
+        if ok and case in {"UML2Java_All", "SysMLv2ToAAS_All"}:
+            benchmark = "uml2java" if case == "UML2Java_All" else "sysml2aas"
+            scored = subprocess.run(
+                [sys.executable, str(ATL_TESTS / "score_benchmarks.py"), "--case", benchmark],
+                cwd=ATL_TESTS, capture_output=True, text=True,
+            )
+            print("  " + (scored.stdout.strip() if scored.returncode == 0 else scored.stderr.strip()))
+            ok = scored.returncode == 0
         if not ok:
             rep = ATL_TESTS / "target" / "surefire-reports" / f"{test_class}.txt"
             if rep.exists():

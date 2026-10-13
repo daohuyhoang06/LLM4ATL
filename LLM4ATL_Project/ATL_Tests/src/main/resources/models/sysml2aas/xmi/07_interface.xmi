@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="07_interface-1" declaredName="Interface Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="07_interface-2" declaredName="Vehicle" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-3">
+    <ownedRelatedElement xsi:type="sysml:InterfaceDefinition" elementId="07_interface-3" declaredName="FuelInterface">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-4">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="07_interface-4" declaredName="supplierPort" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-5">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="07_interface-5" declaredName="consumerPort" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-6">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="07_interface-6" declaredName="vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-7">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="07_interface-7" declaredName="tankAssy" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-8">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="07_interface-8" declaredName="eng" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="07_interface-membership-9">
+        <ownedRelatedElement xsi:type="sysml:InterfaceUsage" elementId="07_interface-9" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sysml:Package xmlns:sysml="https://www.omg.org/spec/SysML/20240201" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" elementId="06_interface_definition-1" declaredName="Interface Example">
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-2">
+    <ownedRelatedElement xsi:type="sysml:PartDefinition" elementId="06_interface_definition-2" declaredName="Vehicle" />
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-3">
+    <ownedRelatedElement xsi:type="sysml:InterfaceDefinition" elementId="06_interface_definition-3" declaredName="FuelInterface">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-4">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="06_interface_definition-4" declaredName="supplierPort" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-5">
+        <ownedRelatedElement xsi:type="sysml:PortUsage" elementId="06_interface_definition-5" declaredName="consumerPort" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+  <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-6">
+    <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="06_interface_definition-6" declaredName="vehicle">
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-7">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="06_interface_definition-7" declaredName="tankAssy" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-8">
+        <ownedRelatedElement xsi:type="sysml:PartUsage" elementId="06_interface_definition-8" declaredName="eng" />
+      </ownedRelationship>
+      <ownedRelationship xsi:type="sysml:FeatureMembership" elementId="06_interface_definition-membership-9">
+        <ownedRelatedElement xsi:type="sysml:InterfaceUsage" elementId="06_interface_definition-9" />
+      </ownedRelationship>
+    </ownedRelatedElement>
+  </ownedRelationship>
+</sysml:Package>

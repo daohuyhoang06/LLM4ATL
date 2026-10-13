@@ -1,0 +1,621 @@
+-- @hot-atl2tm-part 0042
+helper def : isUnsupportedRuleCall(
+    e : ATL!OperationCallExp
+) : Boolean =
+
+    thisModule.isModuleReceiver(e.source)
+    and
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->exists(r | r.name = e.operationName);
+
+-- The first supported lazy subset consists of a direct, scalar call in a
+-- binding of an ordinary matched rule. All other rule calls remain rejected.
+-- @hot-atl2tm-part 0043
+helper def : isDirectLazyBinding(
+    b : ATL!Binding
+) : Boolean =
+
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!OperationCallExp)
+    then
+        let e : ATL!OperationCallExp = b.value
+        in
+        thisModule.isModuleReceiver(e.source)
+        and e.arguments->size() = 1
+        and ATL!LazyMatchedRule.allInstancesFrom('IN')
+            ->exists(r |
+                not r.isUnique
+                and r.name = e.operationName
+            )
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0044
+helper def : directLazyRule(
+    b : ATL!Binding
+) : ATL!LazyMatchedRule =
+
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(r | r.name = b.value.operationName)
+        ->first();
+
+-- @hot-atl2tm-part 0045
+helper def : directLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isDirectLazyBinding(b))
+        ->asSequence();
+
+-- @hot-atl2tm-part 0046
+helper def : directCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!Binding) =
+
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isDirectLazyBinding(b))
+        ->select(b | b.value.operationName = r.name)
+        ->asSequence();
+
+-- A collect call is an invocation per Set member, not one invocation for
+-- the binding as a whole. The Java preflight validates the restricted shape
+-- and the source/target Set types before this helper is evaluated.
+-- @hot-atl2tm-part 0047
+helper def : isCollectLazyBinding(
+    b : ATL!Binding
+) : Boolean =
+
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!IteratorExp)
+    then
+        let e : ATL!IteratorExp = b.value
+        in
+        if e.name = 'collect'
+           and e.iterators->size() = 1
+           and e.body.oclIsTypeOf(ATL!OperationCallExp)
+        then
+            let call : ATL!OperationCallExp = e.body
+            in
+            thisModule.isModuleReceiver(call.source)
+            and call.arguments->size() = 1
+            and ATL!LazyMatchedRule.allInstancesFrom('IN')
+                ->exists(r |
+                    not r.isUnique
+                    and r.name = call.operationName
+                )
+        else
+            false
+        endif
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0048
+helper def : collectLazyRule(
+    b : ATL!Binding
+) : ATL!LazyMatchedRule =
+
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(r | r.name = b.value.body.operationName)
+        ->first();
+
+-- @hot-atl2tm-part 0049
+helper def : collectLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isCollectLazyBinding(b))
+        ->asSequence();
+
+-- @hot-atl2tm-part 0050
+helper def : collectCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!Binding) =
+
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isCollectLazyBinding(b))
+        ->select(b | b.value.body.operationName = r.name)
+        ->asSequence();
+
+-- @hot-atl2tm-part 0051
+helper def : collectLazyCallName(b : ATL!Binding) : String =
+    '__atl2tm_calls_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+-- @hot-atl2tm-part 0052
+helper def : collectLazyCallerName(b : ATL!Binding) : String =
+    thisModule.directLazyCallerName(b);
+
+-- @hot-atl2tm-part 0053
+helper def : collectLazyCoverageConstraintName(b : ATL!Binding) : String =
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_coverage';
+
+-- @hot-atl2tm-part 0054
+helper def : collectLazyNoExtraConstraintName(b : ATL!Binding) : String =
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_noExtra';
+
+-- @hot-atl2tm-part 0055
+helper def : collectLazyCoverageConstraintExpr(b : ATL!Binding) : String =
+    thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.source
+    )
+    + '->forAll(i | self.'
+    + thisModule.collectLazyCallName(b)
+    + '->one(c | c.'
+    + thisModule.matchInputVarName(
+        thisModule.collectLazyRule(b).inPattern.elements->first()
+    )
+    + ' = i))';
+
+-- @hot-atl2tm-part 0056
+helper def : collectLazyNoExtraConstraintExpr(b : ATL!Binding) : String =
+    'self.'
+    + thisModule.collectLazyCallName(b)
+    + '->forAll(c | '
+    + thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.source
+    )
+    + '->includes(c.'
+    + thisModule.matchInputVarName(
+        thisModule.collectLazyRule(b).inPattern.elements->first()
+    )
+    + '))';
+
+-- Locate lazy collect calls under union nodes, independent of which operand
+-- contains the call. Each iterator is one call site with its own trace slot.
+-- @hot-atl2tm-part 0057
+helper def : isLazyCollectExpr(e : ATL!OclExpression) : Boolean =
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        let it : ATL!IteratorExp = e
+        in
+        if it.name = 'collect'
+           and it.iterators->size() = 1
+           and it.body.oclIsTypeOf(ATL!OperationCallExp)
+        then
+            let call : ATL!OperationCallExp = it.body
+            in
+            thisModule.isModuleReceiver(call.source)
+            and call.arguments->size() = 1
+            and ATL!LazyMatchedRule.allInstancesFrom('IN')
+                ->exists(l | not l.isUnique and l.name = call.operationName)
+        else
+            false
+        endif
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0058
+helper def : lazyCollectSitesInUnion(
+    e : ATL!OclExpression
+) : Sequence(ATL!IteratorExp) =
+    if thisModule.isLazyCollectExpr(e) then
+        Sequence { e }
+    else
+        if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+            if e.operationName = 'union' and e.arguments->size() = 1 then
+                thisModule.lazyCollectSitesInUnion(e.source)
+                    ->union(thisModule.lazyCollectSitesInUnion(
+                        e.arguments->first()
+                    ))
+                    ->asSequence()
+            else
+                Sequence {}
+            endif
+        else
+            Sequence {}
+        endif
+    endif;
+
+-- @hot-atl2tm-part 0059
+helper def : isUnionLazyBinding(b : ATL!Binding) : Boolean =
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!CollectionOperationCallExp)
+    then
+        b.value.operationName = 'union'
+        and thisModule.lazyCollectSitesInUnion(b.value)->notEmpty()
+    else
+        false
+    endif;
+
+-- @hot-atl2tm-part 0060
+helper def : unionLazyBindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+    thisModule.bindingsOf(r)
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->asSequence();
+
+-- @hot-atl2tm-part 0061
+helper def : unionLazySitesOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!IteratorExp) =
+    thisModule.unionLazyBindingsOf(r)
+        ->collect(b | thisModule.lazyCollectSitesInUnion(b.value))
+        ->flatten()
+        ->asSequence();
+
+-- @hot-atl2tm-part 0062
+helper def : unionLazyCallsToLazyRule(
+    r : ATL!LazyMatchedRule
+) : Sequence(ATL!IteratorExp) =
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->collect(b | thisModule.lazyCollectSitesInUnion(b.value))
+        ->flatten()
+        ->select(e | e.body.operationName = r.name)
+        ->asSequence();
+
+-- @hot-atl2tm-part 0063
+helper def : unionLazyBindingOfSite(
+    e : ATL!IteratorExp
+) : ATL!Binding =
+    ATL!Binding.allInstancesFrom('IN')
+        ->select(b | thisModule.isUnionLazyBinding(b))
+        ->select(b | thisModule.lazyCollectSitesInUnion(b.value)->includes(e))
+        ->first();
+
+-- @hot-atl2tm-part 0064
+helper def : isUnionLazySite(e : ATL!IteratorExp) : Boolean =
+    ATL!Binding.allInstancesFrom('IN')
+        ->exists(b | thisModule.isUnionLazyBinding(b)
+            and thisModule.lazyCollectSitesInUnion(b.value)->includes(e));
+
+-- @hot-atl2tm-part 0065
+helper def : unionLazyRule(e : ATL!IteratorExp) : ATL!LazyMatchedRule =
+    ATL!LazyMatchedRule.allInstancesFrom('IN')
+        ->select(l | l.name = e.body.operationName)
+        ->first();
+
+-- @hot-atl2tm-part 0066
+helper def : unionLazySiteSuffix(e : ATL!IteratorExp) : String =
+    '_u'
+    + thisModule.lazyCollectSitesInUnion(
+        thisModule.unionLazyBindingOfSite(e).value
+    )->indexOf(e).toString();
+
+-- @hot-atl2tm-part 0067
+helper def : unionLazyCallName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.collectLazyCallName(b)
+    + thisModule.unionLazySiteSuffix(e);
+
+-- @hot-atl2tm-part 0068
+helper def : unionLazyCallerName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.collectLazyCallerName(b)
+    + thisModule.unionLazySiteSuffix(e);
+
+-- @hot-atl2tm-part 0069
+helper def : unionLazyCoverageConstraintName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + thisModule.unionLazySiteSuffix(e)
+    + '_coverage';
+
+-- @hot-atl2tm-part 0070
+helper def : unionLazyNoExtraConstraintName(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + thisModule.unionLazySiteSuffix(e)
+    + '_noExtra';
+
+-- @hot-atl2tm-part 0071
+helper def : unionLazyCoverageConstraintExpr(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    thisModule.ruleExpr(b.outPatternElement.outPattern.rule, e.source)
+    + '->forAll(i | self.'
+    + thisModule.unionLazyCallName(e)
+    + '->one(c | c.'
+    + thisModule.matchInputVarName(
+        thisModule.unionLazyRule(e).inPattern.elements->first()
+    )
+    + ' = i))';
+
+-- @hot-atl2tm-part 0072
+helper def : unionLazyNoExtraConstraintExpr(e : ATL!IteratorExp) : String =
+    let b : ATL!Binding = thisModule.unionLazyBindingOfSite(e)
+    in
+    'self.'
+    + thisModule.unionLazyCallName(e)
+    + '->forAll(c | '
+    + thisModule.ruleExpr(b.outPatternElement.outPattern.rule, e.source)
+    + '->includes(c.'
+    + thisModule.matchInputVarName(
+        thisModule.unionLazyRule(e).inPattern.elements->first()
+    )
+    + '))';
+
+-- @hot-atl2tm-part 0073
+helper def : directLazyCallName(
+    b : ATL!Binding
+) : String =
+
+    '__atl2tm_call_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+-- @hot-atl2tm-part 0074
+helper def : directLazyCallerName(
+    b : ATL!Binding
+) : String =
+
+    '__atl2tm_caller_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName;
+
+-- @hot-atl2tm-part 0075
+helper def : directLazyArgumentConstraintName(
+    b : ATL!Binding
+) : String =
+
+    'call_'
+    + b.outPatternElement.outPattern.rule.name
+    + '_'
+    + b.outPatternElement.varName
+    + '_'
+    + b.propertyName
+    + '_argument';
+
+-- @hot-atl2tm-part 0076
+helper def : directLazyArgumentConstraintExpr(
+    b : ATL!Binding
+) : String =
+
+    'self.'
+    + thisModule.directLazyCallName(b)
+    + '.'
+    + thisModule.matchInputVarName(
+        thisModule.directLazyRule(b).inPattern.elements->first()
+    )
+    + ' = '
+    + thisModule.ruleExpr(
+        b.outPatternElement.outPattern.rule,
+        b.value.arguments->first()
+    );
+
+-- @hot-atl2tm-part 0077
+helper def : directLazyOwnerConstraintName(
+    r : ATL!LazyMatchedRule
+) : String =
+
+    'call_'
+    + r.name
+    + '_owner';
+
+-- @hot-atl2tm-part 0078
+helper def : directLazyOwnerConstraintExpr(
+    r : ATL!LazyMatchedRule
+) : String =
+
+    let directCalls : Sequence(ATL!Binding) =
+        thisModule.directCallsToLazyRule(r)
+    in
+    let collectCalls : Sequence(ATL!Binding) =
+        thisModule.collectCallsToLazyRule(r)
+    in
+    let unionCalls : Sequence(ATL!IteratorExp) =
+        thisModule.unionLazyCallsToLazyRule(r)
+    in
+    if directCalls->isEmpty() and collectCalls->isEmpty()
+       and unionCalls->isEmpty() then
+        'false'
+    else
+        let directTerms : String = directCalls->iterate(
+            b;
+            acc : String = '' |
+            let term : String =
+                '(if self.'
+                + thisModule.directLazyCallerName(b)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        in
+        let collectTerms : String = collectCalls->iterate(
+            b;
+            acc : String = directTerms |
+            let term : String =
+                '(if self.'
+                + thisModule.collectLazyCallerName(b)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        in
+        let unionTerms : String = unionCalls->iterate(
+            e;
+            acc : String = collectTerms |
+            let term : String =
+                '(if self.'
+                + thisModule.unionLazyCallerName(e)
+                + '.oclIsUndefined() then 0 else 1 endif)'
+            in
+            if acc = '' then term else acc + ' + ' + term endif
+        )
+        in
+        unionTerms
+        + ' = 1'
+    endif;
+
+-- Biểu diễn expression ATL/OCL hỗ trợ thành Pivot OCL.
+-- @hot-atl2tm-part 0174
+rule DirectLazyCall2Association {
+    from
+        b : ATL!Binding (
+            thisModule.isDirectLazyBinding(b)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.directLazyCallName(b),
+            lowerBound <- 1,
+            upperBound <- 1,
+            eType <- thisModule.directLazyRule(b),
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <- thisModule.directLazyCallerName(b),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- b.outPatternElement.outPattern.rule,
+            eOpposite <- forward
+        )
+}
+
+-- Each member of the source Set owns one distinct ordinary-lazy invocation.
+-- @hot-atl2tm-part 0175
+rule CollectLazyCall2Association {
+    from
+        b : ATL!Binding (
+            thisModule.isCollectLazyBinding(b)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.collectLazyCallName(b),
+            lowerBound <- 0,
+            upperBound <- -1,
+            eType <- thisModule.collectLazyRule(b),
+            ordered <- false,
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <- thisModule.collectLazyCallerName(b),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- b.outPatternElement.outPattern.rule,
+            eOpposite <- forward
+        )
+}
+
+-- @hot-atl2tm-part 0176
+rule UnionLazyCall2Association {
+    from
+        e : ATL!IteratorExp (
+            thisModule.isUnionLazySite(e)
+        )
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.unionLazyCallName(e),
+            lowerBound <- 0,
+            upperBound <- -1,
+            eType <- thisModule.unionLazyRule(e),
+            ordered <- false,
+            eOpposite <- inverse
+        ),
+        inverse : ECORE!EReference (
+            name <- thisModule.unionLazyCallerName(e),
+            lowerBound <- 0,
+            upperBound <- 1,
+            eType <- thisModule.unionLazyBindingOfSite(e).outPatternElement.outPattern.rule,
+            eOpposite <- forward
+        )
+}
+
+-- Step 1: copy nguyên key/value của một Pivot OCL detail gốc.
+-- @hot-atl2tm-part 0185
+unique lazy rule DirectLazyArgumentConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.directLazyArgumentConstraintName(b),
+            value <- thisModule.directLazyArgumentConstraintExpr(b)
+        )
+}
+
+-- @hot-atl2tm-part 0186
+unique lazy rule CollectLazyCoverageConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.collectLazyCoverageConstraintName(b),
+            value <- thisModule.collectLazyCoverageConstraintExpr(b)
+        )
+}
+
+-- @hot-atl2tm-part 0187
+unique lazy rule CollectLazyNoExtraConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.collectLazyNoExtraConstraintName(b),
+            value <- thisModule.collectLazyNoExtraConstraintExpr(b)
+        )
+}
+
+-- @hot-atl2tm-part 0188
+unique lazy rule UnionLazyCoverageConstraintDetail {
+    from
+        e : ATL!IteratorExp
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.unionLazyCoverageConstraintName(e),
+            value <- thisModule.unionLazyCoverageConstraintExpr(e)
+        )
+}
+
+-- @hot-atl2tm-part 0189
+unique lazy rule UnionLazyNoExtraConstraintDetail {
+    from
+        e : ATL!IteratorExp
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.unionLazyNoExtraConstraintName(e),
+            value <- thisModule.unionLazyNoExtraConstraintExpr(e)
+        )
+}
+
+-- @hot-atl2tm-part 0190
+unique lazy rule DirectLazyOwnerConstraintDetail {
+    from
+        r : ATL!LazyMatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.directLazyOwnerConstraintName(r),
+            value <- thisModule.directLazyOwnerConstraintExpr(r)
+        )
+}
+
+-- Step 2: gom invariant filter, binding, resolution và frame.
