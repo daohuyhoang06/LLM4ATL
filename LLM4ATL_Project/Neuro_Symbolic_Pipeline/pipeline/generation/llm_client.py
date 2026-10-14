@@ -60,7 +60,14 @@ class LLMClient:
         """
         if self.provider == "gemini":
             request_text = f"{instructions}\n\n{prompt}" if instructions else prompt
-            response = self.client.generate_content(request_text)
+            # Disable the legacy Google SDK's transport-level retry. Without
+            # this override, one visible pipeline call can result in several
+            # HTTP requests when Gemini returns ServiceUnavailable (503),
+            # unexpectedly consuming the per-minute request quota.
+            response = self.client.generate_content(
+                request_text,
+                request_options={"retry": None},
+            )
             text = getattr(response, "text", None)
         elif self.provider == "openai":
             reasoning_effort = _clean(os.getenv("OPENAI_REASONING_EFFORT", "medium")).lower()

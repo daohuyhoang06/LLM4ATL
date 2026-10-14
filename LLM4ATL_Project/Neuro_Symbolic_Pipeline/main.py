@@ -355,6 +355,10 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             # Nếu là lỗi do API Key hoặc Rate Limit, in lỗi ngắn gọn và chuyển sang file kế tiếp
             if ("API_KEY" in err_str or "API key" in err_str or "400" in err_str
                     or "429" in err_str or "Quota" in err_str
+                    or "500" in err_str or "502" in err_str
+                    or "503" in err_str or "504" in err_str
+                    or "ServiceUnavailable" in err_str
+                    or "UNAVAILABLE" in err_str
                     or "CERTIFICATE_VERIFY_FAILED" in err_str
                     or "certificate verify" in err_str.lower()
                     or "SSL_ERROR" in err_str
