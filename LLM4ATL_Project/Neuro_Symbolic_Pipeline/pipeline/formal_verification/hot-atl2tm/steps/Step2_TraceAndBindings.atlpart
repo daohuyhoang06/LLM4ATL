@@ -297,6 +297,11 @@ helper def : bindingResolvedExpr(
         thisModule.directResolveTempExpr(r, b)
 
     else
+    if thisModule.isCollectResolveTempBinding(b) then
+
+        thisModule.collectResolveTempExpr(r, b)
+
+    else
     if thisModule.isDirectLazyBinding(b) then
 
         'self.'
@@ -342,6 +347,7 @@ helper def : bindingResolvedExpr(
             )
 
         endif
+    endif
     endif
     endif
     endif

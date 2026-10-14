@@ -40,17 +40,47 @@ class ATL2TMResolveTempTest {
     }
 
     @Test
-    void collectResolveTempRemainsExplicitlyUnsupported() {
-        Path work = Path.of("target", "resolve-temp-collect-unsupported");
-        String message = assertThrows(ATL2TMRunner.UnsupportedAtlConstructException.class,
-                () -> new ATL2TMRunner().run(
-                        FIXTURE.resolve("resolve-temp/collect-unsupported.atl"),
-                        FIXTURE.resolve("ordinary-lazy/collect-src.ecore"),
-                        FIXTURE.resolve("ordinary-lazy/collect-tgt.ecore"),
-                        ATL2TM, work, work.resolve("tm.ecore")))
-                .getMessage();
-        assertTrue(message.contains("__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__"),
-                message);
+    void collectResolveTempSelectsNamedOutputFromTraceCollection() throws Exception {
+        Path work = Path.of("target", "resolve-temp-collect-named-output");
+        Path output = work.resolve("tm.ecore");
+        new ATL2TMRunner().run(
+                FIXTURE.resolve("resolve-temp/collect-named-output.atl"),
+                FIXTURE.resolve("ordinary-lazy/collect-src.ecore"),
+                FIXTURE.resolve("ordinary-lazy/collect-tgt.ecore"),
+                ATL2TM, work, output);
+        EPackage model = new EcoreModelLoader().load(output);
+        EClass trace = assertInstanceOf(EClass.class, model.getEClassifier("Box2Box"));
+        String binding = trace.getEAnnotation(PIVOT).getDetails()
+                .get("bind_Box2Box_t_tags");
+        assertTrue(binding.contains("Item2Tag.allInstances()"), binding);
+        assertTrue(binding.contains("->collect(z | z.secondary)"), binding);
+        assertTrue(binding.contains("->asSet()"), binding);
+    }
+
+    @Test
+    void bibTeXCollectResolveTempUsesAllNamedFilteredRuleTraces() throws Exception {
+        Path project = Path.of("..", "Neuro_Symbolic_Pipeline");
+        Path work = Path.of("target", "resolve-temp-bibtex");
+        Path output = work.resolve("tm.ecore");
+        new ATL2TMRunner().run(
+                project.resolve("ouput/final_responses/atl/BibTeX2DocBook_All.atl"),
+                project.resolve("input/ATL_metamodel/BibTeX.ecore"),
+                project.resolve("input/ATL_metamodel/DocBook.ecore"),
+                ATL2TM, work, output);
+        EPackage model = new EcoreModelLoader().load(output);
+        EClass main = assertInstanceOf(EClass.class, model.getEClassifier("Main"));
+        var details = main.getEAnnotation(PIVOT).getDetails();
+        assertTrue(details.get("bind_Main_s1_paras").contains("UntitledEntry.allInstances()"));
+        assertTrue(details.get("bind_Main_s1_paras").contains("Article_Title_Journal.allInstances()"));
+        assertTrue(details.get("bind_Main_s2_paras").contains("Author__trace.allInstances()"));
+        assertTrue(details.get("bind_Main_s2_paras").contains("Author__source.allInstances()"));
+        assertTrue(details.get("bind_Main_s3_paras").contains("p_title"));
+        assertTrue(details.get("bind_Main_s4_paras").contains("p_journal"));
+        EClass titled = assertInstanceOf(EClass.class,
+                model.getEClassifier("TitledEntry_Title_NoArticle"));
+        assertTrue(!titled.getEAnnotation(PIVOT).getDetails()
+                .get("bind_TitledEntry_Title_NoArticle_p_content")
+                .contains("buildEntryPara"));
     }
 
     private static Path transform(String atl, String workName) throws Exception {

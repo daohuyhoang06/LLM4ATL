@@ -284,6 +284,9 @@ final class TransformationModelRoleNormalizer {
         String before = expression.substring(0, match.start()).trim();
         String after = expression.substring(match.end()).trim();
         boolean typeTest = before.endsWith("oclIsKindOf(") || before.endsWith("oclAsType(");
+        // A module helper such as Author.allInstances()->asSet() enumerates
+        // source objects even when a matched rule is also named Author.
+        if (after.matches("(?s)^\\.allInstances\\(\\)\\s*->\\s*asSet\\(\\).*")) return false;
         return !typeTest && (after.startsWith(".allInstances(") || before.endsWith(":"));
     }
 

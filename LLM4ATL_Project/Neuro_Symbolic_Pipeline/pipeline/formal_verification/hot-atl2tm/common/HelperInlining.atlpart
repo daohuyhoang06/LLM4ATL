@@ -128,7 +128,8 @@ helper def : helperCallCandidates(
         thisModule.isModuleReceiver(e.source)
     in
 
-    ATL!Helper.allInstancesFrom('IN')
+    let applicable : Sequence(ATL!Helper) =
+        ATL!Helper.allInstancesFrom('IN')
         ->select(h |
             h.definition.feature.name = e.operationName
             and thisModule.helperArity(h) = e.arguments->size()
@@ -155,7 +156,23 @@ helper def : helperCallCandidates(
                 endif
             )
         )
-        ->asSequence();
+        ->asSequence()
+    in
+    applicable->select(h |
+        h.definition.context_.oclIsUndefined()
+        or not applicable->exists(other |
+            other <> h
+            and not other.definition.context_.oclIsUndefined()
+            and thisModule.sourceTypeConformsTo(
+                thisModule.helperContextTypeName(other),
+                thisModule.helperContextTypeName(h)
+            )
+            and not thisModule.sourceTypeConformsTo(
+                thisModule.helperContextTypeName(h),
+                thisModule.helperContextTypeName(other)
+            )
+        )
+    )->asSequence();
 
 -- Resolve a module-level helper attribute such as thisModule.authorSet.
 -- @hot-atl2tm-part 0026

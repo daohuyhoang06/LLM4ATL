@@ -432,7 +432,8 @@ helper def : helperCallCandidates(
         thisModule.isModuleReceiver(e.source)
     in
 
-    ATL!Helper.allInstancesFrom('IN')
+    let applicable : Sequence(ATL!Helper) =
+        ATL!Helper.allInstancesFrom('IN')
         ->select(h |
             h.definition.feature.name = e.operationName
             and thisModule.helperArity(h) = e.arguments->size()
@@ -459,7 +460,23 @@ helper def : helperCallCandidates(
                 endif
             )
         )
-        ->asSequence();
+        ->asSequence()
+    in
+    applicable->select(h |
+        h.definition.context_.oclIsUndefined()
+        or not applicable->exists(other |
+            other <> h
+            and not other.definition.context_.oclIsUndefined()
+            and thisModule.sourceTypeConformsTo(
+                thisModule.helperContextTypeName(other),
+                thisModule.helperContextTypeName(h)
+            )
+            and not thisModule.sourceTypeConformsTo(
+                thisModule.helperContextTypeName(h),
+                thisModule.helperContextTypeName(other)
+            )
+        )
+    )->asSequence();
 
 -- Resolve a module-level helper attribute such as thisModule.authorSet.
 helper def : helperAttributeCandidates(
@@ -2104,6 +2121,11 @@ helper def : bindingResolvedExpr(
         thisModule.directResolveTempExpr(r, b)
 
     else
+    if thisModule.isCollectResolveTempBinding(b) then
+
+        thisModule.collectResolveTempExpr(r, b)
+
+    else
     if thisModule.isDirectLazyBinding(b) then
 
         'self.'
@@ -2149,6 +2171,7 @@ helper def : bindingResolvedExpr(
             )
 
         endif
+    endif
     endif
     endif
     endif
@@ -5432,3 +5455,138 @@ lazy rule MutexConstraintDetail {
                 )
         )
 }
+-- The supported collection is either Source!Type.allInstances() or a
+-- module attribute whose declared type is Set(Source!Type).
+helper def : collectResolveSourceTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+    if e.oclIsTypeOf(ATL!OperationCallExp) then
+        if e.operationName = 'allInstances'
+           and e.arguments->isEmpty()
+           and e.source.oclIsTypeOf(ATL!OclModelElement) then
+            e.source.name
+        else
+            thisModule.sourceCollectionElementTypeName(e, r)
+        endif
+    else
+        if e.oclIsTypeOf(ATL!NavigationOrAttributeCallExp)
+           and thisModule.isModuleReceiver(e.source) then
+            let helpers : Sequence(ATL!Helper) =
+                thisModule.helperAttributeCandidates(e.name)
+            in
+            if helpers->size() = 1
+               and thisModule.helperAttributeIsCollection(helpers->first()) then
+                thisModule.helperAttributeElementTypeName(helpers->first())
+            else
+                thisModule.sourceCollectionElementTypeName(e, r)
+            endif
+        else
+            thisModule.sourceCollectionElementTypeName(e, r)
+        endif
+    endif;
+
+helper def : isCollectResolveTempBinding(b : ATL!Binding) : Boolean =
+    if b.outPatternElement.outPattern.rule.oclIsTypeOf(ATL!MatchedRule)
+       and b.value.oclIsTypeOf(ATL!IteratorExp) then
+        let iterator : ATL!IteratorExp = b.value
+        in
+        if iterator.name = 'collect'
+           and iterator.iterators->size() = 1
+           and iterator.body.oclIsTypeOf(ATL!OperationCallExp) then
+            let call : ATL!OperationCallExp = iterator.body
+            in
+            call.operationName = 'resolveTemp'
+            and thisModule.isModuleReceiver(call.source)
+            and call.arguments->size() = 2
+            and call.arguments->first().oclIsTypeOf(ATL!VariableExp)
+            and call.arguments->first().referredVariable
+                = iterator.iterators->first()
+            and call.arguments->last().oclIsTypeOf(ATL!StringExp)
+        else
+            false
+        endif
+    else
+        false
+    endif;
+
+-- Read existing matched-rule traces. A filtered rule contributes only if
+-- its trace exists; no filter is re-evaluated while resolving the output.
+helper def : collectResolveTraceTargets(
+    collectionExpr : String,
+    resolver : ATL!MatchedRule,
+    outputName : String
+) : String =
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+    in
+    resolver.name + '.allInstances()->select(z : '
+    + resolver.name + ' | (' + collectionExpr + ')->includes(z.'
+    + thisModule.matchInputVarName(input) + '))'
+    + '->collect(z | z.' + outputName + ')';
+
+helper def : collectResolveTempExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+    let iterator : ATL!IteratorExp = b.value
+    in
+    let call : ATL!OperationCallExp = iterator.body
+    in
+    let outputName : String = call.arguments->last().stringSymbol
+    in
+    let sourceTypeName : String =
+        thisModule.collectResolveSourceTypeName(iterator.source, r)
+    in
+    let features : Sequence(ECORE!EStructuralFeature) =
+        thisModule.targetEClassOf(b.outPatternElement)
+            .eAllStructuralFeatures
+            ->select(f | f.name = b.propertyName)->asSequence()
+    in
+    if sourceTypeName = '' or features->size() <> 1 then
+        '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+    else
+        let feature : ECORE!EStructuralFeature = features->first()
+        in
+        if not feature.oclIsKindOf(ECORE!EReference)
+           or feature.upperBound = 1 then
+            '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+        else
+            let resolvers : Sequence(ATL!MatchedRule) =
+                ATL!MatchedRule.allInstancesFrom('IN')
+                    ->select(candidate |
+                        candidate.oclIsTypeOf(ATL!MatchedRule)
+                        and candidate.inPattern.elements->size() = 1
+                        and thisModule.sourceTypesCompatible(
+                            sourceTypeName,
+                            candidate.inPattern.elements->first().type.name
+                        )
+                        and candidate.outPattern.elements
+                            ->exists(o |
+                                o.oclIsTypeOf(ATL!SimpleOutPatternElement)
+                                and o.varName = outputName
+                                and o.type.name = feature.eType.name
+                            )
+                    )->asSequence()
+            in
+            if resolvers->isEmpty() then
+                '__ATL2TM_UNSUPPORTED_FEATURE__RESOLVE_TEMP__'
+            else
+                let collectionExpr : String =
+                    thisModule.ruleExpr(r, iterator.source)
+                in
+                '(' + resolvers->iterate(
+                    resolver;
+                    acc : String = '' |
+                    let part : String =
+                        thisModule.collectResolveTraceTargets(
+                            collectionExpr, resolver, outputName
+                        )
+                    in
+                    if acc = '' then part
+                    else acc + '->union(' + part + ')'
+                    endif
+                ) + ')->asSet()'
+            endif
+        endif
+    endif;
