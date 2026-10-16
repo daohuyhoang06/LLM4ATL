@@ -1,0 +1,11 @@
+Each DocumentModel is transformed into a ReportModel.
+
+The documents of the DocumentModel are copied to the reports of the ReportModel.
+
+Each Document is transformed into a Report.
+
+The title of the Document is copied to the title of the Report.
+
+The author of the Document is copied to the author of the Report.
+
+The sections of the Document are copied to the sections of the Report.

@@ -1,0 +1,11 @@
+Each GraphModel is transformed into a Diagram.
+
+The nodes of the GraphModel are copied to the vertices of the Diagram.
+
+Each Node is transformed into a Node.
+
+The name of the Node is copied to the label of the Node.
+
+The kind of the Node is copied to the category of the Node.
+
+The children of the Node are copied to the outgoing of the Node.

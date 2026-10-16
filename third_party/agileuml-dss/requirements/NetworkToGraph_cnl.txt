@@ -1,0 +1,7 @@
+Each Component is transformed into an Entity.
+
+The name of the Component is copied to the name of the Entity.
+
+Each System is transformed into a Root.
+
+The components of the System are copied to the entities of the Root.

@@ -1,0 +1,19 @@
+Each ItemModel is transformed into a ProductModel.
+
+The items of the ItemModel are copied to the products of the ProductModel.
+
+Each Item is transformed into a Product.
+
+The name of the Item is copied to the name of the Product.
+
+The price of the Item is copied to the price of the Product.
+
+The description of the Item is copied to the description of the Product.
+
+The inStock value of the Product is true if the quantity of the Item is greater than zero.
+
+The category of the Product is Tech if the type of the Item is Electronics.
+
+The category of the Product is Apparel if the type of the Item is Clothing.
+
+The category of the Product is General otherwise.

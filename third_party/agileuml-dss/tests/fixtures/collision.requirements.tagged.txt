@@ -1,0 +1,1 @@
+Each_DT Link_NN is_VBZ transformed_VBN into_IN a_DT Link_NN ._.

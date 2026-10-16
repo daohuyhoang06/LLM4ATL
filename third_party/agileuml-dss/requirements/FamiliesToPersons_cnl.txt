@@ -1,0 +1,11 @@
+Each FamilyRegister is transformed into a PersonRegister.
+
+Each Member is transformed into a Male if the Member is male.
+
+Each Member is transformed into a Female if the Member is female.
+
+The id of the FamilyRegister is copied to the id of the PersonRegister.
+
+The fullName of the Male is formed by concatenating the Member's firstName, a space, and the result of the familyLastName() operation.
+
+The fullName of the Female is formed by concatenating the Member's firstName, a space, and the result of the familyLastName() operation.

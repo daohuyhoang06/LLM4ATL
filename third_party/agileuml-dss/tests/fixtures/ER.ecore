@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="ER" nsURI="http://example.org/ER" nsPrefix="ER">
+  <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+    <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+  </eAnnotations>
+  <eClassifiers xsi:type="ecore:EClass" name="ERSchema">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="ER_EN"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="ER_EN" value="self.entities->union(self.relships)->forAll(e1,e2 | e1.name=e2.name implies e1=e2)"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entities" lowerBound="1" upperBound="-1"
+        eType="//Entity" containment="true" eOpposite="//Entity/schema"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relships" lowerBound="1" upperBound="-1"
+        eType="//Relship" containment="true" eOpposite="//Relship/schema"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SchemaElement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="//SchemaElement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="ER_EAN ER_EK"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="ER_EAN" value="self.attrs->forAll(a1,a2 | a1.name=a2.name implies a1=a2)"/>
+      <details key="ER_EK" value="self.attrs->exists(a | a.isKey)"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attrs" upperBound="-1"
+        eType="//ERAttribute" containment="true" eOpposite="//ERAttribute/entity"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relshipEnds" upperBound="-1"
+        eType="//RelshipEnd" eOpposite="//RelshipEnd/entity"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="schema" lowerBound="1"
+        eType="//ERSchema" eOpposite="//ERSchema/entities"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Relship" eSuperTypes="//SchemaElement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="ER_RAN ER_RK"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="ER_RAN" value="self.attrs->forAll(a1,a2 | a1.name=a2.name implies a1=a2)"/>
+      <details key="ER_RK" value="not self.attrs->exists(a | a.isKey)"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attrs" upperBound="-1"
+        eType="//ERAttribute" containment="true" eOpposite="//ERAttribute/relship"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ends" lowerBound="2" upperBound="-1"
+        eType="//RelshipEnd" containment="true" eOpposite="//RelshipEnd/relship"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="schema" lowerBound="1"
+        eType="//ERSchema" eOpposite="//ERSchema/relships"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ERAttribute">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="ER_attrOwnerXor"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="ER_attrOwnerXor" value="self.entity.oclIsUndefined() &lt;&gt; self.relship.oclIsUndefined()"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isKey" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="//Entity" eOpposite="//Entity/attrs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relship" eType="//Relship" eOpposite="//Relship/attrs"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RelshipEnd">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1">
+      <eType xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entity" lowerBound="1"
+        eType="//Entity" eOpposite="//Entity/relshipEnds"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="relship" lowerBound="1"
+        eType="//Relship" eOpposite="//Relship/ends"/>
+  </eClassifiers>
+</ecore:EPackage>

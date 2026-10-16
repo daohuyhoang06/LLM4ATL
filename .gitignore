@@ -33,6 +33,7 @@ ENV/
 /LLM4ATL_neuro_symbolic/efinder_validator/runner/src/org/llm4atl/efinder/runner/EFinderCli.java
 /third_party/efinder/mvnw.cmd
 /tmp/
+/Third_Party/agileuml-dss/build/
 
 # Local secrets
 .env

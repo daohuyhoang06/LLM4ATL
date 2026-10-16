@@ -1,0 +1,33 @@
+Each Grafcet is transformed into a PetriNet.
+
+The location of the Grafcet is copied to the location of the PetriNet.
+
+The name of the Grafcet is copied to the name of the PetriNet.
+
+The elements of the Grafcet are copied to the elements of the PetriNet.
+
+The connections of the Grafcet are copied to the arcs of the PetriNet.
+
+Each Step is transformed into a Place.
+
+The location of the Step is copied to the location of the Place.
+
+The name of the Step is copied to the name of the Place.
+
+The grafcet of the Step is copied to the net of the Place.
+
+The incomingConnections of the Step are copied to the incomingArc of the Place.
+
+The outgoingConnections of the Step are copied to the outgoingArc of the Place.
+
+Each StepToTransition is transformed into a PlaceToTransition.
+
+The from reference of the StepToTransition is copied to the from reference of the PlaceToTransition.
+
+The to reference of the StepToTransition is copied to the to reference of the PlaceToTransition.
+
+Each TransitionToStep is transformed into a TransitionToPlace.
+
+The from reference of the TransitionToStep is copied to the from reference of the TransitionToPlace.
+
+The to reference of the TransitionToStep is copied to the to reference of the TransitionToPlace.

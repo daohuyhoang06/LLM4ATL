@@ -1,0 +1,5 @@
+Each Company is transformed into a Catalogue.
+
+Each Employee is transformed into an Entry.
+
+The name of the Employee is copied to the label of the Entry.

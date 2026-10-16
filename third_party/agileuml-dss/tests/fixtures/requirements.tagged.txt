@@ -1,0 +1,15 @@
+Each_DT ERSchema_NN is_VBZ transformed_VBN into_IN a_DT RELSchema_NN ._.
+
+Each_DT Entity_NNP is_VBZ transformed_VBN into_IN a_DT Relation_NN ._.
+
+Each_DT Relship_NN is_VBZ transformed_VBN into_IN a_DT Relation_NN ._.
+
+Each_DT ERAttribute_NN is_VBZ transformed_VBN into_IN a_DT RELAttribute_NN ._.
+
+The_DT name_NN of_IN the_DT Entity_NNP is_VBZ copied_VBN to_IN the_DT name_NN of_IN the_DT Relation_NN ._.
+
+The_DT name_NN of_IN the_DT Relship_NNP is_VBZ copied_VBN to_IN the_DT name_NN of_IN the_DT Relation_NN ._.
+
+The_DT name_NN of_IN the_DT ERAttribute_NN is_VBZ copied_VBN to_IN the_DT name_NN of_IN the_DT RELAttribute_NN ._.
+
+The_DT isKey_NN of_IN the_DT ERAttribute_NN is_VBZ copied_VBN to_IN the_DT isKey_NN of_IN the_DT RELAttribute_NN ._.

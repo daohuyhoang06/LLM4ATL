@@ -1,0 +1,13 @@
+Each UserModel is transformed into an AccountModel.
+
+The users of the UserModel are copied to the accounts of the AccountModel.
+
+Each User is transformed into an Account.
+
+The username of the User is copied to the username of the Account.
+
+The email of the User is copied to the email of the Account.
+
+The registrationDate of the User is copied to the createdDate of the Account.
+
+The active value of the Account is true if the status of the User is Active or Enabled.

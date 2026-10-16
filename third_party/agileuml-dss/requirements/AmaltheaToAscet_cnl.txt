@@ -1,0 +1,7 @@
+Each ComponentContainer is transformed into an AscetModule.
+
+The tasks of the ComponentContainer are copied to the tasks of the AscetModule.
+
+Each Task is transformed into a SoftwareTask.
+
+The name of the Task is copied to the name of the SoftwareTask.

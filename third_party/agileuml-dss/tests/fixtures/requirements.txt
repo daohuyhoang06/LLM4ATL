@@ -1,0 +1,15 @@
+Each ERSchema is transformed into a RELSchema.
+
+Each Entity is transformed into a Relation.
+
+Each Relship is transformed into a Relation.
+
+Each ERAttribute is transformed into a RELAttribute.
+
+The name of the Entity is copied to the name of the Relation.
+
+The name of the Relship is copied to the name of the Relation.
+
+The name of the ERAttribute is copied to the name of the RELAttribute.
+
+The isKey of the ERAttribute is copied to the isKey of the RELAttribute.

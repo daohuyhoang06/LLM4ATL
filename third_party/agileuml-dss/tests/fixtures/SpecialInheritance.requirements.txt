@@ -1,0 +1,11 @@
+Each WorkItem is transformed into an Artifact.
+
+Each Task is transformed into a Job.
+
+Each Bug is transformed into a Defect.
+
+The title of the WorkItem is copied to the label of the Artifact.
+
+The estimate of the Task is copied to the effort of the Job.
+
+The severity of the Bug is copied to the severity of the Defect.

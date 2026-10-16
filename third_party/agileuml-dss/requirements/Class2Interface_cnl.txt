@@ -1,0 +1,9 @@
+Each ClassModel is transformed into an InterfaceModel.
+
+The classes of the ClassModel are copied to the interfaces of the InterfaceModel.
+
+Each Class is transformed into an Interface.
+
+The name of the Class is copied to the name of the Interface.
+
+The methods of the Class are copied to the methods of the Interface.
