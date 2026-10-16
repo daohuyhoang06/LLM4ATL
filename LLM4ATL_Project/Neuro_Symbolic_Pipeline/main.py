@@ -389,7 +389,7 @@ def main():
         
     print(f"Found {len(prompt_files)} prompt file(s). Starting batch processing...")
     selected_cases = [
-        "FamiliesToPersons_All"
+        "BibTeX2DocBook_All"
     ]
 
     prompt_by_case = {

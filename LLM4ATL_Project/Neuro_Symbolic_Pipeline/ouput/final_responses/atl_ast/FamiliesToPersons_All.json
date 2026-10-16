@@ -35,7 +35,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familyFather"
             },
@@ -50,7 +50,7 @@
             "source": {
               "type": "Variable",
               "name": "self",
-              "declared_type": "families!Member"
+              "declared_type": null
             },
             "property_name": "familyFather"
           },
@@ -68,7 +68,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": "families!Member"
+                  "declared_type": null
                 },
                 "property_name": "familyMother"
               },
@@ -83,7 +83,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familyMother"
             },
@@ -101,7 +101,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "self",
-                    "declared_type": "families!Member"
+                    "declared_type": null
                   },
                   "property_name": "familySon"
                 },
@@ -116,7 +116,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": "families!Member"
+                  "declared_type": null
                 },
                 "property_name": "familySon"
               },
@@ -129,7 +129,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": "families!Member"
+                  "declared_type": null
                 },
                 "property_name": "familyDaughter"
               },
@@ -159,7 +159,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familyMother"
             },
@@ -177,7 +177,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familyDaughter"
             },
@@ -207,7 +207,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familyFather"
             },
@@ -225,7 +225,7 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": "families!Member"
+                "declared_type": null
               },
               "property_name": "familySon"
             },
@@ -264,7 +264,7 @@
                       "source": {
                         "type": "Variable",
                         "name": "s",
-                        "declared_type": "families!Member"
+                        "declared_type": null
                       },
                       "property_name": "firstName"
                     },
@@ -279,7 +279,7 @@
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": "families!Member"
+                      "declared_type": null
                     },
                     "operation_name": "familyLastName",
                     "arguments": []
@@ -288,7 +288,7 @@
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
       },
@@ -303,7 +303,7 @@
               "name": "s",
               "declared_type": "families!Member"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": {
@@ -311,7 +311,7 @@
           "source": {
             "type": "Variable",
             "name": "s",
-            "declared_type": "families!Member"
+            "declared_type": null
           },
           "operation_name": "isMale",
           "arguments": []
@@ -351,7 +351,7 @@
                       "source": {
                         "type": "Variable",
                         "name": "s",
-                        "declared_type": "families!Member"
+                        "declared_type": null
                       },
                       "property_name": "firstName"
                     },
@@ -366,7 +366,7 @@
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": "families!Member"
+                      "declared_type": null
                     },
                     "operation_name": "familyLastName",
                     "arguments": []
@@ -375,7 +375,7 @@
               }
             ],
             "maps_to": null,
-            "model": "OUT"
+            "model": null
           }
         ]
       },
@@ -390,7 +390,7 @@
               "name": "s",
               "declared_type": "families!Member"
             },
-            "model": "IN"
+            "model": null
           }
         ],
         "filter": {
@@ -398,7 +398,7 @@
           "source": {
             "type": "Variable",
             "name": "s",
-            "declared_type": "families!Member"
+            "declared_type": null
           },
           "operation_name": "isFemale",
           "arguments": []

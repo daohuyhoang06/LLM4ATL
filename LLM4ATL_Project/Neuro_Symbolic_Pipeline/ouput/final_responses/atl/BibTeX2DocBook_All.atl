@@ -2,28 +2,58 @@ module BibTeX2DocBook;
 create OUT : DocBook from IN : BibTeX;
 
 helper def: authorSet : Set(BibTeX!Author) =
-    BibTeX!Author.allInstances()->asSet();
+    BibTeX!Author.allInstances()->select(e | BibTeX!Author.allInstances()->select(i | (i.author = e.author))->forAll(i | BibTeX!AuthoredEntry.allInstances()->select(entry | entry.authors->includes(e))->forAll(ee | BibTeX!AuthoredEntry.allInstances()->select(entry | entry.authors->includes(i))->forAll(ie | (ee.id <= ie.id)))))->sortedBy(e | e.author);
 
 helper def: titledEntrySet : Set(BibTeX!TitledEntry) =
-    BibTeX!TitledEntry.allInstances()->asSet();
+    BibTeX!TitledEntry.allInstances()->select(e | BibTeX!TitledEntry.allInstances()->select(i | (i.title = e.title))->forAll(i | (e.id <= i.id)))->sortedBy(e | e.title);
 
 helper def: articleSet : Set(BibTeX!Article) =
-    BibTeX!Article.allInstances()->asSet();
+    BibTeX!Article.allInstances()->select(e | BibTeX!Article.allInstances()->select(i | (i.journal = e.journal))->forAll(i | (e.id <= i.id)))->sortedBy(e | e.journal);
 
 helper context BibTeX!BibTeXEntry def: buildEntryPara() : String =
-    self.id;
-
-helper context BibTeX!TitledEntry def: buildEntryPara() : String =
-    (self.id + (' ' + self.title));
-
-helper context BibTeX!Article def: buildEntryPara() : String =
-    (self.id + (self.title + (' ' + self.journal)));
+    ((((((((((self.id + ' ') + self.oclType().name) + if BibTeX!TitledEntry.allInstances()->includes(self) then
+        (' ' + self.title)
+    else
+        ''
+    endif) + if BibTeX!AuthoredEntry.allInstances()->includes(self) then
+        (' ' + self.authors->any(a | true).author)
+    else
+        ''
+    endif) + if BibTeX!DatedEntry.allInstances()->includes(self) then
+        (' ' + self.year)
+    else
+        ''
+    endif) + if BibTeX!BookTitledEntry.allInstances()->includes(self) then
+        (' ' + self.booktitle)
+    else
+        ''
+    endif) + if BibTeX!ThesisEntry.allInstances()->includes(self) then
+        (' ' + self.school)
+    else
+        ''
+    endif) + if BibTeX!Article.allInstances()->includes(self) then
+        (' ' + self.journal)
+    else
+        ''
+    endif) + if BibTeX!Unpublished.allInstances()->includes(self) then
+        (' ' + self.note)
+    else
+        ''
+    endif) + (if BibTeX!Book.allInstances()->includes(self) then
+        (' ' + self.publisher)
+    else
+        ''
+    endif + if BibTeX!InBook.allInstances()->includes(self) then
+        (' ' + self.chapter.toString())
+    else
+        ''
+    endif));
 
 rule Main {
     from
         bib : BibTeX!BibTeXFile
     to
-        d : DocBook!DocBook (
+        docbook : DocBook!DocBook (
             books <- Set{book}
         ),
         book : DocBook!Book (
@@ -31,33 +61,42 @@ rule Main {
         ),
         art : DocBook!Article (
             title <- 'BibTeXML to DocBook',
-            sections_1 <- Set{s1, s2, s3, s4}
+            sections_1 <- Set{se_ref, se_auth, se_tit, se_jour}
         ),
-        s1 : DocBook!Sect1 (
+        se_ref : DocBook!Sect1 (
             title <- 'References List',
-            paras <- BibTeX!BibTeXEntry.allInstances()->collect(e | thisModule.resolveTemp(e, 'p'))
+            paras <- BibTeX!BibTeXEntry.allInstances()->sortedBy(e | e.id)
         ),
-        s2 : DocBook!Sect1 (
+        se_auth : DocBook!Sect1 (
             title <- 'Authors list',
-            paras <- thisModule.authorSet->collect(a | thisModule.resolveTemp(a, 'p'))
+            paras <- thisModule.authorSet
         ),
-        s3 : DocBook!Sect1 (
+        se_tit : DocBook!Sect1 (
             title <- 'Titles List',
             paras <- thisModule.titledEntrySet->collect(e | thisModule.resolveTemp(e, 'p_title'))
         ),
-        s4 : DocBook!Sect1 (
+        se_jour : DocBook!Sect1 (
             title <- 'Journals List',
             paras <- thisModule.articleSet->collect(e | thisModule.resolveTemp(e, 'p_journal'))
         )
 }
-
-rule UntitledEntry {
+rule Author {
     from
-        e : BibTeX!BibTeXEntry (
-            not e.oclIsKindOf(BibTeX!TitledEntry)
+        a : BibTeX!Author (
+            thisModule.authorSet->includes(a)
         )
     to
         p : DocBook!Para (
+            content <- a.author
+        )
+}
+rule UntitledEntry {
+    from
+        e : BibTeX!BibTeXEntry (
+            not BibTeX!TitledEntry.allInstances()->includes(e)
+        )
+    to
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         )
 }
@@ -65,10 +104,10 @@ rule UntitledEntry {
 rule TitledEntry_Title_NoArticle {
     from
         e : BibTeX!TitledEntry (
-            (not e.oclIsKindOf(BibTeX!Article) and thisModule.titledEntrySet->includes(e))
+            (not BibTeX!Article.allInstances()->includes(e) and thisModule.titledEntrySet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         ),
         p_title : DocBook!Para (
@@ -79,10 +118,10 @@ rule TitledEntry_Title_NoArticle {
 rule TitledEntry_NoTitle_NoArticle {
     from
         e : BibTeX!TitledEntry (
-            (not e.oclIsKindOf(BibTeX!Article) and not thisModule.titledEntrySet->includes(e))
+            (not BibTeX!Article.allInstances()->includes(e) and not thisModule.titledEntrySet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         )
 }
@@ -93,7 +132,7 @@ rule Article_Title_Journal {
             (thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         ),
         p_title : DocBook!Para (
@@ -110,7 +149,7 @@ rule Article_NoTitle_Journal {
             (not thisModule.titledEntrySet->includes(e) and thisModule.articleSet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         ),
         p_journal : DocBook!Para (
@@ -124,7 +163,7 @@ rule Article_Title_NoJournal {
             (thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         ),
         p_title : DocBook!Para (
@@ -138,18 +177,8 @@ rule Article_NoTitle_NoJournal {
             (not thisModule.titledEntrySet->includes(e) and not thisModule.articleSet->includes(e))
         )
     to
-        p : DocBook!Para (
+        p_entry : DocBook!Para (
             content <- e.buildEntryPara()
         )
 }
 
-rule Author {
-    from
-        a : BibTeX!Author (
-            thisModule.authorSet->includes(a)
-        )
-    to
-        p : DocBook!Para (
-            content <- a.author
-        )
-}
