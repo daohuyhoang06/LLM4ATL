@@ -1,24 +1,21 @@
-Create an ATL transformation that converts an Entity-Relationship (ER) model into a Relational database
-model based on the following requirements:
+Transform a model conforming to the ER metamodel into a relational database model conforming to the REL metamodel. Use only ATL matched rules; do not use lazy rules or called rules.
 
-Use only ATL matched rules to implement the transformation. Do not use lazy rules or called rules.
+Each ERSchema is transformed into a RELSchema.
 
-1. Schema Mapping:
-Transform the overall ER diagram into a relational schema.
-This schema must act as the container for all generated
-tables.
+Each Entity is transformed into a Relation.
 
-2. Table Generation:
-Both entities and relationships in the ER model should be
-converted into their own relational tables.
+Each Relship is transformed into a Relation.
 
-3. Attribute Mapping:
-Simple attributes belonging to entities and relationships
-should translate directly into columns within their
-respective tables.
+Each ERAttribute is transformed into a RELAttribute.
 
-4. Foreign Key Resolution:
-For each relationship, identify every participating entity and copy each of
-its primary-key attributes into the relational table generated for that
-relationship. The copied attributes represent foreign keys and preserve
-their names and key information.
+The name of the Entity is copied to the name of the Relation.
+
+The name of the Relship is copied to the name of the Relation.
+
+The name of the ERAttribute is copied to the name of the RELAttribute.
+
+The isKey of the ERAttribute is copied to the isKey of the RELAttribute.
+
+The RELSchema must contain the Relation produced from every Entity and every Relship in its source ERSchema. A RELAttribute produced from an ERAttribute must belong to the Relation produced from the attribute's owning Entity or Relship.
+
+For every RelshipEnd of a Relship, identify the participating Entity and copy each of that Entity's primary-key ERAttribute objects into the Relation produced from the Relship. These additional RELAttribute objects represent foreign keys and preserve the source attribute names and key information.

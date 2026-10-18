@@ -1,11 +1,27 @@
-Create an ATL transformation module named `IEEE1471_2_MoDAF` that transforms an IEEE1471 architectural description into a MoDAF architecture view.
+Transform an IEEE 1471 architectural description into a MoDAF architecture view. Preserve the architectural organization and traceable relationships between systems, environments, missions, architectures, descriptions, stakeholders, viewpoints, views, models, and concerns.
 
-Use `create OUT : MoDAF from IN : IEEE1471`.
+Each IEEE1471Model is transformed into a MoDAFModel.
 
-Add a helper attribute `rationale` that concatenates the name and content of the first `Rationale`.
+Each System is transformed into an Enterprise.
 
-Define rules:
-- `IEEE1471Model2MoDAFModel` mapping IEEE1471Model to MoDAFModel, plus a default `ArchitecturalFramework` containing all Viewpoints without a source.
-- `System2Enterprise`, `Environment2Environment`, `Mission2OperationalMission`, `Architecture2Architecture`, `AD2AD`, `Stakeholder2Stakeholder`, `Viewpoint2View`, `View2ArchitecturalProduct`, `Model2Element`, `Concern2Concern`, `LibraryViewpoint2ArchitecturalFramework`.
+Each Environment is transformed into an Environment.
 
-Also add a `StakeholderHasConcern` rule that creates a MoDAF `StakeholderHasConcern` link for each consistent Stakeholder–Concern pair, referencing the single target MoDAFModel as owner.
+Each Mission is transformed into an OperationalMission.
+
+Each Architecture is transformed into an Architecture.
+
+Each ArchitecturalDescription is transformed into an ArchitecturalDescription.
+
+Each Stakeholder is transformed into a Stakeholder.
+
+Each Viewpoint is transformed into a View.
+
+Each View is transformed into an ArchitecturalProduct.
+
+Each Model is transformed into an Element.
+
+Each Concern is transformed into a Concern.
+
+Each LibraryViewpoint is transformed into an ArchitecturalFramework.
+
+Build a rationale value by combining the name and content of the first available Rationale. The target model must also contain a default ArchitecturalFramework that owns every Viewpoint that has no source framework. For every consistent Stakeholder and Concern pair in the source, create a StakeholderHasConcern relationship owned by the generated MoDAFModel and connect it to their generated target elements.

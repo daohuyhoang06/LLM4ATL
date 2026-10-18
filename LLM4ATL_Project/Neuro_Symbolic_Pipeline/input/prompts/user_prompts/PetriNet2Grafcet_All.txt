@@ -1,11 +1,17 @@
-Create an ATL transformation module named `PetriNet2Grafcet` that transforms a PetriNet model into a Grafcet model (`create OUT : Grafcet from IN : PetriNet`).
+Transform a Petri net into an equivalent Grafcet while preserving its names, locations, containment, and connectivity.
 
-Define a rule `Grafcet` that maps a PetriNet to a Grafcet, copying `location` and `name`, and wiring `elements` to the PetriNet `elements` and `connections` to the PetriNet `arcs`.
+Each PetriNet is transformed into a Grafcet.
 
-Define rule `Step` mapping `Place` to `Step`, copying `location`, `name`, `grafcet`, and incoming/outgoing arcs to the corresponding Grafcet connection references, setting `isInitial` and `isActive` to false.
+Each Place is transformed into a Step.
 
-Define rule `Transition` mapping `Transition` similarly.
+Each Transition is transformed into a Transition.
 
-Define rule `StepToTransition` mapping `PlaceToTransition` to `StepToTransition`, copying `location`, `name`, `grafcet`, and `from`/`to`.
+Each PlaceToTransition is transformed into a StepToTransition.
 
-Define rule `TransitionToStep` mapping `TransitionToPlace` to `TransitionToStep`, also copying `location`, `name`, `grafcet`, and `from`/`to`.
+Each TransitionToPlace is transformed into a TransitionToStep.
+
+The location of the PetriNet is copied to the location of the Grafcet.
+
+The name of the PetriNet is copied to the name of the Grafcet.
+
+The location and name of every Place, Transition, and arc must be preserved in its corresponding target element. All generated steps, transitions, and connections must belong to the generated Grafcet. Preserve the source and target ends of every arc, and rebuild the incoming and outgoing connection references so that the target Grafcet has the same topology as the source Petri net. Initialize isInitial and isActive to false for every generated Step.

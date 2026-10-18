@@ -34,6 +34,8 @@ ENV/
 /third_party/efinder/mvnw.cmd
 /tmp/
 /Third_Party/agileuml-dss/build/
+/LLM4ATL_Project/Neuro_Symbolic_Pipeline/output/dss/
+/LLM4ATL_Project/Neuro_Symbolic_Pipeline/ouput/dss/
 
 # Local secrets
 .env

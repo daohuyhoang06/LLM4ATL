@@ -14,9 +14,11 @@ one mechanical change: calls to `JOptionPane.showInputDialog` are routed to a
 deterministic review policy. The DSS candidate enumeration, similarity scoring,
 requirements-derived assumed mappings, and optional review passes are retained.
 
-This component is currently standalone. It is **not imported or invoked by the
-LLM4ATL pipeline**; integration should happen only after its mappings have been
-evaluated on the desired cases.
+The LLM4ATL pipeline invokes this component before generation. For each case it
+stores `requirements.tagged.txt`, `req.tl`, and `forward.tl` under
+`output/dss/<case>/` (or the repository's legacy `ouput/` directory). Only
+`forward.tl` is included in the LLM prompt, explicitly as non-authoritative
+structural guidance.
 
 ## Upstream
 

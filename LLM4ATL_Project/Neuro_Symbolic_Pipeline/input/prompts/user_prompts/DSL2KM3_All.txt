@@ -1,14 +1,21 @@
-Create an ATL transformation module named `DSL2KM3` that transforms a `DomainModel` in the DSL metamodel into a KM3 `Metamodel`.
+Transform a DSL DomainModel into a KM3 metamodel. Create the KM3 metamodel root with a package for the domain concepts and a PrimitiveTypes package for the primitive datatypes.
 
-Define helpers:
-- `needTurnOnClass()` on `Relationship` deciding when a relationship must be represented as a KM3 `Class` (incoming roles, super/sub types, properties).
-- `getRoles(c : Class)` returning roles whose relationship does not become a class.
-- `isEmbedding()` on `Role` to infer containment.
+Each DomainModel is transformed into a Metamodel.
 
-Then create rules:
-- `Metamodel` building the root KM3 `Metamodel` and two `Package`s (main + `PrimitiveTypes`).
-- `Class` mapping DSL `Class`.
-- `Relation2Class` mapping qualifying `Relationship` to KM3 `Class`.
-- `SimpleReference` and `ComplexReference` mapping `Role`s to KM3 `Reference`s (including opposites, multiplicities, containment).
-- `Attribute` mapping `ValueProperty` to KM3 `Attribute`.
-- `Enumeration`, `EnumLiteral`, `DataType` mapping corresponding DSL types to KM3.
+Each Class is transformed into a Class.
+
+Each Relationship is transformed into a Class.
+
+Each Role is transformed into a Reference.
+
+Each ValueProperty is transformed into an Attribute.
+
+Each Enumeration is transformed into an Enumeration.
+
+Each EnumerationLiteral is transformed into an EnumLiteral.
+
+Each SimpleType is transformed into a DataType.
+
+A Relationship must be represented as a KM3 Class when it has incoming roles, super-types, sub-types, or properties. Otherwise, its roles must be represented as references owned by the corresponding classes. Infer whether each reference is a containment reference from the source role and relationship structure.
+
+Preserve names, inheritance, types, multiplicities, ownership, opposite references, and containment. Put domain classifiers in the main package and primitive datatypes in PrimitiveTypes. References created from the two ends of a relationship must remain mutually consistent.

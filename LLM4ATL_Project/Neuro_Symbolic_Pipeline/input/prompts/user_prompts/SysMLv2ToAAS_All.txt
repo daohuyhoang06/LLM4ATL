@@ -1,5 +1,37 @@
-Create one ATL transformation module named `SysMLv2ToAAS_All` for all supplied SysML v2 input models. Use the header `create OUT : AAS from IN : sysml;`, where sysml is the exact EPackage name declared by the supplied SysMLv2.ecore and AAS is the supplied AAS.ecore. Do not specialize it to an individual example.
+Transform every supplied SysML v2 model into an AAS model without specializing the transformation to an individual example. For each SysML Package, create an AasModelRoot containing an AssetAdministrationShell whose idShort is derived from the Package's declaredName and a Submodel named "Hierarchical Structures".
 
-For each SysML Package, create an AAS AasModelRoot containing an AssetAdministrationShell with idShort derived from the package's declaredName and a Submodel named Hierarchical Structures. Traverse the source metamodel's real containment path, especially Element.ownedRelationship and Relationship.ownedRelatedElement; many convenience references such as ownedMember, ownedFeature and name are derived/transient, not serialized input. Use declaredName for names. Map PartDefinition, PartUsage, PortDefinition, PortUsage, InterfaceDefinition, InterfaceUsage, OccurrenceDefinition, OccurrenceUsage, EventOccurrenceUsage, FlowConnectionUsage, SuccessionAsUsage, ItemDefinition and ItemUsage to nested AAS Entity elements with corresponding Qualifier.type. Map AttributeDefinition and AttributeUsage to AAS Property with corresponding qualifier. Preserve the hierarchy and names. Where the AAS metamodel permits, represent typed usages and connections as relationships. Guard optional names and references.
+Each Package is transformed into an AasModelRoot.
 
-The ten textual `.sysml` sources are retained for provenance. Evaluation uses their separately prepared `.xmi` model fixtures and `.aas` oracle outputs. They are test data, not reference ATL; do not hard-code their names or expected structures.
+Each PartDefinition is transformed into an Entity.
+
+Each PartUsage is transformed into an Entity.
+
+Each PortDefinition is transformed into an Entity.
+
+Each PortUsage is transformed into an Entity.
+
+Each InterfaceDefinition is transformed into an Entity.
+
+Each InterfaceUsage is transformed into an Entity.
+
+Each OccurrenceDefinition is transformed into an Entity.
+
+Each OccurrenceUsage is transformed into an Entity.
+
+Each EventOccurrenceUsage is transformed into an Entity.
+
+Each FlowConnectionUsage is transformed into an Entity.
+
+Each SuccessionAsUsage is transformed into an Entity.
+
+Each ItemDefinition is transformed into an Entity.
+
+Each ItemUsage is transformed into an Entity.
+
+Each AttributeDefinition is transformed into a Property.
+
+Each AttributeUsage is transformed into a Property.
+
+Traverse the real serialized containment structure, especially Element.ownedRelationship and Relationship.ownedRelatedElement. Do not rely on derived or transient convenience references such as ownedMember, ownedFeature, or name. Use declaredName when naming target elements, preserve the source hierarchy, and give each generated Entity or Property a qualifier whose type identifies the corresponding SysML source kind.
+
+Represent typed usages and connections as AAS relationships when the target metamodel permits it. Guard all optional names and references. The supplied textual SysML files, XMI fixtures, and AAS oracle outputs are evaluation data only and must not be hard-coded into the transformation.

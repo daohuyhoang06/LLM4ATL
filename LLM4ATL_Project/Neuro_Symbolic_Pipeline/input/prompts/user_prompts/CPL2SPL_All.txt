@@ -1,5 +1,23 @@
-Create an ATL transformation module named `CPL2SPL` that transforms the CPL metamodel into the SPL metamodel.
+Transform a CPL call-processing model into an SPL program. Derive the effective statement represented by every CPL node, compute each node's sequence of enclosing locations, and distinguish a simple proxy from a proxy that has busy, no-answer, redirection, failure, or default behavior.
 
-Define helpers `statement`, `locations`, and `isSimple` exactly as in the code to derive the effective statement node, compute location sequences along containment, and classify simple proxies.
+Each CPL is transformed into a Program.
 
-Add rules `CPL2Program`, `SubAction2Function`, `Incoming2Method`, `Proxy2Return`, `Proxy2Select`, `Busy2SelectCase`, `NoAnswer2SelectCase`, `Redirection2SelectCase`, `Default2SelectDefault`, `SubCall2Return`, `Redirect2Return`, `AddressSwitch2SelectStat`, `SwitchedAddress2SelectCase`, `Otherwise2SelectDefault`, and a helper-based rule `Location2URIConstant`, implementing the precise CPL‑to‑SPL mappings and OCL conditions shown.
+Each SubAction is transformed into a LocalFunctionDeclaration.
+
+Each Incoming is transformed into a Method.
+
+Each Proxy is transformed into a ReturnStat.
+
+Each Busy is transformed into a SelectCase.
+
+Each NoAnswer is transformed into a SelectCase.
+
+Each Redirection is transformed into a SelectCase.
+
+Each Default is transformed into a SelectDefault.
+
+Each SubCall is transformed into a ReturnStat.
+
+The target Program must contain the functions produced from subactions and the methods produced from incoming call handlers. A simple Proxy must return its effective destination directly, while a non-simple Proxy must produce selection behavior for its possible busy, no-answer, redirection, failure, and default outcomes. SubCall and Redirect nodes must produce the corresponding return behavior.
+
+Address switches must become selection statements. Their switched addresses must become cases and their otherwise branches must become default selections. Locations used by call-processing behavior must be represented as URI constants, and the generated statements must preserve the source containment order and control-flow meaning.

@@ -1,5 +1,15 @@
-Create an ATL transformation module named `User2Account_All` that transforms models conforming to the `User` metamodel into models conforming to the `Account` metamodel.
+Transform a User model into an Account model. An account is active when its source user's status is either "Active" or "Enabled".
 
-In this module, define a helper operation `isActive` in the context of `User` that returns true when a User’s `status` is either `"Active"` or `"Enabled"`.
+Each UserModel is transformed into an AccountModel.
 
-Then add a transformation rule `User2Account` that, for each `User`, creates a corresponding `Account`, copying `username`, `email`, and `registrationDate` to `createdDate`, and setting `active` using `u.isActive()`.
+The users of the UserModel are copied to the accounts of the AccountModel.
+
+Each User is transformed into an Account.
+
+The username of the User is copied to the username of the Account.
+
+The email of the User is copied to the email of the Account.
+
+The registrationDate of the User is copied to the createdDate of the Account.
+
+Set each generated Account's active value to true when the source User has status "Active" or "Enabled", and to false otherwise. Preserve the association between the generated AccountModel and all Accounts generated from its users.

@@ -1,10 +1,13 @@
-Create an ATL transformation module named `FamiliesToPersons_All` that transforms a Families model into a Persons model.
+Transform a model conforming to the Families metamodel into a model conforming to the Persons metamodel. Name the ATL transformation FamiliesToPersons_All.
 
-The module should define three helpers in the context of `Member`:
-- `familyLastName()` returns the last name of the associated father, else mother, else son, else daughter.
-- `isFemale()` returns true when the member is a mother or daughter.
-- `isMale()` returns true when the member is a father or son.
+Each FamilyRegister is transformed into a PersonRegister.
 
-Add two transformation rules:
-- `Member2Male` maps each `Member` where `isMale()` is true to a `Male` with `fullName = firstName + ' ' + familyLastName()`.
-- `Member2Female` maps each `Member` where `isFemale()` is true to a `Female` with the same `fullName` construction.
+The id of the FamilyRegister is copied to the id of the PersonRegister.
+
+Each Member is transformed into a Male.
+
+Each Member is transformed into a Female.
+
+A Member represents a male person when the Member is a father or a son. A Member represents a female person when the Member is a mother or a daughter. Use these conditions to ensure that each Member is transformed into the correct target class.
+
+Determine a Member's family last name from the associated Family. Prefer the family connected through the father role, followed by the mother role, the son role, and finally the daughter role. Set the fullName of the resulting Male or Female to the Member's firstName, followed by a space and the determined family last name.

@@ -1,15 +1,17 @@
-Create an ATL transformation module named `Make2Ant` that transforms a Make model into an Ant model.
+Transform a Make build description into an equivalent Ant project. Preserve the project name, variables, targets, dependencies, commands, and whether command text is displayed.
 
-Define the module header with `create OUT : Ant from IN : Make`.
+Each Makefile is transformed into a Project.
 
-Add the following rules:
+The name of the Makefile is copied to the name of the Project.
 
-1. `Makefile2Project`: for each Makefile, create one Project, copying the name, collecting all Macros as properties, all Rules as targets, and setting the first Rule as the default target.
+Each Macro is transformed into a PropertyValue.
 
-2. `Macro2Property`: map each Macro to a PropertyValue with corresponding name and value.
+Each Rule is transformed into a Target.
 
-3. `Rule2Target`: map each Rule to a Target, copying its name, adding all its ShellLines as tasks, and resolving RuleDep dependencies to Target references.
+The name of the Rule is copied to the name of the Target.
 
-4. `ShellLine2Task_Display`: when a ShellLine has `display = true`, create both an Echo task and an Exec task, each associated to the owning Rule and initialized from `command`.
+Each ShellLine is transformed into an Exec.
 
-5. `ShellLine2Task_NoDisplay`: when a ShellLine has `display = false`, create only an Exec task associated to the owning Rule, initialized from `command`.
+The Project must contain the properties produced from all Macros and the targets produced from all Rules. Use the first Rule as the default target when one exists. Copy each Macro's name and value to its PropertyValue, and preserve Rule dependencies as references between the corresponding targets.
+
+Every ShellLine must produce an Exec task initialized from its command and associated with the target produced from its owning Rule. When display is true, it must additionally produce an Echo task for the same command. When display is false, it must produce only the Exec task.

@@ -1,7 +1,17 @@
-Create a transformation module XML2DSL that maps the XML metamodel to the DSL metamodel.
+Transform an XML representation of a domain language into a DSL DomainModel. Read element attributes, text, child sequences, identifiers, declared types, enumeration identifiers, abstract flags, and containment information from the XML structure. Resolve referenced DSL elements by identifier and derive subtype relationships and types consistently.
 
-Define helpers on Element: getAttrBool, getAttrVal, get, getType, getEnumId, getText, getSeq, hasChildren, hasAttr, isAbstract, and on the module: dslElementsById, getSubTypes, findType.
+Each Root is transformed into a DomainModel.
 
-Implement rule DomainModel creating DomainModel and the four SimpleType instances.
+Each Element is transformed into a Class.
 
-Implement rule Class, rule Relationship, rule Role, rule ValueProperty, rule Enumeration, and rule EnumerationLiteral, wiring all references (superType/subTypes, roles, owner, types, containment) exactly as in the models.
+Each Element is transformed into a Relationship.
+
+Each Element is transformed into a Role.
+
+Each Element is transformed into a ValueProperty.
+
+Each Element is transformed into an Enumeration.
+
+Each Element is transformed into an EnumerationLiteral.
+
+Create four SimpleType instances in the target DomainModel. Interpret each XML Element according to its represented DSL kind so that only the appropriate target concept is created. Preserve names and abstractness, and wire all ownership and type references, including class super-types and sub-types, relationship roles, role owners, value-property types, enumeration membership, and containment.

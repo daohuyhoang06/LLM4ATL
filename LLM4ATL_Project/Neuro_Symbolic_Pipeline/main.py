@@ -14,11 +14,18 @@ PROJECT_DIR = Path(__file__).resolve().parent
 PIPELINE_DIR = PROJECT_DIR / "pipeline"
 from config.ablation_config import AblationConfig
 from pipeline.generation.llm_client import LLMConfigurationError, create_llm_client
+from pipeline.generation.prompt_builder import build_system_prompt, build_user_prompt
 from pipeline.static_analysis.ecore_registry import ATLEcoreRegistry
 from pipeline.static_analysis.type_environment import TypeEnvironment
 from pipeline.static_analysis.atl_semantic_checker import ATLSemanticChecker
 from pipeline.static_analysis.errors import SemanticError
 from pipeline.structural_checking.schema.atl_ast import Module
+from pipeline.dss.agileuml_dss import (
+    AgileUmlDssConfig,
+    AgileUmlDssError,
+    extract_dss_requirements,
+    run_agileuml_dss,
+)
 
 # Windows PowerShell may expose a cp1252 stream; pipeline diagnostics contain
 # Vietnamese text and must not crash before the first stage starts.
@@ -78,6 +85,7 @@ ATL_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl'
 FORMAL_VERIFICATION_OUTPUT_DIR = OUTPUT_DIR / 'formal_verification'
 LAYER3_OUTPUT_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'pipeline_attempts'
 CANDIDATES_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'candidates'
+DSS_OUTPUT_DIR = OUTPUT_DIR / 'dss'
 
 # Existing function names are preserved while the rest of main.py is
 # incrementally refactored.
@@ -87,17 +95,17 @@ AST2ATL_DIR = ATL_OUTPUT_DIR
 for output_dir in (AST_OUTPUT_DIR, ATL_OUTPUT_DIR, FORMAL_VERIFICATION_OUTPUT_DIR):
     output_dir.mkdir(parents=True, exist_ok=True)
 
+DSS_CONFIG = AgileUmlDssConfig.from_env(PROJECT_DIR)
+
 # Load System Prompt
 with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
     system_prompt_template = f.read()
 
-# Load Schema JSON string directly from Pydantic definition
-schema_json = json.dumps(
+# Build the system prompt from the template and the Pydantic schema.
+system_prompt = build_system_prompt(
+    system_prompt_template,
     Module.model_json_schema(),
-    ensure_ascii=False,
-    separators=(",", ":"),
 )
-system_prompt = system_prompt_template.replace('<INSERT_SCHEMA_HERE>', schema_json)
 
 # Load Mapping
 with open(MAPPING_PATH, 'r', encoding='utf-8') as f:
@@ -110,15 +118,6 @@ def resolve_metamodel_path(relative_path):
     if path.parts and path.parts[0] == 'ATL_model':
         path = Path(*path.parts[1:])
     return METAMODELS_DIR / path
-
-def build_prompt(prompt_content, model_content, validation_error=""):
-    """Build the user-level input; system guidance is sent separately."""
-    prompt = f"=== ECORE MODELS ===\n{model_content}\n\n=== TRANSFORMATION REQUEST ===\n{prompt_content}"
-    if validation_error:
-        prompt += ("\n\n=== PREVIOUS ATTEMPT FAILED VALIDATION OR FORMAL VERIFICATION ===\n"
-                   "Repair the AST and return JSON only. Details:\n"
-                   f"{validation_error}")
-    return prompt
 
 def extract_json(response_text):
     text = response_text.strip()
@@ -242,7 +241,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     
     # Read prompt content
     with open(prompt_file_path, 'r', encoding='utf-8') as f:
-        prompt_content = f.read()
+        prompt_content = f.read().strip()
         
     # Get models
     model_files = mapping.get(basename)
@@ -259,7 +258,40 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
             model_full_paths.append(str(full_path))
         else:
             print(f"[Error] Model file not found: {full_path}")
-            
+
+    if len(model_full_paths) != 2:
+        print(
+            f"[Error] DSS requires exactly two existing metamodels for "
+            f"{basename}; found {len(model_full_paths)}."
+        )
+        return
+
+    try:
+        dss_requirements = extract_dss_requirements(
+            prompt_content,
+            Path(model_full_paths[0]),
+            Path(model_full_paths[1]),
+        )
+        forward_tl_path = run_agileuml_dss(
+            case_name=basename,
+            requirements_path=Path(prompt_file_path),
+            requirements_text=dss_requirements,
+            source_metamodel=Path(model_full_paths[0]),
+            target_metamodel=Path(model_full_paths[1]),
+            output_root=DSS_OUTPUT_DIR,
+            config=DSS_CONFIG,
+        )
+    except AgileUmlDssError as error:
+        print(f"[{basename}] DSS preparation failed: {error}")
+        return
+
+    forward_tl = ""
+    if forward_tl_path is not None:
+        forward_tl = forward_tl_path.read_text(encoding="utf-8")
+        print(f"[{basename}] DSS artefacts generated.")
+    else:
+        print(f"[{basename}] DSS disabled; continuing without forward.tl guidance.")
+
     MAX_RETRIES = 5
     validation_error = ""
     data = None
@@ -271,7 +303,12 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         if attempt > 0:
             print(f"[{basename}] Starting Auto-Fix iteration ({attempt}/{MAX_RETRIES})...")
             
-        full_prompt = build_prompt(prompt_content, model_content, validation_error)
+        full_prompt = build_user_prompt(
+            transformation_request=prompt_content,
+            ecore_models=model_content,
+            forward_tl=forward_tl,
+            validation_error=validation_error,
+        )
         
         try:
             print(

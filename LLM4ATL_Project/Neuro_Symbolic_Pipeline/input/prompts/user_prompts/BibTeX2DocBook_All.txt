@@ -1,16 +1,17 @@
-Create an ATL transformation module named `BibTeX2DocBook` that transforms a `BibTeXFile` into a `DocBook` model.
+Transform a BibTeX bibliography into a DocBook document. Produce one DocBook containing one Book and one Article titled "BibTeXML to DocBook". The article must contain four first-level sections named "References List", "Authors list", "Titles List", and "Journals List".
 
-The main rule `Main` should build a single `DocBook` containing one `Book`, one `Article` titled “BibTeXML to DocBook” and four `Sect1` sections:
+Each BibTeXFile is transformed into a DocBook.
 
-- “References List”: all `BibTeXEntry` instances as paragraphs, ordered by id, using a context helper `buildEntryPara()` on `BibTeXEntry` that concatenates id, type name, and available fields (title, authors, year, booktitle, school, journal, note, publisher, chapter).
-- “Authors list”: distinct `Author` objects, sorted by author name, computed by helper `authorSet`. Rule `Author` creates a `Para` per distinct author.
-- “Titles List”: distinct titled entries, sorted by title, computed by helper `titledEntrySet`, and using title paragraphs produced in rules.
-- “Journals List”: distinct `Article` journals, sorted by journal, computed by helper `articleSet`, and using journal paragraphs produced in rules.
+Each Author is transformed into a Para.
 
-Define separate rules to generate paragraphs depending on whether a `BibTeXEntry` is titled or not, and for `Article` entries combine the presence/absence of title and journal:
+Each BibTeXEntry is transformed into a Para.
 
-- `UntitledEntry` for non-`TitledEntry` entries (one content paragraph using `buildEntryPara()`).
-- `TitledEntry_Title_NoArticle` and `TitledEntry_NoTitle_NoArticle` for non-`Article` titled entries, controlled by membership in `titledEntrySet`, creating entry and/or title paragraphs.
-- `Article_Title_Journal`, `Article_NoTitle_Journal`, `Article_Title_NoJournal`, `Article_NoTitle_NoJournal` for `Article` instances, combining membership in `titledEntrySet` and `articleSet` and creating entry, title, and/or journal `Para` elements accordingly.
+Each TitledEntry is transformed into a Para.
 
-Use `resolveTemp` where needed to reference previously created title and journal paragraphs from `Main`.
+Each Article is transformed into a Para.
+
+The References List must contain all bibliography entries as paragraphs ordered by identifier. Each entry paragraph must concatenate the identifier, the entry type, and every available value among title, authors, year, booktitle, school, journal, note, publisher, and chapter.
+
+The Authors list must contain one paragraph for each distinct Author and sort the paragraphs by author name. The Titles List must contain one paragraph for each distinct titled entry and sort them by title. The Journals List must contain one paragraph for each distinct Article journal and sort them by journal name.
+
+Generate the appropriate entry, title, and journal paragraphs according to whether an entry is a TitledEntry or an Article and whether its title or journal is present. Reuse the corresponding generated paragraphs when assembling the four sections, rather than creating inconsistent duplicates.

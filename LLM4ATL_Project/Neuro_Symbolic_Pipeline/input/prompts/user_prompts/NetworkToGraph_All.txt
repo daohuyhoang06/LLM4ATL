@@ -1,9 +1,15 @@
-Create an ATL transformation module named `NetworkToGraph_All` that transforms a `Network` model into a `Graph` model.
+Transform a Network model into a Graph model while preserving system containment and link connectivity.
 
-Define a transformation header `create OUT : Graph from IN : Network;`.
+Each Component is transformed into an Entity.
 
-Add a rule `Component2Entity` that, for each `Component`, produces a single `Entity` whose `name` copies the component’s `name`. This rule should be reusable so that the same `Component` always maps to the same `Entity`.
+The name of the Component is copied to the name of the Entity.
 
-Add a rule `System2Root` that maps each `System` to a `Root`, whose `entities` collection is built from all its `components` via `Component2Entity`.
+Each System is transformed into a Root.
 
-Add a rule `Link2Link` that maps each `Link` to a `Link`, whose `Entitys` references are the mapped `Entity` instances corresponding to its `components`, again via `Component2Entity`.
+The components of the System are copied to the entities of the Root.
+
+Each Link is transformed into a Link.
+
+The components of the Link are copied to the Entitys of the Link.
+
+Create exactly one reusable Entity for each Component so that every reference to the same source Component resolves to the same target object. Each Root must contain the entities corresponding to its System's components. Each target Link must connect the entities corresponding to its source Link's components.
