@@ -1,0 +1,1004 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="ER2REL"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers name="ERSchema" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ERSchema"/>
+                              
+            
+            <details key="atlRules" value="S2S"/>
+                              
+            
+            <details key="preConstraints" value="ER_EN"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_S2S"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="ER_EN match_S2S"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="ER_EN" value="self.entities-&gt;union(self.relships)-&gt;forAll(e1,e2 | e1.name=e2.name implies e1=e2)"/>
+                              
+            
+            <details key="match_S2S" value="ERSchema.allInstances()-&gt;forAll(s : ERSchema | S2S.allInstances()-&gt;one(z : S2S | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Entity/schema" eType="//Entity" lowerBound="1" name="entities" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Relship/schema" eType="//Relship" lowerBound="1" name="relships" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//S2S/s" eType="//S2S" name="S2S_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="SchemaElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="SchemaElement"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//SchemaElement" name="Entity" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Entity"/>
+                              
+            
+            <details key="atlRules" value="E2R"/>
+                              
+            
+            <details key="preConstraints" value="ER_EAN ER_EK"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_E2R"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="ER_EAN ER_EK match_E2R"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="ER_EAN" value="self.attrs-&gt;forAll(a1,a2 | a1.name=a2.name implies a1=a2)"/>
+                              
+            
+            <details key="ER_EK" value="self.attrs-&gt;exists(a | a.isKey)"/>
+                              
+            
+            <details key="match_E2R" value="Entity.allInstances()-&gt;forAll(s : Entity | E2R.allInstances()-&gt;one(z : E2R | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ERAttribute/entity" eType="//ERAttribute" name="attrs" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RelshipEnd/entity" eType="//RelshipEnd" name="relshipEnds" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERSchema/entities" eType="//ERSchema" lowerBound="1" name="schema" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//E2R/s" eType="//E2R" name="E2R_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EA2A/ent" eType="//EA2A" name="EA2A_ent" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//SchemaElement" name="Relship" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Relship"/>
+                              
+            
+            <details key="atlRules" value="R2R"/>
+                              
+            
+            <details key="preConstraints" value="ER_RAN ER_RK"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_R2R"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="ER_RAN ER_RK match_R2R"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="ER_RAN" value="self.attrs-&gt;forAll(a1,a2 | a1.name=a2.name implies a1=a2)"/>
+                              
+            
+            <details key="ER_RK" value="not self.attrs-&gt;exists(a | a.isKey)"/>
+                              
+            
+            <details key="match_R2R" value="Relship.allInstances()-&gt;forAll(s : Relship | R2R.allInstances()-&gt;one(z : R2R | z.s = s))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ERAttribute/relship" eType="//ERAttribute" name="attrs" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//RelshipEnd/relship" eType="//RelshipEnd" lowerBound="2" name="ends" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERSchema/relships" eType="//ERSchema" lowerBound="1" name="schema" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//R2R/s" eType="//R2R" name="R2R_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2A/rs" eType="//RA2A" name="RA2A_rs" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ERAttribute" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="ERAttribute"/>
+                              
+            
+            <details key="atlRules" value="EA2A RA2A RA2AK"/>
+                              
+            
+            <details key="preConstraints" value="ER_attrOwnerXor"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_EA2A match_RA2A match_RA2AK"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="ER_attrOwnerXor match_EA2A match_RA2A match_RA2AK"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="ER_attrOwnerXor" value="self.entity.oclIsUndefined() &lt;&gt; self.relship.oclIsUndefined()"/>
+                              
+            
+            <details key="match_EA2A" value="ERAttribute.allInstances()-&gt;forAll(att : ERAttribute | Entity.allInstances()-&gt;forAll(ent : Entity | (att.entity = ent) implies EA2A.allInstances()-&gt;one(z : EA2A | z.att = att and z.ent = ent)))"/>
+                              
+            
+            <details key="match_RA2A" value="ERAttribute.allInstances()-&gt;forAll(att : ERAttribute | Relship.allInstances()-&gt;forAll(rs : Relship | (att.relship = rs) implies RA2A.allInstances()-&gt;one(z : RA2A | z.att = att and z.rs = rs)))"/>
+                              
+            
+            <details key="match_RA2AK" value="ERAttribute.allInstances()-&gt;forAll(att : ERAttribute | RelshipEnd.allInstances()-&gt;forAll(rse : RelshipEnd | ((att.entity = rse.entity) and att.isKey) implies RA2AK.allInstances()-&gt;one(z : RA2AK | z.att = att and z.rse = rse)))"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="isKey" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Entity/attrs" eType="//Entity" name="entity" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relship/attrs" eType="//Relship" name="relship" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EA2A/att" eType="//EA2A" name="EA2A_att" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2A/att" eType="//RA2A" name="RA2A_att" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2AK/att" eType="//RA2AK" name="RA2AK_att" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="RelshipEnd" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="RelshipEnd"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures lowerBound="1" name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Entity/relshipEnds" eType="//Entity" lowerBound="1" name="entity" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relship/ends" eType="//Relship" lowerBound="1" name="relship" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2AK/rse" eType="//RA2AK" name="RA2AK_rse" upperBound="-1" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="RELSchema" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="RELSchema"/>
+                              
+            
+            <details key="atlRules" value="S2S"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="REL_RN REL_mult1"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_RELSchema"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_RELSchema"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+                  
+            
+                  
+            
+            <details key="create_RELSchema" value="(if self.S2S_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Relation/schema" eType="//Relation" name="relations" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//S2S/t" eType="//S2S" name="S2S_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Relation" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Relation"/>
+                              
+            
+            <details key="atlRules" value="E2R R2R"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="REL_AN REL_K REL_mult2 REL_mult3"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Relation_name"/>
+                              
+            
+            <details key="semConstraints" value="create_Relation"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Relation __efinder_NOT_REL_AN"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+                  
+            
+                  
+            
+                  
+            
+                  
+            
+            <details key="create_Relation" value="(if self.E2R_t.oclIsUndefined() then 0 else 1 endif) + (if self.R2R_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+            <details key="__efinder_NOT_REL_AN" value="(E2R.allInstances()-&gt;exists(r | not (r.t.attrs-&gt;forAll(a1,a2 | a1.name=a2.name implies a1=a2))) or R2R.allInstances()-&gt;exists(r | not (r.t.attrs-&gt;forAll(a1,a2 | a1.name=a2.name implies a1=a2))))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//RELSchema/relations" eType="//RELSchema" name="schema" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//RELAttribute/relation" eType="//RELAttribute" name="attrs" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//E2R/t" eType="//E2R" name="E2R_t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//R2R/t" eType="//R2R" name="R2R_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="RELAttribute" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="RELAttribute"/>
+                              
+            
+            <details key="atlRules" value="EA2A RA2A RA2AK"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="REL_mult4"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_RELAttribute_name targetMultiplicity_RELAttribute_isKey"/>
+                              
+            
+            <details key="semConstraints" value="create_RELAttribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_RELAttribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+                  
+            
+            <details key="create_RELAttribute" value="(if self.EA2A_t.oclIsUndefined() then 0 else 1 endif) + (if self.RA2A_t.oclIsUndefined() then 0 else 1 endif) + (if self.RA2AK_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures name="name" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EString" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures name="isKey" xsi:type="ecore:EAttribute">
+                              
+            
+            <eType href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean" xsi:type="ecore:EDataType"/>
+                            
+        
+        </eStructuralFeatures>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relation/attrs" eType="//Relation" name="relation" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EA2A/t" eType="//EA2A" name="EA2A_t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2A/t" eType="//RA2A" name="RA2A_t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RA2AK/t" eType="//RA2AK" name="RA2AK_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="S2S" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="S2S"/>
+                              
+            
+            <details key="semConstraints" value="bind_S2S_t_relations bind_S2S_t_relations_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_S2S_t_relations bind_S2S_t_relations_size"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_S2S_t_relations" value="self.t.relations = Set { self.s.entities-&gt;collect(x | (if x.oclIsKindOf(Entity) then E2R.allInstances()-&gt;select(z : E2R | z.s = x.oclAsType(Entity))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.relships-&gt;collect(x | (if x.oclIsKindOf(Relship) then R2R.allInstances()-&gt;select(z : R2R | z.s = x.oclAsType(Relship))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten()"/>
+                              
+            
+            <details key="bind_S2S_t_relations_size" value="(self.s.entities-&gt;union(self.s.relships))-&gt;size() = (Set { self.s.entities-&gt;collect(x | (if x.oclIsKindOf(Entity) then E2R.allInstances()-&gt;select(z : E2R | z.s = x.oclAsType(Entity))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten(), self.s.relships-&gt;collect(x | (if x.oclIsKindOf(Relship) then R2R.allInstances()-&gt;select(z : R2R | z.s = x.oclAsType(Relship))-&gt;collect(z | z.t) else Sequence {} endif))-&gt;flatten() }-&gt;flatten())-&gt;size()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERSchema/S2S_s" eType="//ERSchema" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RELSchema/S2S_t" eType="//RELSchema" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="E2R" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="E2R"/>
+                              
+            
+            <details key="semConstraints" value="bind_E2R_t_name bind_E2R_t_schema bind_E2R_t_schema_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_E2R_t_name bind_E2R_t_schema bind_E2R_t_schema_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_E2R_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_E2R_t_schema" value="self.t.schema = self.s.schema.oclAsType(ERSchema).S2S_s.t"/>
+                              
+            
+            <details key="bind_E2R_t_schema_defined" value="(not self.s.schema.oclIsUndefined()) = (not self.s.schema.oclAsType(ERSchema).S2S_s.t.oclIsUndefined())"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Entity/E2R_s" eType="//Entity" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relation/E2R_t" eType="//Relation" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="R2R" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="R2R"/>
+                              
+            
+            <details key="semConstraints" value="bind_R2R_t_name bind_R2R_t_schema bind_R2R_t_schema_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="bind_R2R_t_name bind_R2R_t_schema bind_R2R_t_schema_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="bind_R2R_t_name" value="self.t.name = self.s.name"/>
+                              
+            
+            <details key="bind_R2R_t_schema" value="self.t.schema = self.s.schema.oclAsType(ERSchema).S2S_s.t"/>
+                              
+            
+            <details key="bind_R2R_t_schema_defined" value="(not self.s.schema.oclIsUndefined()) = (not self.s.schema.oclAsType(ERSchema).S2S_s.t.oclIsUndefined())"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relship/R2R_s" eType="//Relship" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relation/R2R_t" eType="//Relation" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="EA2A" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="EA2A"/>
+                              
+            
+            <details key="semConstraints" value="match_EA2A_cond bind_EA2A_t_name bind_EA2A_t_isKey bind_EA2A_t_relation bind_EA2A_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_EA2A_cond bind_EA2A_t_name bind_EA2A_t_isKey bind_EA2A_t_relation bind_EA2A_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_EA2A_cond" value="(self.att.entity = self.ent)"/>
+                              
+            
+            <details key="bind_EA2A_t_name" value="self.t.name = self.att.name"/>
+                              
+            
+            <details key="bind_EA2A_t_isKey" value="self.t.isKey = self.att.isKey"/>
+                              
+            
+            <details key="bind_EA2A_t_relation" value="self.t.relation = self.ent.oclAsType(Entity).E2R_s.t"/>
+                              
+            
+            <details key="bind_EA2A_t_relation_defined" value="(not self.ent.oclIsUndefined()) = (not self.ent.oclAsType(Entity).E2R_s.t.oclIsUndefined())"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERAttribute/EA2A_att" eType="//ERAttribute" lowerBound="1" name="att" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Entity/EA2A_ent" eType="//Entity" lowerBound="1" name="ent" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RELAttribute/EA2A_t" eType="//RELAttribute" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="RA2A" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="RA2A"/>
+                              
+            
+            <details key="semConstraints" value="match_RA2A_cond bind_RA2A_t_name bind_RA2A_t_isKey bind_RA2A_t_relation bind_RA2A_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_RA2A_cond bind_RA2A_t_name bind_RA2A_t_isKey bind_RA2A_t_relation bind_RA2A_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_RA2A_cond" value="(self.att.relship = self.rs)"/>
+                              
+            
+            <details key="bind_RA2A_t_name" value="self.t.name = self.att.name"/>
+                              
+            
+            <details key="bind_RA2A_t_isKey" value="self.t.isKey = self.att.isKey"/>
+                              
+            
+            <details key="bind_RA2A_t_relation" value="self.t.relation = self.rs.oclAsType(Relship).R2R_s.t"/>
+                              
+            
+            <details key="bind_RA2A_t_relation_defined" value="(not self.rs.oclIsUndefined()) = (not self.rs.oclAsType(Relship).R2R_s.t.oclIsUndefined())"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERAttribute/RA2A_att" eType="//ERAttribute" lowerBound="1" name="att" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relship/RA2A_rs" eType="//Relship" lowerBound="1" name="rs" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RELAttribute/RA2A_t" eType="//RELAttribute" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="RA2AK" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="RA2AK"/>
+                              
+            
+            <details key="semConstraints" value="match_RA2AK_cond bind_RA2AK_t_name bind_RA2AK_t_isKey bind_RA2AK_t_relation bind_RA2AK_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_RA2AK_cond bind_RA2AK_t_name bind_RA2AK_t_isKey bind_RA2AK_t_relation bind_RA2AK_t_relation_defined"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_RA2AK_cond" value="((self.att.entity = self.rse.entity) and self.att.isKey)"/>
+                              
+            
+            <details key="bind_RA2AK_t_name" value="self.t.name = self.att.name"/>
+                              
+            
+            <details key="bind_RA2AK_t_isKey" value="self.t.isKey = self.att.isKey"/>
+                              
+            
+            <details key="bind_RA2AK_t_relation" value="self.t.relation = self.rse.relship.oclAsType(Relship).R2R_s.t"/>
+                              
+            
+            <details key="bind_RA2AK_t_relation_defined" value="(not self.rse.relship.oclIsUndefined()) = (not self.rse.relship.oclAsType(Relship).R2R_s.t.oclIsUndefined())"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//ERAttribute/RA2AK_att" eType="//ERAttribute" lowerBound="1" name="att" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RelshipEnd/RA2AK_rse" eType="//RelshipEnd" lowerBound="1" name="rse" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//RELAttribute/RA2AK_t" eType="//RELAttribute" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

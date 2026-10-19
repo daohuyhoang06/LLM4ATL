@@ -1,0 +1,93 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_RELSchema__REL_RN.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_RN",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "RELSchema ERSchema2RELSchema",
+      "check": "RELSchema::REL_RN",
+      "bounded_witness_context": "RELSchema",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_RELSchema__REL_mult1.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_mult1",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "RELSchema ERSchema2RELSchema",
+      "check": "RELSchema::REL_mult1",
+      "bounded_witness_context": "RELSchema",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_Relation__REL_AN.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_AN",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Relation Entity2Relation Relship2Relation",
+      "check": "Relation::REL_AN",
+      "bounded_witness_context": "Relation",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_Relation__REL_K.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_K",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Relation Entity2Relation Relship2Relation",
+      "check": "Relation::REL_K",
+      "bounded_witness_context": "Relation",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_Relation__REL_mult2.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_mult2",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Relation Entity2Relation Relship2Relation",
+      "check": "Relation::REL_mult2",
+      "bounded_witness_context": "Relation",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_Relation__REL_mult3.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_mult3",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Relation Entity2Relation Relship2Relation",
+      "check": "Relation::REL_mult3",
+      "bounded_witness_context": "Relation",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\efinder\\ER2REL_ATL2TM__not_RELAttribute__REL_mult4.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_REL_mult4",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\ouput\\formal_verification\\pipeline_attempts\\ER2REL\\attempt-2\\ER2REL\\ER2REL_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "RELAttribute ERAttribute2RELAttribute",
+      "check": "RELAttribute::REL_mult4",
+      "bounded_witness_context": "RELAttribute",
+      "status": "UNSAT"
+    }
+  ],
+  "counts": {
+    "UNSAT": 7
+  },
+  "skipped_checks": [
+    "RELAttribute::targetMultiplicity_RELAttribute_isKey",
+    "RELAttribute::targetMultiplicity_RELAttribute_name",
+    "Relation::targetMultiplicity_Relation_name"
+  ]
+}

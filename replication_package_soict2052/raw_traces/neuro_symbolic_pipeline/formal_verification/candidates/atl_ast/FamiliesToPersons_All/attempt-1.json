@@ -1,0 +1,430 @@
+{
+  "type": "Module",
+  "name": "FamiliesToPersons_All",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "families"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "persons"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": "families!Member",
+      "name": "familyLastName",
+      "parameters": [],
+      "return_type": "String",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "UnaryExpression",
+          "operator": "not",
+          "expression": {
+            "type": "OperationCall",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "families!Member"
+              },
+              "property_name": "familyFather"
+            },
+            "operation_name": "oclIsUndefined",
+            "arguments": []
+          }
+        },
+        "then_expression": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "families!Member"
+            },
+            "property_name": "familyFather"
+          },
+          "property_name": "lastName"
+        },
+        "else_expression": {
+          "type": "IfExpression",
+          "condition": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familyMother"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          },
+          "then_expression": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "families!Member"
+              },
+              "property_name": "familyMother"
+            },
+            "property_name": "lastName"
+          },
+          "else_expression": {
+            "type": "IfExpression",
+            "condition": {
+              "type": "UnaryExpression",
+              "operator": "not",
+              "expression": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "self",
+                    "declared_type": "families!Member"
+                  },
+                  "property_name": "familySon"
+                },
+                "operation_name": "oclIsUndefined",
+                "arguments": []
+              }
+            },
+            "then_expression": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familySon"
+              },
+              "property_name": "lastName"
+            },
+            "else_expression": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familyDaughter"
+              },
+              "property_name": "lastName"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "FamilyRegisterToPersonRegister",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "persons!PersonRegister"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "id",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": "families!FamilyRegister"
+                  },
+                  "property_name": "id"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "families!FamilyRegister"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "MemberToMale",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "persons!Male"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "fullName",
+                "value": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": "families!Member"
+                      },
+                      "property_name": "firstName"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": " ",
+                      "literal_type": "String"
+                    }
+                  },
+                  "right": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s",
+                      "declared_type": "families!Member"
+                    },
+                    "property_name": "familyLastName"
+                  }
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "families!Member"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "or",
+          "left": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "s",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familyFather"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "s",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familySon"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "MemberToFemale",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "persons!Female"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "fullName",
+                "value": {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": "families!Member"
+                      },
+                      "property_name": "firstName"
+                    },
+                    "right": {
+                      "type": "LiteralExpression",
+                      "value": " ",
+                      "literal_type": "String"
+                    }
+                  },
+                  "right": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s",
+                      "declared_type": "families!Member"
+                    },
+                    "property_name": "familyLastName"
+                  }
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "families!Member"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "or",
+          "left": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "s",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familyMother"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "s",
+                  "declared_type": "families!Member"
+                },
+                "property_name": "familyDaughter"
+              },
+              "operation_name": "oclIsUndefined",
+              "arguments": []
+            }
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    }
+  ]
+}

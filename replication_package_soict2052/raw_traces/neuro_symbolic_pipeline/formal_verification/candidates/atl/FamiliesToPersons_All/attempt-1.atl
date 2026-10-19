@@ -1,0 +1,49 @@
+module FamiliesToPersons_All;
+create OUT : Persons from IN : Families;
+
+helper context Families!Member def: familyLastName : String =
+    if not self.familyFather.oclIsUndefined() then
+        self.familyFather.lastName
+    else
+        if not self.familyMother.oclIsUndefined() then
+        self.familyMother.lastName
+    else
+        if not self.familySon.oclIsUndefined() then
+        self.familySon.lastName
+    else
+        self.familyDaughter.lastName
+    endif
+    endif
+    endif;
+
+rule FamilyRegisterToPersonRegister {
+    from
+        s : Families!FamilyRegister
+    to
+        t : Persons!PersonRegister (
+            id <- s.id
+        )
+}
+
+rule MemberToMale {
+    from
+        s : Families!Member (
+            (not s.familyFather.oclIsUndefined() or not s.familySon.oclIsUndefined())
+        )
+    to
+        t : Persons!Male (
+            fullName <- ((s.firstName + ' ') + s.familyLastName)
+        )
+}
+
+rule MemberToFemale {
+    from
+        s : Families!Member (
+            (not s.familyMother.oclIsUndefined() or not s.familyDaughter.oclIsUndefined())
+        )
+    to
+        t : Persons!Female (
+            fullName <- ((s.firstName + ' ') + s.familyLastName)
+        )
+}
+
