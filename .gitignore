@@ -36,3 +36,7 @@ ENV/
 
 # Local secrets
 .env
+
+# Local research documents and revision planning (keep private/uncommitted)
+docs/document/
+docs/revision_plan_SOICT_2052.md
