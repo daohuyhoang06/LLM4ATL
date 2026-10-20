@@ -24,14 +24,24 @@ from pathlib import Path
 sys.stdout.reconfigure(line_buffering=True)
 sys.stderr.reconfigure(line_buffering=True)
 
+import argparse
+
 PROJECT_DIR = Path(__file__).resolve().parent
 REPO_DIR = PROJECT_DIR.parent
 PIPELINE_PROJECT_DIR = REPO_DIR / "Neuro_Symbolic_Pipeline"
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
-AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
-RESULT_TAG = "gemini-3-5-flash_neuro_symbolic"
+DEFAULT_AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
+
+# CLI Arguments Parser
+parser = argparse.ArgumentParser(description="Run ATL functional tests with JUnit")
+parser.add_argument("--input-dir", type=Path, default=None, help="Directory containing generated ATL files")
+parser.add_argument("--tag", type=str, default="gemini-3-5-flash_neuro_symbolic", help="Result tag matching parser CSV")
+cli_args, _ = parser.parse_known_args()
+
+RESULT_TAG = cli_args.tag
+AST_RESPONSE_DIR = cli_args.input_dir.resolve() if cli_args.input_dir else DEFAULT_AST_RESPONSE_DIR
 ATL_SRC_DIR = PROJECT_DIR / "src" / "main" / "atl"
 INPUT_CSV = REPO_DIR / "ATL_Parser" / f"atl_parser_chrf_results_{RESULT_TAG}.csv"
 OUTPUT_CSV = PROJECT_DIR / f"atl_test_results_{RESULT_TAG}.csv"

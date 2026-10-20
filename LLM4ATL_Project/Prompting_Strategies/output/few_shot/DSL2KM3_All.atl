@@ -1,0 +1,141 @@
+module DSL2KM3;
+create OUT : KM3 from IN : DSL;
+
+helper context DSL!Relationship def: needTurnOnClass() : Boolean =
+	not self.superType.oclIsUndefined() or
+	self.subTypes->notEmpty() or
+	self.properties->notEmpty() or
+	DSL!Role.allInstances()->exists(r | r.type = self);
+
+helper def: getRoles(c : DSL!Class) : Sequence(DSL!Role) =
+	DSL!Role.allInstances()->select(r | r.source = c and not r.relation.needTurnOnClass());
+
+helper context DSL!Role def: isEmbedding() : Boolean =
+	if self.relation.isEmbedding then
+		self.relation.roles->first() = self
+	else
+		false
+	endif;
+
+rule Metamodel {
+	from
+		m : DSL!DomainModel
+	to
+		mm : KM3!Metamodel (
+			contents <- Sequence{p, pt}
+		),
+		p : KM3!Package (
+			name <- m.namespace,
+			contents <- m.classifiers->union(m.types->select(t | t.oclIsTypeOf(DSL!Enumeration)))
+		),
+		pt : KM3!Package (
+			name <- 'PrimitiveTypes',
+			contents <- m.types->select(t | t.oclIsTypeOf(DSL!SimpleType))
+		)
+}
+
+rule Class {
+	from
+		c : DSL!Class
+	to
+		out : KM3!Class (
+			name <- c.name,
+			isAbstract <- c.isAbstract,
+			supertypes <- if c.superType.oclIsUndefined() then Sequence{} else Sequence{c.superType} endif,
+			structuralFeatures <- c.properties->union(thisModule.getRoles(c))
+		)
+}
+
+rule Relation2Class {
+	from
+		r : DSL!Relationship (
+			r.needTurnOnClass()
+		)
+	to
+		out : KM3!Class (
+			name <- r.name,
+			isAbstract <- r.isAbstract,
+			supertypes <- if r.superType.oclIsUndefined() then Sequence{} else Sequence{r.superType} endif,
+			structuralFeatures <- r.properties
+		)
+}
+
+rule SimpleReference {
+	from
+		r : DSL!Role (
+			not r.relation.needTurnOnClass()
+		)
+	to
+		out : KM3!Reference (
+			name <- r.name,
+			lower <- r.min,
+			upper <- if r.isUnbounded then -1 else r.max endif,
+			isOrdered <- r.isOrdered,
+			isUnique <- true,
+			type <- r.type,
+			isContainer <- r.isEmbedding(),
+			opposite <- r.relation.roles->select(ro | ro <> r)->first(),
+			owner <- r.source
+		)
+}
+
+rule ComplexReference {
+	from
+		r : DSL!Role (
+			r.relation.needTurnOnClass()
+		)
+	to
+		out : KM3!Reference (
+			name <- r.name,
+			lower <- r.min,
+			upper <- if r.isUnbounded then -1 else r.max endif,
+			isOrdered <- r.isOrdered,
+			isUnique <- true,
+			type <- r.relation,
+			isContainer <- r.isEmbedding(),
+			owner <- r.source
+		)
+}
+
+rule Attribute {
+	from
+		a : DSL!ValueProperty
+	to
+		out : KM3!Attribute (
+			name <- a.name,
+			lower <- 1,
+			upper <- 1,
+			isOrdered <- false,
+			isUnique <- true,
+			type <- a.type,
+			owner <- a.owner
+		)
+}
+
+rule Enumeration {
+	from
+		e : DSL!Enumeration
+	to
+		out : KM3!Enumeration (
+			name <- e.name,
+			literals <- e.literals
+		)
+}
+
+rule EnumLiteral {
+	from
+		l : DSL!EnumerationLiteral
+	to
+		out : KM3!EnumLiteral (
+			name <- l.name
+		)
+}
+
+rule DataType {
+	from
+		d : DSL!SimpleType
+	to
+		out : KM3!DataType (
+			name <- d.name
+		)
+}

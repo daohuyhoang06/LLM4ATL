@@ -28,13 +28,15 @@ except ImportError:
     FASTCHRF_AVAILABLE = False
 
 
+import argparse
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_DIR = SCRIPT_DIR.parent
 PIPELINE_PROJECT_DIR = REPO_DIR / "Neuro_Symbolic_Pipeline"
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
-AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
+DEFAULT_AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
 ATL_REFERENCES_DIR = (
     REPO_DIR
     / "Prompting_Strategies"
@@ -43,10 +45,19 @@ ATL_REFERENCES_DIR = (
     / "ATLAS_transformation_language"
     / "references"
 )
-# The filename tag identifies the generation method used for this batch.
-LLM_LABEL = "gemini-3-5-flash"
-STRATEGY_LABEL = "neuro_symbolic"
-RESULT_TAG = f"{LLM_LABEL}_{STRATEGY_LABEL}"
+
+# CLI Arguments Parser
+parser = argparse.ArgumentParser(description="Evaluate ATL files with ATL Parser and FastChrF")
+parser.add_argument("--input-dir", type=Path, default=None, help="Directory containing generated ATL files")
+parser.add_argument("--llm", type=str, default="gemini-3-5-flash", help="LLM label (default: gemini-3-5-flash)")
+parser.add_argument("--strategy", type=str, default="neuro_symbolic", help="Strategy label (default: neuro_symbolic)")
+parser.add_argument("--tag", type=str, default=None, help="Custom result tag (default: <llm>_<strategy>)")
+cli_args, _ = parser.parse_known_args()
+
+LLM_LABEL = cli_args.llm
+STRATEGY_LABEL = cli_args.strategy
+RESULT_TAG = cli_args.tag if cli_args.tag else f"{LLM_LABEL}_{STRATEGY_LABEL}"
+AST_RESPONSE_DIR = cli_args.input_dir.resolve() if cli_args.input_dir else DEFAULT_AST_RESPONSE_DIR
 
 # Keep the default parser unit-test fixtures separate from generated ATL
 # variants. The evaluator temporarily replaces these files and restores them.
