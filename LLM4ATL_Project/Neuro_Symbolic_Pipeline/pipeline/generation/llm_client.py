@@ -51,7 +51,9 @@ class LLMClient:
     model_name: str
     client: Any
 
-    def generate(self, prompt: str, instructions: str = "") -> str:
+    def generate_with_usage(
+        self, prompt: str, instructions: str = ""
+    ) -> tuple[str, dict[str, int | None]]:
         """Generate a response from a user prompt and optional system instructions.
 
         OpenAI and Anthropic expose native fields for system-level guidance.
@@ -62,6 +64,12 @@ class LLMClient:
             request_text = f"{instructions}\n\n{prompt}" if instructions else prompt
             response = self.client.generate_content(request_text)
             text = getattr(response, "text", None)
+            raw_usage = getattr(response, "usage_metadata", None)
+            usage = {
+                "input_tokens": getattr(raw_usage, "prompt_token_count", None),
+                "output_tokens": getattr(raw_usage, "candidates_token_count", None),
+                "total_tokens": getattr(raw_usage, "total_token_count", None),
+            }
         elif self.provider == "openai":
             reasoning_effort = _clean(os.getenv("OPENAI_REASONING_EFFORT", "medium")).lower()
             if reasoning_effort not in {"none", "low", "medium", "high"}:
@@ -79,6 +87,12 @@ class LLMClient:
                 **request_kwargs,
             )
             text = getattr(response, "output_text", None)
+            raw_usage = getattr(response, "usage", None)
+            usage = {
+                "input_tokens": getattr(raw_usage, "input_tokens", None),
+                "output_tokens": getattr(raw_usage, "output_tokens", None),
+                "total_tokens": getattr(raw_usage, "total_tokens", None),
+            }
         elif self.provider == "claude":
             # Anthropic requires max_tokens even when the caller only wants
             # to configure a thinking budget. Keep this transport detail
@@ -110,6 +124,17 @@ class LLMClient:
                 for block in getattr(response, "content", [])
                 if getattr(block, "type", None) == "text"
             )
+            raw_usage = getattr(response, "usage", None)
+            usage = {
+                "input_tokens": getattr(raw_usage, "input_tokens", None),
+                "output_tokens": getattr(raw_usage, "output_tokens", None),
+                "total_tokens": (
+                    getattr(raw_usage, "input_tokens", 0)
+                    + getattr(raw_usage, "output_tokens", 0)
+                    if raw_usage is not None
+                    else None
+                ),
+            }
         else:
             raise LLMConfigurationError(f"Unsupported provider: {self.provider}")
 
@@ -117,7 +142,12 @@ class LLMClient:
             raise RuntimeError(
                 f"Provider '{self.provider}' returned an empty response for model '{self.model_name}'."
             )
-        return text.strip()
+        return text.strip(), usage
+
+    def generate(self, prompt: str, instructions: str = "") -> str:
+        """Generate text while preserving the original simple client interface."""
+        text, _ = self.generate_with_usage(prompt, instructions)
+        return text
 
 
 def create_llm_client() -> LLMClient:

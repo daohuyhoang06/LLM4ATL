@@ -5,7 +5,7 @@ rule Makefile2Project {
 	from
 		m : Make!Makefile
 	to
-		p : Ant!Project (
+		out : Ant!Project (
 			name <- m.name,
 			properties <- m.elements->select(e | e.oclIsKindOf(Make!Macro)),
 			targets <- m.elements->select(e | e.oclIsKindOf(Make!Rule)),
@@ -17,7 +17,7 @@ rule Macro2Property {
 	from
 		m : Make!Macro
 	to
-		p : Ant!PropertyValue (
+		out : Ant!PropertyValue (
 			name <- m.name,
 			value <- m.value
 		)
@@ -25,39 +25,36 @@ rule Macro2Property {
 
 rule Rule2Target {
 	from
-		r : Make!Rule
+		m : Make!Rule
 	to
-		t : Ant!Target (
-			name <- r.name,
-			tasks <- r.shellLines,
-			depends <- r.dependencies->select(d | d.oclIsKindOf(Make!RuleDep))->collect(d | d.ruledep)
+		out : Ant!Target (
+			name <- m.name,
+			tasks <- m.shellLines,
+			depends <- m.dependencies->select(d | d.oclIsKindOf(Make!RuleDep))->collect(d | d.ruledep)
 		)
 }
 
 rule ShellLine2Task_Display {
 	from
 		s : Make!ShellLine (
-			s.display
+			s.display = true
 		)
 	to
-		e : Ant!Echo (
-			message <- s.command,
-			target <- s.ruleShellLine
+		t1 : Ant!Echo (
+			message <- s.command
 		),
-		x : Ant!Exec (
-			executable <- s.command,
-			target <- s.ruleShellLine
+		t2 : Ant!Exec (
+			executable <- s.command
 		)
 }
 
 rule ShellLine2Task_NoDisplay {
 	from
 		s : Make!ShellLine (
-			not s.display
+			s.display = false
 		)
 	to
-		x : Ant!Exec (
-			executable <- s.command,
-			target <- s.ruleShellLine
+		t : Ant!Exec (
+			executable <- s.command
 		)
 }

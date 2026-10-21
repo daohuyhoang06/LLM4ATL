@@ -1,7 +1,7 @@
 module Item2Product_All;
 create OUT : product from IN : item;
 
-helper context item!Item def : getCategory() : String =
+helper context item!Item def: getCategory() : String =
 	if self.type = 'Electronics' then
 		'Tech'
 	else
@@ -11,15 +11,6 @@ helper context item!Item def : getCategory() : String =
 			'General'
 		endif
 	endif;
-
-rule ItemModel2ProductModel {
-	from
-		s : item!ItemModel
-	to
-		t : product!ProductModel (
-			products <- s.items
-		)
-}
 
 rule Item2Product {
 	from

@@ -1,12 +1,12 @@
 module IEEE1471_2_MoDAF;
 create OUT : MoDAF from IN : IEEE1471;
 
-helper context IEEE1471!IEEE1471Model def: rationale : String =
+helper def: rationale : String =
 	let r : IEEE1471!Rationale = IEEE1471!Rationale.allInstances()->first() in
 	if r.oclIsUndefined() then
 		''
 	else
-		r.name + r.content
+		r.name + ' ' + r.content
 	endif;
 
 rule IEEE1471Model2MoDAFModel {
@@ -21,12 +21,12 @@ rule IEEE1471Model2MoDAFModel {
 			operationalMissions <- s.missions,
 			architectures <- s.architecture,
 			architecturalDescription <- s.architecturalDescription,
-			architecturalFrameworks <- s.libraryViewpoints->including(defaultFramework),
+			architecturalFrameworks <- s.libraryViewpoints->including(defaultAF),
 			stakeholders <- s.stakeholders
 		),
-		defaultFramework : MoDAF!ArchitecturalFramework (
-			name <- 'DefaultArchitecturalFramework',
-			ownedMember <- IEEE1471!Viewpoint.allInstances()->select(v | v.hasSource.oclIsUndefined())
+		defaultAF : MoDAF!ArchitecturalFramework (
+			name <- 'Default Architectural Framework',
+			ownedMember <- IEEE1471!Viewpoint.allInstances()->select(e | e.hasSource.oclIsUndefined())
 		)
 }
 
@@ -70,8 +70,8 @@ rule Architecture2Architecture {
 		t : MoDAF!Architecture (
 			name <- s.name,
 			content <- s.content,
-			enterprise <- IEEE1471!System.allInstances()->select(sys | sys.hasAn = s)->first(),
-			describedBy <- s.describedBy
+			describedBy <- s.describedBy,
+			enterprise <- IEEE1471!System.allInstances()->select(sys | sys.hasAn = s)->first()
 		)
 }
 
@@ -82,6 +82,15 @@ rule AD2AD {
 		t : MoDAF!ArchitecturalDescription (
 			name <- s.name,
 			content <- s.content,
+			approvialAuthority <- '',
+			architect <- '',
+			assumptionAndConstraints <- '',
+			creatingOrganisation <- '',
+			dateCompleted <- '',
+			purpose <- thisModule.rationale,
+			recommendations <- '',
+			summaryOfFindings <- '',
+			tollsUsed <- '',
 			viewpoints <- s.selects,
 			products <- s.organizedBy
 		)
@@ -104,6 +113,12 @@ rule Viewpoint2View {
 		t : MoDAF!View (
 			name <- s.name,
 			content <- s.content,
+			framework <- '',
+			frameworkWebsite <- '',
+			viewCode <- '',
+			viewDescription <- s.content,
+			viewName <- s.name,
+			definingFramework <- s.hasSource,
 			usedToCover <- s.usedToCover
 		)
 }
@@ -115,6 +130,7 @@ rule View2ArchitecturalProduct {
 		t : MoDAF!ArchitecturalProduct (
 			name <- s.name,
 			content <- s.content,
+			description <- s.content,
 			definingView <- s.conformsTo,
 			architecturalElements <- s.consitsOf
 		)
@@ -147,19 +163,19 @@ rule LibraryViewpoint2ArchitecturalFramework {
 		t : MoDAF!ArchitecturalFramework (
 			name <- s.name,
 			content <- s.content,
-			ownedMember <- IEEE1471!Viewpoint.allInstances()->select(v | v.hasSource = s)
+			ownedMember <- IEEE1471!Viewpoint.allInstances()->select(e | e.hasSource = s)
 		)
 }
 
 rule StakeholderHasConcern {
 	from
-		st : IEEE1471!Stakeholder,
+		s : IEEE1471!Stakeholder,
 		c : IEEE1471!Concern (
-			st.has->includes(c)
+			s.has->includes(c)
 		)
 	to
-		link : MoDAF!StakeholderHasConcern (
-			client <- st,
+		t : MoDAF!StakeholderHasConcern (
+			client <- s,
 			supplier <- c,
 			owner <- IEEE1471!IEEE1471Model.allInstances()->first()
 		)

@@ -2,70 +2,72 @@ module BibTeX2DocBook;
 create OUT : DocBook from IN : BibTeX;
 
 helper context BibTeX!BibTeXEntry def: buildEntryPara() : String =
-	self.id + ' ' + self.oclType().name + if self.oclIsKindOf(BibTeX!TitledEntry) then
-		' ' + self.title
+	'[' + self.id + ']' + ' ' + self.oclType().name +
+	if self.oclIsKindOf(BibTeX!TitledEntry) then
+		' title = ' + self.title
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!AuthoredEntry) then
-		self.authors->iterate(e; acc : String = '' |
-			acc + ' ' + e.author
-		)
+	endif +
+	if self.oclIsKindOf(BibTeX!AuthoredEntry) then
+		' author = ' + self.authors->iterate(a; res : String = '' |
+			res + if res = '' then '' else ' and ' endif + a.author)
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!DatedEntry) then
-		' ' + self.year
+	endif +
+	if self.oclIsKindOf(BibTeX!DatedEntry) then
+		' year = ' + self.year
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!BookTitledEntry) then
-		' ' + self.booktitle
+	endif +
+	if self.oclIsKindOf(BibTeX!BookTitledEntry) then
+		' booktitle = ' + self.booktitle
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!ThesisEntry) then
-		' ' + self.school
+	endif +
+	if self.oclIsKindOf(BibTeX!ThesisEntry) then
+		' school = ' + self.school
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!Article) then
-		' ' + self.journal
+	endif +
+	if self.oclIsKindOf(BibTeX!Article) then
+		' journal = ' + self.journal
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!Unpublished) then
-		' ' + self.note
+	endif +
+	if self.oclIsKindOf(BibTeX!Unpublished) then
+		' note = ' + self.note
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!Book) then
-		' ' + self.publisher
+	endif +
+	if self.oclIsKindOf(BibTeX!Book) then
+		' publisher = ' + self.publisher
 	else
 		''
-	endif + if self.oclIsKindOf(BibTeX!InBook) then
-		' ' + self.chapter.toString()
+	endif +
+	if self.oclIsKindOf(BibTeX!InBook) then
+		' chapter = ' + self.chapter.toString()
 	else
 		''
 	endif;
 
 helper def: authorSet : Set(BibTeX!Author) =
 	BibTeX!Author.allInstances()->select(e |
-		BibTeX!Author.allInstances()->select(e1 |
-			e1.author = e.author
-		)->first() = e
-	);
+		BibTeX!Author.allInstances()->select(l | l.author = e.author)->first() = e
+	)->asSet();
 
 helper def: titledEntrySet : Set(BibTeX!TitledEntry) =
 	BibTeX!TitledEntry.allInstances()->select(e |
-		BibTeX!TitledEntry.allInstances()->select(e1 |
-			e1.title = e.title
-		)->first() = e
-	);
+		BibTeX!TitledEntry.allInstances()->select(l | l.title = e.title)->first() = e
+	)->asSet();
 
 helper def: articleSet : Set(BibTeX!Article) =
 	BibTeX!Article.allInstances()->select(e |
-		BibTeX!Article.allInstances()->select(e1 |
-			e1.journal = e.journal
-		)->first() = e
-	);
+		BibTeX!Article.allInstances()->select(l | l.journal = e.journal)->first() = e
+	)->asSet();
 
 rule Main {
 	from
-		e : BibTeX!BibTeXFile
+		bib : BibTeX!BibTeXFile
 	to
 		doc : DocBook!DocBook (
 			books <- book
@@ -75,7 +77,7 @@ rule Main {
 		),
 		article : DocBook!Article (
 			title <- 'BibTeXML to DocBook',
-			sections_1 <- Sequence{se1, se2, se3, se4}
+			sections_1 <- Sequence {se1, se2, se3, se4}
 		),
 		se1 : DocBook!Sect1 (
 			title <- 'References List',

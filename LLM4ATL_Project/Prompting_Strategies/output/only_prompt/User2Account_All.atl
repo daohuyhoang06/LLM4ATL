@@ -20,7 +20,7 @@ rule User2Account {
 		a : Account!Account (
 			username <- u.username,
 			email <- u.email,
-			createdDate <- u.registrationDate,
-			active <- u.isActive()
+			active <- u.isActive(),
+			createdDate <- u.registrationDate
 		)
 }

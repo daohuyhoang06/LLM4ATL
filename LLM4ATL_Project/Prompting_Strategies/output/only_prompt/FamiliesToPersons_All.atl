@@ -11,7 +11,11 @@ helper context Families!Member def: familyLastName() : String =
 			if not self.familySon.oclIsUndefined() then
 				self.familySon.lastName
 			else
-				self.familyDaughter.lastName
+				if not self.familyDaughter.oclIsUndefined() then
+					self.familyDaughter.lastName
+				else
+					''
+				endif
 			endif
 		endif
 	endif;

@@ -1,33 +1,42 @@
 module Class2Interface_All;
 create OUT : Interface from IN : Class;
 
+rule ClassModel2InterfaceModel {
+	from
+		s : Class!ClassModel
+	to
+		t : Interface!InterfaceModel (
+			interfaces <- s.classes
+		)
+}
+
 rule Class2Interface {
 	from
-		c : Class!Class
+		s : Class!Class
 	to
-		i : Interface!Interface (
-			name <- c.name,
-			methods <- c.methods
+		t : Interface!Interface (
+			name <- s.name,
+			methods <- s.methods
 		)
 }
 
 rule Method2Method {
 	from
-		m : Class!Method
+		s : Class!Method
 	to
-		im : Interface!Method (
-			name <- m.name,
-			returnType <- m.returnType,
-			parameters <- m.parameters
+		t : Interface!Method (
+			name <- s.name,
+			returnType <- s.returnType,
+			parameters <- s.parameters
 		)
 }
 
 rule Parameter2Parameter {
 	from
-		p : Class!Parameter
+		s : Class!Parameter
 	to
-		ip : Interface!Parameter (
-			name <- p.name,
-			type <- p.type
+		t : Interface!Parameter (
+			name <- s.name,
+			type <- s.type
 		)
 }
