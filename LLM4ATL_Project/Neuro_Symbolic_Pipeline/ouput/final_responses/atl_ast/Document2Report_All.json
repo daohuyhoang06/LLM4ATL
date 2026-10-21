@@ -5,14 +5,14 @@
     {
       "type": "ModelDeclaration",
       "alias": "IN",
-      "metamodel": "document"
+      "metamodel": "Document"
     }
   ],
   "output_models": [
     {
       "type": "ModelDeclaration",
       "alias": "OUT",
-      "metamodel": "report"
+      "metamodel": "Report"
     }
   ],
   "elements": [
@@ -27,7 +27,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "r",
+              "name": "t",
               "declared_type": "report!Report"
             },
             "bindings": [
@@ -38,7 +38,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "d",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "title"
@@ -51,7 +51,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "d",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "author"
@@ -64,7 +64,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "d",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "sections"
@@ -84,10 +84,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "d",
+              "name": "s",
               "declared_type": "document!Document"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -168,7 +168,7 @@
               "name": "s",
               "declared_type": "document!Section"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null

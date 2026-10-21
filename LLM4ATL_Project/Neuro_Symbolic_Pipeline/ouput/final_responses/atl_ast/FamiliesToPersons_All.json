@@ -246,7 +246,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "persons!Male"
             },
             "bindings": [
@@ -263,7 +263,7 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "m",
+                        "name": "s",
                         "declared_type": null
                       },
                       "property_name": "firstName"
@@ -278,7 +278,7 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m",
+                      "name": "s",
                       "declared_type": null
                     },
                     "operation_name": "familyLastName",
@@ -288,7 +288,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -300,17 +300,17 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "families!Member"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "Variable",
-            "name": "m",
+            "name": "s",
             "declared_type": null
           },
           "operation_name": "isMale",
@@ -333,7 +333,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "persons!Female"
             },
             "bindings": [
@@ -350,7 +350,7 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "m",
+                        "name": "s",
                         "declared_type": null
                       },
                       "property_name": "firstName"
@@ -365,7 +365,7 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "m",
+                      "name": "s",
                       "declared_type": null
                     },
                     "operation_name": "familyLastName",
@@ -375,7 +375,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -387,17 +387,17 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "m",
+              "name": "s",
               "declared_type": "families!Member"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "Variable",
-            "name": "m",
+            "name": "s",
             "declared_type": null
           },
           "operation_name": "isFemale",

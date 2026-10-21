@@ -1,7 +1,7 @@
 module NetworkToGraph_All;
 create OUT : Graph from IN : Network;
 
-rule Component2Entity {
+lazy rule Component2Entity {
     from
         c : Network!Component
     to
@@ -15,7 +15,7 @@ rule System2Root {
         s : Network!System
     to
         r : Graph!Root (
-            entities <- s.components
+            entities <- s.components->collect(c | thisModule.Component2Entity(c))
         )
 }
 
@@ -23,7 +23,8 @@ rule Link2Link {
     from
         l : Network!Link
     to
-        gl : Graph!Link (
-            Entitys <- l.components
+        g : Graph!Link (
+            Entitys <- l.components->collect(c | thisModule.Component2Entity(c))
         )
 }
+

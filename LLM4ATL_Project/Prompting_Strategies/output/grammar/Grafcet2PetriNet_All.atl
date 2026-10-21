@@ -1,0 +1,66 @@
+module Grafcet2PetriNet;
+create OUT : PetriNet from IN : Grafcet;
+
+rule PetriNet {
+	from
+		g : Grafcet!Grafcet
+	to
+		n : PetriNet!PetriNet (
+			location <- g.location,
+			name <- g.name,
+			elements <- g.elements,
+			arcs <- g.connections
+		)
+}
+
+rule Place {
+	from
+		s : Grafcet!Step
+	to
+		p : PetriNet!Place (
+			location <- s.location,
+			name <- s.name,
+			net <- s.grafcet,
+			incomingArc <- s.incomingConnections,
+			outgoingArc <- s.outgoingConnections
+		)
+}
+
+rule Transition {
+	from
+		t : Grafcet!Transition
+	to
+		pt : PetriNet!Transition (
+			location <- t.location,
+			name <- t.name,
+			net <- t.grafcet,
+			incomingArc <- t.incomingConnections,
+			outgoingArc <- t.outgoingConnections
+		)
+}
+
+rule PlaceToTransition {
+	from
+		s : Grafcet!StepToTransition
+	to
+		p : PetriNet!PlaceToTransition (
+			location <- s.location,
+			name <- s.name,
+			net <- s.grafcet,
+			from <- s.from,
+			to <- s.to
+		)
+}
+
+rule TransitionToPlace {
+	from
+		t : Grafcet!TransitionToStep
+	to
+		p : PetriNet!TransitionToPlace (
+			location <- t.location,
+			name <- t.name,
+			net <- t.grafcet,
+			from <- t.from,
+			to <- t.to
+		)
+}

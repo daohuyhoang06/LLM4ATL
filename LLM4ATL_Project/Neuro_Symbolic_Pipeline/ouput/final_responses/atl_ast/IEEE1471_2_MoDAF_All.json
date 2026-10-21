@@ -24,59 +24,45 @@
       "parameters": [],
       "return_type": "String",
       "body": {
-        "type": "LetExpression",
-        "variable": {
-          "type": "Variable",
-          "name": "r",
-          "declared_type": "IEEE1471!Rationale"
-        },
-        "value": {
-          "type": "IteratorExpression",
+        "type": "BinaryExpression",
+        "operator": "+",
+        "left": {
+          "type": "PropertyCall",
           "source": {
-            "type": "OperationCall",
+            "type": "CollectionOperation",
             "source": {
-              "type": "Variable",
-              "name": "IEEE1471!Rationale",
-              "declared_type": null
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "IEEE1471!Rationale",
+                "declared_type": null
+              },
+              "operation_name": "allInstances",
+              "arguments": []
             },
-            "operation_name": "allInstances",
+            "operation_name": "first",
             "arguments": []
           },
-          "iterator_type": "any",
-          "iterators": [
-            {
-              "type": "Variable",
-              "name": "e",
-              "declared_type": null
-            }
-          ],
-          "body": {
-            "type": "LiteralExpression",
-            "value": true,
-            "literal_type": "Boolean"
-          }
+          "property_name": "name"
         },
-        "body": {
-          "type": "BinaryExpression",
-          "operator": "+",
-          "left": {
-            "type": "PropertyCall",
+        "right": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "CollectionOperation",
             "source": {
-              "type": "Variable",
-              "name": "r",
-              "declared_type": null
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "IEEE1471!Rationale",
+                "declared_type": null
+              },
+              "operation_name": "allInstances",
+              "arguments": []
             },
-            "property_name": "name"
+            "operation_name": "first",
+            "arguments": []
           },
-          "right": {
-            "type": "PropertyCall",
-            "source": {
-              "type": "Variable",
-              "name": "r",
-              "declared_type": null
-            },
-            "property_name": "content"
-          }
+          "property_name": "content"
         }
       }
     },
@@ -188,19 +174,6 @@
               },
               {
                 "type": "Binding",
-                "property_name": "stakeholders",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "stakeholders"
-                }
-              },
-              {
-                "type": "Binding",
                 "property_name": "architecturalFrameworks",
                 "value": {
                   "type": "CollectionOperation",
@@ -228,6 +201,19 @@
                     }
                   ]
                 }
+              },
+              {
+                "type": "Binding",
+                "property_name": "stakeholders",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "stakeholders"
+                }
               }
             ],
             "maps_to": null,
@@ -246,7 +232,7 @@
                 "property_name": "name",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "Default Framework",
+                  "value": "DefaultFramework",
                   "literal_type": "String"
                 }
               },
@@ -611,49 +597,6 @@
                   },
                   "property_name": "describedBy"
                 }
-              },
-              {
-                "type": "Binding",
-                "property_name": "enterprise",
-                "value": {
-                  "type": "IteratorExpression",
-                  "source": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "IEEE1471!System",
-                      "declared_type": null
-                    },
-                    "operation_name": "allInstances",
-                    "arguments": []
-                  },
-                  "iterator_type": "any",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "sys",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "sys",
-                        "declared_type": null
-                      },
-                      "property_name": "hasAn"
-                    },
-                    "right": {
-                      "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
-                    }
-                  }
-                }
               }
             ],
             "maps_to": null,
@@ -721,6 +664,91 @@
                     "declared_type": null
                   },
                   "property_name": "content"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "approvialAuthority",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "architect",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "assumptionAndConstraints",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "creatingOrganisation",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "dateCompleted",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "purpose",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "recommendations",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "summaryOfFindings",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "thisModule",
+                    "declared_type": null
+                  },
+                  "property_name": "rationale"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "tollsUsed",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
                 }
               },
               {
@@ -887,15 +915,59 @@
               },
               {
                 "type": "Binding",
-                "property_name": "viewName",
+                "property_name": "framework",
                 "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                  "type": "IfExpression",
+                  "condition": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "hasSource"
+                    },
+                    "operation_name": "oclIsUndefined",
+                    "arguments": []
                   },
-                  "property_name": "name"
+                  "then_expression": {
+                    "type": "LiteralExpression",
+                    "value": "Default Framework",
+                    "literal_type": "String"
+                  },
+                  "else_expression": {
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "s",
+                        "declared_type": null
+                      },
+                      "property_name": "hasSource"
+                    },
+                    "property_name": "name"
+                  }
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "frameworkWebsite",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "viewCode",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
                 }
               },
               {
@@ -913,6 +985,19 @@
               },
               {
                 "type": "Binding",
+                "property_name": "viewName",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
                 "property_name": "usedToCover",
                 "value": {
                   "type": "PropertyCall",
@@ -922,19 +1007,6 @@
                     "declared_type": null
                   },
                   "property_name": "usedToCover"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "definingFramework",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "hasSource"
                 }
               }
             ],
@@ -1247,6 +1319,49 @@
                   },
                   "property_name": "content"
                 }
+              },
+              {
+                "type": "Binding",
+                "property_name": "ownedMember",
+                "value": {
+                  "type": "IteratorExpression",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "IEEE1471!Viewpoint",
+                      "declared_type": null
+                    },
+                    "operation_name": "allInstances",
+                    "arguments": []
+                  },
+                  "iterator_type": "select",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "v",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "BinaryExpression",
+                    "operator": "=",
+                    "left": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "v",
+                        "declared_type": null
+                      },
+                      "property_name": "hasSource"
+                    },
+                    "right": {
+                      "type": "Variable",
+                      "name": "s",
+                      "declared_type": null
+                    }
+                  }
+                }
               }
             ],
             "maps_to": null,
@@ -1286,7 +1401,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "shc",
+              "name": "t",
               "declared_type": "MoDAF!StakeholderHasConcern"
             },
             "bindings": [
@@ -1312,30 +1427,19 @@
                 "type": "Binding",
                 "property_name": "owner",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "CollectionOperation",
                   "source": {
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "IEEE1471!IEEE1471Model",
+                      "name": "MoDAF!MoDAFModel",
                       "declared_type": null
                     },
                     "operation_name": "allInstances",
                     "arguments": []
                   },
-                  "iterator_type": "any",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "LiteralExpression",
-                    "value": true,
-                    "literal_type": "Boolean"
-                  }
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ],

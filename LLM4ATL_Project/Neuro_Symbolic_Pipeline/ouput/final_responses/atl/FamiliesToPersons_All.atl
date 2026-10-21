@@ -24,22 +24,23 @@ helper context Families!Member def: isMale() : Boolean =
 
 rule Member2Male {
     from
-        m : Families!Member (
-            m.isMale()
+        s : Families!Member (
+            s.isMale()
         )
     to
-        p : Persons!Male (
-            fullName <- ((m.firstName + ' ') + m.familyLastName())
+        t : Persons!Male (
+            fullName <- ((s.firstName + ' ') + s.familyLastName())
         )
 }
 
 rule Member2Female {
     from
-        m : Families!Member (
-            m.isFemale()
+        s : Families!Member (
+            s.isFemale()
         )
     to
-        p : Persons!Female (
-            fullName <- ((m.firstName + ' ') + m.familyLastName())
+        t : Persons!Female (
+            fullName <- ((s.firstName + ' ') + s.familyLastName())
         )
 }
+

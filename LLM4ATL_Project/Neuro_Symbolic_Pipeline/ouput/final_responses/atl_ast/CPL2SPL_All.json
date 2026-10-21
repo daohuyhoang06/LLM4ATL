@@ -18,170 +18,42 @@
   "elements": [
     {
       "type": "Helper",
-      "kind": "attribute",
-      "context_type": "CPL!Element",
+      "kind": "operation",
+      "context_type": "CPL!NodeContainer",
       "name": "statement",
       "parameters": [],
-      "return_type": "SPL!Statement",
+      "return_type": "CPL!Node",
       "body": {
         "type": "IfExpression",
         "condition": {
           "type": "OperationCall",
           "source": {
-            "type": "Variable",
-            "name": "self",
-            "declared_type": null
-          },
-          "operation_name": "oclIsKindOf",
-          "arguments": [
-            {
-              "type": "Variable",
-              "name": "CPL!NodeContainer",
-              "declared_type": null
-            }
-          ]
-        },
-        "then_expression": {
-          "type": "IfExpression",
-          "condition": {
-            "type": "OperationCall",
-            "source": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              },
-              "property_name": "contents"
-            },
-            "operation_name": "oclIsUndefined",
-            "arguments": []
-          },
-          "then_expression": {
-            "type": "OclUndefined"
-          },
-          "else_expression": {
             "type": "PropertyCall",
             "source": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              },
-              "property_name": "contents"
-            },
-            "property_name": "statement"
-          }
-        },
-        "else_expression": {
-          "type": "OperationCall",
-          "source": {
-            "type": "Variable",
-            "name": "thisModule",
-            "declared_type": null
-          },
-          "operation_name": "resolveTemp",
-          "arguments": [
-            {
               "type": "Variable",
               "name": "self",
-              "declared_type": null
+              "declared_type": "CPL!NodeContainer"
             },
-            {
-              "type": "LiteralExpression",
-              "value": "stat",
-              "literal_type": "String"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "Helper",
-      "kind": "attribute",
-      "context_type": "CPL!Element",
-      "name": "locations",
-      "parameters": [],
-      "return_type": "Set(CPL!Location)",
-      "body": {
-        "type": "IfExpression",
-        "condition": {
-          "type": "OperationCall",
-          "source": {
-            "type": "Variable",
-            "name": "self",
-            "declared_type": null
+            "property_name": "contents"
           },
-          "operation_name": "oclIsKindOf",
-          "arguments": [
-            {
-              "type": "Variable",
-              "name": "CPL!Location",
-              "declared_type": null
-            }
-          ]
+          "operation_name": "oclIsUndefined",
+          "arguments": []
         },
         "then_expression": {
-          "type": "IfExpression",
-          "condition": {
-            "type": "OperationCall",
-            "source": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              },
-              "property_name": "contents"
-            },
-            "operation_name": "oclIsUndefined",
-            "arguments": []
-          },
-          "then_expression": {
-            "type": "CollectionLiteral",
-            "collection_kind": "Set",
-            "elements": [
-              {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              }
-            ]
-          },
-          "else_expression": {
-            "type": "CollectionOperation",
-            "source": {
-              "type": "PropertyCall",
-              "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "self",
-                  "declared_type": null
-                },
-                "property_name": "contents"
-              },
-              "property_name": "locations"
-            },
-            "operation_name": "including",
-            "arguments": [
-              {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              }
-            ]
-          }
+          "type": "OclUndefined"
         },
         "else_expression": {
           "type": "IfExpression",
           "condition": {
             "type": "OperationCall",
             "source": {
-              "type": "Variable",
-              "name": "self",
-              "declared_type": null
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "CPL!NodeContainer"
+              },
+              "property_name": "contents"
             },
             "operation_name": "oclIsKindOf",
             "arguments": [
@@ -193,186 +65,77 @@
             ]
           },
           "then_expression": {
-            "type": "IfExpression",
-            "condition": {
-              "type": "OperationCall",
-              "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "self",
-                  "declared_type": null
-                },
-                "property_name": "contents"
-              },
-              "operation_name": "oclIsUndefined",
-              "arguments": []
-            },
-            "then_expression": {
-              "type": "CollectionLiteral",
-              "collection_kind": "Set",
-              "elements": []
-            },
-            "else_expression": {
+            "type": "OperationCall",
+            "source": {
               "type": "PropertyCall",
-              "source": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "self",
-                  "declared_type": null
-                },
-                "property_name": "contents"
-              },
-              "property_name": "locations"
-            }
-          },
-          "else_expression": {
-            "type": "IfExpression",
-            "condition": {
-              "type": "OperationCall",
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "CPL!NodeContainer"
               },
-              "operation_name": "oclIsKindOf",
-              "arguments": [
-                {
-                  "type": "Variable",
-                  "name": "CPL!CPL",
-                  "declared_type": null
-                }
-              ]
+              "property_name": "contents"
             },
-            "then_expression": {
-              "type": "CollectionOperation",
-              "source": {
-                "type": "CollectionOperation",
-                "source": {
-                  "type": "IfExpression",
-                  "condition": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "self",
-                        "declared_type": null
-                      },
-                      "property_name": "incoming"
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  },
-                  "then_expression": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": []
-                  },
-                  "else_expression": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "self",
-                        "declared_type": null
-                      },
-                      "property_name": "incoming"
-                    },
-                    "property_name": "locations"
-                  }
-                },
-                "operation_name": "union",
-                "arguments": [
-                  {
-                    "type": "IfExpression",
-                    "condition": {
-                      "type": "OperationCall",
-                      "source": {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "self",
-                          "declared_type": null
-                        },
-                        "property_name": "outgoing"
-                      },
-                      "operation_name": "oclIsUndefined",
-                      "arguments": []
-                    },
-                    "then_expression": {
-                      "type": "CollectionLiteral",
-                      "collection_kind": "Set",
-                      "elements": []
-                    },
-                    "else_expression": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "self",
-                          "declared_type": null
-                        },
-                        "property_name": "outgoing"
-                      },
-                      "property_name": "locations"
-                    }
-                  }
-                ]
-              },
-              "operation_name": "union",
-              "arguments": [
-                {
-                  "type": "CollectionOperation",
-                  "source": {
-                    "type": "IteratorExpression",
-                    "source": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "self",
-                        "declared_type": null
-                      },
-                      "property_name": "subActions"
-                    },
-                    "iterator_type": "collect",
-                    "iterators": [
-                      {
-                        "type": "Variable",
-                        "name": "e",
-                        "declared_type": null
-                      }
-                    ],
-                    "body": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "e",
-                        "declared_type": null
-                      },
-                      "property_name": "locations"
-                    }
-                  },
-                  "operation_name": "asSet",
-                  "arguments": []
-                }
-              ]
+            "operation_name": "statement",
+            "arguments": []
+          },
+          "else_expression": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "CPL!NodeContainer"
             },
-            "else_expression": {
-              "type": "CollectionLiteral",
-              "collection_kind": "Set",
-              "elements": []
-            }
+            "property_name": "contents"
           }
         }
       }
     },
     {
       "type": "Helper",
-      "kind": "attribute",
+      "kind": "operation",
+      "context_type": "CPL!Element",
+      "name": "locations",
+      "parameters": [],
+      "return_type": "Set(CPL!Location)",
+      "body": {
+        "type": "IfExpression",
+        "condition": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "self",
+            "declared_type": "CPL!Element"
+          },
+          "operation_name": "oclIsKindOf",
+          "arguments": [
+            {
+              "type": "Variable",
+              "name": "CPL!Location",
+              "declared_type": null
+            }
+          ]
+        },
+        "then_expression": {
+          "type": "CollectionLiteral",
+          "collection_kind": "Set",
+          "elements": [
+            {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "CPL!Element"
+            }
+          ]
+        },
+        "else_expression": {
+          "type": "CollectionLiteral",
+          "collection_kind": "Set",
+          "elements": []
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
       "context_type": "CPL!Proxy",
       "name": "isSimple",
       "parameters": [],
@@ -387,36 +150,18 @@
             "type": "BinaryExpression",
             "operator": "and",
             "left": {
-              "type": "BinaryExpression",
-              "operator": "and",
-              "left": {
-                "type": "OperationCall",
+              "type": "OperationCall",
+              "source": {
+                "type": "PropertyCall",
                 "source": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self",
-                    "declared_type": null
-                  },
-                  "property_name": "busy"
+                  "type": "Variable",
+                  "name": "self",
+                  "declared_type": "CPL!Proxy"
                 },
-                "operation_name": "oclIsUndefined",
-                "arguments": []
+                "property_name": "busy"
               },
-              "right": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self",
-                    "declared_type": null
-                  },
-                  "property_name": "noAnswer"
-                },
-                "operation_name": "oclIsUndefined",
-                "arguments": []
-              }
+              "operation_name": "oclIsUndefined",
+              "arguments": []
             },
             "right": {
               "type": "OperationCall",
@@ -425,9 +170,9 @@
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": null
+                  "declared_type": "CPL!Proxy"
                 },
-                "property_name": "redirection"
+                "property_name": "noAnswer"
               },
               "operation_name": "oclIsUndefined",
               "arguments": []
@@ -440,27 +185,45 @@
               "source": {
                 "type": "Variable",
                 "name": "self",
-                "declared_type": null
+                "declared_type": "CPL!Proxy"
               },
-              "property_name": "failure"
+              "property_name": "redirection"
             },
             "operation_name": "oclIsUndefined",
             "arguments": []
           }
         },
         "right": {
-          "type": "OperationCall",
-          "source": {
-            "type": "PropertyCall",
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "OperationCall",
             "source": {
-              "type": "Variable",
-              "name": "self",
-              "declared_type": null
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "CPL!Proxy"
+              },
+              "property_name": "failure"
             },
-            "property_name": "default"
+            "operation_name": "oclIsUndefined",
+            "arguments": []
           },
-          "operation_name": "oclIsUndefined",
-          "arguments": []
+          "right": {
+            "type": "OperationCall",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "CPL!Proxy"
+              },
+              "property_name": "default"
+            },
+            "operation_name": "oclIsUndefined",
+            "arguments": []
+          }
         }
       }
     },
@@ -485,12 +248,12 @@
                 "value": {
                   "type": "Variable",
                   "name": "s",
-                  "declared_type": null
+                  "declared_type": "SPL!Service"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -505,7 +268,7 @@
                 "property_name": "name",
                 "value": {
                   "type": "LiteralExpression",
-                  "value": "CPL Service",
+                  "value": "CPL",
                   "literal_type": "String"
                 }
               },
@@ -517,7 +280,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "c",
-                    "declared_type": null
+                    "declared_type": "CPL!CPL"
                   },
                   "property_name": "subActions"
                 }
@@ -526,54 +289,18 @@
                 "type": "Binding",
                 "property_name": "sessions",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "PropertyCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "c",
-                          "declared_type": null
-                        },
-                        "property_name": "incoming"
-                      },
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "c",
-                          "declared_type": null
-                        },
-                        "property_name": "outgoing"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "c",
+                    "declared_type": "CPL!CPL"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "property_name": "incoming"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -588,7 +315,7 @@
               "name": "c",
               "declared_type": "CPL!CPL"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -620,8 +347,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "sa",
+                    "declared_type": "CPL!SubAction"
                   },
                   "property_name": "id"
                 }
@@ -632,52 +359,26 @@
                 "value": {
                   "type": "Variable",
                   "name": "rt",
-                  "declared_type": null
+                  "declared_type": "SPL!SimpleType"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "s",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "sa",
+                    "declared_type": "CPL!SubAction"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -697,7 +398,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -709,10 +410,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "sa",
               "declared_type": "CPL!SubAction"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -743,7 +444,7 @@
                 "value": {
                   "type": "Variable",
                   "name": "rt",
-                  "declared_type": null
+                  "declared_type": "SPL!SimpleType"
                 }
               },
               {
@@ -760,52 +461,26 @@
                 "value": {
                   "type": "Variable",
                   "name": "mn",
-                  "declared_type": null
+                  "declared_type": "SPL!SIPMethodName"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "i",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "i",
+                    "declared_type": "CPL!Incoming"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -825,7 +500,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -845,7 +520,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -860,7 +535,7 @@
               "name": "i",
               "declared_type": "CPL!Incoming"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -881,7 +556,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stat",
+              "name": "r",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
@@ -890,65 +565,113 @@
                 "property_name": "returnedValue",
                 "value": {
                   "type": "Variable",
-                  "name": "exp",
-                  "declared_type": null
+                  "name": "f",
+                  "declared_type": "SPL!FunctionCallExp"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "exp",
-              "declared_type": "SPL!ConstantExp"
+              "name": "f",
+              "declared_type": "SPL!FunctionCallExp"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "value",
+                "property_name": "functionCall",
                 "value": {
-                  "type": "OperationCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "thisModule",
-                    "declared_type": null
-                  },
-                  "operation_name": "Location2URIConstant",
-                  "arguments": [
-                    {
-                      "type": "IteratorExpression",
-                      "source": {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "p",
-                          "declared_type": null
-                        },
-                        "property_name": "locations"
-                      },
-                      "iterator_type": "any",
-                      "iterators": [
-                        {
-                          "type": "Variable",
-                          "name": "e",
-                          "declared_type": null
-                        }
-                      ],
-                      "body": {
-                        "type": "LiteralExpression",
-                        "value": true,
-                        "literal_type": "Boolean"
-                      }
-                    }
-                  ]
+                  "type": "Variable",
+                  "name": "call",
+                  "declared_type": "SPL!FunctionCall"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "call",
+              "declared_type": "SPL!FunctionCall"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "function",
+                "value": {
+                  "type": "Variable",
+                  "name": "fd",
+                  "declared_type": "SPL!RemoteFunctionDeclaration"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "fd",
+              "declared_type": "SPL!RemoteFunctionDeclaration"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "proxy",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "returnType",
+                "value": {
+                  "type": "Variable",
+                  "name": "rt",
+                  "declared_type": "SPL!SimpleType"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "functionLocation",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "remote"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "rt",
+              "declared_type": "SPL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "response"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
           }
         ]
       },
@@ -963,17 +686,18 @@
               "name": "p",
               "declared_type": "CPL!Proxy"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
-          "type": "PropertyCall",
+          "type": "OperationCall",
           "source": {
             "type": "Variable",
             "name": "p",
-            "declared_type": null
+            "declared_type": "CPL!Proxy"
           },
-          "property_name": "isSimple"
+          "operation_name": "isSimple",
+          "arguments": []
         }
       },
       "extends": null,
@@ -992,7 +716,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stat",
+              "name": "s",
               "declared_type": "SPL!SelectStat"
             },
             "bindings": [
@@ -1001,75 +725,54 @@
                 "property_name": "matchedExp",
                 "value": {
                   "type": "Variable",
-                  "name": "response",
-                  "declared_type": null
+                  "name": "f",
+                  "declared_type": "SPL!FunctionCallExp"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "selectCases",
                 "value": {
-                  "type": "IteratorExpression",
-                  "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "p",
-                          "declared_type": null
-                        },
-                        "property_name": "busy"
-                      },
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "p",
-                          "declared_type": null
-                        },
-                        "property_name": "noAnswer"
-                      },
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "p",
-                          "declared_type": null
-                        },
-                        "property_name": "redirection"
-                      },
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "p",
-                          "declared_type": null
-                        },
-                        "property_name": "failure"
-                      }
-                    ]
-                  },
-                  "iterator_type": "reject",
-                  "iterators": [
+                  "type": "CollectionLiteral",
+                  "collection_kind": "Set",
+                  "elements": [
                     {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "p",
+                        "declared_type": "CPL!Proxy"
+                      },
+                      "property_name": "busy"
                     },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "p",
+                        "declared_type": "CPL!Proxy"
+                      },
+                      "property_name": "noAnswer"
+                    },
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "p",
+                        "declared_type": "CPL!Proxy"
+                      },
+                      "property_name": "redirection"
+                    },
+                    {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "p",
+                        "declared_type": "CPL!Proxy"
+                      },
+                      "property_name": "failure"
+                    }
+                  ]
                 }
               },
               {
@@ -1080,67 +783,114 @@
                   "source": {
                     "type": "Variable",
                     "name": "p",
-                    "declared_type": null
+                    "declared_type": "CPL!Proxy"
                   },
                   "property_name": "default"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "response",
-              "declared_type": "SPL!ConstantExp"
+              "name": "f",
+              "declared_type": "SPL!FunctionCallExp"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "value",
+                "property_name": "functionCall",
                 "value": {
                   "type": "Variable",
-                  "name": "r",
-                  "declared_type": null
+                  "name": "call",
+                  "declared_type": "SPL!FunctionCall"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "r",
-              "declared_type": "SPL!ResponseConstant"
+              "name": "call",
+              "declared_type": "SPL!FunctionCall"
             },
             "bindings": [
               {
                 "type": "Binding",
-                "property_name": "response",
+                "property_name": "function",
                 "value": {
                   "type": "Variable",
-                  "name": "r2",
-                  "declared_type": null
+                  "name": "fd",
+                  "declared_type": "SPL!RemoteFunctionDeclaration"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "r2",
-              "declared_type": "SPL!ClientErrorResponse"
+              "name": "fd",
+              "declared_type": "SPL!RemoteFunctionDeclaration"
             },
-            "bindings": [],
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "proxy",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "returnType",
+                "value": {
+                  "type": "Variable",
+                  "name": "rt",
+                  "declared_type": "SPL!SimpleType"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "functionLocation",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "remote"
+                }
+              }
+            ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "rt",
+              "declared_type": "SPL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "response"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
           }
         ]
       },
@@ -1155,20 +905,21 @@
               "name": "p",
               "declared_type": "CPL!Proxy"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "UnaryExpression",
           "operator": "not",
           "expression": {
-            "type": "PropertyCall",
+            "type": "OperationCall",
             "source": {
               "type": "Variable",
               "name": "p",
-              "declared_type": null
+              "declared_type": "CPL!Proxy"
             },
-            "property_name": "isSimple"
+            "operation_name": "isSimple",
+            "arguments": []
           }
         }
       },
@@ -1188,7 +939,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sc",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
@@ -1196,66 +947,34 @@
                 "type": "Binding",
                 "property_name": "values",
                 "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "rc",
-                      "declared_type": null
-                    }
-                  ]
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "SPL!ResponseConstant"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "b",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "b",
+                    "declared_type": "CPL!Busy"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "rc",
+              "name": "c",
               "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
@@ -1265,12 +984,12 @@
                 "value": {
                   "type": "Variable",
                   "name": "r",
-                  "declared_type": null
+                  "declared_type": "SPL!ClientErrorResponse"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -1290,7 +1009,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1305,7 +1024,7 @@
               "name": "b",
               "declared_type": "CPL!Busy"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1326,7 +1045,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sc",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
@@ -1334,66 +1053,34 @@
                 "type": "Binding",
                 "property_name": "values",
                 "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "rc",
-                      "declared_type": null
-                    }
-                  ]
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "SPL!ResponseConstant"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "n",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "na",
+                    "declared_type": "CPL!NoAnswer"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "rc",
+              "name": "c",
               "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
@@ -1403,12 +1090,12 @@
                 "value": {
                   "type": "Variable",
                   "name": "r",
-                  "declared_type": null
+                  "declared_type": "SPL!ClientErrorResponse"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -1428,7 +1115,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1440,10 +1127,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "n",
+              "name": "na",
               "declared_type": "CPL!NoAnswer"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1464,7 +1151,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sc",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
@@ -1472,66 +1159,34 @@
                 "type": "Binding",
                 "property_name": "values",
                 "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "rc",
-                      "declared_type": null
-                    }
-                  ]
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "SPL!ResponseConstant"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "red",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "rd",
+                    "declared_type": "CPL!Redirection"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "rc",
+              "name": "c",
               "declared_type": "SPL!ResponseConstant"
             },
             "bindings": [
@@ -1540,19 +1195,19 @@
                 "property_name": "response",
                 "value": {
                   "type": "Variable",
-                  "name": "resp",
-                  "declared_type": null
+                  "name": "r",
+                  "declared_type": "SPL!RedirectionErrorResponse"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "resp",
+              "name": "r",
               "declared_type": "SPL!RedirectionErrorResponse"
             },
             "bindings": [
@@ -1566,7 +1221,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1578,10 +1233,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "red",
+              "name": "rd",
               "declared_type": "CPL!Redirection"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1602,7 +1257,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sd",
               "declared_type": "SPL!SelectDefault"
             },
             "bindings": [
@@ -1610,45 +1265,19 @@
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "d",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "d",
+                    "declared_type": "CPL!Default"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1663,7 +1292,7 @@
               "name": "d",
               "declared_type": "CPL!Default"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1684,7 +1313,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stat",
+              "name": "r",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
@@ -1693,19 +1322,19 @@
                 "property_name": "returnedValue",
                 "value": {
                   "type": "Variable",
-                  "name": "val",
-                  "declared_type": null
+                  "name": "f",
+                  "declared_type": "SPL!FunctionCallExp"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "val",
+              "name": "f",
               "declared_type": "SPL!FunctionCallExp"
             },
             "bindings": [
@@ -1714,19 +1343,19 @@
                 "property_name": "functionCall",
                 "value": {
                   "type": "Variable",
-                  "name": "fc",
-                  "declared_type": null
+                  "name": "call",
+                  "declared_type": "SPL!FunctionCall"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "fc",
+              "name": "call",
               "declared_type": "SPL!FunctionCall"
             },
             "bindings": [
@@ -1734,52 +1363,57 @@
                 "type": "Binding",
                 "property_name": "function",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "CollectionOperation",
                   "source": {
-                    "type": "OperationCall",
+                    "type": "IteratorExpression",
                     "source": {
-                      "type": "Variable",
-                      "name": "CPL!SubAction",
-                      "declared_type": null
-                    },
-                    "operation_name": "allInstances",
-                    "arguments": []
-                  },
-                  "iterator_type": "any",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
+                      "type": "OperationCall",
                       "source": {
+                        "type": "Variable",
+                        "name": "CPL!SubAction",
+                        "declared_type": null
+                      },
+                      "operation_name": "allInstances",
+                      "arguments": []
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
                         "type": "Variable",
                         "name": "e",
-                        "declared_type": null
+                        "declared_type": "CPL!SubAction"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "e",
+                          "declared_type": "CPL!SubAction"
+                        },
+                        "property_name": "id"
                       },
-                      "property_name": "id"
-                    },
-                    "right": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "sc",
-                        "declared_type": null
-                      },
-                      "property_name": "ref"
+                      "right": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "sc",
+                          "declared_type": "CPL!SubCall"
+                        },
+                        "property_name": "ref"
+                      }
                     }
-                  }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1794,7 +1428,7 @@
               "name": "sc",
               "declared_type": "CPL!SubCall"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1815,7 +1449,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stat",
+              "name": "ret",
               "declared_type": "SPL!ReturnStat"
             },
             "bindings": [
@@ -1824,25 +1458,126 @@
                 "property_name": "returnedValue",
                 "value": {
                   "type": "Variable",
-                  "name": "exp",
-                  "declared_type": null
+                  "name": "f",
+                  "declared_type": "SPL!WithExp"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "exp",
+              "name": "f",
+              "declared_type": "SPL!WithExp"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "exp",
+                "value": {
+                  "type": "Variable",
+                  "name": "ce",
+                  "declared_type": "SPL!ConstantExp"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "msgFields",
+                "value": {
+                  "type": "Variable",
+                  "name": "mf",
+                  "declared_type": "SPL!HeadedMessageField"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "ce",
               "declared_type": "SPL!ConstantExp"
             },
             "bindings": [
               {
                 "type": "Binding",
                 "property_name": "value",
+                "value": {
+                  "type": "Variable",
+                  "name": "rc",
+                  "declared_type": "SPL!ResponseConstant"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "rc",
+              "declared_type": "SPL!ResponseConstant"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "response",
+                "value": {
+                  "type": "Variable",
+                  "name": "rresp",
+                  "declared_type": "SPL!RedirectionErrorResponse"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "rresp",
+              "declared_type": "SPL!RedirectionErrorResponse"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "errorKind",
+                "value": {
+                  "type": "EnumLiteral",
+                  "value": "MOVED_TEMPORARILY"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "mf",
+              "declared_type": "SPL!HeadedMessageField"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "headerId",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "contact",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "exp",
                 "value": {
                   "type": "OperationCall",
                   "source": {
@@ -1853,36 +1588,26 @@
                   "operation_name": "Location2URIConstant",
                   "arguments": [
                     {
-                      "type": "IteratorExpression",
+                      "type": "CollectionOperation",
                       "source": {
-                        "type": "PropertyCall",
+                        "type": "OperationCall",
                         "source": {
                           "type": "Variable",
                           "name": "r",
-                          "declared_type": null
+                          "declared_type": "CPL!Redirect"
                         },
-                        "property_name": "locations"
+                        "operation_name": "locations",
+                        "arguments": []
                       },
-                      "iterator_type": "any",
-                      "iterators": [
-                        {
-                          "type": "Variable",
-                          "name": "e",
-                          "declared_type": null
-                        }
-                      ],
-                      "body": {
-                        "type": "LiteralExpression",
-                        "value": true,
-                        "literal_type": "Boolean"
-                      }
+                      "operation_name": "first",
+                      "arguments": []
                     }
                   ]
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1897,7 +1622,7 @@
               "name": "r",
               "declared_type": "CPL!Redirect"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1918,7 +1643,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "stat",
+              "name": "s",
               "declared_type": "SPL!SelectStat"
             },
             "bindings": [
@@ -1927,8 +1652,8 @@
                 "property_name": "matchedExp",
                 "value": {
                   "type": "Variable",
-                  "name": "exp",
-                  "declared_type": null
+                  "name": "v",
+                  "declared_type": "SPL!SIPHeaderPlace"
                 }
               },
               {
@@ -1939,7 +1664,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "as",
-                    "declared_type": null
+                    "declared_type": "CPL!AddressSwitch"
                   },
                   "property_name": "addresses"
                 }
@@ -1952,20 +1677,20 @@
                   "source": {
                     "type": "Variable",
                     "name": "as",
-                    "declared_type": null
+                    "declared_type": "CPL!AddressSwitch"
                   },
                   "property_name": "otherwise"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "exp",
+              "name": "v",
               "declared_type": "SPL!SIPHeaderPlace"
             },
             "bindings": [
@@ -1973,38 +1698,13 @@
                 "type": "Binding",
                 "property_name": "header",
                 "value": {
-                  "type": "IfExpression",
-                  "condition": {
-                    "type": "BinaryExpression",
-                    "operator": "=",
-                    "left": {
-                      "type": "PropertyCall",
-                      "source": {
-                        "type": "Variable",
-                        "name": "as",
-                        "declared_type": null
-                      },
-                      "property_name": "field"
-                    },
-                    "right": {
-                      "type": "LiteralExpression",
-                      "value": "to",
-                      "literal_type": "String"
-                    }
-                  },
-                  "then_expression": {
-                    "type": "EnumLiteral",
-                    "value": "TO"
-                  },
-                  "else_expression": {
-                    "type": "EnumLiteral",
-                    "value": "FROM"
-                  }
+                  "type": "EnumLiteral",
+                  "value": "TO"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -2019,7 +1719,7 @@
               "name": "as",
               "declared_type": "CPL!AddressSwitch"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -2040,7 +1740,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sc",
               "declared_type": "SPL!SelectCase"
             },
             "bindings": [
@@ -2048,66 +1748,34 @@
                 "type": "Binding",
                 "property_name": "values",
                 "value": {
-                  "type": "CollectionLiteral",
-                  "collection_kind": "Set",
-                  "elements": [
-                    {
-                      "type": "Variable",
-                      "name": "val",
-                      "declared_type": null
-                    }
-                  ]
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "SPL!URIConstant"
                 }
               },
               {
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "sa",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "sa",
+                    "declared_type": "CPL!SwitchedAddress"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "val",
+              "name": "c",
               "declared_type": "SPL!URIConstant"
             },
             "bindings": [
@@ -2119,14 +1787,14 @@
                   "source": {
                     "type": "Variable",
                     "name": "sa",
-                    "declared_type": null
+                    "declared_type": "CPL!SwitchedAddress"
                   },
                   "property_name": "is"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -2141,7 +1809,7 @@
               "name": "sa",
               "declared_type": "CPL!SwitchedAddress"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -2162,7 +1830,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "case",
+              "name": "sd",
               "declared_type": "SPL!SelectDefault"
             },
             "bindings": [
@@ -2170,45 +1838,19 @@
                 "type": "Binding",
                 "property_name": "statements",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "OperationCall",
                   "source": {
-                    "type": "CollectionLiteral",
-                    "collection_kind": "Set",
-                    "elements": [
-                      {
-                        "type": "PropertyCall",
-                        "source": {
-                          "type": "Variable",
-                          "name": "o",
-                          "declared_type": null
-                        },
-                        "property_name": "statement"
-                      }
-                    ]
+                    "type": "Variable",
+                    "name": "o",
+                    "declared_type": "CPL!Otherwise"
                   },
-                  "iterator_type": "reject",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsUndefined",
-                    "arguments": []
-                  }
+                  "operation_name": "statement",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -2223,7 +1865,7 @@
               "name": "o",
               "declared_type": "CPL!Otherwise"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -2244,7 +1886,28 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ce",
+              "declared_type": "SPL!ConstantExp"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "value",
+                "value": {
+                  "type": "Variable",
+                  "name": "uc",
+                  "declared_type": "SPL!URIConstant"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "uc",
               "declared_type": "SPL!URIConstant"
             },
             "bindings": [
@@ -2255,15 +1918,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "l",
+                    "declared_type": "CPL!Location"
                   },
                   "property_name": "url"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -2275,10 +1938,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "l",
               "declared_type": "CPL!Location"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -2287,7 +1950,7 @@
       "is_abstract": false,
       "is_nodefault": false,
       "is_refining": false,
-      "is_unique": true
+      "is_unique": false
     }
   ]
 }

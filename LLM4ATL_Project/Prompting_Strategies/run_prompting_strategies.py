@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Run each ATL prompting strategy once per task and record comparable metrics.
 
-Each task makes exactly one LLM request. Results are saved to
-``output/<strategy>/`` and both per-task traces and
-``run_summary.json`` contain the input tokens, output tokens, and elapsed time.
+Each task makes exactly one LLM request. Generated ATL files are saved to
+``output/<strategy>/`` and aggregate per-task metrics are written to that
+strategy's ``run_summary.json``.
 
 Usage:
     python run_prompting_strategies.py
@@ -18,6 +18,7 @@ import argparse
 import json
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -36,15 +37,23 @@ SELECTED_CASES = [
 # A short pause avoids rate limiting between separate task requests.
 DELAY_BETWEEN_TASKS_SEC = 5
 
+
+def current_timestamp() -> str:
+    """Return an ISO-8601 timestamp with the local UTC offset."""
+    return datetime.now().astimezone().isoformat(timespec="seconds")
+
 STRATEGIES_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = STRATEGIES_DIR.parent
 PIPELINE_DIR = PROJECT_DIR / "Neuro_Symbolic_Pipeline"
 
 from dotenv import load_dotenv
 
-load_dotenv(STRATEGIES_DIR / ".env", override=True)
-load_dotenv(PIPELINE_DIR / ".env", override=False)
+# Load configuration from the least to the most specific scope.  Pipeline
+# credentials must override any stale values inherited from the terminal;
+# a strategy-local .env, when present, can intentionally override Pipeline.
 load_dotenv(PROJECT_DIR / ".env", override=False)
+load_dotenv(PIPELINE_DIR / ".env", override=True)
+load_dotenv(STRATEGIES_DIR / ".env", override=True)
 
 sys.path.insert(0, str(PIPELINE_DIR))
 try:
@@ -112,47 +121,48 @@ def generate_with_metrics(prompt: str) -> tuple[str, dict[str, int | None], floa
     return text, usage, time.perf_counter() - started_at
 
 
+def load_previous_results(summary_path: Path) -> dict[str, dict]:
+    """Load prior per-task summary entries so skipped outputs retain metrics."""
+    if not summary_path.exists():
+        return {}
+    try:
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        print(f"[Warning] Existing summary is invalid: {summary_path}")
+        return {}
+    return {
+        entry["task"]: entry
+        for entry in summary.get("tasks", [])
+        if isinstance(entry, dict) and entry.get("task")
+    }
+
+
 def process_single_task(
     task_name: str,
     strategy: str,
     mapping: dict[str, list[str]],
     output_dir: Path,
-    traces_dir: Path,
+    previous_results: dict[str, dict],
     force: bool,
 ) -> dict:
     """Run one Gemini-equivalent prompting strategy once for one task."""
     print(f"\n{'=' * 70}\nProcessing task: {task_name} | Strategy: {strategy}\n{'=' * 70}")
     final_atl_path = output_dir / f"{task_name}.atl"
-    final_trace_path = traces_dir / f"{task_name}_trace.json"
 
     if final_atl_path.exists() and not force:
         print(f"[Skip] Output already exists: {final_atl_path.name}")
-        if final_trace_path.exists():
-            try:
-                existing_trace = json.loads(final_trace_path.read_text(encoding="utf-8"))
-                existing_trace.setdefault("task", task_name)
-                existing_trace.setdefault("strategy", strategy)
-                existing_trace.setdefault("final_status", "SKIPPED_EXISTING")
-                existing_trace.setdefault("metrics", {
-                    "task_elapsed_seconds": 0,
-                    "input_tokens": None,
-                    "output_tokens": None,
-                    "total_tokens": None,
-                })
-                return existing_trace
-            except json.JSONDecodeError:
-                print(f"[Warning] Existing trace is invalid; preserving the ATL output.")
+        previous = previous_results.get(task_name, {})
         return {
             "task": task_name,
             "strategy": strategy,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": current_timestamp(),
             "generation_count": 0,
-            "metrics": {
+            "metrics": previous.get("metrics", {
                 "task_elapsed_seconds": 0,
                 "input_tokens": None,
                 "output_tokens": None,
                 "total_tokens": None,
-            },
+            }),
             "final_status": "SKIPPED_EXISTING",
         }
 
@@ -160,7 +170,7 @@ def process_single_task(
     trace = {
         "task": task_name,
         "strategy": strategy,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": current_timestamp(),
         "generation_count": 1,
     }
     try:
@@ -174,10 +184,7 @@ def process_single_task(
             "output_tokens": usage.get("output_tokens"),
             "total_tokens": usage.get("total_tokens"),
         }
-        trace.update({
-            "prompt": prompt, "response": raw_code, "metrics": metrics,
-            "final_status": "GENERATED",
-        })
+        trace.update({"metrics": metrics, "final_status": "GENERATED"})
         # Match the Gemini n8n workflows: save the model response directly.
         final_atl_path.write_text(raw_code, encoding="utf-8")
         print(
@@ -190,7 +197,6 @@ def process_single_task(
         trace.update({"metrics": metrics, "final_status": "ERROR", "error": str(error)})
         print(f"[Error] {task_name}: {error}")
 
-    final_trace_path.write_text(json.dumps(trace, indent=2, ensure_ascii=False), encoding="utf-8")
     return trace
 
 
@@ -205,31 +211,48 @@ def main() -> None:
     args = parser.parse_args()
 
     output_dir = STRATEGIES_DIR / "output" / args.strategy
-    traces_dir = output_dir / "traces"
-    traces_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = output_dir / "run_summary.json"
+    previous_results = load_previous_results(summary_path)
     mapping = load_mapping()
 
     print(f"{'=' * 80}\nGEMINI PROMPTING STRATEGY RUNNER (one LLM call per task)\nStrategy: {args.strategy}\nTasks ({len(SELECTED_CASES)}): {', '.join(SELECTED_CASES)}\n{'=' * 80}")
     traces = []
     for index, task_name in enumerate(SELECTED_CASES):
         output_already_exists = (output_dir / f"{task_name}.atl").exists() and not args.force
-        traces.append(process_single_task(task_name, args.strategy, mapping, output_dir, traces_dir, args.force))
+        traces.append(process_single_task(
+            task_name, args.strategy, mapping, output_dir, previous_results, args.force
+        ))
         if index < len(SELECTED_CASES) - 1 and not output_already_exists:
             time.sleep(DELAY_BETWEEN_TASKS_SEC)
 
     summary = {
         "strategy": args.strategy,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "tasks": [{"task": trace["task"], "status": trace["final_status"], "metrics": trace["metrics"]} for trace in traces],
+        "timestamp": current_timestamp(),
+        "tasks": [
+            {
+                "task": trace["task"],
+                "status": trace["final_status"],
+                "metrics": trace["metrics"],
+                **({"error": trace["error"]} if "error" in trace else {}),
+            }
+            for trace in traces
+        ],
     }
     summary["totals"] = {
         "input_tokens": sum(item["metrics"].get("input_tokens") or 0 for item in summary["tasks"]),
         "output_tokens": sum(item["metrics"].get("output_tokens") or 0 for item in summary["tasks"]),
+        "total_tokens": sum(item["metrics"].get("total_tokens") or 0 for item in summary["tasks"]),
         "task_elapsed_seconds": round(sum(item["metrics"].get("task_elapsed_seconds") or 0 for item in summary["tasks"]), 3),
+        "llm_elapsed_seconds": round(sum(item["metrics"].get("llm_elapsed_seconds") or 0 for item in summary["tasks"]), 3),
     }
-    (output_dir / "run_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"\nCompleted {len(traces)} tasks. Summary: {output_dir / 'run_summary.json'}")
-    print(f"Total input tokens: {summary['totals']['input_tokens']} | Total output tokens: {summary['totals']['output_tokens']}")
+    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"\nCompleted {len(traces)} tasks. Summary: {summary_path}")
+    print(
+        f"Total input tokens: {summary['totals']['input_tokens']} | "
+        f"Total output tokens: {summary['totals']['output_tokens']} | "
+        f"Total tokens: {summary['totals']['total_tokens']}"
+    )
 
 
 if __name__ == "__main__":

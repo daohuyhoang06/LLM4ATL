@@ -1,0 +1,176 @@
+{
+  "strategy": "grammar",
+  "timestamp": "2026-10-21T17:57:25+07:00",
+  "tasks": [
+    {
+      "task": "Class2Interface_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 12.308,
+        "llm_elapsed_seconds": 12.307,
+        "input_tokens": 3268,
+        "output_tokens": 168,
+        "total_tokens": 4805
+      }
+    },
+    {
+      "task": "Document2Report_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 6.203,
+        "llm_elapsed_seconds": 6.195,
+        "input_tokens": 3084,
+        "output_tokens": 127,
+        "total_tokens": 4136
+      }
+    },
+    {
+      "task": "Item2Product_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 15.787,
+        "llm_elapsed_seconds": 15.781,
+        "input_tokens": 2956,
+        "output_tokens": 159,
+        "total_tokens": 6241
+      }
+    },
+    {
+      "task": "User2Account_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 11.287,
+        "llm_elapsed_seconds": 11.28,
+        "input_tokens": 2844,
+        "output_tokens": 153,
+        "total_tokens": 4930
+      }
+    },
+    {
+      "task": "NetworkToGraph_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 9.653,
+        "llm_elapsed_seconds": 9.645,
+        "input_tokens": 2982,
+        "output_tokens": 165,
+        "total_tokens": 4816
+      }
+    },
+    {
+      "task": "FamiliesToPersons_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 36.441,
+        "llm_elapsed_seconds": 36.433,
+        "input_tokens": 3288,
+        "output_tokens": 318,
+        "total_tokens": 6233
+      }
+    },
+    {
+      "task": "AmaltheaToAscet_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 14.57,
+        "llm_elapsed_seconds": 14.568,
+        "input_tokens": 4086,
+        "output_tokens": 211,
+        "total_tokens": 6835
+      }
+    },
+    {
+      "task": "BibTeX2DocBook_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 77.669,
+        "llm_elapsed_seconds": 77.669,
+        "input_tokens": 4572,
+        "output_tokens": 1577,
+        "total_tokens": 10807
+      }
+    },
+    {
+      "task": "XML2DSL_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 54.175,
+        "llm_elapsed_seconds": 54.175,
+        "input_tokens": 4545,
+        "output_tokens": 2353,
+        "total_tokens": 17307
+      }
+    },
+    {
+      "task": "PetriNet2Grafcet_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 47.584,
+        "llm_elapsed_seconds": 47.583,
+        "input_tokens": 4856,
+        "output_tokens": 435,
+        "total_tokens": 8268
+      }
+    },
+    {
+      "task": "Grafcet2PetriNet_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 12.949,
+        "llm_elapsed_seconds": 12.948,
+        "input_tokens": 4889,
+        "output_tokens": 395,
+        "total_tokens": 7677
+      }
+    },
+    {
+      "task": "DSL2KM3_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 80.74,
+        "llm_elapsed_seconds": 80.738,
+        "input_tokens": 5322,
+        "output_tokens": 1058,
+        "total_tokens": 13159
+      }
+    },
+    {
+      "task": "IEEE1471_2_MoDAF_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 36.729,
+        "llm_elapsed_seconds": 36.728,
+        "input_tokens": 9562,
+        "output_tokens": 1193,
+        "total_tokens": 18044
+      }
+    },
+    {
+      "task": "Make2Ant_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 27.068,
+        "llm_elapsed_seconds": 27.063,
+        "input_tokens": 9661,
+        "output_tokens": 378,
+        "total_tokens": 12567
+      }
+    },
+    {
+      "task": "CPL2SPL_All",
+      "status": "GENERATED",
+      "metrics": {
+        "task_elapsed_seconds": 46.601,
+        "llm_elapsed_seconds": 46.592,
+        "input_tokens": 14272,
+        "output_tokens": 1671,
+        "total_tokens": 20196
+      }
+    }
+  ],
+  "totals": {
+    "input_tokens": 80187,
+    "output_tokens": 10361,
+    "task_elapsed_seconds": 489.764
+  }
+}

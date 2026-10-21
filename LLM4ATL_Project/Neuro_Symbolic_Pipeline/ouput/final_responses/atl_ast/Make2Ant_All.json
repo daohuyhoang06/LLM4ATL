@@ -27,7 +27,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "p",
               "declared_type": "Ant!Project"
             },
             "bindings": [
@@ -38,7 +38,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "m",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -53,7 +53,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s",
+                      "name": "m",
                       "declared_type": null
                     },
                     "property_name": "elements"
@@ -62,7 +62,7 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "e",
+                      "name": "c",
                       "declared_type": null
                     }
                   ],
@@ -70,10 +70,10 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "e",
+                      "name": "c",
                       "declared_type": null
                     },
-                    "operation_name": "oclIsTypeOf",
+                    "operation_name": "oclIsKindOf",
                     "arguments": [
                       {
                         "type": "Variable",
@@ -93,7 +93,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s",
+                      "name": "m",
                       "declared_type": null
                     },
                     "property_name": "elements"
@@ -102,7 +102,7 @@
                   "iterators": [
                     {
                       "type": "Variable",
-                      "name": "e",
+                      "name": "c",
                       "declared_type": null
                     }
                   ],
@@ -110,10 +110,10 @@
                     "type": "OperationCall",
                     "source": {
                       "type": "Variable",
-                      "name": "e",
+                      "name": "c",
                       "declared_type": null
                     },
-                    "operation_name": "oclIsTypeOf",
+                    "operation_name": "oclIsKindOf",
                     "arguments": [
                       {
                         "type": "Variable",
@@ -128,45 +128,50 @@
                 "type": "Binding",
                 "property_name": "default",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "CollectionOperation",
                   "source": {
-                    "type": "PropertyCall",
+                    "type": "IteratorExpression",
                     "source": {
-                      "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "m",
+                        "declared_type": null
+                      },
+                      "property_name": "elements"
                     },
-                    "property_name": "elements"
-                  },
-                  "iterator_type": "any",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "OperationCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "e",
-                      "declared_type": null
-                    },
-                    "operation_name": "oclIsTypeOf",
-                    "arguments": [
+                    "iterator_type": "select",
+                    "iterators": [
                       {
                         "type": "Variable",
-                        "name": "Make!Rule",
+                        "name": "c",
                         "declared_type": null
                       }
-                    ]
-                  }
+                    ],
+                    "body": {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "c",
+                        "declared_type": null
+                      },
+                      "operation_name": "oclIsKindOf",
+                      "arguments": [
+                        {
+                          "type": "Variable",
+                          "name": "Make!Rule",
+                          "declared_type": null
+                        }
+                      ]
+                    }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -178,10 +183,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "m",
               "declared_type": "Make!Makefile"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -202,7 +207,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "p",
               "declared_type": "Ant!PropertyValue"
             },
             "bindings": [
@@ -213,7 +218,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "m",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -226,7 +231,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "m",
                     "declared_type": null
                   },
                   "property_name": "value"
@@ -234,7 +239,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -246,10 +251,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "m",
               "declared_type": "Make!Macro"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -281,7 +286,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "r",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -294,7 +299,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "r",
                     "declared_type": null
                   },
                   "property_name": "shellLines"
@@ -311,7 +316,7 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
+                        "name": "r",
                         "declared_type": null
                       },
                       "property_name": "dependencies"
@@ -331,7 +336,7 @@
                         "name": "d",
                         "declared_type": null
                       },
-                      "operation_name": "oclIsTypeOf",
+                      "operation_name": "oclIsKindOf",
                       "arguments": [
                         {
                           "type": "Variable",
@@ -362,7 +367,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -374,10 +379,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "r",
               "declared_type": "Make!Rule"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -398,7 +403,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "echo",
+              "name": "e",
               "declared_type": "Ant!Echo"
             },
             "bindings": [
@@ -414,29 +419,16 @@
                   },
                   "property_name": "command"
                 }
-              },
-              {
-                "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "ruleShellLine"
-                }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "exec",
+              "name": "x",
               "declared_type": "Ant!Exec"
             },
             "bindings": [
@@ -452,32 +444,10 @@
                   },
                   "property_name": "command"
                 }
-              },
-              {
-                "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "ruleShellLine"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "dir",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "",
-                  "literal_type": "String"
-                }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -492,7 +462,7 @@
               "name": "s",
               "declared_type": "Make!ShellLine"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
@@ -521,7 +491,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "exec",
+              "name": "x",
               "declared_type": "Ant!Exec"
             },
             "bindings": [
@@ -537,32 +507,10 @@
                   },
                   "property_name": "command"
                 }
-              },
-              {
-                "type": "Binding",
-                "property_name": "target",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "ruleShellLine"
-                }
-              },
-              {
-                "type": "Binding",
-                "property_name": "dir",
-                "value": {
-                  "type": "LiteralExpression",
-                  "value": "",
-                  "literal_type": "String"
-                }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -577,7 +525,7 @@
               "name": "s",
               "declared_type": "Make!ShellLine"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {

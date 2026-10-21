@@ -91,6 +91,16 @@ def numeric_summary(tasks: list[dict[str, Any]], metric: str) -> dict[str, Any]:
     }
 
 
+def total_summary(tasks: list[dict[str, Any]], metric: str) -> dict[str, float | int | None]:
+    """Return the sum and contributing-task count for one numeric metric."""
+    values = [to_number(task.get(metric)) for task in tasks]
+    values = [value for value in values if value is not None]
+    return {
+        "count": len(values),
+        "total": round(sum(values), 3) if values else None,
+    }
+
+
 def rate_summary(tasks: list[dict[str, Any]], metric: str) -> dict[str, Any]:
     values = [task.get(metric) for task in tasks if task.get(metric) is not None]
     positive = sum(value is True for value in values)
@@ -131,6 +141,20 @@ def statistic_row(metric: str, summary: dict[str, Any], unit: str = "") -> list[
     min_text = "N/A" if minimum is None else f"{format_number(minimum['value'])}{unit} ({minimum['task']})"
     max_text = "N/A" if maximum is None else f"{format_number(maximum['value'])}{unit} ({maximum['task']})"
     return [metric, str(summary["count"]), f"{format_number(summary['average'])}{unit}", min_text, max_text]
+
+
+def total_row(
+    metric: str,
+    summary: dict[str, float | int | None],
+    task_count: int,
+    unit: str = "",
+    integer: bool = False,
+) -> list[str]:
+    total = summary["total"]
+    total_text = "N/A" if total is None else (
+        f"{int(total):,}" if integer else f"{format_number(float(total))}{unit}"
+    )
+    return [metric, f"{summary['count']}/{task_count}", total_text]
 
 
 def main() -> None:
@@ -205,6 +229,13 @@ def main() -> None:
         "total_tokens": numeric_summary(tasks, "total_tokens"),
         "task_elapsed_seconds": numeric_summary(tasks, "task_elapsed_seconds"),
         "llm_elapsed_seconds": numeric_summary(tasks, "llm_elapsed_seconds"),
+        "totals": {
+            "input_tokens": total_summary(tasks, "input_tokens"),
+            "output_tokens": total_summary(tasks, "output_tokens"),
+            "total_tokens": total_summary(tasks, "total_tokens"),
+            "task_elapsed_seconds": total_summary(tasks, "task_elapsed_seconds"),
+            "llm_elapsed_seconds": total_summary(tasks, "llm_elapsed_seconds"),
+        },
     }
 
     print(f"\nStrategy: {args.strategy} | LLM: {args.llm} | Tasks: {len(tasks)}\n")
@@ -213,6 +244,17 @@ def main() -> None:
         [
             ["Parsed", str(summary["parsed"]["passed"]), str(summary["parsed"]["failed"]), f"{summary['parsed']['rate_percent']}%"],
             ["Test pass", str(summary["test_pass"]["passed"]), str(summary["test_pass"]["failed"]), f"{summary['test_pass']['rate_percent']}%"],
+        ],
+    )
+    print()
+    print_table(
+        ["Total across tasks", "Tasks included", "Total"],
+        [
+            total_row("Input tokens", summary["totals"]["input_tokens"], len(tasks), integer=True),
+            total_row("Output tokens", summary["totals"]["output_tokens"], len(tasks), integer=True),
+            total_row("Total tokens", summary["totals"]["total_tokens"], len(tasks), integer=True),
+            total_row("Task execution time", summary["totals"]["task_elapsed_seconds"], len(tasks), "s"),
+            total_row("LLM request time", summary["totals"]["llm_elapsed_seconds"], len(tasks), "s"),
         ],
     )
     print()

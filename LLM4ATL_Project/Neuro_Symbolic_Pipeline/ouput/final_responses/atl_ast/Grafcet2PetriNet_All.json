@@ -27,7 +27,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "pn",
               "declared_type": "PetriNet!PetriNet"
             },
             "bindings": [
@@ -38,7 +38,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "g",
                     "declared_type": null
                   },
                   "property_name": "location"
@@ -51,7 +51,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "g",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -64,7 +64,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "g",
                     "declared_type": null
                   },
                   "property_name": "elements"
@@ -77,7 +77,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "g",
                     "declared_type": null
                   },
                   "property_name": "connections"
@@ -97,7 +97,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "g",
               "declared_type": "Grafcet!Grafcet"
             },
             "model": null
@@ -121,7 +121,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "p",
               "declared_type": "PetriNet!Place"
             },
             "bindings": [
@@ -228,7 +228,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "pt",
               "declared_type": "PetriNet!Transition"
             },
             "bindings": [
@@ -239,7 +239,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "t",
                     "declared_type": null
                   },
                   "property_name": "location"
@@ -252,7 +252,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "t",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -265,7 +265,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "t",
                     "declared_type": null
                   },
                   "property_name": "grafcet"
@@ -278,7 +278,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "t",
                     "declared_type": null
                   },
                   "property_name": "incomingConnections"
@@ -291,7 +291,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "t",
                     "declared_type": null
                   },
                   "property_name": "outgoingConnections"
@@ -311,13 +311,44 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "t",
               "declared_type": "Grafcet!Transition"
             },
             "model": null
           }
         ],
-        "filter": null
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": null
+              },
+              "property_name": "incomingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": null
+              },
+              "property_name": "outgoingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          }
+        }
       },
       "extends": null,
       "is_abstract": false,
@@ -335,7 +366,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ptt",
               "declared_type": "PetriNet!PlaceToTransition"
             },
             "bindings": [
@@ -346,7 +377,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "st",
                     "declared_type": null
                   },
                   "property_name": "location"
@@ -359,7 +390,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "st",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -372,7 +403,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "st",
                     "declared_type": null
                   },
                   "property_name": "grafcet"
@@ -385,7 +416,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "st",
                     "declared_type": null
                   },
                   "property_name": "from"
@@ -398,7 +429,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "st",
                     "declared_type": null
                   },
                   "property_name": "to"
@@ -418,13 +449,52 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "st",
               "declared_type": "Grafcet!StepToTransition"
             },
             "model": null
           }
         ],
-        "filter": null
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "st",
+                  "declared_type": null
+                },
+                "property_name": "to"
+              },
+              "property_name": "incomingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "st",
+                  "declared_type": null
+                },
+                "property_name": "to"
+              },
+              "property_name": "outgoingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          }
+        }
       },
       "extends": null,
       "is_abstract": false,
@@ -442,7 +512,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ttp",
               "declared_type": "PetriNet!TransitionToPlace"
             },
             "bindings": [
@@ -453,7 +523,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "ts",
                     "declared_type": null
                   },
                   "property_name": "location"
@@ -466,7 +536,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "ts",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -479,7 +549,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "ts",
                     "declared_type": null
                   },
                   "property_name": "grafcet"
@@ -492,7 +562,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "ts",
                     "declared_type": null
                   },
                   "property_name": "from"
@@ -505,7 +575,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
+                    "name": "ts",
                     "declared_type": null
                   },
                   "property_name": "to"
@@ -525,13 +595,52 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "ts",
               "declared_type": "Grafcet!TransitionToStep"
             },
             "model": null
           }
         ],
-        "filter": null
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "ts",
+                  "declared_type": null
+                },
+                "property_name": "from"
+              },
+              "property_name": "incomingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          },
+          "right": {
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "ts",
+                  "declared_type": null
+                },
+                "property_name": "from"
+              },
+              "property_name": "outgoingConnections"
+            },
+            "operation_name": "notEmpty",
+            "arguments": []
+          }
+        }
       },
       "extends": null,
       "is_abstract": false,

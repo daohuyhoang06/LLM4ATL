@@ -1,50 +1,26 @@
 module CPL2SPL;
 create OUT : SPL from IN : CPL;
 
-helper context CPL!Element def: statement : SPL!Statement =
-    if self.oclIsKindOf(CPL!NodeContainer) then
-        if self.contents.oclIsUndefined() then
+helper context CPL!NodeContainer def: statement() : CPL!Node =
+    if self.contents.oclIsUndefined() then
         OclUndefined
     else
-        self.contents.statement
-    endif
+        if self.contents.oclIsKindOf(CPL!NodeContainer) then
+        self.contents.statement()
     else
-        thisModule.resolveTemp(self, 'stat')
+        self.contents
+    endif
     endif;
 
-helper context CPL!Element def: locations : Set(CPL!Location) =
+helper context CPL!Element def: locations() : Set(CPL!Location) =
     if self.oclIsKindOf(CPL!Location) then
-        if self.contents.oclIsUndefined() then
         Set{self}
     else
-        self.contents.locations->including(self)
-    endif
-    else
-        if self.oclIsKindOf(CPL!NodeContainer) then
-        if self.contents.oclIsUndefined() then
         Set{}
-    else
-        self.contents.locations
-    endif
-    else
-        if self.oclIsKindOf(CPL!CPL) then
-        if self.incoming.oclIsUndefined() then
-        Set{}
-    else
-        self.incoming.locations
-    endif->union(if self.outgoing.oclIsUndefined() then
-        Set{}
-    else
-        self.outgoing.locations
-    endif)->union(self.subActions->collect(e | e.locations)->asSet())
-    else
-        Set{}
-    endif
-    endif
     endif;
 
-helper context CPL!Proxy def: isSimple : Boolean =
-    ((((self.busy.oclIsUndefined() and self.noAnswer.oclIsUndefined()) and self.redirection.oclIsUndefined()) and self.failure.oclIsUndefined()) and self.default.oclIsUndefined());
+helper context CPL!Proxy def: isSimple() : Boolean =
+    (((self.busy.oclIsUndefined() and self.noAnswer.oclIsUndefined()) and self.redirection.oclIsUndefined()) and (self.failure.oclIsUndefined() and self.default.oclIsUndefined()));
 
 rule CPL2Program {
     from
@@ -54,20 +30,20 @@ rule CPL2Program {
             service <- s
         ),
         s : SPL!Service (
-            name <- 'CPL Service',
+            name <- 'CPL',
             declarations <- c.subActions,
-            sessions <- Set{c.incoming, c.outgoing}->reject(e | e.oclIsUndefined())
+            sessions <- c.incoming
         )
 }
 
 rule SubAction2Function {
     from
-        s : CPL!SubAction
+        sa : CPL!SubAction
     to
         f : SPL!LocalFunctionDeclaration (
-            name <- s.id,
+            name <- sa.id,
             returnType <- rt,
-            statements <- Set{s.statement}->reject(e | e.oclIsUndefined())
+            statements <- sa.statement()
         ),
         rt : SPL!SimpleType (
             type <- #void
@@ -82,7 +58,7 @@ rule Incoming2Method {
             type <- rt,
             direction <- #"in",
             methodName <- mn,
-            statements <- Set{i.statement}->reject(e | e.oclIsUndefined())
+            statements <- i.statement()
         ),
         rt : SPL!SimpleType (
             type <- #void
@@ -95,35 +71,52 @@ rule Incoming2Method {
 rule Proxy2Return {
     from
         p : CPL!Proxy (
-            p.isSimple
+            p.isSimple()
         )
     to
-        stat : SPL!ReturnStat (
-            returnedValue <- exp
+        r : SPL!ReturnStat (
+            returnedValue <- f
         ),
-        exp : SPL!ConstantExp (
-            value <- thisModule.Location2URIConstant(p.locations->any(e | true))
+        f : SPL!FunctionCallExp (
+            functionCall <- call
+        ),
+        call : SPL!FunctionCall (
+            function <- fd
+        ),
+        fd : SPL!RemoteFunctionDeclaration (
+            name <- 'proxy',
+            returnType <- rt,
+            functionLocation <- #remote
+        ),
+        rt : SPL!SimpleType (
+            type <- #response
         )
 }
 
 rule Proxy2Select {
     from
         p : CPL!Proxy (
-            not p.isSimple
+            not p.isSimple()
         )
     to
-        stat : SPL!SelectStat (
-            matchedExp <- response,
-            selectCases <- Set{p.busy, p.noAnswer, p.redirection, p.failure}->reject(e | e.oclIsUndefined()),
+        s : SPL!SelectStat (
+            matchedExp <- f,
+            selectCases <- Set{p.busy, p.noAnswer, p.redirection, p.failure},
             selectDefault <- p.default
         ),
-        response : SPL!ConstantExp (
-            value <- r
+        f : SPL!FunctionCallExp (
+            functionCall <- call
         ),
-        r : SPL!ResponseConstant (
-            response <- r2
+        call : SPL!FunctionCall (
+            function <- fd
         ),
-        r2 : SPL!ClientErrorResponse (
+        fd : SPL!RemoteFunctionDeclaration (
+            name <- 'proxy',
+            returnType <- rt,
+            functionLocation <- #remote
+        ),
+        rt : SPL!SimpleType (
+            type <- #response
         )
 }
 
@@ -131,11 +124,11 @@ rule Busy2SelectCase {
     from
         b : CPL!Busy
     to
-        case : SPL!SelectCase (
-            values <- Set{rc},
-            statements <- Set{b.statement}->reject(e | e.oclIsUndefined())
+        sc : SPL!SelectCase (
+            values <- c,
+            statements <- b.statement()
         ),
-        rc : SPL!ResponseConstant (
+        c : SPL!ResponseConstant (
             response <- r
         ),
         r : SPL!ClientErrorResponse (
@@ -145,13 +138,13 @@ rule Busy2SelectCase {
 
 rule NoAnswer2SelectCase {
     from
-        n : CPL!NoAnswer
+        na : CPL!NoAnswer
     to
-        case : SPL!SelectCase (
-            values <- Set{rc},
-            statements <- Set{n.statement}->reject(e | e.oclIsUndefined())
+        sc : SPL!SelectCase (
+            values <- c,
+            statements <- na.statement()
         ),
-        rc : SPL!ResponseConstant (
+        c : SPL!ResponseConstant (
             response <- r
         ),
         r : SPL!ClientErrorResponse (
@@ -161,16 +154,16 @@ rule NoAnswer2SelectCase {
 
 rule Redirection2SelectCase {
     from
-        red : CPL!Redirection
+        rd : CPL!Redirection
     to
-        case : SPL!SelectCase (
-            values <- Set{rc},
-            statements <- Set{red.statement}->reject(e | e.oclIsUndefined())
+        sc : SPL!SelectCase (
+            values <- c,
+            statements <- rd.statement()
         ),
-        rc : SPL!ResponseConstant (
-            response <- resp
+        c : SPL!ResponseConstant (
+            response <- r
         ),
-        resp : SPL!RedirectionErrorResponse (
+        r : SPL!RedirectionErrorResponse (
             errorKind <- #MULTIPLE_CHOICES
         )
 }
@@ -179,8 +172,8 @@ rule Default2SelectDefault {
     from
         d : CPL!Default
     to
-        case : SPL!SelectDefault (
-            statements <- Set{d.statement}->reject(e | e.oclIsUndefined())
+        sd : SPL!SelectDefault (
+            statements <- d.statement()
         )
 }
 
@@ -188,14 +181,14 @@ rule SubCall2Return {
     from
         sc : CPL!SubCall
     to
-        stat : SPL!ReturnStat (
-            returnedValue <- val
+        r : SPL!ReturnStat (
+            returnedValue <- f
         ),
-        val : SPL!FunctionCallExp (
-            functionCall <- fc
+        f : SPL!FunctionCallExp (
+            functionCall <- call
         ),
-        fc : SPL!FunctionCall (
-            function <- CPL!SubAction.allInstances()->any(e | (e.id = sc.ref))
+        call : SPL!FunctionCall (
+            function <- CPL!SubAction.allInstances()->select(e | (e.id = sc.ref))->first()
         )
 }
 
@@ -203,11 +196,25 @@ rule Redirect2Return {
     from
         r : CPL!Redirect
     to
-        stat : SPL!ReturnStat (
-            returnedValue <- exp
+        ret : SPL!ReturnStat (
+            returnedValue <- f
         ),
-        exp : SPL!ConstantExp (
-            value <- thisModule.Location2URIConstant(r.locations->any(e | true))
+        f : SPL!WithExp (
+            exp <- ce,
+            msgFields <- mf
+        ),
+        ce : SPL!ConstantExp (
+            value <- rc
+        ),
+        rc : SPL!ResponseConstant (
+            response <- rresp
+        ),
+        rresp : SPL!RedirectionErrorResponse (
+            errorKind <- #MOVED_TEMPORARILY
+        ),
+        mf : SPL!HeadedMessageField (
+            headerId <- 'contact',
+            exp <- thisModule.Location2URIConstant(r.locations()->first())
         )
 }
 
@@ -215,17 +222,13 @@ rule AddressSwitch2SelectStat {
     from
         as : CPL!AddressSwitch
     to
-        stat : SPL!SelectStat (
-            matchedExp <- exp,
+        s : SPL!SelectStat (
+            matchedExp <- v,
             selectCases <- as.addresses,
             selectDefault <- as.otherwise
         ),
-        exp : SPL!SIPHeaderPlace (
-            header <- if (as.field = 'to') then
-    #TO
-else
-    #FROM
-endif
+        v : SPL!SIPHeaderPlace (
+            header <- #TO
         )
 }
 
@@ -233,11 +236,11 @@ rule SwitchedAddress2SelectCase {
     from
         sa : CPL!SwitchedAddress
     to
-        case : SPL!SelectCase (
-            values <- Set{val},
-            statements <- Set{sa.statement}->reject(e | e.oclIsUndefined())
+        sc : SPL!SelectCase (
+            values <- c,
+            statements <- sa.statement()
         ),
-        val : SPL!URIConstant (
+        c : SPL!URIConstant (
             uri <- sa.is
         )
 }
@@ -246,16 +249,20 @@ rule Otherwise2SelectDefault {
     from
         o : CPL!Otherwise
     to
-        case : SPL!SelectDefault (
-            statements <- Set{o.statement}->reject(e | e.oclIsUndefined())
+        sd : SPL!SelectDefault (
+            statements <- o.statement()
         )
 }
 
 lazy rule Location2URIConstant {
     from
-        s : CPL!Location
+        l : CPL!Location
     to
-        t : SPL!URIConstant (
-            uri <- s.url
+        ce : SPL!ConstantExp (
+            value <- uc
+        ),
+        uc : SPL!URIConstant (
+            uri <- l.url
         )
 }
+

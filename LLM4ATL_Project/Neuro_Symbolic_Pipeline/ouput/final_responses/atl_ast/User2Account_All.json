@@ -66,61 +66,6 @@
     },
     {
       "type": "MatchedRule",
-      "name": "UserModel2AccountModel",
-      "using": [],
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "t",
-              "declared_type": "account!AccountModel"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "accounts",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
-                  },
-                  "property_name": "users"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": null
-          }
-        ]
-      },
-      "action_block": null,
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "s",
-              "declared_type": "user!UserModel"
-            },
-            "model": null
-          }
-        ],
-        "filter": null
-      },
-      "extends": null,
-      "is_abstract": false,
-      "is_nodefault": false,
-      "is_refining": false
-    },
-    {
-      "type": "MatchedRule",
       "name": "User2Account",
       "using": [],
       "out_pattern": {

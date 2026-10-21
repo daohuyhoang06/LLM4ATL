@@ -17,7 +17,7 @@
   ],
   "elements": [
     {
-      "type": "MatchedRule",
+      "type": "LazyMatchedRule",
       "name": "Component2Entity",
       "using": [],
       "out_pattern": {
@@ -46,7 +46,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -61,7 +61,7 @@
               "name": "c",
               "declared_type": "network!Component"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -69,7 +69,8 @@
       "extends": null,
       "is_abstract": false,
       "is_nodefault": false,
-      "is_refining": false
+      "is_refining": false,
+      "is_unique": true
     },
     {
       "type": "MatchedRule",
@@ -90,18 +91,45 @@
                 "type": "Binding",
                 "property_name": "entities",
                 "value": {
-                  "type": "PropertyCall",
+                  "type": "IteratorExpression",
                   "source": {
-                    "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "s",
+                      "declared_type": null
+                    },
+                    "property_name": "components"
                   },
-                  "property_name": "components"
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "c",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule",
+                      "declared_type": null
+                    },
+                    "operation_name": "Component2Entity",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "c",
+                        "declared_type": null
+                      }
+                    ]
+                  }
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -116,7 +144,7 @@
               "name": "s",
               "declared_type": "network!System"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -137,7 +165,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "gl",
+              "name": "g",
               "declared_type": "graph!Link"
             },
             "bindings": [
@@ -145,18 +173,45 @@
                 "type": "Binding",
                 "property_name": "Entitys",
                 "value": {
-                  "type": "PropertyCall",
+                  "type": "IteratorExpression",
                   "source": {
-                    "type": "Variable",
-                    "name": "l",
-                    "declared_type": null
+                    "type": "PropertyCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "l",
+                      "declared_type": null
+                    },
+                    "property_name": "components"
                   },
-                  "property_name": "components"
+                  "iterator_type": "collect",
+                  "iterators": [
+                    {
+                      "type": "Variable",
+                      "name": "c",
+                      "declared_type": null
+                    }
+                  ],
+                  "body": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "thisModule",
+                      "declared_type": null
+                    },
+                    "operation_name": "Component2Entity",
+                    "arguments": [
+                      {
+                        "type": "Variable",
+                        "name": "c",
+                        "declared_type": null
+                      }
+                    ]
+                  }
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -171,7 +226,7 @@
               "name": "l",
               "declared_type": "network!Link"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null

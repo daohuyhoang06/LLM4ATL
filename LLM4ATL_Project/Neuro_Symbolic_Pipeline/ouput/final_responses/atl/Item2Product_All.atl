@@ -12,24 +12,16 @@ helper context Item!Item def: getCategory() : String =
     endif
     endif;
 
-rule ItemModel2ProductModel {
+rule Item2Product {
     from
-        im : Item!ItemModel
+        s : Item!Item
     to
-        pm : Product!ProductModel (
-            products <- im.items
+        t : Product!Product (
+            name <- s.name,
+            price <- s.price,
+            description <- s.description,
+            inStock <- (s.quantity > 0),
+            category <- s.getCategory()
         )
 }
 
-rule Item2Product {
-    from
-        i : Item!Item
-    to
-        p : Product!Product (
-            name <- i.name,
-            price <- i.price,
-            description <- i.description,
-            inStock <- (i.quantity > 0),
-            category <- i.getCategory()
-        )
-}

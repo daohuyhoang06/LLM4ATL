@@ -30,158 +30,58 @@
           "type": "BinaryExpression",
           "operator": "or",
           "left": {
-            "type": "BinaryExpression",
-            "operator": "or",
-            "left": {
-              "type": "BinaryExpression",
-              "operator": "or",
-              "left": {
-                "type": "UnaryExpression",
-                "operator": "not",
-                "expression": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self",
-                    "declared_type": null
-                  },
-                  "property_name": "isEmbedding"
-                }
+            "type": "CollectionOperation",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "DSL!Relationship"
               },
-              "right": {
-                "type": "BinaryExpression",
-                "operator": ">",
-                "left": {
-                  "type": "CollectionOperation",
-                  "source": {
-                    "type": "PropertyCall",
-                    "source": {
-                      "type": "Variable",
-                      "name": "self",
-                      "declared_type": null
-                    },
-                    "property_name": "properties"
-                  },
-                  "operation_name": "size",
-                  "arguments": []
-                },
-                "right": {
-                  "type": "LiteralExpression",
-                  "value": 0,
-                  "literal_type": "Integer"
-                }
-              }
+              "property_name": "properties"
             },
-            "right": {
-              "type": "UnaryExpression",
-              "operator": "not",
-              "expression": {
-                "type": "OperationCall",
-                "source": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "self",
-                    "declared_type": null
-                  },
-                  "property_name": "superType"
-                },
-                "operation_name": "oclIsUndefined",
-                "arguments": []
-              }
-            }
+            "operation_name": "notEmpty",
+            "arguments": []
           },
           "right": {
-            "type": "BinaryExpression",
-            "operator": ">",
-            "left": {
-              "type": "CollectionOperation",
+            "type": "UnaryExpression",
+            "operator": "not",
+            "expression": {
+              "type": "OperationCall",
               "source": {
                 "type": "PropertyCall",
                 "source": {
                   "type": "Variable",
                   "name": "self",
-                  "declared_type": null
+                  "declared_type": "DSL!Relationship"
                 },
-                "property_name": "subTypes"
+                "property_name": "superType"
               },
-              "operation_name": "size",
+              "operation_name": "oclIsUndefined",
               "arguments": []
-            },
-            "right": {
-              "type": "LiteralExpression",
-              "value": 0,
-              "literal_type": "Integer"
             }
           }
         },
         "right": {
-          "type": "IteratorExpression",
+          "type": "CollectionOperation",
           "source": {
-            "type": "OperationCall",
+            "type": "PropertyCall",
             "source": {
               "type": "Variable",
-              "name": "DSL!Role",
-              "declared_type": null
+              "name": "self",
+              "declared_type": "DSL!Relationship"
             },
-            "operation_name": "allInstances",
-            "arguments": []
+            "property_name": "subTypes"
           },
-          "iterator_type": "exists",
-          "iterators": [
-            {
-              "type": "Variable",
-              "name": "r",
-              "declared_type": null
-            }
-          ],
-          "body": {
-            "type": "BinaryExpression",
-            "operator": "or",
-            "left": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "r",
-                  "declared_type": null
-                },
-                "property_name": "type"
-              },
-              "right": {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              }
-            },
-            "right": {
-              "type": "BinaryExpression",
-              "operator": "=",
-              "left": {
-                "type": "PropertyCall",
-                "source": {
-                  "type": "Variable",
-                  "name": "r",
-                  "declared_type": null
-                },
-                "property_name": "source"
-              },
-              "right": {
-                "type": "Variable",
-                "name": "self",
-                "declared_type": null
-              }
-            }
-          }
+          "operation_name": "notEmpty",
+          "arguments": []
         }
       }
     },
     {
       "type": "Helper",
       "kind": "operation",
-      "context_type": "DSL!Classifier",
+      "context_type": "DSL!Class",
       "name": "getRoles",
       "parameters": [],
       "return_type": "Set(DSL!Role)",
@@ -202,7 +102,7 @@
           {
             "type": "Variable",
             "name": "r",
-            "declared_type": null
+            "declared_type": "DSL!Role"
           }
         ],
         "body": {
@@ -216,14 +116,14 @@
               "source": {
                 "type": "Variable",
                 "name": "r",
-                "declared_type": null
+                "declared_type": "DSL!Role"
               },
               "property_name": "source"
             },
             "right": {
               "type": "Variable",
               "name": "self",
-              "declared_type": null
+              "declared_type": "DSL!Class"
             }
           },
           "right": {
@@ -236,7 +136,7 @@
                 "source": {
                   "type": "Variable",
                   "name": "r",
-                  "declared_type": null
+                  "declared_type": "DSL!Role"
                 },
                 "property_name": "relation"
               },
@@ -261,7 +161,7 @@
           "source": {
             "type": "Variable",
             "name": "self",
-            "declared_type": null
+            "declared_type": "DSL!Role"
           },
           "property_name": "relation"
         },
@@ -270,7 +170,7 @@
     },
     {
       "type": "MatchedRule",
-      "name": "DomainModel",
+      "name": "Metamodel",
       "using": [],
       "out_pattern": {
         "type": "OutPattern",
@@ -279,7 +179,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!Metamodel"
             },
             "bindings": [
@@ -292,26 +192,26 @@
                   "elements": [
                     {
                       "type": "Variable",
-                      "name": "mainPackage",
-                      "declared_type": null
+                      "name": "mainPkg",
+                      "declared_type": "KM3!Package"
                     },
                     {
                       "type": "Variable",
-                      "name": "primitiveTypesPackage",
-                      "declared_type": null
+                      "name": "ptypePkg",
+                      "declared_type": "KM3!Package"
                     }
                   ]
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "mainPackage",
+              "name": "mainPkg",
               "declared_type": "KM3!Package"
             },
             "bindings": [
@@ -322,10 +222,10 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "d",
+                    "declared_type": "DSL!DomainModel"
                   },
-                  "property_name": "name"
+                  "property_name": "namespace"
                 }
               },
               {
@@ -337,8 +237,8 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
+                      "name": "d",
+                      "declared_type": "DSL!DomainModel"
                     },
                     "property_name": "classifiers"
                   },
@@ -348,8 +248,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
-                        "declared_type": null
+                        "name": "d",
+                        "declared_type": "DSL!DomainModel"
                       },
                       "property_name": "types"
                     }
@@ -358,13 +258,13 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "primitiveTypesPackage",
+              "name": "ptypePkg",
               "declared_type": "KM3!Package"
             },
             "bindings": [
@@ -387,24 +287,24 @@
                     {
                       "type": "Variable",
                       "name": "ptBoolean",
-                      "declared_type": null
+                      "declared_type": "KM3!DataType"
                     },
                     {
                       "type": "Variable",
                       "name": "ptInteger",
-                      "declared_type": null
+                      "declared_type": "KM3!DataType"
                     },
                     {
                       "type": "Variable",
                       "name": "ptString",
-                      "declared_type": null
+                      "declared_type": "KM3!DataType"
                     }
                   ]
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -425,7 +325,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -446,7 +346,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           },
           {
             "type": "SimpleOutPatternElement",
@@ -467,7 +367,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -479,10 +379,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "d",
               "declared_type": "DSL!DomainModel"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -503,7 +403,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!Class"
             },
             "bindings": [
@@ -514,8 +414,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "c",
+                    "declared_type": "DSL!Class"
                   },
                   "property_name": "name"
                 }
@@ -527,8 +427,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "c",
+                    "declared_type": "DSL!Class"
                   },
                   "property_name": "isAbstract"
                 }
@@ -544,8 +444,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
-                        "declared_type": null
+                        "name": "c",
+                        "declared_type": "DSL!Class"
                       },
                       "property_name": "superType"
                     },
@@ -565,8 +465,8 @@
                         "type": "PropertyCall",
                         "source": {
                           "type": "Variable",
-                          "name": "s",
-                          "declared_type": null
+                          "name": "c",
+                          "declared_type": "DSL!Class"
                         },
                         "property_name": "superType"
                       }
@@ -583,8 +483,8 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
+                      "name": "c",
+                      "declared_type": "DSL!Class"
                     },
                     "property_name": "properties"
                   },
@@ -594,8 +494,8 @@
                       "type": "OperationCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
-                        "declared_type": null
+                        "name": "c",
+                        "declared_type": "DSL!Class"
                       },
                       "operation_name": "getRoles",
                       "arguments": []
@@ -605,7 +505,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -617,10 +517,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "c",
               "declared_type": "DSL!Class"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -641,7 +541,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!Class"
             },
             "bindings": [
@@ -652,8 +552,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "r",
+                    "declared_type": "DSL!Relationship"
                   },
                   "property_name": "name"
                 }
@@ -665,8 +565,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "r",
+                    "declared_type": "DSL!Relationship"
                   },
                   "property_name": "isAbstract"
                 }
@@ -682,8 +582,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
-                        "declared_type": null
+                        "name": "r",
+                        "declared_type": "DSL!Relationship"
                       },
                       "property_name": "superType"
                     },
@@ -703,8 +603,8 @@
                         "type": "PropertyCall",
                         "source": {
                           "type": "Variable",
-                          "name": "s",
-                          "declared_type": null
+                          "name": "r",
+                          "declared_type": "DSL!Relationship"
                         },
                         "property_name": "superType"
                       }
@@ -721,8 +621,8 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
+                      "name": "r",
+                      "declared_type": "DSL!Relationship"
                     },
                     "property_name": "properties"
                   },
@@ -732,8 +632,8 @@
                       "type": "PropertyCall",
                       "source": {
                         "type": "Variable",
-                        "name": "s",
-                        "declared_type": null
+                        "name": "r",
+                        "declared_type": "DSL!Relationship"
                       },
                       "property_name": "roles"
                     }
@@ -742,7 +642,7 @@
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -754,18 +654,18 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "r",
               "declared_type": "DSL!Relationship"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
           "type": "OperationCall",
           "source": {
             "type": "Variable",
-            "name": "s",
-            "declared_type": null
+            "name": "r",
+            "declared_type": "DSL!Relationship"
           },
           "operation_name": "needTurnOnClass",
           "arguments": []
@@ -799,7 +699,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "name"
                 }
@@ -812,7 +712,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "min"
                 }
@@ -827,25 +727,21 @@
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": null
+                      "declared_type": "DSL!Role"
                     },
                     "property_name": "isUnbounded"
                   },
                   "then_expression": {
-                    "type": "UnaryExpression",
-                    "operator": "-",
-                    "expression": {
-                      "type": "LiteralExpression",
-                      "value": 1,
-                      "literal_type": "Integer"
-                    }
+                    "type": "LiteralExpression",
+                    "value": -1,
+                    "literal_type": "Integer"
                   },
                   "else_expression": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": null
+                      "declared_type": "DSL!Role"
                     },
                     "property_name": "max"
                   }
@@ -859,7 +755,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "isOrdered"
                 }
@@ -881,7 +777,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "type"
                 }
@@ -894,7 +790,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "operation_name": "isEmbedding",
                   "arguments": []
@@ -904,47 +800,52 @@
                 "type": "Binding",
                 "property_name": "opposite",
                 "value": {
-                  "type": "IteratorExpression",
+                  "type": "CollectionOperation",
                   "source": {
-                    "type": "PropertyCall",
+                    "type": "IteratorExpression",
                     "source": {
                       "type": "PropertyCall",
                       "source": {
+                        "type": "PropertyCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "s",
+                          "declared_type": "DSL!Role"
+                        },
+                        "property_name": "relation"
+                      },
+                      "property_name": "roles"
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "r",
+                        "declared_type": "DSL!Role"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "<>",
+                      "left": {
+                        "type": "Variable",
+                        "name": "r",
+                        "declared_type": "DSL!Role"
+                      },
+                      "right": {
                         "type": "Variable",
                         "name": "s",
-                        "declared_type": null
-                      },
-                      "property_name": "relation"
-                    },
-                    "property_name": "roles"
+                        "declared_type": "DSL!Role"
+                      }
+                    }
                   },
-                  "iterator_type": "any",
-                  "iterators": [
-                    {
-                      "type": "Variable",
-                      "name": "r",
-                      "declared_type": null
-                    }
-                  ],
-                  "body": {
-                    "type": "BinaryExpression",
-                    "operator": "<>",
-                    "left": {
-                      "type": "Variable",
-                      "name": "r",
-                      "declared_type": null
-                    },
-                    "right": {
-                      "type": "Variable",
-                      "name": "s",
-                      "declared_type": null
-                    }
-                  }
+                  "operation_name": "first",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -959,7 +860,7 @@
               "name": "s",
               "declared_type": "DSL!Role"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
@@ -972,7 +873,7 @@
               "source": {
                 "type": "Variable",
                 "name": "s",
-                "declared_type": null
+                "declared_type": "DSL!Role"
               },
               "property_name": "relation"
             },
@@ -1009,7 +910,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "name"
                 }
@@ -1022,7 +923,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "min"
                 }
@@ -1037,25 +938,21 @@
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": null
+                      "declared_type": "DSL!Role"
                     },
                     "property_name": "isUnbounded"
                   },
                   "then_expression": {
-                    "type": "UnaryExpression",
-                    "operator": "-",
-                    "expression": {
-                      "type": "LiteralExpression",
-                      "value": 1,
-                      "literal_type": "Integer"
-                    }
+                    "type": "LiteralExpression",
+                    "value": -1,
+                    "literal_type": "Integer"
                   },
                   "else_expression": {
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
                       "name": "s",
-                      "declared_type": null
+                      "declared_type": "DSL!Role"
                     },
                     "property_name": "max"
                   }
@@ -1069,7 +966,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "isOrdered"
                 }
@@ -1091,7 +988,7 @@
                   "source": {
                     "type": "Variable",
                     "name": "s",
-                    "declared_type": null
+                    "declared_type": "DSL!Role"
                   },
                   "property_name": "type"
                 }
@@ -1100,14 +997,19 @@
                 "type": "Binding",
                 "property_name": "isContainer",
                 "value": {
-                  "type": "LiteralExpression",
-                  "value": false,
-                  "literal_type": "Boolean"
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": "DSL!Role"
+                  },
+                  "operation_name": "isEmbedding",
+                  "arguments": []
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1122,7 +1024,7 @@
               "name": "s",
               "declared_type": "DSL!Role"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": {
@@ -1132,7 +1034,7 @@
             "source": {
               "type": "Variable",
               "name": "s",
-              "declared_type": null
+              "declared_type": "DSL!Role"
             },
             "property_name": "relation"
           },
@@ -1156,7 +1058,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!Attribute"
             },
             "bindings": [
@@ -1167,8 +1069,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "p",
+                    "declared_type": "DSL!ValueProperty"
                   },
                   "property_name": "name"
                 }
@@ -1216,15 +1118,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "p",
+                    "declared_type": "DSL!ValueProperty"
                   },
                   "property_name": "type"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1236,10 +1138,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "p",
               "declared_type": "DSL!ValueProperty"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1260,7 +1162,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!Enumeration"
             },
             "bindings": [
@@ -1271,8 +1173,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "e",
+                    "declared_type": "DSL!Enumeration"
                   },
                   "property_name": "name"
                 }
@@ -1284,15 +1186,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "e",
+                    "declared_type": "DSL!Enumeration"
                   },
                   "property_name": "literals"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1304,10 +1206,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "e",
               "declared_type": "DSL!Enumeration"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1328,7 +1230,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!EnumLiteral"
             },
             "bindings": [
@@ -1339,15 +1241,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "l",
+                    "declared_type": "DSL!EnumerationLiteral"
                   },
                   "property_name": "name"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1359,10 +1261,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "l",
               "declared_type": "DSL!EnumerationLiteral"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -1383,7 +1285,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "out",
               "declared_type": "KM3!DataType"
             },
             "bindings": [
@@ -1394,15 +1296,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "t",
+                    "declared_type": "DSL!SimpleType"
                   },
                   "property_name": "name"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -1414,10 +1316,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "t",
               "declared_type": "DSL!SimpleType"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null

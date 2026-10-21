@@ -3,34 +3,34 @@ create OUT : Ant from IN : Make;
 
 rule Makefile2Project {
     from
-        s : Make!Makefile
+        m : Make!Makefile
     to
-        t : Ant!Project (
-            name <- s.name,
-            properties <- s.elements->select(e | e.oclIsTypeOf(Make!Macro)),
-            targets <- s.elements->select(e | e.oclIsTypeOf(Make!Rule)),
-            default <- s.elements->any(e | e.oclIsTypeOf(Make!Rule))
+        p : Ant!Project (
+            name <- m.name,
+            properties <- m.elements->select(c | c.oclIsKindOf(Make!Macro)),
+            targets <- m.elements->select(c | c.oclIsKindOf(Make!Rule)),
+            default <- m.elements->select(c | c.oclIsKindOf(Make!Rule))->first()
         )
 }
 
 rule Macro2Property {
     from
-        s : Make!Macro
+        m : Make!Macro
     to
-        t : Ant!PropertyValue (
-            name <- s.name,
-            value <- s.value
+        p : Ant!PropertyValue (
+            name <- m.name,
+            value <- m.value
         )
 }
 
 rule Rule2Target {
     from
-        s : Make!Rule
+        r : Make!Rule
     to
         t : Ant!Target (
-            name <- s.name,
-            tasks <- s.shellLines,
-            depends <- s.dependencies->select(d | d.oclIsTypeOf(Make!RuleDep))->collect(d | d.ruledep)
+            name <- r.name,
+            tasks <- r.shellLines,
+            depends <- r.dependencies->select(d | d.oclIsKindOf(Make!RuleDep))->collect(d | d.ruledep)
         )
 }
 
@@ -40,14 +40,11 @@ rule ShellLine2Task_Display {
             s.display
         )
     to
-        echo : Ant!Echo (
-            message <- s.command,
-            target <- s.ruleShellLine
+        e : Ant!Echo (
+            message <- s.command
         ),
-        exec : Ant!Exec (
-            executable <- s.command,
-            target <- s.ruleShellLine,
-            dir <- ''
+        x : Ant!Exec (
+            executable <- s.command
         )
 }
 
@@ -57,9 +54,8 @@ rule ShellLine2Task_NoDisplay {
             not s.display
         )
     to
-        exec : Ant!Exec (
-            executable <- s.command,
-            target <- s.ruleShellLine,
-            dir <- ''
+        x : Ant!Exec (
+            executable <- s.command
         )
 }
+

@@ -6,6 +6,11 @@ class TypeEnvironment:
 
     def __init__(self, context_class=None, registry=None):
         self.scopes: List[Dict[str, str]] = [{}]  # Danh sách các scope, mỗi scope là một dict
+        # Flow-sensitive types for stable expression paths such as
+        # ``self.contents``.  Keep these in scopes parallel to variable scopes
+        # so a refinement made inside an if/and guard cannot leak outside the
+        # guarded expression.
+        self.expression_type_scopes: List[Dict[str, str]] = [{}]
         self.context_class = context_class  # Lớp hiện tại đang được kiểm tra
         self.registry = registry  # Registry để truy vấn thông tin kiểu
 
@@ -36,8 +41,30 @@ class TypeEnvironment:
             f"Unknown variable: '{name}'"
         )
 
+    def bind_expression_type(self, expression_path: str, type_name: str):
+        """Refine the type of a stable expression path in the current scope."""
+        self.expression_type_scopes[-1][expression_path] = (
+            type_name if type_name is not None else "Unknown"
+        )
+
+    def lookup_expression_type(self, expression_path: str):
+        """Return a scoped expression refinement, or ``None`` if absent."""
+        root_variable = expression_path.split(".", 1)[0]
+        for index in range(len(self.expression_type_scopes) - 1, -1, -1):
+            refinements = self.expression_type_scopes[index]
+            if expression_path in refinements:
+                return refinements[expression_path]
+
+            # A same-named variable declared in a nested scope denotes a new
+            # expression path, so refinements attached to the outer variable
+            # must not be reused.
+            if root_variable in self.scopes[index]:
+                return None
+        return None
+
     def push_scope(self):
         self.scopes.append({})
+        self.expression_type_scopes.append({})
 
     def pop_scope(self):
         if len(self.scopes) <= 1:
@@ -46,6 +73,7 @@ class TypeEnvironment:
             )
 
         self.scopes.pop()
+        self.expression_type_scopes.pop()
 
     def register_helper(self, name: str, parameter_types: List[str], return_type: str, context_type: str = None, kind: str = "operation"):
         identifier_error = atl_identifier_error(name)

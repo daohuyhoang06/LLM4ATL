@@ -3,12 +3,12 @@ create OUT : Report from IN : Document;
 
 rule Document2Report {
     from
-        d : Document!Document
+        s : Document!Document
     to
-        r : Report!Report (
-            title <- d.title,
-            author <- d.author,
-            sections <- d.sections
+        t : Report!Report (
+            title <- s.title,
+            author <- s.author,
+            sections <- s.sections
         )
 }
 
@@ -22,3 +22,4 @@ rule Section2Section {
             order <- s.order
         )
 }
+

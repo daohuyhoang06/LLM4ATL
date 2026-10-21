@@ -1,0 +1,31 @@
+module AmaltheaToAscet_All;
+create OUT : ASCET from IN : AMALTHEA;
+
+rule ComponentContainer2AscetModule {
+	from
+		s : AMALTHEA!ComponentContainer
+	to
+		t : ASCET!AscetModule (
+			tasks <- s.tasks->collect(e | thisModule.Task2SoftwareTask(e))
+		)
+}
+
+lazy rule Task2SoftwareTask {
+	from
+		s : AMALTHEA!Task
+	to
+		t : ASCET!SoftwareTask (
+			name <- s.name
+		)
+}
+
+rule TaskRoot2SoftwareTask {
+	from
+		s : AMALTHEA!Task (
+			AMALTHEA!ComponentContainer.allInstances()->select(c | c.tasks->includes(s))->isEmpty()
+		)
+	to
+		t : ASCET!SoftwareTask (
+			name <- s.name
+		)
+}

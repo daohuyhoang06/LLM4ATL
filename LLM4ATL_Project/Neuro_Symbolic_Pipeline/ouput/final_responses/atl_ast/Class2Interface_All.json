@@ -5,14 +5,14 @@
     {
       "type": "ModelDeclaration",
       "alias": "IN",
-      "metamodel": "Class"
+      "metamodel": "class"
     }
   ],
   "output_models": [
     {
       "type": "ModelDeclaration",
       "alias": "OUT",
-      "metamodel": "Interface"
+      "metamodel": "interface"
     }
   ],
   "elements": [
@@ -27,7 +27,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "i",
               "declared_type": "interface!Interface"
             },
             "bindings": [
@@ -38,8 +38,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "c",
+                    "declared_type": "class!Class"
                   },
                   "property_name": "name"
                 }
@@ -51,15 +51,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "c",
+                    "declared_type": "class!Class"
                   },
                   "property_name": "methods"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -71,10 +71,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "c",
               "declared_type": "class!Class"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -95,7 +95,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "im",
               "declared_type": "interface!Method"
             },
             "bindings": [
@@ -106,8 +106,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "m",
+                    "declared_type": "class!Method"
                   },
                   "property_name": "name"
                 }
@@ -119,8 +119,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "m",
+                    "declared_type": "class!Method"
                   },
                   "property_name": "returnType"
                 }
@@ -132,15 +132,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "m",
+                    "declared_type": "class!Method"
                   },
                   "property_name": "parameters"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -152,10 +152,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "m",
               "declared_type": "class!Method"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null
@@ -176,7 +176,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "t",
+              "name": "ip",
               "declared_type": "interface!Parameter"
             },
             "bindings": [
@@ -187,8 +187,8 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "p",
+                    "declared_type": "class!Parameter"
                   },
                   "property_name": "name"
                 }
@@ -200,15 +200,15 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "s",
-                    "declared_type": null
+                    "name": "p",
+                    "declared_type": "class!Parameter"
                   },
                   "property_name": "type"
                 }
               }
             ],
             "maps_to": null,
-            "model": null
+            "model": "OUT"
           }
         ]
       },
@@ -220,10 +220,10 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "s",
+              "name": "p",
               "declared_type": "class!Parameter"
             },
-            "model": null
+            "model": "IN"
           }
         ],
         "filter": null

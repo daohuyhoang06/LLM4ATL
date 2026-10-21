@@ -50,6 +50,7 @@ class LLMClient:
     provider: str
     model_name: str
     client: Any
+    transport: str = "native"
 
     def generate_with_usage(
         self, prompt: str, instructions: str = ""
@@ -60,7 +61,7 @@ class LLMClient:
         The legacy Gemini SDK used here does not, so it retains the previous
         behaviour of prefixing that guidance to the request text.
         """
-        if self.provider == "gemini":
+        if self.provider == "gemini" and self.transport == "native":
             request_text = f"{instructions}\n\n{prompt}" if instructions else prompt
             response = self.client.generate_content(request_text)
             text = getattr(response, "text", None)
@@ -69,6 +70,22 @@ class LLMClient:
                 "input_tokens": getattr(raw_usage, "prompt_token_count", None),
                 "output_tokens": getattr(raw_usage, "candidates_token_count", None),
                 "total_tokens": getattr(raw_usage, "total_token_count", None),
+            }
+        elif self.provider == "gemini" and self.transport == "openai_compatible":
+            messages = []
+            if instructions:
+                messages.append({"role": "system", "content": instructions})
+            messages.append({"role": "user", "content": prompt})
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+            )
+            text = response.choices[0].message.content if response.choices else None
+            raw_usage = getattr(response, "usage", None)
+            usage = {
+                "input_tokens": getattr(raw_usage, "prompt_tokens", None),
+                "output_tokens": getattr(raw_usage, "completion_tokens", None),
+                "total_tokens": getattr(raw_usage, "total_tokens", None),
             }
         elif self.provider == "openai":
             reasoning_effort = _clean(os.getenv("OPENAI_REASONING_EFFORT", "medium")).lower()
@@ -170,10 +187,25 @@ def create_llm_client() -> LLMClient:
     ) or _DEFAULT_MODELS[provider]
 
     if provider == "gemini":
-        import google.generativeai as genai
+        # Some Gemini gateways expose an OpenAI-compatible API while using
+        # the existing Anthropic gateway credential names in this project.
+        # A configured ANTHROPIC_BASE_URL selects that gateway transport;
+        # otherwise use Google's native Gemini API.
+        base_url = _clean(os.getenv("ANTHROPIC_BASE_URL"))
+        if base_url:
+            from openai import OpenAI
 
-        genai.configure(api_key=_required_key(provider, "GEMINI_API_KEY"))
-        client = genai.GenerativeModel(model_name)
+            client = OpenAI(
+                api_key=_required_key(provider, "ANTHROPIC_API_KEY"),
+                base_url=base_url,
+            )
+            transport = "openai_compatible"
+        else:
+            import google.generativeai as genai
+
+            genai.configure(api_key=_required_key(provider, "GEMINI_API_KEY"))
+            client = genai.GenerativeModel(model_name)
+            transport = "native"
     elif provider == "openai":
         from openai import OpenAI
 
@@ -182,6 +214,7 @@ def create_llm_client() -> LLMClient:
         if base_url:
             kwargs["base_url"] = base_url
         client = OpenAI(**kwargs)
+        transport = "native"
     else:
         try:
             from anthropic import Anthropic
@@ -196,9 +229,11 @@ def create_llm_client() -> LLMClient:
         if base_url:
             kwargs["base_url"] = base_url
         client = Anthropic(**kwargs)
+        transport = "native"
 
     return LLMClient(
         provider=provider,
         model_name=model_name,
         client=client,
+        transport=transport,
     )

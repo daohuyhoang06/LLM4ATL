@@ -83,61 +83,6 @@
     },
     {
       "type": "MatchedRule",
-      "name": "ItemModel2ProductModel",
-      "using": [],
-      "out_pattern": {
-        "type": "OutPattern",
-        "elements": [
-          {
-            "type": "SimpleOutPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "pm",
-              "declared_type": "product!ProductModel"
-            },
-            "bindings": [
-              {
-                "type": "Binding",
-                "property_name": "products",
-                "value": {
-                  "type": "PropertyCall",
-                  "source": {
-                    "type": "Variable",
-                    "name": "im",
-                    "declared_type": null
-                  },
-                  "property_name": "items"
-                }
-              }
-            ],
-            "maps_to": null,
-            "model": null
-          }
-        ]
-      },
-      "action_block": null,
-      "in_pattern": {
-        "type": "InPattern",
-        "elements": [
-          {
-            "type": "InPatternElement",
-            "variable": {
-              "type": "Variable",
-              "name": "im",
-              "declared_type": "item!ItemModel"
-            },
-            "model": null
-          }
-        ],
-        "filter": null
-      },
-      "extends": null,
-      "is_abstract": false,
-      "is_nodefault": false,
-      "is_refining": false
-    },
-    {
-      "type": "MatchedRule",
       "name": "Item2Product",
       "using": [],
       "out_pattern": {
@@ -147,7 +92,7 @@
             "type": "SimpleOutPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "p",
+              "name": "t",
               "declared_type": "product!Product"
             },
             "bindings": [
@@ -158,7 +103,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "name"
@@ -171,7 +116,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "price"
@@ -184,7 +129,7 @@
                   "type": "PropertyCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i",
+                    "name": "s",
                     "declared_type": null
                   },
                   "property_name": "description"
@@ -200,7 +145,7 @@
                     "type": "PropertyCall",
                     "source": {
                       "type": "Variable",
-                      "name": "i",
+                      "name": "s",
                       "declared_type": null
                     },
                     "property_name": "quantity"
@@ -219,7 +164,7 @@
                   "type": "OperationCall",
                   "source": {
                     "type": "Variable",
-                    "name": "i",
+                    "name": "s",
                     "declared_type": null
                   },
                   "operation_name": "getCategory",
@@ -240,7 +185,7 @@
             "type": "InPatternElement",
             "variable": {
               "type": "Variable",
-              "name": "i",
+              "name": "s",
               "declared_type": "item!Item"
             },
             "model": null

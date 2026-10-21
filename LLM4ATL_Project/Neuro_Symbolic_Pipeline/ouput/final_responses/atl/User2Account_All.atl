@@ -4,15 +4,6 @@ create OUT : Account from IN : User;
 helper context User!User def: isActive() : Boolean =
     ((self.status = 'Active') or (self.status = 'Enabled'));
 
-rule UserModel2AccountModel {
-    from
-        s : User!UserModel
-    to
-        t : Account!AccountModel (
-            accounts <- s.users
-        )
-}
-
 rule User2Account {
     from
         u : User!User
@@ -24,3 +15,4 @@ rule User2Account {
             createdDate <- u.registrationDate
         )
 }
+

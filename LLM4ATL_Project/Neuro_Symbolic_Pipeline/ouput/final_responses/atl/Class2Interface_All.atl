@@ -3,31 +3,32 @@ create OUT : Interface from IN : Class;
 
 rule Class2Interface {
     from
-        s : Class!Class
+        c : Class!Class
     to
-        t : Interface!Interface (
-            name <- s.name,
-            methods <- s.methods
+        i : Interface!Interface (
+            name <- c.name,
+            methods <- c.methods
         )
 }
 
 rule Method2Method {
     from
-        s : Class!Method
+        m : Class!Method
     to
-        t : Interface!Method (
-            name <- s.name,
-            returnType <- s.returnType,
-            parameters <- s.parameters
+        im : Interface!Method (
+            name <- m.name,
+            returnType <- m.returnType,
+            parameters <- m.parameters
         )
 }
 
 rule Parameter2Parameter {
     from
-        s : Class!Parameter
+        p : Class!Parameter
     to
-        t : Interface!Parameter (
-            name <- s.name,
-            type <- s.type
+        ip : Interface!Parameter (
+            name <- p.name,
+            type <- p.type
         )
 }
+

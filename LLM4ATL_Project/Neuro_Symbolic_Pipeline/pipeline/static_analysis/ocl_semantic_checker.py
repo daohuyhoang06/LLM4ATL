@@ -104,6 +104,12 @@ class OCLSemanticChecker:
 
     @classmethod
     def _check_property_call(cls, expr, env, ablation_config=None) -> str:
+        expression_path = cls._stable_expression_path(expr)
+        if expression_path is not None:
+            refined_type = env.lookup_expression_type(expression_path)
+            if refined_type is not None:
+                return refined_type
+
         source_type = cls.check(expr.source, env, ablation_config=ablation_config)
         prop_name = expr.property_name
 
@@ -598,11 +604,35 @@ class OCLSemanticChecker:
 
         source = expr.source
         target = expr.arguments[0]
-        if source.type == "Variable" and target.type == "Variable" and "!" in target.name:
+        if target.type != "Variable" or "!" not in target.name:
+            return
+
+        if source.type == "Variable":
             # This updates the inferred type of an existing variable; it is
             # not a user declaration. Built-ins such as ``self`` may therefore
             # be refined by an oclIsKindOf/oclIsTypeOf guard.
             env.bind_variable(source.name, target.name, allow_builtin=True)
+            return
+
+        # A property path is stable for the duration of an OCL expression.
+        # Refine paths such as ``self.contents`` inside the guarded branch so
+        # helper/property lookup sees the type established by oclIsKindOf.
+        expression_path = cls._stable_expression_path(source)
+        if expression_path is not None:
+            env.bind_expression_type(expression_path, target.name)
+
+    @staticmethod
+    def _stable_expression_path(expr) -> Optional[str]:
+        """Return a key for variable/property-only expression paths."""
+        if expr.type == "Variable":
+            return expr.name
+
+        if expr.type == "PropertyCall":
+            source_path = OCLSemanticChecker._stable_expression_path(expr.source)
+            if source_path is not None:
+                return f"{source_path}.{expr.property_name}"
+
+        return None
 
 
     @classmethod

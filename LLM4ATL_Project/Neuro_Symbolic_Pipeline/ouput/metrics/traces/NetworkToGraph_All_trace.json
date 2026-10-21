@@ -1,0 +1,58 @@
+{
+  "task": "NetworkToGraph_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-21T23:24:54+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "retry_sleep_seconds": 0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-21T23:24:54+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 22.807,
+        "input_tokens": 13034,
+        "output_tokens": 1571,
+        "total_tokens": 18406
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "PASS"
+        },
+        "layer3_formal": {
+          "status": "ATL2TM_UNSUPPORTED_FEATURE"
+        }
+      },
+      "outcome": "ATL2TM_UNSUPPORTED_FEATURE",
+      "finished_at": "2026-10-21T23:25:20+07:00",
+      "elapsed_seconds": 26.175,
+      "error": "ATL2TM does not support lazy rules; Layer 3 stopped, and eFinder was not run."
+    }
+  ],
+  "finished_at": "2026-10-21T23:25:20+07:00",
+  "summary": {
+    "final_status": "ATL2TM_UNSUPPORTED_FEATURE",
+    "termination_reason": "LAYER3_STOPPED",
+    "llm_attempts": 1,
+    "repair_iterations": 0,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 26.177,
+    "retry_sleep_seconds": 0,
+    "active_elapsed_seconds": 26.177,
+    "llm_elapsed_seconds": 22.807,
+    "input_tokens": 13034,
+    "output_tokens": 1571,
+    "total_tokens": 18406
+  }
+}

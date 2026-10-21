@@ -3,6 +3,7 @@ import glob
 import json
 import time
 import sys
+from datetime import datetime
 from pathlib import Path
 # Keep gRPC's repeated TLS handshake diagnostics from flooding the pipeline
 # output; the first actionable exception is still reported below.
@@ -78,13 +79,17 @@ ATL_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl'
 FORMAL_VERIFICATION_OUTPUT_DIR = OUTPUT_DIR / 'formal_verification'
 LAYER3_OUTPUT_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'pipeline_attempts'
 CANDIDATES_DIR = FORMAL_VERIFICATION_OUTPUT_DIR / 'candidates'
+METRICS_DIR = OUTPUT_DIR / 'metrics'
+
+MAX_RETRIES = 5
+RETRY_DELAY_SECONDS = 10
 
 # Existing function names are preserved while the rest of main.py is
 # incrementally refactored.
 RESPONSES_DIR = AST_OUTPUT_DIR
 AST2ATL_DIR = ATL_OUTPUT_DIR
 
-for output_dir in (AST_OUTPUT_DIR, ATL_OUTPUT_DIR, FORMAL_VERIFICATION_OUTPUT_DIR):
+for output_dir in (AST_OUTPUT_DIR, ATL_OUTPUT_DIR, FORMAL_VERIFICATION_OUTPUT_DIR, METRICS_DIR):
     output_dir.mkdir(parents=True, exist_ok=True)
 
 # Load System Prompt
@@ -160,6 +165,58 @@ def generate_final_atl_from_ast(basename, data):
         return None
 
 
+def current_timestamp():
+    """Return an ISO-8601 timestamp with the machine's local UTC offset."""
+    return datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def write_json(path, payload):
+    """Write JSON atomically so an interrupted run does not leave a partial trace."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = path.with_suffix(path.suffix + ".tmp")
+    temporary_path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    temporary_path.replace(path)
+
+
+def summarize_task_trace(trace, task_started_at, final_status, termination_reason):
+    """Finalize cumulative token and timing metrics for one testcase."""
+    attempts = trace["attempts"]
+    task_elapsed_seconds = round(time.perf_counter() - task_started_at, 3)
+    retry_sleep_seconds = trace.get("retry_sleep_seconds", 0)
+
+    def total_from_attempts(field):
+        return sum(
+            attempt.get("llm", {}).get(field) or 0
+            for attempt in attempts
+        )
+
+    trace["finished_at"] = current_timestamp()
+    trace["summary"] = {
+        "final_status": final_status,
+        "termination_reason": termination_reason,
+        "llm_attempts": len(attempts),
+        "repair_iterations": max(0, len(attempts) - 1),
+        "max_repair_iterations": MAX_RETRIES,
+        "repair_limit_exhausted": termination_reason == "REPAIR_LIMIT_EXHAUSTED",
+        "task_elapsed_seconds": task_elapsed_seconds,
+        "retry_sleep_seconds": retry_sleep_seconds,
+        "active_elapsed_seconds": round(
+            max(0, task_elapsed_seconds - retry_sleep_seconds), 3
+        ),
+        "llm_elapsed_seconds": round(sum(
+            attempt.get("llm", {}).get("elapsed_seconds") or 0
+            for attempt in attempts
+        ), 3),
+        "input_tokens": total_from_attempts("input_tokens"),
+        "output_tokens": total_from_attempts("output_tokens"),
+        "total_tokens": total_from_attempts("total_tokens"),
+    }
+    return trace
+
+
 def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
     """Generate ATL, translate it with ATL2TM, then query eFinder.
 
@@ -231,12 +288,32 @@ def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
     print(f"[{basename}] Layer 3 stopped: {result.detail}", flush=True)
     return result.status, result.detail, candidate_atl
 
-def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
+def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=None):
     basename = os.path.splitext(os.path.basename(prompt_file_path))[0]
+    task_started_at = time.perf_counter()
+    trace = {
+        "task": basename,
+        "provider": LLM_CLIENT.provider,
+        "model": LLM_CLIENT.model_name,
+        "started_at": current_timestamp(),
+        "max_repair_iterations": MAX_RETRIES,
+        "max_llm_attempts": MAX_RETRIES + 1,
+        "retry_sleep_seconds": 0,
+        "attempts": [],
+    }
+
+    def persist_trace():
+        if trace_path is not None:
+            write_json(trace_path, trace)
+
+    def finish_task(final_status, termination_reason):
+        summarize_task_trace(trace, task_started_at, final_status, termination_reason)
+        persist_trace()
+        return trace
     output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
     if os.path.exists(output_path):
         print(f"\n--- Skipping: {basename} (file already exists) ---")
-        return
+        return finish_task("SKIPPED_EXISTING", "OUTPUT_ALREADY_EXISTS")
 
     print(f"\n--- Processing: {basename} ---")
     
@@ -248,7 +325,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     model_files = mapping.get(basename)
     if not model_files:
         print(f"[Warning] No model mapping found for {basename}")
-        return
+        return finish_task("MISSING_INPUT", "MISSING_MODEL_MAPPING")
         
     model_content = ""
     model_full_paths = []
@@ -260,12 +337,46 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
         else:
             print(f"[Error] Model file not found: {full_path}")
             
-    MAX_RETRIES = 5
     validation_error = ""
     data = None
+    current_atl = None
     last_layer2_data = None
+    stopped_by_api_error = False
     
     for attempt in range(MAX_RETRIES + 1):
+        attempt_started_at = time.perf_counter()
+        attempt_trace = {
+            "attempt": attempt + 1,
+            "repair_iteration": attempt,
+            "attempt_type": "INITIAL_GENERATION" if attempt == 0 else "REPAIR",
+            "started_at": current_timestamp(),
+            "llm": {
+                "status": "NOT_RUN",
+                "elapsed_seconds": 0,
+                "input_tokens": None,
+                "output_tokens": None,
+                "total_tokens": None,
+            },
+            "layers": {
+                "layer0_json": {"status": "NOT_RUN"},
+                "layer1_schema": {"status": "NOT_RUN"},
+                "layer2_semantic": {"status": "NOT_RUN"},
+                "layer3_formal": {"status": "NOT_RUN"},
+            },
+            "outcome": "RUNNING",
+        }
+        trace["attempts"].append(attempt_trace)
+
+        def finish_attempt(outcome, error=None):
+            attempt_trace["outcome"] = outcome
+            attempt_trace["finished_at"] = current_timestamp()
+            attempt_trace["elapsed_seconds"] = round(
+                time.perf_counter() - attempt_started_at, 3
+            )
+            if error:
+                attempt_trace["error"] = str(error)
+            persist_trace()
+
         data = None
         current_atl = None
         if attempt > 0:
@@ -278,12 +389,36 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                 f"[{basename}] Sending request to "
                 f"{LLM_CLIENT.provider}/{LLM_CLIENT.model_name}..."
             )
-            raw_json = extract_json(
-                LLM_CLIENT.generate(full_prompt, instructions=system_prompt)
-            )
+            llm_started_at = time.perf_counter()
+            try:
+                raw_response, usage = LLM_CLIENT.generate_with_usage(
+                    full_prompt, instructions=system_prompt
+                )
+            except Exception:
+                attempt_trace["llm"].update({
+                    "status": "ERROR",
+                    "elapsed_seconds": round(time.perf_counter() - llm_started_at, 3),
+                })
+                raise
+            attempt_trace["llm"].update({
+                "status": "SUCCESS",
+                "elapsed_seconds": round(time.perf_counter() - llm_started_at, 3),
+                "input_tokens": usage.get("input_tokens"),
+                "output_tokens": usage.get("output_tokens"),
+                "total_tokens": (
+                    usage.get("total_tokens")
+                    if usage.get("total_tokens") is not None
+                    else (
+                        (usage.get("input_tokens") or 0)
+                        + (usage.get("output_tokens") or 0)
+                    )
+                ),
+            })
+            raw_json = extract_json(raw_response)
 
             # Layer 0: Check basic JSON syntax
             data = json.loads(raw_json)
+            attempt_trace["layers"]["layer0_json"]["status"] = "PASS"
             
             # Layer 1: Pydantic Validation
             ast_obj = None
@@ -292,13 +427,16 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                 print(f"[{basename}] Running Pydantic validation (Layer 1)...")
                 ast_obj = Module(**data)
                 data = ast_obj.model_dump()
+                attempt_trace["layers"]["layer1_schema"]["status"] = "PASS"
                 print(f"[{basename}] Layer 1: PASS - valid AST.", flush=True)
             elif needs_typed_ast:
                 print(f"[{basename}] Layer 1 disabled as a validation gate; building typed AST for downstream checks.")
                 ast_obj = Module(**data)
                 data = ast_obj.model_dump()
+                attempt_trace["layers"]["layer1_schema"]["status"] = "SKIPPED_GATE"
             else:
                 print(f"[{basename}] Skipping Pydantic Validation (Layer 1).")
+                attempt_trace["layers"]["layer1_schema"]["status"] = "SKIPPED"
             
             # Layer 2: Semantic Check
             if ablation_config.is_enabled("enable_layer2_semantic"):
@@ -306,47 +444,76 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                 registry = ATLEcoreRegistry(model_full_paths)
                 env = TypeEnvironment(registry=registry)
                 ATLSemanticChecker.check_module(ast_obj, env, ablation_config)
+                attempt_trace["layers"]["layer2_semantic"]["status"] = "PASS"
                 print(f"[{basename}] Layer 2: PASS - valid semantics.", flush=True)
             else:
                 print(f"[{basename}] Skipping semantic check (Layer 2).")
+                attempt_trace["layers"]["layer2_semantic"]["status"] = "SKIPPED"
             
             layer3_status, layer3_feedback, final_atl = run_layer3(
                 basename, data, model_full_paths, attempt, ablation_config
             )
+            attempt_trace["layers"]["layer3_formal"]["status"] = layer3_status
             if final_atl is not None:
                 current_atl = final_atl
             if layer3_status in {"COUNTEREXAMPLE", "GENERATION_ERROR"}:
                 save_last_candidate(basename, data, final_atl)
                 validation_error = layer3_feedback
+                attempt_trace["repair_trigger"] = layer3_status
+                finish_attempt(layer3_status, layer3_feedback)
                 print("[Layer 3] Candidate rejected; sending the diagnostic to the LLM for repair.")
                 if attempt < MAX_RETRIES:
-                    time.sleep(10)
+                    trace["retry_sleep_seconds"] += RETRY_DELAY_SECONDS
+                    time.sleep(RETRY_DELAY_SECONDS)
                 continue
             if layer3_status not in {"VERIFIED", "SKIPPED"}:
                 save_last_candidate(basename, data, final_atl)
+                finish_attempt(layer3_status, layer3_feedback)
                 print(f"[{basename}] Layer 3 ended with status {layer3_status}; "
                       "the last draft was saved but is not verified.", flush=True)
-                return
+                return finish_task(layer3_status, "LAYER3_STOPPED")
 
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
             with open(output_path, 'w', encoding='utf-8') as out_f:
                 json.dump(data, out_f, indent=2, ensure_ascii=False)
+            finish_attempt(layer3_status)
             print(f"[Success] {basename} passed validation and was saved.")
-            return
+            termination_reason = (
+                "BOUNDED_VERIFICATION_PASSED"
+                if layer3_status == "VERIFIED"
+                else "LAYER3_SKIPPED"
+            )
+            return finish_task(layer3_status, termination_reason)
             
         except json.JSONDecodeError as e:
+            attempt_trace["layers"]["layer0_json"].update({
+                "status": "FAIL",
+                "detail": str(e),
+            })
             validation_error = f"JSONDecodeError: {str(e)}\n\nNote: Return valid JSON only, without extra text."
+            attempt_trace["repair_trigger"] = "JSON_DECODE_ERROR"
             print(f"[JSON syntax error] {str(e)}")
         except ValidationError as e:
+            attempt_trace["layers"]["layer1_schema"].update({
+                "status": "FAIL",
+                "error_count": e.error_count(),
+                "detail": str(e),
+            })
             save_last_candidate(basename, data, current_atl)
             validation_error = str(e)
+            attempt_trace["repair_trigger"] = "LAYER1_VALIDATION_ERROR"
             print(f"[Pydantic Layer 1 error] Found {e.error_count()} structural error(s).")
             print(validation_error)
         except SemanticError as e:
+            attempt_trace["layers"]["layer2_semantic"].update({
+                "status": "FAIL",
+                "detail": str(e),
+            })
             save_last_candidate(basename, data, current_atl)
             if data is not None:
                 last_layer2_data = data
             validation_error = f"SemanticError: {str(e)}\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+            attempt_trace["repair_trigger"] = "LAYER2_SEMANTIC_ERROR"
             print(f"[Semantic Layer 2 error] {str(e)}")
         except Exception as e:
             save_last_candidate(basename, data, current_atl)
@@ -360,14 +527,25 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
                     or "SSL_ERROR" in err_str
                     or isinstance(e, TimeoutError)):
                 print(f"[API error] {err_str.splitlines()[0] if str(e) else 'API connection error'}")
-                break
-            print(f"[API/system error] {err_str}")
+                attempt_trace["repair_trigger"] = "API_ERROR"
+                stopped_by_api_error = True
+            else:
+                attempt_trace["repair_trigger"] = "SYSTEM_ERROR"
+                print(f"[API/system error] {err_str}")
+
+        finish_attempt(attempt_trace.get("repair_trigger", "FAILED"), validation_error)
+        if stopped_by_api_error:
+            break
             
         # Nghỉ 10 giây tránh Rate Limit
         if attempt < MAX_RETRIES:
-            time.sleep(10)
+            trace["retry_sleep_seconds"] += RETRY_DELAY_SECONDS
+            time.sleep(RETRY_DELAY_SECONDS)
             
-    print(f"[Failure] {basename} could not be repaired after {MAX_RETRIES} iteration(s).")
+    if stopped_by_api_error:
+        print(f"[Failure] {basename} stopped because the LLM API request failed.")
+    else:
+        print(f"[Failure] {basename} could not be repaired after {MAX_RETRIES} iteration(s).")
     final_data = data
     final_atl = current_atl
     if final_atl is None and last_layer2_data is not None:
@@ -376,8 +554,107 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG):
     if final_data is not None:
         save_last_candidate(basename, final_data, final_atl)
         print("[Pipeline] The last AST/ATL candidate was saved to the normal output locations.")
+    if stopped_by_api_error:
+        return finish_task("API_ERROR", "API_ERROR")
+    return finish_task("REPAIR_LIMIT_EXHAUSTED", "REPAIR_LIMIT_EXHAUSTED")
+
+
+def build_run_summary(run_id, run_started_at, batch_started_at, task_traces, status):
+    """Build batch totals and per-testcase averages from completed traces."""
+    tasks = []
+    for trace in task_traces:
+        task_summary = trace.get("summary", {})
+        tasks.append({
+            "task": trace.get("task"),
+            "status": task_summary.get("final_status"),
+            "termination_reason": task_summary.get("termination_reason"),
+            "llm_attempts": task_summary.get("llm_attempts", 0),
+            "repair_iterations": task_summary.get("repair_iterations", 0),
+            "metrics": {
+                "task_elapsed_seconds": task_summary.get("task_elapsed_seconds", 0),
+                "active_elapsed_seconds": task_summary.get("active_elapsed_seconds", 0),
+                "retry_sleep_seconds": task_summary.get("retry_sleep_seconds", 0),
+                "llm_elapsed_seconds": task_summary.get("llm_elapsed_seconds", 0),
+                "input_tokens": task_summary.get("input_tokens", 0),
+                "output_tokens": task_summary.get("output_tokens", 0),
+                "total_tokens": task_summary.get("total_tokens", 0),
+            },
+        })
+
+    executed_tasks = [task for task in tasks if task["llm_attempts"] > 0]
+    executed_count = len(executed_tasks)
+
+    def total_metric(metric):
+        return sum(task["metrics"].get(metric) or 0 for task in executed_tasks)
+
+    total_task_seconds = total_metric("task_elapsed_seconds")
+    total_llm_seconds = total_metric("llm_elapsed_seconds")
+    total_llm_attempts = sum(task["llm_attempts"] for task in executed_tasks)
+    total_tokens = total_metric("total_tokens")
+    summary = {
+        "run_id": run_id,
+        "status": status,
+        "started_at": run_started_at,
+        "updated_at": current_timestamp(),
+        "provider": LLM_CLIENT.provider,
+        "model": LLM_CLIENT.model_name,
+        "configuration": {
+            "max_repair_iterations": MAX_RETRIES,
+            "max_llm_attempts_per_task": MAX_RETRIES + 1,
+            "retry_delay_seconds": RETRY_DELAY_SECONDS,
+            "efinder_scope": EFINDER_SCOPE,
+            "efinder_reference_scope": EFINDER_REFERENCE_SCOPE,
+            "efinder_timeout_ms": EFINDER_TIMEOUT_MS,
+        },
+        "task_count": len(tasks),
+        "executed_task_count": executed_count,
+        "tasks": tasks,
+        "totals": {
+            "llm_attempts": total_llm_attempts,
+            "input_tokens": total_metric("input_tokens"),
+            "output_tokens": total_metric("output_tokens"),
+            "total_tokens": total_tokens,
+            "task_elapsed_seconds": round(total_task_seconds, 3),
+            "active_elapsed_seconds": round(total_metric("active_elapsed_seconds"), 3),
+            "retry_sleep_seconds": round(total_metric("retry_sleep_seconds"), 3),
+            "llm_elapsed_seconds": round(total_llm_seconds, 3),
+            "batch_wall_elapsed_seconds": round(
+                time.perf_counter() - batch_started_at, 3
+            ),
+        },
+        "averages": {
+            "task_elapsed_seconds": (
+                round(total_task_seconds / executed_count, 3)
+                if executed_count else None
+            ),
+            "llm_elapsed_seconds_per_task": (
+                round(total_llm_seconds / executed_count, 3)
+                if executed_count else None
+            ),
+            "total_tokens_per_task": (
+                round(total_tokens / executed_count, 3)
+                if executed_count else None
+            ),
+            "llm_elapsed_seconds_per_call": (
+                round(total_llm_seconds / total_llm_attempts, 3)
+                if total_llm_attempts else None
+            ),
+        },
+    }
+    if status == "COMPLETED":
+        summary["finished_at"] = current_timestamp()
+    return summary
+
 
 def main():
+    batch_started_at = time.perf_counter()
+    run_started_at = current_timestamp()
+    run_timestamp = datetime.now().astimezone().strftime("%Y-%m-%d_%H-%M-%S")
+    run_id = f"run_{run_timestamp}"
+    traces_dir = METRICS_DIR / "traces"
+    run_summary_path = METRICS_DIR / "run_summary.json"
+    task_traces = []
+
     prompt_files = glob.glob(os.path.join(PROMPTS_DIR, "*.txt"))
     if not prompt_files:
         print("No prompt files found in the directory.")
@@ -407,12 +684,45 @@ def main():
         os.path.splitext(os.path.basename(p))[0]: p
         for p in prompt_files
     }
+    write_json(
+        run_summary_path,
+        build_run_summary(
+            run_id, run_started_at, batch_started_at, task_traces, "RUNNING"
+        ),
+    )
     for case_name in selected_cases:
         prompt_file = prompt_by_case.get(case_name)
         if prompt_file:
-            process_file(prompt_file)
+            trace_path = traces_dir / f"{case_name}_trace.json"
+            task_trace = process_file(prompt_file, trace_path=trace_path)
+            task_traces.append(task_trace)
+            task_metrics = task_trace["summary"]
+            print(
+                f"[Metrics] {case_name}: "
+                f"task={task_metrics['task_elapsed_seconds']:.3f}s | "
+                f"LLM calls={task_metrics['llm_attempts']} | "
+                f"tokens={task_metrics['total_tokens']}"
+            )
         else:
             print(f"[Warning] Prompt not found for {case_name}")
+
+        running_summary = build_run_summary(
+            run_id, run_started_at, batch_started_at, task_traces, "RUNNING"
+        )
+        write_json(run_summary_path, running_summary)
+
+    final_summary = build_run_summary(
+        run_id, run_started_at, batch_started_at, task_traces, "COMPLETED"
+    )
+    write_json(run_summary_path, final_summary)
+    print(f"\n[Metrics] Run summary: {run_summary_path}")
+    print(
+        "[Metrics] "
+        f"total tokens={final_summary['totals']['total_tokens']} | "
+        f"average testcase time="
+        f"{final_summary['averages']['task_elapsed_seconds']}s | "
+        f"batch wall time={final_summary['totals']['batch_wall_elapsed_seconds']}s"
+    )
 
 if __name__ == "__main__":
     main()

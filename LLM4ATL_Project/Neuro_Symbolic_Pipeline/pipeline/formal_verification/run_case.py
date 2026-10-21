@@ -185,7 +185,7 @@ def resolve_case(case: str, mapping: dict[str, list[str]]) -> tuple[Path, Path, 
 
 def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
                output_ecore: Path, work_dir: Path, *, verbose: bool = True) -> None:
-    """Invoke ATL2TMRunnerMain through the runtime Maven project."""
+    """Compile and invoke ATL2TMRunnerMain through the runtime Maven project."""
     work_dir.mkdir(parents=True, exist_ok=True)
     output_ecore.parent.mkdir(parents=True, exist_ok=True)
     exec_args = " ".join(quoted_exec_arg(path) for path in (
@@ -194,11 +194,20 @@ def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
     command = [
         maven_command(),
         "-q",
+        "-e",
         "-f", str((ATL2TM_RUNTIME / "pom.xml").resolve()),
+        # exec:java does not compile project sources. Running the incremental
+        # compile goal first keeps Layer 3 working after mvn clean, an IDE
+        # clean, or a fresh checkout where target/classes is absent.
+        "compile",
         "exec:java",
         # ATLModelLoader's public signature uses ATL's compile API (IModel).
         # Keep that API available to the Maven exec launcher.
         "-Dexec.classpathScope=compile",
+        # EMF owns a daemon that waits on a ReferenceQueue. Maven Exec's
+        # default daemon cleanup interrupts it after a successful run and
+        # prints a misleading InterruptedException stack trace.
+        "-Dexec.cleanupDaemonThreads=false",
         f"-Datl.compiler.project={ATL_TESTS.resolve()}",
         f"-Dexec.args={exec_args}",
     ]

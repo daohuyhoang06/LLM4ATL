@@ -130,8 +130,7 @@ public class User2AccountAllExecutionTest {
         boolean foundJohn = false;
         boolean foundJane = false;
         boolean foundBob = false;
-        for (TreeIterator<EObject> it = outRes.getAllContents(); it.hasNext(); ) {
-            EObject obj = it.next();
+        for (EObject obj : outRes.getContents()) {
             if (accountCls.isInstance(obj)) {
                 String username = (String) obj.eGet(accountCls.getEStructuralFeature("username"));
                 String email = (String) obj.eGet(accountCls.getEStructuralFeature("email"));

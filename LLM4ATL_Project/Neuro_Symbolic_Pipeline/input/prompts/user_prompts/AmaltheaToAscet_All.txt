@@ -1,7 +1,6 @@
-Create an ATL transformation module named `AmaltheaToAscet_All` that transforms an Amalthea model into an Ascet model.
-
-Define a rule `ComponentContainer2AscetModule` that creates an `AscetModule` from each `ComponentContainer`. Its `tasks` reference must be populated by mapping every contained `Task` to a corresponding `SoftwareTask` using a helper-style rule `Task2SoftwareTask`.
-
-Define a rule `TaskRoot2SoftwareTask` that maps only root `Task` elements (those without a container) to `SoftwareTask`, copying the `name`.
-
-The `Task2SoftwareTask` rule should generally map any `Task` to `SoftwareTask`, copying `name`.
+Transform a model conforming to the Amalthea metamodel into a model conforming to the Ascet metamodel. Name the ATL transformation AmaltheaToAscet_All.
+Each ComponentContainer is transformed into an AscetModule.
+The tasks of the ComponentContainer are copied to the tasks of the AscetModule.
+Each Task is transformed into a SoftwareTask.
+The name of the Task is copied to the name of the SoftwareTask.
+For every ComponentContainer, populate its resulting AscetModule with the SoftwareTask produced from every contained Task. A Task that has no container must also produce a SoftwareTask. Reuse the same Task-to-SoftwareTask mapping consistently whenever a Task is referenced.
