@@ -1,3 +1,34 @@
+-- Keep one name-preservation property for each target subtype.
 context Person
 inv PersonHasFullName:
   self.fullName <> ''
+
+context Male
+inv MalePreservesSourceFullName:
+  Member.allInstances()->exists(m |
+    (not m.familyFather.oclIsUndefined() or not m.familySon.oclIsUndefined()) and
+    self.fullName = m.firstName + ' ' +
+      (if not m.familyFather.oclIsUndefined()
+       then m.familyFather.lastName
+       else if not m.familyMother.oclIsUndefined()
+       then m.familyMother.lastName
+       else if not m.familySon.oclIsUndefined()
+       then m.familySon.lastName
+       else m.familyDaughter.lastName
+       endif endif endif)
+  )
+
+context Female
+inv FemalePreservesSourceFullName:
+  Member.allInstances()->exists(m |
+    (not m.familyMother.oclIsUndefined() or not m.familyDaughter.oclIsUndefined()) and
+    self.fullName = m.firstName + ' ' +
+      (if not m.familyFather.oclIsUndefined()
+       then m.familyFather.lastName
+       else if not m.familyMother.oclIsUndefined()
+       then m.familyMother.lastName
+       else if not m.familySon.oclIsUndefined()
+       then m.familySon.lastName
+       else m.familyDaughter.lastName
+       endif endif endif)
+  )

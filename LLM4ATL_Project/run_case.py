@@ -7,8 +7,8 @@ Stages
   1. INPUTS   locate the NL spec + the two .ecore metamodels for the case
   2. LLM      build the prompt, call Gemini, run the 3 in-pipeline check layers
               (0 JSON syntax, 1 Pydantic schema, 2 semantic/Ecore) with retries;
-              on success save  Neuro_Symbolic_Pipeline/ouput/final_responses/atl_ast/<case>.json
-  3. AST2ATL  atl_ast/<case>.json  ->  ouput/final_responses/atl/<case>.atl
+              on success save  Neuro_Symbolic_Pipeline/output/final_responses/atl_ast/<case>.json
+  3. AST2ATL  atl_ast/<case>.json  ->  output/final_responses/atl/<case>.atl
   4. PARSER   ATL_Parser: syntax check the .atl        (RESULT:OK:0 / RESULT:FAIL:n)
   5. TESTS    ATL_Tests: run the JUnit execution test for the case
 
@@ -37,8 +37,6 @@ PIPELINE_PROJECT_DIR = REPO / "Neuro_Symbolic_Pipeline"
 PIPE = PIPELINE_PROJECT_DIR / "pipeline"
 INPUT_DIR = PIPELINE_PROJECT_DIR / "input"
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
-if not OUTPUT_DIR.exists():
-    OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
 PROMPTS = INPUT_DIR / "prompts" / "user_prompts"
 AST_DIR = OUTPUT_DIR / "final_responses" / "atl_ast"
 ATL_DIR = OUTPUT_DIR / "final_responses" / "atl"

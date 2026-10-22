@@ -66,12 +66,8 @@ METAMODELS_DIR = INPUT_DIR / 'ATL_metamodel'
 SYSTEM_PROMPT_PATH = INPUT_DIR / 'prompts' / 'system_prompt.txt'
 MAPPING_PATH = INPUT_DIR / 'mapping.json'
 
-# The new layout should use output/. The directory currently on disk is named
-# ouput/; retain it as a temporary fallback until it is renamed.
+# All generated artefacts use the correctly named output/ directory.
 OUTPUT_DIR = PROJECT_DIR / 'output'
-LEGACY_OUTPUT_DIR = PROJECT_DIR / 'ouput'
-if not OUTPUT_DIR.exists() and LEGACY_OUTPUT_DIR.exists():
-    OUTPUT_DIR = LEGACY_OUTPUT_DIR
 
 FINAL_RESPONSES_DIR = OUTPUT_DIR / 'final_responses'
 AST_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl_ast'
@@ -179,6 +175,18 @@ def write_json(path, payload):
         json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     temporary_path.replace(path)
+
+
+def read_json(path):
+    """Read a JSON metrics file, returning None when it is absent or invalid."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        print(f"[Metrics] Could not read {path}: {error}")
+        return None
 
 
 def summarize_task_trace(trace, task_started_at, final_status, termination_reason):
@@ -313,7 +321,10 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
     output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
     if os.path.exists(output_path):
         print(f"\n--- Skipping: {basename} (file already exists) ---")
-        return finish_task("SKIPPED_EXISTING", "OUTPUT_ALREADY_EXISTS")
+        # Do not persist this synthetic zero-metric trace. It must not replace
+        # the trace collected when this testcase was actually executed.
+        summarize_task_trace(trace, task_started_at, "SKIPPED_EXISTING", "OUTPUT_ALREADY_EXISTS")
+        return trace
 
     print(f"\n--- Processing: {basename} ---")
     
@@ -559,8 +570,30 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
     return finish_task("REPAIR_LIMIT_EXHAUSTED", "REPAIR_LIMIT_EXHAUSTED")
 
 
+def is_persisted_task_trace(trace):
+    """Return whether a trace represents a testcase result, not an output skip."""
+    summary = trace.get("summary", {}) if isinstance(trace, dict) else {}
+    return bool(trace.get("task")) and summary.get("final_status") != "SKIPPED_EXISTING"
+
+
+def load_persisted_task_traces(traces_dir):
+    """Load one retained trace per testcase from the incremental trace directory."""
+    traces_by_task = {}
+    traces_dir = Path(traces_dir)
+    if not traces_dir.is_dir():
+        return traces_by_task
+
+    for trace_path in sorted(traces_dir.glob("*_trace.json")):
+        trace = read_json(trace_path)
+        if not isinstance(trace, dict):
+            continue
+        if is_persisted_task_trace(trace):
+            traces_by_task[trace["task"]] = trace
+    return traces_by_task
+
+
 def build_run_summary(run_id, run_started_at, batch_started_at, task_traces, status):
-    """Build batch totals and per-testcase averages from completed traces."""
+    """Build totals from all retained testcase traces, including earlier batches."""
     tasks = []
     for trace in task_traces:
         task_summary = trace.get("summary", {})
@@ -648,12 +681,22 @@ def build_run_summary(run_id, run_started_at, batch_started_at, task_traces, sta
 
 def main():
     batch_started_at = time.perf_counter()
-    run_started_at = current_timestamp()
-    run_timestamp = datetime.now().astimezone().strftime("%Y-%m-%d_%H-%M-%S")
-    run_id = f"run_{run_timestamp}"
     traces_dir = METRICS_DIR / "traces"
     run_summary_path = METRICS_DIR / "run_summary.json"
-    task_traces = []
+    existing_summary = read_json(run_summary_path)
+    run_started_at = (
+        existing_summary.get("started_at")
+        if isinstance(existing_summary, dict) and existing_summary.get("started_at")
+        else current_timestamp()
+    )
+    run_id = (
+        existing_summary.get("run_id")
+        if isinstance(existing_summary, dict) and existing_summary.get("run_id")
+        else f"run_{datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')}"
+    )
+    # Each trace file is the source of truth. This preserves metrics collected
+    # by earlier partial batches and replaces only the testcase run this time.
+    task_traces_by_case = load_persisted_task_traces(traces_dir)
 
     prompt_files = glob.glob(os.path.join(PROMPTS_DIR, "*.txt"))
     if not prompt_files:
@@ -687,7 +730,11 @@ def main():
     write_json(
         run_summary_path,
         build_run_summary(
-            run_id, run_started_at, batch_started_at, task_traces, "RUNNING"
+            run_id,
+            run_started_at,
+            batch_started_at,
+            list(task_traces_by_case.values()),
+            "RUNNING",
         ),
     )
     for case_name in selected_cases:
@@ -695,24 +742,38 @@ def main():
         if prompt_file:
             trace_path = traces_dir / f"{case_name}_trace.json"
             task_trace = process_file(prompt_file, trace_path=trace_path)
-            task_traces.append(task_trace)
             task_metrics = task_trace["summary"]
-            print(
-                f"[Metrics] {case_name}: "
-                f"task={task_metrics['task_elapsed_seconds']:.3f}s | "
-                f"LLM calls={task_metrics['llm_attempts']} | "
-                f"tokens={task_metrics['total_tokens']}"
-            )
+            if is_persisted_task_trace(task_trace):
+                task_traces_by_case[case_name] = task_trace
+                print(
+                    f"[Metrics] {case_name}: "
+                    f"task={task_metrics['task_elapsed_seconds']:.3f}s | "
+                    f"LLM calls={task_metrics['llm_attempts']} | "
+                    f"tokens={task_metrics['total_tokens']}"
+                )
+            else:
+                print(
+                    f"[Metrics] {case_name}: existing output was skipped; "
+                    "its stored trace and summary entry were left unchanged."
+                )
         else:
             print(f"[Warning] Prompt not found for {case_name}")
 
         running_summary = build_run_summary(
-            run_id, run_started_at, batch_started_at, task_traces, "RUNNING"
+            run_id,
+            run_started_at,
+            batch_started_at,
+            list(task_traces_by_case.values()),
+            "RUNNING",
         )
         write_json(run_summary_path, running_summary)
 
     final_summary = build_run_summary(
-        run_id, run_started_at, batch_started_at, task_traces, "COMPLETED"
+        run_id,
+        run_started_at,
+        batch_started_at,
+        list(task_traces_by_case.values()),
+        "COMPLETED",
     )
     write_json(run_summary_path, final_summary)
     print(f"\n[Metrics] Run summary: {run_summary_path}")

@@ -2,7 +2,7 @@
 """Evaluate ATL files from the direct ast2atl response folder.
 
 This script reads:
-- Neuro_Symbolic_Pipeline/ouput/final_responses/atl/*.atl
+- Neuro_Symbolic_Pipeline/output/final_responses/atl/*.atl
 - Prompting_Strategies/n8n-docker/mtl_snippets/ATLAS_transformation_language/references/*.atl
 
 It writes:
@@ -34,8 +34,6 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_DIR = SCRIPT_DIR.parent
 PIPELINE_PROJECT_DIR = REPO_DIR / "Neuro_Symbolic_Pipeline"
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
-if not OUTPUT_DIR.exists():
-    OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
 DEFAULT_AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
 ATL_REFERENCES_DIR = (
     REPO_DIR

@@ -150,7 +150,8 @@ class ATLGenerator:
 
     def _visit_LazyMatchedRule(self, node):
         name = node.get("name", "")
-        lines = [f"lazy rule {name} {{"]
+        rule_keyword = "unique lazy rule" if node.get("is_unique", False) else "lazy rule"
+        lines = [f"{rule_keyword} {name} {{"]
         
         # In pattern
         in_pattern = node.get("in_pattern", {})
@@ -432,8 +433,6 @@ class ATLGenerator:
 def process_all_ast():
     pipeline_project_dir = Path(__file__).resolve().parents[2]
     output_dir = pipeline_project_dir / "output"
-    if not output_dir.exists():
-        output_dir = pipeline_project_dir / "ouput"
     ast_dir = output_dir / "final_responses" / "atl_ast"
     out_dir = output_dir / "final_responses" / "atl"
     out_dir.mkdir(parents=True, exist_ok=True)

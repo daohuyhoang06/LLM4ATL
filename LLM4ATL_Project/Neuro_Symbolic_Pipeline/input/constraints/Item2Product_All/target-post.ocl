@@ -1,7 +1,24 @@
--- Item2Product preserves the identifying fields and price, derives a category
--- from a closed domain, and derives stock status from quantity.
+-- Check copied and derived Product values independently.
 context Product
-inv ProductHasValidPriceAndCategory:
-  self.name <> '' and self.description <> '' and self.price >= 0.0 and
-  (self.inStock = true or self.inStock = false) and
-  (self.category = 'Tech' or self.category = 'Apparel' or self.category = 'General')
+inv ProductPreservesBasicFields:
+  Item.allInstances()->exists(i |
+    self.name = i.name and self.price = i.price and
+    self.description = i.description
+  )
+
+context Product
+inv ProductPreservesStockStatus:
+  Item.allInstances()->exists(i |
+    self.name = i.name and self.inStock = (i.quantity > 0)
+  )
+
+context Product
+inv ProductPreservesCategory:
+  Item.allInstances()->exists(i |
+    self.name = i.name and
+    self.category =
+      if i.type = 'Electronics' then 'Tech'
+      else if i.type = 'Clothing' then 'Apparel'
+      else 'General'
+      endif endif
+  )

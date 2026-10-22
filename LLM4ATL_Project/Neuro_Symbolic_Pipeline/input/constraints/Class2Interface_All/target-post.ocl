@@ -1,12 +1,44 @@
--- The direct Class/Method/Parameter rules preserve the complete operation
--- signature under the source input profile.
+-- Each invariant checks one observable transformation property.
 context Interface
-inv InterfaceRetainsOperationsAndParameters:
-  self.name <> '' and self.methods->notEmpty() and
-  self.methods->isUnique(m | m.name) and
-  self.methods->forAll(m |
-    m.name <> '' and m.returnType <> '' and
-    m.parameters->notEmpty() and
-    m.parameters->isUnique(p | p.name) and
-    m.parameters->forAll(p | p.name <> '' and p.type <> '')
+inv InterfaceHasName:
+  self.name <> ''
+
+context Interface
+inv InterfaceHasMethods:
+  self.methods->notEmpty()
+
+context Interface
+inv InterfacePreservesClassName:
+  Class.allInstances()->exists(c | self.name = c.name)
+
+context Interface
+inv InterfacePreservesMethodCount:
+  Class.allInstances()->exists(c |
+    self.name = c.name and self.methods->size() = c.methods->size()
+  )
+
+context Method
+inv MethodPreservesName:
+  Method__source.allInstances()->exists(m | self.name = m.name)
+
+context Method
+inv MethodPreservesReturnType:
+  Method__source.allInstances()->exists(m |
+    self.name = m.name and self.returnType = m.returnType
+  )
+
+context Method
+inv MethodPreservesParameterCount:
+  Method__source.allInstances()->exists(m |
+    self.name = m.name and self.parameters->size() = m.parameters->size()
+  )
+
+context Parameter
+inv ParameterPreservesName:
+  Parameter__source.allInstances()->exists(p | self.name = p.name)
+
+context Parameter
+inv ParameterPreservesType:
+  Parameter__source.allInstances()->exists(p |
+    self.name = p.name and self.type = p.type
   )

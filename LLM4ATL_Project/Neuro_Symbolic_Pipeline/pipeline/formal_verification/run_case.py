@@ -36,12 +36,8 @@ METAMODELS_DIR = INPUT_DIR / "ATL_metamodel"
 MAPPING_FILE = INPUT_DIR / "mapping.json"
 CONSTRAINTS_DIR = INPUT_DIR / "constraints"
 
-# Prefer the corrected output/ spelling. The temporary ouput/ spelling is
-# retained while the folder is being renamed in the working tree.
+# Formal-verification artefacts are stored under the correctly named output/ directory.
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
-LEGACY_OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
-if not OUTPUT_DIR.exists() and LEGACY_OUTPUT_DIR.exists():
-    OUTPUT_DIR = LEGACY_OUTPUT_DIR
 
 ATL_DIR = OUTPUT_DIR / "final_responses" / "atl"
 ATL2TM_ATL = FORMAL_DIR / "ATL2TM.atl"

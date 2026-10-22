@@ -6,17 +6,17 @@ from
     SRC : ECORE,
     TGT : ECORE;
 
--- Ánh xạ các bước của thuật toán ATL -> Transformation Model:
--- Step 1: copy source/target metamodel vào TM.
--- Step 2: tạo trace class và mã hóa match, binding, frame condition.
--- Step 3: mỗi target object phải do đúng một creator tạo ra.
--- Step 4: các matched rule có thể overlap phải loại trừ nhau.
+-- Mapping of the ATL -> Transformation Model algorithm steps:
+-- Step 1: copy the source/target metamodels into the TM.
+-- Step 2: create trace classes and encode matching, bindings, and frame conditions.
+-- Step 3: every target object must be created by exactly one creator.
+-- Step 4: overlapping matched rules must be mutually exclusive.
 
 -- ================================================================
--- Step 1: giữ lại OCL có sẵn của source/target metamodel
+-- Step 1: preserve the existing OCL of the source/target metamodels.
 -- ================================================================
 
--- Lấy chuỗi tên constraint gốc từ annotation Ecore.
+-- Get the original constraint-name string from an Ecore annotation.
 helper def : originalConstraintNames(
     c : ECORE!EClass
 ) : String =
@@ -42,7 +42,7 @@ helper def : originalConstraintNames(
             endif
         );
 
--- Lấy các detail Pivot OCL gốc để copy sang TM.
+-- Get the original Pivot OCL details to copy into the TM.
 helper def : originalOclDetails(
     c : ECORE!EClass
 ) : Sequence(ECORE!EStringToStringMapEntry) =
@@ -116,7 +116,7 @@ helper def : creatorRuleNamesFor(
             endif
         );
 
--- Ghép tên constraint gốc với creator constraint của Step 3.
+-- Combine original constraint names with the Step 3 creator constraint.
 helper def : targetConstraintNames(
     c : ECORE!EClass
 ) : String =
@@ -235,11 +235,11 @@ helper def : targetMultiplicityConstraintExpr(
     endif;
 
 -- ================================================================
--- Hỗ trợ chung: biểu diễn ATL/OCL thành chuỗi Pivot OCL
+-- General support: render ATL/OCL as Pivot OCL strings.
 -- ================================================================
 
--- Nối hai Sequence mà vẫn giữ thứ tự và phần tử trùng. Điều này rất quan
--- trọng khi biến cục bộ/iterator shadow một formal parameter cùng tên.
+-- Concatenate two Sequences while preserving order and duplicate elements. This is
+-- important when a local variable/iterator shadows a formal parameter with the same name.
 helper def : appendStrings(
     base : Sequence(String),
     additions : Sequence(String)
@@ -251,7 +251,7 @@ helper def : appendStrings(
         acc->append(value)
     );
 
--- Lấy replacement ở scope gần nhất (duyệt từ phải sang trái).
+-- Get the replacement in the nearest scope (searching from right to left).
 helper def : replacementOfAt(
     name : String,
     varNames : Sequence(String),
@@ -274,7 +274,7 @@ helper def : replacementOfAt(
         endif
     endif;
 
--- Lấy giá trị thay thế khi biểu diễn biến.
+-- Get the replacement value when rendering a variable.
 helper def : replacementOf(
     name : String,
     varNames : Sequence(String),
@@ -309,7 +309,7 @@ helper def : refinedTypeOf(
         ''
     endif;
 
--- Helper feature có thể là Operation (có parameter) hoặc Attribute (arity 0).
+-- A helper feature can be an Operation (with parameters) or an Attribute (arity 0).
 helper def : helperArity(h : ATL!Helper) : Integer =
 
     if h.definition.feature.oclIsTypeOf(ATL!Operation) then
@@ -569,8 +569,8 @@ helper def : helperAttributeCallCandidates(
         )
         ->asSequence();
 
--- Marker được mang trong substitution environment để phát hiện recursion
--- trực tiếp và gián tiếp khi inline helper body.
+-- A marker is carried in the substitution environment to detect direct and
+-- indirect recursion when inlining a helper body.
 -- Attribute helpers also participate in source-type analysis. Their OCL
 -- return type, rather than an EStructuralFeature, determines both whether
 -- a navigation is a collection and which source EClass it yields.
@@ -632,7 +632,7 @@ helper def : isActiveHelper(
 
     varNames->includes(thisModule.helperMarker(h));
 
--- ATL/OCL escape dấu nháy đơn trong string literal: 'O\'Brien'.
+-- ATL/OCL escapes single quotes in string literals: 'O\'Brien'.
 helper def : escapeStringContent(
     value : String,
     pos : Integer
@@ -653,14 +653,14 @@ helper def : escapeStringContent(
             endif
     endif;
 
--- Đặt dấu nháy và escape string literal OCL.
+-- Quote and escape an OCL string literal.
 helper def : renderStringLiteral(value : String) : String =
 
     '\''
     + thisModule.escapeStringContent(value, 1)
     + '\'';
 
--- Biểu diễn các phần tử của Sequence, cách nhau bởi dấu phẩy.
+-- Render the elements of a Sequence, separated by commas.
 helper def : renderCollectionElements(
     elements : Sequence(ATL!OclExpression),
     varNames : Sequence(String),
@@ -694,7 +694,7 @@ helper def : renderCollectionElements(
         endif
     );
 
--- Biểu diễn danh sách iterator, ví dụ: x hoặc x, y.
+-- Render an iterator list, for example: x or x, y.
 helper def : renderIteratorNames(
     iterators : Sequence(ATL!Iterator)
 ) : String =
@@ -710,8 +710,8 @@ helper def : renderIteratorNames(
         endif
     );
 
--- Inline helper body dưới environment: self -> receiver và formal -> actual.
--- Marker helper được giữ trong environment để chặn direct/indirect recursion.
+-- Inline a helper body under an environment: self -> receiver and formal -> actual.
+-- The helper marker is retained in the environment to prevent direct/indirect recursion.
 helper def : renderHelperCall(
     e : ATL!OperationCallExp,
     h : ATL!Helper,
@@ -856,7 +856,7 @@ helper def : isUnsupportedRuleCall(
     ATL!MatchedRule.allInstancesFrom('IN')
         ->exists(r | r.name = e.operationName);
 
--- Biểu diễn expression ATL/OCL hỗ trợ thành Pivot OCL.
+-- Render a supported ATL/OCL expression as Pivot OCL.
 helper def : renderExpr(
     e : ATL!OclExpression,
     varNames : Sequence(String),
@@ -889,7 +889,7 @@ helper def : renderExpr(
 
         thisModule.renderStringLiteral(e.stringSymbol)
 
-    -- 2. Model type, ví dụ SRC!A trong oclIsKindOf(SRC!A)
+    -- 2. Model type, for example SRC!A in oclIsKindOf(SRC!A)
     else
     if e.oclIsTypeOf(ATL!OclModelElement) then
 
@@ -997,11 +997,11 @@ helper def : renderExpr(
 
 
         -- 6. OperatorCallExp
-        -- PHẢI check trước OperationCallExp
+        -- MUST be checked before OperationCallExp.
         else
             if e.oclIsTypeOf(ATL!OperatorCallExp) then
 
-                -- unary: not ... hoặc -...
+                -- unary: not ... or -...
                 if e.operationName = 'not' then
 
                     '(not '
@@ -1177,7 +1177,7 @@ helper def : renderExpr(
 
                     in
 
-                    -- Chỉ inline khi overload được resolve duy nhất.
+                    -- Inline only when the overload can be resolved uniquely.
                     if candidates->size() = 1 then
 
                         let h : ATL!Helper = candidates->first()
@@ -1197,7 +1197,7 @@ helper def : renderExpr(
                             )
                         endif
 
-                    -- Các operation OCL thường: oclIsUndefined, oclIsKindOf, ...
+                    -- Common OCL operations: oclIsUndefined, oclIsKindOf, ...
                     else
 
                         thisModule.renderExpr(
@@ -1297,10 +1297,10 @@ helper def : renderExpr(
     endif;
 
 -- ================================================================
--- Step 2: match pattern, binding và trace constraint
+-- Step 2: match patterns, bindings, and trace constraints.
 -- ================================================================
 
--- Biểu diễn filter của matched rule trong ngữ cảnh trace.
+-- Render a matched-rule filter in the trace context.
 helper def : filterExpr(
     r : ATL!MatchedRule
 ) : String =
@@ -1329,7 +1329,7 @@ helper def : filterExpr(
         'self'
     );
 
--- Lấy các rule có input đầu tiên mang kiểu đã cho.
+-- Get rules whose first input has the given type.
 helper def : rulesForMatchConstraint(
     c : ECORE!EClass
 ) : Sequence(ATL!MatchedRule) =
@@ -1342,7 +1342,7 @@ helper def : rulesForMatchConstraint(
         )
         ->asSequence();
 
--- Tạo các predicate bằng nhau giữa trace và input.
+-- Create equality predicates between a trace and its inputs.
 -- OCL reserves "self" for the context object. ATL input variables may also
 -- use that legal ATL name, so render them with a fresh generated identifier.
 helper def : matchInputVarName(
@@ -1382,7 +1382,7 @@ helper def : traceMatchCondition(
             endif
         );
 
--- Bọc đệ quy expression bằng các lượng từ input.
+-- Recursively wrap an expression in input quantifiers.
 helper def : wrapForAllAt(
     inputs : Sequence(ATL!SimpleInPatternElement),
     pos : Integer,
@@ -1408,7 +1408,7 @@ helper def : wrapForAllAt(
             + ')'
     endif;
 
--- Lượng từ hóa toàn bộ input pattern của một rule.
+-- Quantify all input pattern elements of a rule.
 helper def : wrapForAll(
     r : ATL!MatchedRule,
     inner : String
@@ -1420,7 +1420,7 @@ helper def : wrapForAll(
         inner
     );
 
--- Liệt kê tên ràng buộc match của một source class.
+-- List the names of match constraints for a source class.
 helper def : matchConstraintNames(
     c : ECORE!EClass
 ) : String =
@@ -1438,8 +1438,8 @@ helper def : matchConstraintNames(
             endif
         );
 
--- Triển khai hàm matchExpr(r)
--- Mã hóa matchExpr(r): mỗi bộ input khớp có đúng một trace.
+-- Implement the matchExpr(r) function.
+-- Encode matchExpr(r): every matching input tuple has exactly one trace.
 helper def : matchExpr(
     r : ATL!MatchedRule
 ) : String =
@@ -1454,7 +1454,7 @@ helper def : matchExpr(
 
     in
 
-    -- ở Step 2(d), dùng chính tên iterator:
+    -- in Step 2(d), use the iterator name itself:
     -- a -> a
     -- b -> b
     let replacements : Sequence(String) =
@@ -1499,7 +1499,7 @@ helper def : matchExpr(
     );
 
 
--- Biểu diễn một expression ATL trong ngữ cảnh trace của rule.
+-- Render an ATL expression in the trace context of a rule.
 helper def : ruleExpr(
     r : ATL!MatchedRule,
     e : ATL!OclExpression
@@ -1548,7 +1548,7 @@ helper def : ruleExpr(
         'self'
     );
 
--- Biểu diễn vế phải của một ATL binding.
+-- Render the right-hand side of an ATL binding.
 helper def : bindingExpr(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -1559,7 +1559,7 @@ helper def : bindingExpr(
         b.value
     );
 
--- Tạo tên ràng buộc OCL ổn định cho binding.
+-- Create a stable OCL constraint name for a binding.
 helper def : bindingConstraintName(
     r : ATL!MatchedRule,
     o : ATL!SimpleOutPatternElement,
@@ -1573,7 +1573,7 @@ helper def : bindingConstraintName(
     + '_'
     + b.propertyName;
 
--- Chọn biểu diễn binding trực tiếp, Shape IV hoặc Shape V.
+-- Select a direct binding representation, Shape IV, or Shape V.
 helper def : bindingResolvedExpr(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -1604,7 +1604,7 @@ helper def : bindingResolvedExpr(
         endif
     endif;
 
--- Mã hóa ràng buộc bằng nhau của thuộc tính đích.
+-- Encode the equality constraint for a target property.
 helper def : bindingConstraintExpr(
     r : ATL!MatchedRule,
     o : ATL!SimpleOutPatternElement,
@@ -1621,7 +1621,7 @@ helper def : bindingConstraintExpr(
         b
     );
 
--- Gom các binding từ mọi simple output element.
+-- Collect bindings from all simple output elements.
 helper def : bindingsOf(
     r : ATL!MatchedRule
 ) : Sequence(ATL!Binding) =
@@ -1636,7 +1636,7 @@ helper def : bindingsOf(
         ->flatten()
         ->asSequence();
 
--- Liệt kê mọi ràng buộc OCL gắn với trace class.
+-- List all OCL constraints attached to a trace class.
 helper def : traceConstraintNames(
     r : ATL!MatchedRule
 ) : String =
@@ -1735,7 +1735,7 @@ helper def : traceConstraintNames(
                 )
         );
 
--- Kiểm tra trace class có cần OCL annotation không.
+-- Check whether a trace class requires an OCL annotation.
 helper def : hasTraceConstraints(
     r : ATL!MatchedRule
 ) : Boolean =
@@ -1760,10 +1760,10 @@ helper def : hasTraceConstraints(
         );
 
 -- ================================================================
--- Step 2: phân tích source metamodel phục vụ binding/resolution
+-- Step 2: analyze the source metamodel for bindings/resolution.
 -- ================================================================
 
--- Tìm source EClass theo tên.
+-- Find a source EClass by name.
 helper def : sourceEClass(
     name : String
 ) : ECORE!EClass =
@@ -1772,7 +1772,7 @@ helper def : sourceEClass(
         ->select(c | c.name = name)
         ->first();
 
--- Suy ra tên EClass của source expression.
+-- Infer the EClass name of a source expression.
 helper def : sourceExprTypeName(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -1861,8 +1861,8 @@ helper def : sourceExprTypeName(
             endif
 
         else
-            -- first()/any() lấy một phần tử từ source collection, do đó
-            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            -- first()/any() obtain one element from a source collection, so the
+            -- result remains a source object that Shape IV can resolve.
             if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
                 if e.operationName = 'first' or e.operationName = 'any' then
                     thisModule.sourceCollectionElementTypeName(e.source, r)
@@ -1876,7 +1876,7 @@ helper def : sourceExprTypeName(
 
     endif;
 
--- Kiểm tra source navigation có đa trị không.
+-- Check whether a source navigation is multivalued.
 helper def : sourceExprIsCollection(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -1934,7 +1934,7 @@ helper def : sourceExprIsCollection(
         false
     endif;
 
--- Tìm source class theo tên để kiểm tra kế thừa.
+-- Find a source class by name to check inheritance.
 helper def : sourceEClassByName(
     name : String
 ) : ECORE!EClass =
@@ -1943,7 +1943,7 @@ helper def : sourceEClassByName(
         ->select(c | c.name = name)
         ->first();
 
--- Kiểm tra hai source type bằng nhau hoặc tương thích kế thừa.
+-- Check whether two source types are equal or inheritance-compatible.
 helper def : sourceTypesCompatible(
     leftName : String,
     rightName : String
@@ -1966,10 +1966,10 @@ helper def : sourceTypesCompatible(
     right.eAllSuperTypes->includes(left);
 
 -- ================================================================
--- Step 2: phân giải ngầm (Shape IV và V)
+-- Step 2: implicit resolution (Shapes IV and V).
 -- ================================================================
 
--- Nhận diện binding object nguồn đơn trị (Shape IV).
+-- Recognize a single-valued source-object binding (Shape IV).
 helper def : isShapeIV(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -1985,7 +1985,7 @@ helper def : isShapeIV(
         r
     );
 
--- Tìm unary matched rule có thể phân giải source object.
+-- Find unary matched rules that can resolve a source object.
 helper def : resolverRules(
     sourceTypeName : String
 ) : Sequence(ATL!MatchedRule) =
@@ -2016,7 +2016,7 @@ helper def : resolverRules(
         )
         ->asSequence();
 
--- Tạo một đường dẫn trace cho resolver đơn trị.
+-- Create a trace path for a single-valued resolver.
 helper def : resolverPath(
     exprText : String,
     resolver : ATL!MatchedRule
@@ -2042,9 +2042,9 @@ helper def : resolverPath(
     + '.'
     + output.varName;
 
--- Lấy các target của resolver từ những trace thực sự tồn tại.
--- Điều kiện trên input type tránh tạo navigation undefined khi resolver
--- không áp dụng cho object hiện tại.
+-- Obtain resolver targets from traces that actually exist.
+-- The input-type condition prevents undefined navigation when the resolver
+-- does not apply to the current object.
 helper def : resolverTraceTargetCollection(
     exprText : String,
     resolver : ATL!MatchedRule
@@ -2078,7 +2078,7 @@ helper def : resolverTraceTargetCollection(
     + output.varName
     + ') else Sequence {} endif)';
 
--- Ghép các đường dẫn resolver đơn trị khi q > 1.
+-- Combine single-valued resolver paths when q > 1.
 helper def : resolverPaths(
     exprText : String,
     resolvers : Sequence(ATL!MatchedRule)
@@ -2103,7 +2103,7 @@ helper def : resolverPaths(
         endif
     );
 
--- Phân giải source object đơn trị qua các trace link.
+-- Resolve a single-valued source object through trace links.
 helper def : resolveShapeIV(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -2158,7 +2158,7 @@ helper def : resolveShapeIV(
         endif
     endif;
 
--- Đặt tên ràng buộc bảo toàn definedness của Shape IV.
+-- Name the Shape IV definedness-preservation constraint.
 helper def : shapeIVDefinedConstraintName(
     r : ATL!MatchedRule,
     o : ATL!SimpleOutPatternElement,
@@ -2170,7 +2170,7 @@ helper def : shapeIVDefinedConstraintName(
     )
     + '_defined';
 
--- Bảo toàn definedness trước và sau khi phân giải Shape IV.
+-- Preserve definedness before and after Shape IV resolution.
 helper def : shapeIVDefinedConstraintExpr(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -2200,9 +2200,9 @@ helper def : shapeIVDefinedConstraintExpr(
     + resolved
     + '.oclIsUndefined())';
 
--- Lấy kiểu EClass của một biểu thức trong thân iterator. Hiện dùng cho
--- collect(x | x.referenceToSourceObject), nơi x là phần tử của source
--- collection và kết quả collect vẫn là source object cần resolve.
+-- Obtain the EClass type of an expression in an iterator body. This is currently
+-- used for collect(x | x.referenceToSourceObject), where x is an element of a source
+-- collection and the collect result is still a source object that requires resolution.
 helper def : iteratorBodySourceTypeName(
     e : ATL!OclExpression,
     r : ATL!MatchedRule,
@@ -2277,8 +2277,8 @@ helper def : iteratorBodySourceTypeName(
 
         else
 
-            -- first()/any() lấy một phần tử từ source collection, do đó
-            -- kết quả vẫn là source object để Shape IV có thể resolve.
+            -- first()/any() obtain one element from a source collection, so the
+            -- result remains a source object that Shape IV can resolve.
             if e.oclIsTypeOf(
                 ATL!CollectionOperationCallExp
             )
@@ -2304,8 +2304,8 @@ helper def : iteratorBodySourceTypeName(
 
     endif;
 
--- Nếu select dùng oclIsTypeOf(T), kết quả chỉ chứa T. Thông tin này giúp
--- chọn đúng resolver T -> target thay vì mọi subtype của collection gốc.
+-- If select uses oclIsTypeOf(T), the result contains only T. This information helps
+-- select the correct T -> target resolver instead of every subtype of the original collection.
 helper def : selectedElementTypeName(
     e : ATL!IteratorExp
 ) : String =
@@ -2374,9 +2374,9 @@ helper def : refinedElementTypeName(
         ''
     endif;
 
--- Suy ra kiểu phần tử của source collection sau select/reject/collect.
--- collect chỉ được coi là Shape V khi body trả về một EClass nguồn; collect
--- ra primitive như x.name sẽ không bị implicit resolution.
+-- Infer the element type of a source collection after select/reject/collect.
+-- collect is treated as Shape V only when its body returns a source EClass; a collect
+-- returning a primitive such as x.name is not subject to implicit resolution.
 helper def : sourceCollectionElementTypeName(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -2462,8 +2462,8 @@ helper def : sourceCollectionElementTypeName(
 
     endif;
 
--- Nhận diện collection nguồn, gồm navigation trực tiếp, select/reject,
--- collect trả về source object, và union của các collection đó.
+-- Recognize source collections, including direct navigation, select/reject,
+-- collect returning source objects, and unions of those collections.
 helper def : isShapeVExpr(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -2487,7 +2487,7 @@ helper def : isShapeVExpr(
 
     endif;
 
--- Nhận diện binding Shape V.
+-- Recognize a Shape V binding.
 helper def : isShapeV(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -2495,7 +2495,7 @@ helper def : isShapeV(
 
     thisModule.isShapeVExpr(b.value, r);
 
--- Tạo một đường dẫn trace theo từng phần tử.
+-- Create a trace path for each element.
 helper def : resolverCollectPath(
     exprText : String,
     resolver : ATL!MatchedRule
@@ -2529,7 +2529,7 @@ helper def : resolverCollectPath(
     )
     + ')->flatten()';
 
--- Ghép các đường dẫn resolver collection khi q > 1.
+-- Combine collection-resolver paths when q > 1.
 helper def : resolverCollectPaths(
     exprText : String,
     resolvers : Sequence(ATL!MatchedRule)
@@ -2554,7 +2554,7 @@ helper def : resolverCollectPaths(
         endif
     );
 
--- Resolve một source collection, kể cả collection đã qua select/reject/collect.
+-- Resolve a source collection, including collections processed by select/reject/collect.
 helper def : resolveShapeVDirectParts(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -2581,7 +2581,7 @@ helper def : resolveShapeVDirectParts(
 
     endif;
 
--- Trả về các nhánh collect đã resolve của một Shape V expression.
+-- Return the resolved collect branches of a Shape V expression.
 helper def : resolveShapeVParts(
     e : ATL!OclExpression,
     r : ATL!MatchedRule
@@ -2615,7 +2615,7 @@ helper def : resolveShapeVParts(
         thisModule.resolveShapeVDirectParts(e, r)
     endif;
 
--- Phân giải source collection, gồm cả union, qua các trace link.
+-- Resolve a source collection, including a union, through trace links.
 helper def : resolveShapeV(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -2625,7 +2625,7 @@ helper def : resolveShapeV(
     + thisModule.resolveShapeVParts(b.value, r)
     + ' }->flatten()';
 
--- Đặt tên ràng buộc bảo toàn số lượng của Shape V.
+-- Name the Shape V cardinality-preservation constraint.
 helper def : shapeVSizeConstraintName(
     r : ATL!MatchedRule,
     o : ATL!SimpleOutPatternElement,
@@ -2639,7 +2639,7 @@ helper def : shapeVSizeConstraintName(
     )
     + '_size';
 
--- Bảo toàn kích thước collection sau khi phân giải Shape V.
+-- Preserve collection size after Shape V resolution.
 helper def : shapeVSizeConstraintExpr(
     r : ATL!MatchedRule,
     b : ATL!Binding
@@ -2668,10 +2668,10 @@ helper def : shapeVSizeConstraintExpr(
     + ')->size()';
 
 -- ================================================================
--- Step 2: điều kiện frame cho thuộc tính đích chưa bind
+-- Step 2: frame conditions for unbound target properties.
 -- ================================================================
 
--- Tìm target EClass của một output pattern element.
+-- Find the target EClass of an output pattern element.
 helper def : targetEClassOf(
     o : ATL!SimpleOutPatternElement
 ) : ECORE!EClass =
@@ -2682,9 +2682,9 @@ helper def : targetEClassOf(
         )
         ->first();
 
--- Lấy các thuộc tính đích không xuất hiện trong output pattern.
--- Một eReference cũng được coi là đã bind nếu eOpposite của nó được
--- bind trực tiếp trên target object khác (EMF sẽ đồng bộ hai đầu).
+-- Get target properties that do not occur in an output pattern.
+-- An eReference is also considered bound when its eOpposite is bound directly
+-- on another target object (EMF synchronizes both ends).
 helper def : isBoundThroughOpposite(
     p : ECORE!EStructuralFeature
 ) : Boolean =
@@ -2714,7 +2714,7 @@ helper def : isBoundThroughOpposite(
                 )
         );
 
--- Lấy các thuộc tính đích chưa bind trực tiếp hoặc qua eOpposite.
+-- Get target properties that are not bound directly or through an eOpposite.
 helper def : unboundPropertiesOf(
     o : ATL!SimpleOutPatternElement
 ) : Sequence(ECORE!EStructuralFeature) =
@@ -2732,7 +2732,7 @@ helper def : unboundPropertiesOf(
         )
         ->asSequence();
 
--- Tạo tên điều kiện frame.
+-- Create a frame-condition name.
 helper def : nullConstraintName(
     o : ATL!SimpleOutPatternElement,
     p : ECORE!EStructuralFeature
@@ -2745,7 +2745,7 @@ helper def : nullConstraintName(
     + '_'
     + p.name;
 
--- Yêu cầu thuộc tính đơn/reference chưa bind phải rỗng.
+-- Require an unbound single-valued property/reference to be empty.
 helper def : nullConstraintExpr(
     o : ATL!SimpleOutPatternElement,
     p : ECORE!EStructuralFeature
@@ -2773,7 +2773,7 @@ helper def : nullConstraintExpr(
 -- Step 3: creator constraints cho target class
 -- ================================================================
 
--- Tìm target EClass theo tên.
+-- Find a target EClass by name.
 helper def : targetEClassByName(
     name : String
 ) : ECORE!EClass =
@@ -2782,7 +2782,7 @@ helper def : targetEClassByName(
         ->select(c | c.name = name)
         ->first();
 
--- Kiểm tra target type bằng nhau hoặc tương thích kế thừa.
+-- Check whether target types are equal or inheritance-compatible.
 helper def : isTargetSubtypeOrSame(
     childName : String,
     parentName : String
@@ -2802,7 +2802,7 @@ helper def : isTargetSubtypeOrSame(
     or
     child.eAllSuperTypes->includes(parent);
 
--- Lấy output pattern có thể tạo object của target class.
+-- Get output patterns that can create objects of the target class.
 helper def : creatorsOf(
     c : ECORE!EClass
 ) : Sequence(ATL!SimpleOutPatternElement) =
@@ -2817,7 +2817,7 @@ helper def : creatorsOf(
         )
         ->asSequence();
 
--- Tạo một hạng tử đếm trace creator.
+-- Create a term that counts creator traces.
 helper def : creationTerm(
     c : ECORE!EClass,
     o : ATL!SimpleOutPatternElement
@@ -2841,7 +2841,7 @@ helper def : creationTerm(
 
     endif;
 
--- Tạo tên inverse reference từ target object về creator trace.
+-- Create the name of an inverse reference from a target object to its creator trace.
 helper def : creatorRefName(
     o : ATL!SimpleOutPatternElement
 ) : String =
@@ -2850,7 +2850,7 @@ helper def : creatorRefName(
     + '_'
     + o.varName;
 
--- Cộng số trace của mọi creator khả dụng.
+-- Sum the traces of all applicable creators.
 helper def : creationSum(
     c : ECORE!EClass
 ) : String =
@@ -2887,14 +2887,14 @@ helper def : creationSum(
 
     endif;
 
--- Tạo tên constraint Step 3 cho target class.
+-- Create the Step 3 constraint name for a target class.
 helper def : creationConstraintName(
     c : ECORE!EClass
 ) : String =
 
     'create_' + c.name;
 
--- Mã hóa: target object có đúng một creator, hoặc false nếu không có.
+-- Encode: a target object has exactly one creator, or false if none exists.
 helper def : creationConstraintExpr(
     c : ECORE!EClass
 ) : String =
@@ -2912,10 +2912,10 @@ helper def : creationConstraintExpr(
     endif;
 
 -- ================================================================
--- Step 4: mutex giữa các matched rule overlap
+-- Step 4: mutex constraints between overlapping matched rules.
 -- ================================================================
 
--- Kiểm tra source type bằng nhau hoặc tương thích kế thừa.
+-- Check whether source types are equal or inheritance-compatible.
 helper def : isSourceSubtypeOrSame(
     childName : String,
     parentName : String
@@ -2935,7 +2935,7 @@ helper def : isSourceSubtypeOrSame(
     or
     child.eAllSuperTypes->includes(parent);
 
--- Lấy các subtype chung của hai source type.
+-- Get the common subtypes of two source types.
 helper def : commonOverlapTypes(
     leftName : String,
     rightName : String
@@ -2955,7 +2955,7 @@ helper def : commonOverlapTypes(
         )
         ->asSequence();
 
--- Kiểm tra arity và overlap tại từng vị trí input.
+-- Check arity and overlap at each input position.
 helper def : potentiallyOverlap(
     r1 : ATL!MatchedRule,
     r2 : ATL!MatchedRule
@@ -2985,14 +2985,14 @@ helper def : potentiallyOverlap(
         )
     endif;
 
--- Lấy toàn bộ matched rule trong ATL input.
+-- Get all matched rules in the ATL input.
 helper def : matchedRules()
 : Sequence(ATL!MatchedRule) =
 
     ATL!MatchedRule.allInstancesFrom('IN')
         ->asSequence();
 
--- Lấy rule overlap đứng sau để tránh sinh mutex trùng lặp.
+-- Get later overlapping rules to avoid generating duplicate mutex constraints.
 helper def : laterOverlappingRules(
     r : ATL!MatchedRule
 ) : Sequence(ATL!MatchedRule) =
@@ -3025,7 +3025,7 @@ helper def : laterOverlappingRules(
     )
     ->asSequence();
 
--- Tạo điều kiện trace khớp với bộ iterator hiện tại.
+-- Create a trace condition matching the current iterator tuple.
 helper def : traceExistsCondition(
     r : ATL!MatchedRule,
     iteratorNames : Sequence(String),
@@ -3068,7 +3068,7 @@ helper def : traceExistsCondition(
         endif
     );
 
--- Tạo biểu thức tồn tại một trace khớp input.
+-- Create an expression for the existence of a trace matching the input.
 helper def : traceExistsExpr(
     r : ATL!MatchedRule,
     iteratorNames : Sequence(String),
@@ -3088,7 +3088,7 @@ helper def : traceExistsExpr(
     )
     + ')';
 
--- Tạo lõi mutex: không tồn tại đồng thời hai trace khớp.
+-- Create the mutex core: two matching traces cannot coexist.
 helper def : mutexInnerExpr(
     r1 : ATL!MatchedRule,
     r2 : ATL!MatchedRule
@@ -3115,7 +3115,7 @@ helper def : mutexInnerExpr(
     )
     + ')';
 
--- Bọc lõi mutex bằng lượng từ cho từng overlap type.
+-- Wrap the mutex core in quantifiers for each overlapping type.
 helper def : wrapMutexForAllAt(
     r : ATL!MatchedRule,
     types : Sequence(ECORE!EClass),
@@ -3157,7 +3157,7 @@ helper def : wrapMutexForAllAt(
 
     endif;
 
--- Duyệt mọi tổ hợp overlap type của các input position.
+-- Iterate over every combination of overlap types for the input positions.
 helper def : mutexCombinationsAt(
     r1 : ATL!MatchedRule,
     r2 : ATL!MatchedRule,
@@ -3222,7 +3222,7 @@ helper def : mutexCombinationsAt(
 
     endif;
 
--- Tạo toàn bộ OCL expression cho một cặp rule mutex.
+-- Create all OCL expressions for a mutex-rule pair.
 helper def : mutexExpr(
     r1 : ATL!MatchedRule,
     r2 : ATL!MatchedRule
@@ -3235,7 +3235,7 @@ helper def : mutexExpr(
         Sequence {}
     );
 
--- Tạo tên constraint mutex của hai rule.
+-- Create the mutex constraint name for two rules.
 helper def : mutexConstraintName(
     r1 : ATL!MatchedRule,
     r2 : ATL!MatchedRule
@@ -3246,7 +3246,7 @@ helper def : mutexConstraintName(
     + '_'
     + r2.name;
 
--- Lấy rule tạo mutex cần gắn vào source class hiện tại.
+-- Get mutex-generating rules that must be attached to the current source class.
 helper def : mutexRulesForContext(
     c : ECORE!EClass
 ) : Sequence(ATL!MatchedRule) =
@@ -3268,7 +3268,7 @@ helper def : mutexRulesForContext(
         )
         ->asSequence();
 
--- Liệt kê tên mutex constraint của source class.
+-- List mutex constraint names for a source class.
 helper def : mutexConstraintNames(
     c : ECORE!EClass
 ) : String =
@@ -3332,7 +3332,7 @@ helper def : generatedSourceConstraintNames(
         endif
     endif;
 
--- Gom tên match constraint và mutex constraint trên source class.
+-- Collect match and mutex constraint names for a source class.
 helper def : sourceConstraintNames(
     c : ECORE!EClass
 ) : String =
@@ -3358,7 +3358,7 @@ helper def : sourceConstraintNames(
     endif;
 
 -- ================================================================
--- Rule tạo transformation model
+-- Transformation-model generation rules.
 -- ================================================================
 
 -- Root-level provenance record.  The Converter can use the schema version
@@ -3609,7 +3609,7 @@ unique lazy rule TraceProvenanceAnnotation {
         )
 }
 
--- Tạo EPackage gốc và cấu hình validation của TM.
+-- Create the root EPackage and configure TM validation.
 rule Module2EPackage {
     from 
         m : ATL!Module
@@ -3620,9 +3620,9 @@ rule Module2EPackage {
             nsURI <- 'http://example.org/transformationModel',
 
             eClassifiers <-
-                -- Chỉ đưa các classifier thuộc package nguồn/đích vào TM.
-                -- Không dùng ECORE!EClass.allInstances() ở đây vì biểu thức đó
-                -- có thể kéo theo classifier của các model Ecore khác.
+                -- Include only classifiers belonging to the source/target packages in the TM.
+                -- Do not use ECORE!EClass.allInstances() here because that expression
+                -- can include classifiers from other Ecore models.
                 ECORE!EClass.allInstancesFrom('SRC')
                 ->union(
                     ECORE!EClass.allInstancesFrom('TGT')
@@ -3652,8 +3652,8 @@ rule Module2EPackage {
                         )
                 )
                 ->union(
-                    -- Các trace class được sinh từ matched rules.
-                    -- Giữ union này để không thay đổi semantics hiện tại.
+                    -- Trace classes are generated from matched rules.
+                    -- Keep this union to preserve the current semantics.
                     m.elements
                         ->select(e | e.oclIsKindOf(ATL!MatchedRule))
                 ),
@@ -3682,7 +3682,7 @@ helper def : hasSourceConstraints(
 
     thisModule.sourceConstraintNames(c) <> '';
 
--- Step 1: copy source EClass và OCL gốc; Step 2/4: gắn match và mutex.
+-- Step 1: copy the source EClass and original OCL; Steps 2/4: attach match and mutex constraints.
 rule SourceEClass2Eclass {
     from
         c : ECORE!EClass in SRC
@@ -3731,7 +3731,7 @@ rule SourceEClass2Eclass {
         )
 }
 
--- Step 1: copy target EClass và OCL gốc; Step 3: gắn creator constraint.
+-- Step 1: copy the target EClass and original OCL; Step 3: attach the creator constraint.
 rule TargetEClass2EClass {
     from
         c : ECORE!EClass in TGT
@@ -3765,7 +3765,7 @@ rule TargetEClass2EClass {
         )
 }
 
--- Step 1: copy EAttribute và các thuộc tính Ecore.
+-- Step 1: copy EAttributes and their Ecore properties.
 rule EAttribute2EAttribute {
     from
         a : ECORE!EAttribute
@@ -3800,7 +3800,7 @@ rule EAttribute2EAttribute {
         )
 }
 
--- Step 1: copy EReference và các thuộc tính Ecore.
+-- Step 1: copy EReferences and their Ecore properties.
 rule EReference2EReference {
     from
         r : ECORE!EReference
@@ -3837,7 +3837,7 @@ rule EReference2EReference {
         )
 }
 
--- Step 1: copy EEnum và các literal của nó.
+-- Step 1: copy EEnums and their literals.
 rule EEnum2EEnum {
     from
         e : ECORE!EEnum
@@ -3892,7 +3892,7 @@ rule CustomEDataType2EDataType {
         )
 }
 
--- Step 2: tạo một trace EClass cho mỗi matched rule.
+-- Step 2: create one trace EClass for each matched rule.
 rule MatchRule2EClass {
     from 
         r : ATL!MatchedRule
@@ -3947,7 +3947,7 @@ rule MatchRule2EClass {
 }
 
 
--- Step 2: nối trace class với source input element.
+-- Step 2: connect a trace class to a source input element.
 rule InPatternElement2SourceAssociation {
     from
         s : ATL!SimpleInPatternElement
@@ -3986,7 +3986,7 @@ rule InPatternElement2SourceAssociation {
         )
 }
 
--- Step 2: nối trace class với target output element.
+-- Step 2: connect a trace class to a target output element.
 rule OutPatternElement2TargetAssociation {
     from
         o : ATL!SimpleOutPatternElement
@@ -4020,7 +4020,7 @@ rule OutPatternElement2TargetAssociation {
         )
 }
 
--- Step 1: copy nguyên key/value của một Pivot OCL detail gốc.
+-- Step 1: copy an original Pivot OCL detail key/value unchanged.
 unique lazy rule CopyOriginalOclDetail {
 
     from
@@ -4049,10 +4049,10 @@ lazy rule TargetMultiplicityConstraintDetail {
 }
 
 -- ================================================================
--- Rule tạo OCL annotation theo Step 2, 3 và 4
+-- Rules for creating OCL annotations for Steps 2, 3, and 4.
 -- ================================================================
 
--- Step 2: lưu một invariant match phía nguồn.
+-- Step 2: store a source-side match invariant.
 unique lazy rule MatchConstraintDetail {
     from
         r : ATL!MatchedRule
@@ -4063,7 +4063,7 @@ unique lazy rule MatchConstraintDetail {
         )
 }
 
--- Step 2/4: khai báo tên ràng buộc match và mutex phía nguồn.
+-- Steps 2/4: declare source-side match and mutex constraint names.
 unique lazy rule MatchingConstraintNamesAnnotation {
     from
         c : ECORE!EClass
@@ -4081,7 +4081,7 @@ unique lazy rule MatchingConstraintNamesAnnotation {
         )
 }
 
--- Step 2/4: lưu expression OCL match và mutex phía nguồn.
+-- Steps 2/4: store source-side match and mutex OCL expressions.
 unique lazy rule MatchingOclAnnotation {
     from
         c : ECORE!EClass
@@ -4092,7 +4092,7 @@ unique lazy rule MatchingOclAnnotation {
 
             details <-
 
-                -- Step 1: OCL gốc của SRC
+                -- Step 1: original OCL of SRC.
                 thisModule.originalOclDetails(c)
                     ->collect(d |
                         thisModule.CopyOriginalOclDetail(d)
@@ -4126,7 +4126,7 @@ unique lazy rule MatchingOclAnnotation {
 }
 
 
--- Step 2: lưu filter của matched rule trên trace class.
+-- Step 2: store a matched-rule filter on a trace class.
 unique lazy rule FilterConstraintDetail {
     from
         r : ATL!MatchedRule
@@ -4142,7 +4142,7 @@ unique lazy rule FilterConstraintDetail {
         )
 }
 
--- Step 2: khai báo tên ràng buộc gắn với trace class.
+-- Step 2: declare names of constraints attached to a trace class.
 unique lazy rule TraceConstraintNamesAnnotation {
     from
         r : ATL!MatchedRule
@@ -4162,7 +4162,7 @@ unique lazy rule TraceConstraintNamesAnnotation {
 }
 
 
--- Step 2: lưu invariant bằng nhau chính của một binding.
+-- Step 2: store the primary equality invariant of a binding.
 unique lazy rule BindingConstraintDetail {
     from
         b : ATL!Binding
@@ -4184,7 +4184,7 @@ unique lazy rule BindingConstraintDetail {
         )
 }
 
--- Step 2: gom invariant filter, binding, resolution và frame.
+-- Step 2: collect filter, binding, resolution, and frame invariants.
 unique lazy rule TraceOclAnnotation {
     from
         r : ATL!MatchedRule
@@ -4254,7 +4254,7 @@ unique lazy rule TraceOclAnnotation {
         )
 }
 
--- Step 2: lưu ràng buộc bảo toàn definedness của Shape IV.
+-- Step 2: store the Shape IV definedness-preservation constraint.
 unique lazy rule ShapeIVDefinedConstraintDetail {
     from
         b : ATL!Binding
@@ -4276,7 +4276,7 @@ unique lazy rule ShapeIVDefinedConstraintDetail {
         )
 }
 
--- Step 2: lưu ràng buộc bảo toàn số lượng của Shape V.
+-- Step 2: store the Shape V cardinality-preservation constraint.
 unique lazy rule ShapeVSizeConstraintDetail {
     from
         b : ATL!Binding
@@ -4298,7 +4298,7 @@ unique lazy rule ShapeVSizeConstraintDetail {
         )
 }
 
--- Step 2: lưu invariant frame cho thuộc tính chưa bind.
+-- Step 2: store a frame invariant for an unbound property.
 -- One detail is required for every (out-pattern element, unbound feature)
 -- pair. A unique lazy rule reused the first detail for the other features.
 lazy rule NullConstraintDetail {
@@ -4324,7 +4324,7 @@ lazy rule NullConstraintDetail {
         )
 }
 
--- Step 3: khai báo tên creator constraint trên target class.
+-- Step 3: declare the creator constraint name on a target class.
 unique lazy rule CreationConstraintNamesAnnotation {
 
     from
@@ -4347,7 +4347,7 @@ unique lazy rule CreationConstraintNamesAnnotation {
         )
 }
 
--- Step 3: lưu OCL expression "đúng một creator".
+-- Step 3: store the OCL expression for "exactly one creator".
 unique lazy rule CreationConstraintDetail {
 
     from
@@ -4365,7 +4365,7 @@ unique lazy rule CreationConstraintDetail {
         )
 }
 
--- Step 3: gắn creator constraint vào target class.
+-- Step 3: attach the creator constraint to a target class.
 unique lazy rule CreationOclAnnotation {
 
     from
@@ -4379,7 +4379,7 @@ unique lazy rule CreationOclAnnotation {
 
             details <-
 
-                -- Step 1: OCL gốc của TGT
+                -- Step 1: original OCL of TGT.
                 thisModule.originalOclDetails(c)
                     ->collect(d |
                         thisModule.CopyOriginalOclDetail(d)
@@ -4404,7 +4404,7 @@ unique lazy rule CreationOclAnnotation {
         )
 }
 
--- Step 4: lưu OCL expression mutex cho một cặp matched rule.
+-- Step 4: store a mutex OCL expression for a pair of matched rules.
 -- A mutex detail is parameterised by an ordered pair of matched rules. Do
 -- not memoise it as a unique lazy rule: ATL may reuse the cached result for
 -- a partial source tuple, leaving later mutex names without a Pivot body.

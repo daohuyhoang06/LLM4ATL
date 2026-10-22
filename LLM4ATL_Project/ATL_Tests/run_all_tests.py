@@ -30,8 +30,6 @@ PROJECT_DIR = Path(__file__).resolve().parent
 REPO_DIR = PROJECT_DIR.parent
 PIPELINE_PROJECT_DIR = REPO_DIR / "Neuro_Symbolic_Pipeline"
 OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
-if not OUTPUT_DIR.exists():
-    OUTPUT_DIR = PIPELINE_PROJECT_DIR / "ouput"
 DEFAULT_AST_RESPONSE_DIR = OUTPUT_DIR / "final_responses" / "atl"
 
 # CLI Arguments Parser
