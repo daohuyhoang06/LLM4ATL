@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:user="http://vitruv.tools/methodologisttemplate/user">
+  <user:UserModel>
+    <users xmi:id="U21" username="john_doe" email="john@example.com" status="Active" registrationDate="2025-04-15"/>
+    <users xmi:id="U22" username="jane_smith" email="jane@example.com" status="Enabled" registrationDate="2025-05-16"/>
+    <users xmi:id="U23" username="bob_wilson" email="bob@example.com" status="Disabled" registrationDate="2025-06-17"/>
+  </user:UserModel>
+</xmi:XMI>

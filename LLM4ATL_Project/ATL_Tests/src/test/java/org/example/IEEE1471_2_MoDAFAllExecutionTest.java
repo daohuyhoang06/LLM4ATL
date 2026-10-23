@@ -32,7 +32,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the IEEE1471→MoDAF transformation. The test
@@ -114,13 +115,14 @@ public class IEEE1471_2_MoDAFAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testIEEE1471_2_MoDAF() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"ieee1471_input.xmi", "ieee1471_input_1.xmi", "ieee1471_input_2.xmi"})
+    public void testIEEE1471_2_MoDAF(String inputFileName) throws Exception {
         // Compile the ATL module
         File asm = compileAtl("IEEE1471_2_MoDAF_All.atl");
         // Use the provided IEEE1471 input model
-        File input = new File("src/main/resources/models", "ieee1471_input.xmi");
-        assertTrue(input.exists(), "ieee1471_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/IEEE1471_2_MoDAF_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         // Register the IEEE1471 metamodel in the global package registry.
         // The ATL injector will use this to resolve the namespace when loading the input XMI.

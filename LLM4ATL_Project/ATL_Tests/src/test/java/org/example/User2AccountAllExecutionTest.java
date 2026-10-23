@@ -31,7 +31,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the User->Account transformation.  The test
@@ -105,11 +106,12 @@ public class User2AccountAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testUser2Account() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"user_input.xmi", "user_input_1.xmi", "user_input_2.xmi"})
+    public void testUser2Account(String inputFileName) throws Exception {
         File asm = compileAtl("User2Account_All.atl");
-        File input = new File("src/main/resources/models", "user_input.xmi");
-        assertTrue(input.exists(), "user_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/User2Account_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         EPackage.Registry.INSTANCE.put(userPkg.getNsURI(), userPkg);
 

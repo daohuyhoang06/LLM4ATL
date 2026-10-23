@@ -66,7 +66,10 @@ public class Grafcet2PetriNetAllExecutionTest {
 
     // Compile the given ATL file to a temporary ASM file and return it.
     private File compileAtl(String atlFileName) throws Exception {
-        File atlFile = new File("src/main/atl", atlFileName);
+        String atlOverride = System.getProperty("atl.test.file");
+        File atlFile = atlOverride == null || atlOverride.isBlank()
+                ? new File("src/main/atl", atlFileName)
+                : new File(atlOverride);
         assertTrue(atlFile.exists(), "ATL file not found: " + atlFile.getAbsolutePath());
         File asmFile = Files.createTempFile("atltest", ".asm").toFile();
         asmFile.deleteOnExit();
@@ -75,6 +78,36 @@ public class Grafcet2PetriNetAllExecutionTest {
         }
         assertTrue(asmFile.length() > 0, "Compiled ASM file is empty for " + atlFileName);
         return asmFile;
+    }
+
+    private Resource executeGrafcetModel(String inputFileName) throws Exception {
+        File asm = compileAtl("Grafcet2PetriNet_All.atl");
+        File input = new File("src/main/resources/models/Grafcet2PetriNet_All", inputFileName);
+        assertTrue(input.exists(), "Grafcet test input not found: " + input.getAbsolutePath());
+        EPackage.Registry.INSTANCE.put(grafcetPkg.getNsURI(), grafcetPkg);
+        return executeAtl(asm, "Grafcet.ecore", "PetriNet.ecore", "Grafcet", "PetriNet", input);
+    }
+
+    private void assertEveryTransitionHasIncomingAndOutgoingArcs(Resource outRes) {
+        assertFalse(outRes.getContents().isEmpty(), "Output model is empty");
+        EClass petriNetCls = (EClass) petriNetPkg.getEClassifier("PetriNet");
+        EClass transitionCls = (EClass) petriNetPkg.getEClassifier("Transition");
+        assertTrue(petriNetCls.isInstance(outRes.getContents().get(0)), "Expected a PetriNet root");
+
+        for (TreeIterator<EObject> it = outRes.getAllContents(); it.hasNext(); ) {
+            EObject obj = it.next();
+            if (!transitionCls.isInstance(obj)) {
+                continue;
+            }
+            @SuppressWarnings("unchecked")
+            EList<EObject> incoming = (EList<EObject>) obj.eGet(
+                    transitionCls.getEStructuralFeature("incomingArc"));
+            @SuppressWarnings("unchecked")
+            EList<EObject> outgoing = (EList<EObject>) obj.eGet(
+                    transitionCls.getEStructuralFeature("outgoingArc"));
+            assertFalse(incoming.isEmpty(), "A generated Transition has no incoming arc");
+            assertFalse(outgoing.isEmpty(), "A generated Transition has no outgoing arc");
+        }
     }
 
     // Load an Ecore metamodel from the given path and register all packages
@@ -135,7 +168,7 @@ public class Grafcet2PetriNetAllExecutionTest {
         // Compile the ATL module
         File asm = compileAtl("Grafcet2PetriNet_All.atl");
         // Use the provided Grafcet input model
-        File input = new File("src/main/resources/models", "grafcet_input.xmi");
+        File input = new File("src/main/resources/models/Grafcet2PetriNet_All", "grafcet_input.xmi");
         assertTrue(input.exists(), "grafcet_input.xmi not found: " + input.getAbsolutePath());
 
         // Register the Grafcet metamodel in the global package registry.
@@ -196,6 +229,18 @@ public class Grafcet2PetriNetAllExecutionTest {
         @SuppressWarnings("unchecked")
         EList<EObject> arcs = (EList<EObject>) petriNet.eGet(petriNetCls.getEStructuralFeature("arcs"));
         assertEquals(2, arcs.size(), "PetriNet should contain 2 arcs");
+    }
+
+    @Test
+    public void counterexampleTransitionWithoutIncomingArc() throws Exception {
+        Resource outRes = executeGrafcetModel("grafcet_input_1.xmi");
+        assertEveryTransitionHasIncomingAndOutgoingArcs(outRes);
+    }
+
+    @Test
+    public void counterexampleTransitionWithoutOutgoingArc() throws Exception {
+        Resource outRes = executeGrafcetModel("grafcet_input_2.xmi");
+        assertEveryTransitionHasIncomingAndOutgoingArcs(outRes);
     }
 }
 

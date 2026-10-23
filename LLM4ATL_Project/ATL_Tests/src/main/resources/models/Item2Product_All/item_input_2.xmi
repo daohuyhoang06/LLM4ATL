@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:item="http://vitruv.tools/methodologisttemplate/item">
+  <item:ItemModel>
+    <items xmi:id="I21" name="Laptop" price="999.99" description="Workstation-class laptop" type="Electronics" quantity="1"/>
+    <items xmi:id="I22" name="T-Shirt" price="19.99" description="Everyday t-shirt" type="Clothing" quantity="0"/>
+    <items xmi:id="I23" name="Book" price="29.99" description="Programming reference book" type="General" quantity="12"/>
+  </item:ItemModel>
+</xmi:XMI>

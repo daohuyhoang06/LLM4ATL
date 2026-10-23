@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:IEEE1471="IEEE1471">
+  <IEEE1471:IEEE1471Model xmi:id="model3" name="TestModel" content="Representative architecture model">
+    <system xmi:id="sys3" name="TestSystem" content="Representative system" fulfills="mission3" inhabits="env3" hasAn="arch3" has="sh3"/>
+    <environment xmi:id="env3" name="TestEnvironment" content="Representative environment" influences="sys3"/>
+    <missions xmi:id="mission3" name="TestMission" content="Representative mission"/>
+    <architecture xmi:id="arch3" name="TestArchitecture" content="Representative architecture" describedBy="ad3"/>
+    <stakeholders xmi:id="sh3" name="TestStakeholder" content="Representative stakeholder" has="concern3"/>
+    <concerns xmi:id="concern3" name="TestConcern" content="Representative concern" isImportantTo="sh3"/>
+    <viewpoints xmi:id="vp3" name="TestViewpoint" content="Representative viewpoint" usedToCover="concern3" establishesMethodsFor="m3"/>
+    <architecturalDescription xmi:id="ad3" name="TestAD" content="Representative description" identifiesS="sh3" identifiesC="concern3" selects="vp3">
+      <organizedBy xmi:id="view3" name="TestView" content="Representative view" conformsTo="vp3" consitsOf="m3"/>
+      <aggregates xmi:id="m3" name="TestADModel" content="Representative model element" participatesInV="view3" participatesInAD="ad3"/>
+    </architecturalDescription>
+    <rationale xmi:id="rat3" name="TestRationale" content="Representative rationale" provides="ad3"/>
+  </IEEE1471:IEEE1471Model>
+</xmi:XMI>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:CPL="CPL">
+  <CPL:CPL xmi:id="cpl2">
+    <incoming xmi:id="inc2">
+      <contents xmi:type="CPL:Proxy" xmi:id="proxy2" timeout="30" recurse="no" ordering="sequential"/>
+    </incoming>
+  </CPL:CPL>
+</xmi:XMI>

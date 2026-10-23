@@ -33,6 +33,8 @@ import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the DSL→KM3 transformation. The test
@@ -65,7 +67,10 @@ public class DSL2KM3AllExecutionTest {
 
     // Compile the given ATL file to a temporary ASM file and return it.
     private File compileAtl(String atlFileName) throws Exception {
-        File atlFile = new File("src/main/atl", atlFileName);
+        String atlOverride = System.getProperty("atl.test.file");
+        File atlFile = atlOverride == null || atlOverride.isBlank()
+                ? new File("src/main/atl", atlFileName)
+                : new File(atlOverride);
         assertTrue(atlFile.exists(), "ATL file not found: " + atlFile.getAbsolutePath());
         File asmFile = Files.createTempFile("atltest", ".asm").toFile();
         asmFile.deleteOnExit();
@@ -114,13 +119,14 @@ public class DSL2KM3AllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testDSL2KM3() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"dsl_input.xmi", "dsl_input_2.xmi"})
+    public void testDSL2KM3(String inputFileName) throws Exception {
         // Compile the ATL module
         File asm = compileAtl("DSL2KM3_All.atl");
         // Use the provided DSL input model
-        File input = new File("src/main/resources/models", "dsl_input.xmi");
-        assertTrue(input.exists(), "dsl_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/DSL2KM3_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         // Register the DSL metamodel in the global package registry.
         // The ATL injector will use this to resolve the namespace when loading the input XMI.
@@ -159,5 +165,46 @@ public class DSL2KM3AllExecutionTest {
         EList<EObject> packages = (EList<EObject>) metamodel.eGet(metamodelCls.getEStructuralFeature("contents"));
         assertTrue(packages.size() >= 1, "Metamodel should contain at least one package");
     }
+
+    @Test
+    public void counterexampleNamespacePrimitiveTypesStillHasDistinctMainPackage() throws Exception {
+        File asm = compileAtl("DSL2KM3_All.atl");
+        File input = new File(
+                "src/main/resources/models/DSL2KM3_All",
+                "dsl_input_1.xmi");
+        assertTrue(input.exists(), "Counterexample input not found: " + input.getAbsolutePath());
+        EPackage.Registry.INSTANCE.put(dslPkg.getNsURI(), dslPkg);
+
+        Resource outRes = executeAtl(asm, "DSL.ecore", "KM3.ecore", "DSL", "KM3", input);
+        assertFalse(outRes.getContents().isEmpty(), "Output model is empty");
+
+        EClass metamodelCls = (EClass) km3Pkg.getEClassifier("Metamodel");
+        EClass packageCls = (EClass) km3Pkg.getEClassifier("Package");
+        EClass modelElementCls = (EClass) km3Pkg.getEClassifier("ModelElement");
+        EObject metamodel = outRes.getContents().get(0);
+        assertTrue(metamodelCls.isInstance(metamodel), "Expected one KM3 Metamodel root");
+
+        @SuppressWarnings("unchecked")
+        EList<EObject> contents = (EList<EObject>) metamodel.eGet(
+                metamodelCls.getEStructuralFeature("contents"));
+        long primitivePackages = 0;
+        long mainPackages = 0;
+        for (EObject content : contents) {
+            if (!packageCls.isInstance(content)) {
+                continue;
+            }
+            String name = (String) content.eGet(modelElementCls.getEStructuralFeature("name"));
+            if ("PrimitiveTypes".equals(name)) {
+                primitivePackages++;
+            } else if (name != null && !name.isBlank()) {
+                mainPackages++;
+            }
+        }
+
+        assertEquals(2, contents.size(), "Metamodel must contain exactly the main and primitive packages");
+        assertEquals(1, primitivePackages, "Expected exactly one PrimitiveTypes package");
+        assertEquals(1, mainPackages, "Expected exactly one non-empty main package distinct from PrimitiveTypes");
+    }
+
 }
 

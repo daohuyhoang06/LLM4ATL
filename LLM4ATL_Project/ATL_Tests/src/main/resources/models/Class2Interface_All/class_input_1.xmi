@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:class="http://vitruv.tools/methodologisttemplate/class">
+  <class:ClassModel>
+    <classes xmi:id="C11" name="Calculator">
+      <methods xmi:id="M11" name="add" returnType="long">
+        <parameters xmi:id="P11" name="left" type="long"/>
+        <parameters xmi:id="P12" name="right" type="long"/>
+      </methods>
+      <methods xmi:id="M12" name="subtract" returnType="long">
+        <parameters xmi:id="P13" name="left" type="long"/>
+        <parameters xmi:id="P14" name="right" type="long"/>
+      </methods>
+    </classes>
+  </class:ClassModel>
+</xmi:XMI>

@@ -32,7 +32,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the combined Amalthea→Ascet transformation.  The test
@@ -116,13 +117,14 @@ public class AmaltheaToAscetAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testAmaltheaToAscet() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"amalthea_input.xmi", "amalthea_input_1.xmi", "amalthea_input_2.xmi"})
+    public void testAmaltheaToAscet(String inputFileName) throws Exception {
         // Compile the ATL module
         File asm = compileAtl("AmaltheaToAscet_All.atl");
         // Use the provided Amalthea input model
-        File input = new File("src/main/resources/models", "amalthea_input.xmi");
-        assertTrue(input.exists(), "amalthea_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/AmaltheaToAscet_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         // Register the Amalthea metamodel in the global package registry.
         // The ATL injector will use this to resolve the namespace when loading the input XMI.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:network="http://vitruv.tools/methodologisttemplate/network" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <network:System xmi:id="S21">
+    <components xmi:id="C21" xsi:type="network:Device" name="DeviceA"/>
+    <components xmi:id="C22" xsi:type="network:Server" name="ServerB"/>
+    <links xmi:id="L21">
+      <components xmi:idref="C21"/>
+      <components xmi:idref="C22"/>
+    </links>
+  </network:System>
+</xmi:XMI>

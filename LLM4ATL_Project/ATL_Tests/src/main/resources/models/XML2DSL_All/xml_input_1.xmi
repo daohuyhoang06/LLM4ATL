@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:XML="XML">
+  <XML:Root xmi:id="root2" name="dmd">
+    <children xmi:type="XML:Element" xmi:id="model2" name="model">
+      <children xmi:type="XML:Attribute" xmi:id="a21" name="name" value="TestModel"/>
+      <children xmi:type="XML:Attribute" xmi:id="a22" name="identity" value="id2"/>
+      <children xmi:type="XML:Attribute" xmi:id="a23" name="namespace" value="http://test/variant1"/>
+      <children xmi:type="XML:Attribute" xmi:id="a24" name="isLoaded" value="false"/>
+    </children>
+  </XML:Root>
+</xmi:XMI>

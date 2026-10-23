@@ -32,7 +32,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the Make→Ant transformation. The test
@@ -114,13 +115,14 @@ public class Make2AntAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testMake2Ant() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"make_input.xmi", "make_input_1.xmi", "make_input_2.xmi"})
+    public void testMake2Ant(String inputFileName) throws Exception {
         // Compile the ATL module
         File asm = compileAtl("Make2Ant_All.atl");
         // Use the provided Make input model
-        File input = new File("src/main/resources/models", "make_input.xmi");
-        assertTrue(input.exists(), "make_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/Make2Ant_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         // Register the Make metamodel in the global package registry.
         // The ATL injector will use this to resolve the namespace when loading the input XMI.

@@ -7,6 +7,10 @@ This module contains example transformations written in the **ATLAS Transformati
 - `src/main/atl/` – ATL modules (`*.atl`) that implement the model transformations.  Each transformation defines matched rules and helpers to map concepts between source and target metamodels.
 - `src/test/java/` – JUnit test cases that execute the ATL transformations and verify structural and semantic properties of the generated models.
 
+Each transformation task has three representative source-model fixtures under
+`src/main/resources/models/`. The additional fixtures preserve the structure
+and assertions of the original scenario while varying ordinary input data.
+
 ## Building and running
 
 Run the Python test driver from this directory:

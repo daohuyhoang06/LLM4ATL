@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:BibTex="BibTex">
+  <BibTex:BibTeXFile xmi:id="file3">
+    <entries xmi:type="BibTex:Article" xmi:id="art3" id="article2021" title="Reusable ATL Rules" journal="Modeling Practice" year="2021">
+      <authors xmi:id="auth31" author="Casey Hall"/>
+    </entries>
+    <entries xmi:type="BibTex:Book" xmi:id="book3" id="book2020" title="Foundations of MDE" publisher="Technical Books" year="2020">
+      <authors xmi:id="auth32" author="Riley King"/>
+    </entries>
+    <entries xmi:type="BibTex:TechReport" xmi:id="tech3" id="report2023" title="ATL Evaluation Report" year="2023">
+      <authors xmi:id="auth33" author="Sam Brooks"/>
+    </entries>
+  </BibTex:BibTeXFile>
+</xmi:XMI>

@@ -30,7 +30,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the combined Families→Persons transformation.  The test
@@ -114,13 +115,14 @@ public class FamiliesToPersonsAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testFamiliesToPersons() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"families_input.xmi", "families_input_1.xmi", "families_input_2.xmi"})
+    public void testFamiliesToPersons(String inputFileName) throws Exception {
         // Compile the ATL module
         File asm = compileAtl("FamiliesToPersons_All.atl");
         // Load the sample input model from the resources folder.
-        File input = new File("src/main/resources/models", "families_input.xmi");
-        assertTrue(input.exists(), "families_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/FamiliesToPersons_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         // Register the Families metamodel in the global package registry.
         // The ATL injector will use this to resolve the namespace when loading the input XMI.

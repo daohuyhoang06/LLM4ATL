@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:BibTex="BibTex">
+  <BibTex:BibTeXFile xmi:id="file2">
+    <entries xmi:type="BibTex:Article" xmi:id="art2" id="article2025" title="Practical Model Engineering" journal="Software Models" year="2025">
+      <authors xmi:id="auth21" author="Alex Green"/>
+      <authors xmi:id="auth22" author="Taylor White"/>
+    </entries>
+    <entries xmi:type="BibTex:Book" xmi:id="book2" id="book2022" title="Transformation Patterns" publisher="Engineering Press" year="2022">
+      <authors xmi:id="auth23" author="Morgan Lee"/>
+    </entries>
+    <entries xmi:type="BibTex:InProceedings" xmi:id="inproc2" id="inproc2025" title="ATL Applications" booktitle="MDE Symposium" year="2025">
+      <authors xmi:id="auth24" author="Jordan Young"/>
+    </entries>
+  </BibTex:BibTeXFile>
+</xmi:XMI>

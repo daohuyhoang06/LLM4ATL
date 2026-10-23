@@ -31,7 +31,8 @@ import org.eclipse.m2m.atl.engine.compiler.atl2006.Atl2006Compiler;
 import org.eclipse.m2m.atl.engine.emfvm.launch.EMFVMLauncher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Integration test for the Item->Product transformation.  The test
@@ -105,11 +106,12 @@ public class Item2ProductAllExecutionTest {
         return rs.getResource(URI.createFileURI(outFile.getAbsolutePath()), true);
     }
 
-    @Test
-    public void testItem2Product() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"item_input.xmi", "item_input_1.xmi", "item_input_2.xmi"})
+    public void testItem2Product(String inputFileName) throws Exception {
         File asm = compileAtl("Item2Product_All.atl");
-        File input = new File("src/main/resources/models", "item_input.xmi");
-        assertTrue(input.exists(), "item_input.xmi not found: " + input.getAbsolutePath());
+        File input = new File("src/main/resources/models/Item2Product_All", inputFileName);
+        assertTrue(input.exists(), inputFileName + " not found: " + input.getAbsolutePath());
 
         EPackage.Registry.INSTANCE.put(itemPkg.getNsURI(), itemPkg);
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Make="Make">
+  <Make:Makefile xmi:id="makefile2" name="TestMakefile">
+    <elements xmi:type="Make:Macro" xmi:id="macro2" name="CC" value="clang"/>
+    <elements xmi:type="Make:Rule" xmi:id="rule2" name="all">
+      <shellLines xmi:id="sh2" command="echo Alternative build complete" display="true" ruleShellLine="rule2"/>
+    </elements>
+  </Make:Makefile>
+</xmi:XMI>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:IEEE1471="IEEE1471">
+  <IEEE1471:IEEE1471Model xmi:id="model2" name="TestModel" content="Alternative model content">
+    <system xmi:id="sys2" name="TestSystem" content="Alternative system content" fulfills="mission2" inhabits="env2" hasAn="arch2" has="sh2"/>
+    <environment xmi:id="env2" name="TestEnvironment" content="Alternative environment content" influences="sys2"/>
+    <missions xmi:id="mission2" name="TestMission" content="Alternative mission content"/>
+    <architecture xmi:id="arch2" name="TestArchitecture" content="Alternative architecture content" describedBy="ad2"/>
+    <stakeholders xmi:id="sh2" name="TestStakeholder" content="Alternative stakeholder content" has="concern2"/>
+    <concerns xmi:id="concern2" name="TestConcern" content="Alternative concern content" isImportantTo="sh2"/>
+    <viewpoints xmi:id="vp2" name="TestViewpoint" content="Alternative viewpoint content" usedToCover="concern2" establishesMethodsFor="m2"/>
+    <architecturalDescription xmi:id="ad2" name="TestAD" content="Alternative description" identifiesS="sh2" identifiesC="concern2" selects="vp2">
+      <organizedBy xmi:id="view2" name="TestView" content="Alternative view content" conformsTo="vp2" consitsOf="m2"/>
+      <aggregates xmi:id="m2" name="TestADModel" content="Alternative model element" participatesInV="view2" participatesInAD="ad2"/>
+    </architecturalDescription>
+    <rationale xmi:id="rat2" name="TestRationale" content="Alternative rationale" provides="ad2"/>
+  </IEEE1471:IEEE1471Model>
+</xmi:XMI>

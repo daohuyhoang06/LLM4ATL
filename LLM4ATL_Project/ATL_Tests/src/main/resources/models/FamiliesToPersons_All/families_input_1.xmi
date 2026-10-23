@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI" xmlns:families="http://vitruv.tools/reactionsparser/families">
+  <families:FamilyRegister id="reg2">
+    <families:families xmi:id="F11" lastName="March">
+      <families:father xmi:id="M11" firstName="Jim" familyFather="#F11"/>
+      <families:mother xmi:id="M12" firstName="Cindy" familyMother="#F11"/>
+      <families:sons xmi:id="M13" firstName="Brandon" familySon="#F11"/>
+      <families:daughters xmi:id="M14" firstName="Brenda" familyDaughter="#F11"/>
+    </families:families>
+    <families:families xmi:id="F12" lastName="Sailor">
+      <families:father xmi:id="M15" firstName="Peter" familyFather="#F12"/>
+      <families:mother xmi:id="M16" firstName="Jackie" familyMother="#F12"/>
+      <families:sons xmi:id="M17" firstName="David" familySon="#F12"/>
+      <families:sons xmi:id="M18" firstName="Dylan" familySon="#F12"/>
+      <families:daughters xmi:id="M19" firstName="Kelly" familyDaughter="#F12"/>
+    </families:families>
+  </families:FamilyRegister>
+</xmi:XMI>
