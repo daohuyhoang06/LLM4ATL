@@ -3,6 +3,7 @@ import glob
 import json
 import time
 import sys
+import re
 from datetime import datetime
 from pathlib import Path
 # Keep gRPC's repeated TLS handshake diagnostics from flooding the pipeline
@@ -37,6 +38,7 @@ except LLMConfigurationError as error:
     print(f"[LLM configuration error] {error}")
     sys.exit(1)
 ABLATION_CONFIG = AblationConfig.from_env()
+ABLATION_RUN_LABEL = os.getenv("ABLATION_RUN_LABEL", "").strip()
 
 
 def _read_int_env(name, default, minimum):
@@ -66,8 +68,26 @@ METAMODELS_DIR = INPUT_DIR / 'ATL_metamodel'
 SYSTEM_PROMPT_PATH = INPUT_DIR / 'prompts' / 'system_prompt.txt'
 MAPPING_PATH = INPUT_DIR / 'mapping.json'
 
-# All generated artefacts use the correctly named output/ directory.
-OUTPUT_DIR = PROJECT_DIR / 'output'
+# Full runs retain output/. Each ablation must use an isolated output root so
+# existing candidates cannot be skipped or overwritten by another condition.
+if ABLATION_RUN_LABEL:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", ABLATION_RUN_LABEL):
+        raise ValueError(
+            "ABLATION_RUN_LABEL may contain only letters, numbers, underscores, "
+            "and hyphens, and must begin with a letter or number."
+        )
+    OUTPUT_DIR = PROJECT_DIR / 'output' / 'ablation' / ABLATION_RUN_LABEL
+elif not all((
+    ABLATION_CONFIG.enable_layer1_schema,
+    ABLATION_CONFIG.enable_layer2_semantic,
+    ABLATION_CONFIG.enable_layer3_generation,
+)):
+    raise ValueError(
+        "Set ABLATION_RUN_LABEL (for example, without_l2) whenever a "
+        "verification layer is disabled."
+    )
+else:
+    OUTPUT_DIR = PROJECT_DIR / 'output'
 
 FINAL_RESPONSES_DIR = OUTPUT_DIR / 'final_responses'
 AST_OUTPUT_DIR = FINAL_RESPONSES_DIR / 'atl_ast'
@@ -306,6 +326,10 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
         "started_at": current_timestamp(),
         "max_repair_iterations": MAX_RETRIES,
         "max_llm_attempts": MAX_RETRIES + 1,
+        "ablation": {
+            "run_label": ABLATION_RUN_LABEL or "full",
+            "switches": ablation_config.to_dict(),
+        },
         "retry_sleep_seconds": 0,
         "attempts": [],
     }
@@ -441,13 +465,33 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
                 attempt_trace["layers"]["layer1_schema"]["status"] = "PASS"
                 print(f"[{basename}] Layer 1: PASS - valid AST.", flush=True)
             elif needs_typed_ast:
-                print(f"[{basename}] Layer 1 disabled as a validation gate; building typed AST for downstream checks.")
-                ast_obj = Module(**data)
-                data = ast_obj.model_dump()
-                attempt_trace["layers"]["layer1_schema"]["status"] = "SKIPPED_GATE"
+                print(
+                    f"[{basename}] Layer 1 is disabled; adapting the AST only "
+                    "because Layer 2 requires a typed input."
+                )
+                attempt_trace["layers"]["layer1_schema"]["status"] = "DISABLED"
+                try:
+                    ast_obj = Module(**data)
+                    data = ast_obj.model_dump()
+                except ValidationError as error:
+                    detail = (
+                        "Layer 2 requires a typed ATL AST, but the candidate could "
+                        "not be adapted while Layer 1 was disabled. The structural "
+                        "diagnostic was not sent to the LLM."
+                    )
+                    attempt_trace["layers"]["layer2_semantic"].update({
+                        "status": "NOT_APPLICABLE",
+                        "detail": str(error),
+                    })
+                    save_last_candidate(basename, data, current_atl)
+                    finish_attempt("DOWNSTREAM_INAPPLICABLE", detail)
+                    return finish_task(
+                        "DOWNSTREAM_INAPPLICABLE",
+                        "LAYER2_REQUIRES_TYPED_AST",
+                    )
             else:
                 print(f"[{basename}] Skipping Pydantic Validation (Layer 1).")
-                attempt_trace["layers"]["layer1_schema"]["status"] = "SKIPPED"
+                attempt_trace["layers"]["layer1_schema"]["status"] = "DISABLED"
             
             # Layer 2: Semantic Check
             if ablation_config.is_enabled("enable_layer2_semantic"):
@@ -459,7 +503,7 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
                 print(f"[{basename}] Layer 2: PASS - valid semantics.", flush=True)
             else:
                 print(f"[{basename}] Skipping semantic check (Layer 2).")
-                attempt_trace["layers"]["layer2_semantic"]["status"] = "SKIPPED"
+                attempt_trace["layers"]["layer2_semantic"]["status"] = "DISABLED"
             
             layer3_status, layer3_feedback, final_atl = run_layer3(
                 basename, data, model_full_paths, attempt, ablation_config
@@ -468,6 +512,16 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
             if final_atl is not None:
                 current_atl = final_atl
             if layer3_status in {"COUNTEREXAMPLE", "GENERATION_ERROR"}:
+                if (
+                    layer3_status == "GENERATION_ERROR"
+                    and not ablation_config.is_enabled("enable_layer1_schema")
+                ):
+                    save_last_candidate(basename, data, final_atl)
+                    finish_attempt("DOWNSTREAM_INAPPLICABLE", layer3_feedback)
+                    return finish_task(
+                        "DOWNSTREAM_INAPPLICABLE",
+                        "AST_TO_ATL_FAILED_WITHOUT_L1",
+                    )
                 save_last_candidate(basename, data, final_atl)
                 validation_error = layer3_feedback
                 attempt_trace["repair_trigger"] = layer3_status
@@ -483,6 +537,18 @@ def process_file(prompt_file_path, ablation_config=ABLATION_CONFIG, trace_path=N
                 print(f"[{basename}] Layer 3 ended with status {layer3_status}; "
                       "the last draft was saved but is not verified.", flush=True)
                 return finish_task(layer3_status, "LAYER3_STOPPED")
+
+            if layer3_status == "SKIPPED":
+                final_atl = generate_final_atl_from_ast(basename, data)
+                if final_atl is None:
+                    detail = (
+                        "The candidate could not be converted to ATL after formal "
+                        "verification was disabled."
+                    )
+                    save_last_candidate(basename, data, current_atl)
+                    finish_attempt("AST2ATL_ERROR", detail)
+                    return finish_task("AST2ATL_ERROR", "AST_TO_ATL_FAILED")
+                current_atl = final_atl
 
             output_path = os.path.join(RESPONSES_DIR, f"{basename}.json")
             with open(output_path, 'w', encoding='utf-8') as out_f:
@@ -632,6 +698,8 @@ def build_run_summary(run_id, run_started_at, batch_started_at, task_traces, sta
         "provider": LLM_CLIENT.provider,
         "model": LLM_CLIENT.model_name,
         "configuration": {
+            "ablation_run_label": ABLATION_RUN_LABEL or "full",
+            "ablation_switches": ABLATION_CONFIG.to_dict(),
             "max_repair_iterations": MAX_RETRIES,
             "max_llm_attempts_per_task": MAX_RETRIES + 1,
             "retry_delay_seconds": RETRY_DELAY_SECONDS,

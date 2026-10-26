@@ -491,10 +491,11 @@ def verify_atl_for_pipeline(
                 diagnostics.append(f"{check_name} ({status})")
         if unsupported:
             message = "eFinder does not support a feature in the constraint: " + "; ".join(diagnostics)
-            status = "EFINDER_UNSUPPORTED_FEATURE"
         else:
-            message = "eFinder could not safely verify: " + "; ".join(diagnostics)
-            status = "EFINDER_UNSUPPORTED_OR_ERROR"
+            message = "eFinder cannot support or evaluate a feature in the constraint: " + "; ".join(diagnostics)
+        # A stopped eFinder check is an infrastructure/tool-support outcome,
+        # not a counterexample or a rejection of the generated ATL.
+        status = "EFINDER_UNSUPPORTED_FEATURE"
         return Layer3Result(
             status,
             message + ". Layer 3 stopped; the LLM will not retry.",
