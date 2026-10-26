@@ -2,7 +2,7 @@
 
 This project presents a neuro-symbolic pipeline for generating ATL model transformations from metamodels and natural-language requirements, then progressively improving their correctness through structural checking, static analysis, and formal verification with violation-driven feedback.
 
-The `LLM4ATL` branch contains the primary project code.
+The `LLM4ATL` branch contains the primary project code. For a stable and reproducible snapshot, use the `v1.0.0` tag.
 
 ## Pipeline Overview
 
