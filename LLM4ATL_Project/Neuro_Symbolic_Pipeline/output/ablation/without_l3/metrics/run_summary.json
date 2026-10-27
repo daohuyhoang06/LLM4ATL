@@ -1,0 +1,290 @@
+{
+  "run_id": "run_2026-10-22_14-41-50",
+  "status": "COMPLETED",
+  "started_at": "2026-10-22T14:41:50+07:00",
+  "updated_at": "2026-10-22T21:36:21+07:00",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "configuration": {
+    "ablation_run_label": "without_l3",
+    "ablation_switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": true,
+      "enable_layer3_generation": false
+    },
+    "max_repair_iterations": 5,
+    "max_llm_attempts_per_task": 6,
+    "retry_delay_seconds": 10,
+    "efinder_scope": 5,
+    "efinder_reference_scope": 10,
+    "efinder_timeout_ms": 900000
+  },
+  "task_count": 15,
+  "executed_task_count": 15,
+  "tasks": [
+    {
+      "task": "Class2Interface_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 17.955,
+        "active_elapsed_seconds": 17.955,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 17.928,
+        "input_tokens": 13320,
+        "output_tokens": 1256,
+        "total_tokens": 17786
+      }
+    },
+    {
+      "task": "Document2Report_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 17.008,
+        "active_elapsed_seconds": 17.008,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 16.989,
+        "input_tokens": 13136,
+        "output_tokens": 1010,
+        "total_tokens": 17233
+      }
+    },
+    {
+      "task": "Item2Product_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 21.581,
+        "active_elapsed_seconds": 21.581,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 21.564,
+        "input_tokens": 13008,
+        "output_tokens": 1231,
+        "total_tokens": 18464
+      }
+    },
+    {
+      "task": "User2Account_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 18.586,
+        "active_elapsed_seconds": 18.586,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 18.566,
+        "input_tokens": 12896,
+        "output_tokens": 1022,
+        "total_tokens": 17306
+      }
+    },
+    {
+      "task": "NetworkToGraph_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 23.047,
+        "active_elapsed_seconds": 23.047,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 23.027,
+        "input_tokens": 13034,
+        "output_tokens": 1590,
+        "total_tokens": 18549
+      }
+    },
+    {
+      "task": "FamiliesToPersons_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 28.372,
+        "active_elapsed_seconds": 28.372,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 28.341,
+        "input_tokens": 13340,
+        "output_tokens": 2804,
+        "total_tokens": 20430
+      }
+    },
+    {
+      "task": "AmaltheaToAscet_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 14.735,
+        "active_elapsed_seconds": 14.735,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 14.717,
+        "input_tokens": 14131,
+        "output_tokens": 867,
+        "total_tokens": 17652
+      }
+    },
+    {
+      "task": "BibTeX2DocBook_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 86.568,
+        "active_elapsed_seconds": 86.568,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 86.532,
+        "input_tokens": 14624,
+        "output_tokens": 9955,
+        "total_tokens": 36718
+      }
+    },
+    {
+      "task": "XML2DSL_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 2,
+      "repair_iterations": 1,
+      "metrics": {
+        "task_elapsed_seconds": 226.501,
+        "active_elapsed_seconds": 216.501,
+        "retry_sleep_seconds": 10,
+        "llm_elapsed_seconds": 216.432,
+        "input_tokens": 29261,
+        "output_tokens": 35261,
+        "total_tokens": 87106
+      }
+    },
+    {
+      "task": "PetriNet2Grafcet_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 29.765,
+        "active_elapsed_seconds": 29.765,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 29.742,
+        "input_tokens": 14908,
+        "output_tokens": 3122,
+        "total_tokens": 22793
+      }
+    },
+    {
+      "task": "Grafcet2PetriNet_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 26.568,
+        "active_elapsed_seconds": 26.568,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 26.548,
+        "input_tokens": 14941,
+        "output_tokens": 3004,
+        "total_tokens": 21968
+      }
+    },
+    {
+      "task": "DSL2KM3_All",
+      "status": "COUNTEREXAMPLE",
+      "termination_reason": "LAYER3_FEEDBACK_DISABLED",
+      "llm_attempts": 2,
+      "repair_iterations": 1,
+      "provenance": {
+        "mode": "paired_replay",
+        "candidate_role": "PRE_L3",
+        "source_run_label": "full_pipeline",
+        "source_attempt": 2
+      },
+      "metrics": {
+        "task_elapsed_seconds": 264.404,
+        "active_elapsed_seconds": 254.404,
+        "retry_sleep_seconds": 10,
+        "llm_elapsed_seconds": 164.047,
+        "input_tokens": 30816,
+        "output_tokens": 14027,
+        "total_tokens": 68806
+      }
+    },
+    {
+      "task": "IEEE1471_2_MoDAF_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 100.146,
+        "active_elapsed_seconds": 100.146,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 100.111,
+        "input_tokens": 19614,
+        "output_tokens": 9856,
+        "total_tokens": 44866
+      }
+    },
+    {
+      "task": "Make2Ant_All",
+      "status": "SKIPPED",
+      "termination_reason": "LAYER3_SKIPPED",
+      "llm_attempts": 1,
+      "repair_iterations": 0,
+      "metrics": {
+        "task_elapsed_seconds": 51.245,
+        "active_elapsed_seconds": 51.245,
+        "retry_sleep_seconds": 0,
+        "llm_elapsed_seconds": 51.233,
+        "input_tokens": 19713,
+        "output_tokens": 3316,
+        "total_tokens": 31993
+      }
+    },
+    {
+      "task": "CPL2SPL_All",
+      "status": "REPAIR_LIMIT_EXHAUSTED",
+      "termination_reason": "REPAIR_LIMIT_EXHAUSTED",
+      "llm_attempts": 6,
+      "repair_iterations": 5,
+      "metrics": {
+        "task_elapsed_seconds": 710.208,
+        "active_elapsed_seconds": 660.208,
+        "retry_sleep_seconds": 50,
+        "llm_elapsed_seconds": 660.051,
+        "input_tokens": 146314,
+        "output_tokens": 66830,
+        "total_tokens": 309790
+      }
+    }
+  ],
+  "totals": {
+    "llm_attempts": 22,
+    "input_tokens": 383056,
+    "output_tokens": 155151,
+    "total_tokens": 751460,
+    "task_elapsed_seconds": 1636.689,
+    "active_elapsed_seconds": 1566.689,
+    "retry_sleep_seconds": 70,
+    "llm_elapsed_seconds": 1475.828,
+    "batch_wall_elapsed_seconds": 1636.871
+  },
+  "averages": {
+    "task_elapsed_seconds": 109.113,
+    "llm_elapsed_seconds_per_task": 98.389,
+    "total_tokens_per_task": 50097.333,
+    "llm_elapsed_seconds_per_call": 67.083
+  },
+  "finished_at": "2026-10-22T15:07:29+07:00"
+}

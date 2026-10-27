@@ -1,0 +1,122 @@
+{
+  "task": "DSL2KM3_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T14:50:20+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l3",
+    "mode": "paired_replay",
+    "switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": true,
+      "enable_layer3_generation": false,
+      "enable_layer3_feedback": false,
+      "layer3_observation_only": true
+    }
+  },
+  "provenance": {
+    "candidate_role": "PRE_L3",
+    "source_run_label": "full_pipeline",
+    "source_attempt": 2,
+    "source_trace": "output/metrics/traces/DSL2KM3_All_trace.json",
+    "source_atl": "output/formal_verification/candidates/atl/DSL2KM3_All/attempt-2.atl",
+    "source_ast": "output/formal_verification/candidates/atl_ast/DSL2KM3_All/attempt-2.json",
+    "source_started_at": "2026-10-22T08:42:06+07:00",
+    "source_finished_at": "2026-10-22T08:46:30+07:00",
+    "timing_basis": "reconstructed_from_source_attempt_durations",
+    "source_atl_sha256": "EDE2ED2D566B02578E50FD3F8A8F0C1F778F0F4AAB06C65CD604CEB9106E8C25",
+    "source_ast_sha256": "EB7B4A87C82FEB0F5087F9A69FDCE6BB2822335A57506DBAD363EAD366885AE5",
+    "replayed_at": "2026-10-22T21:36:21+07:00"
+  },
+  "retry_sleep_seconds": 10,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T14:50:20+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 87.192,
+        "input_tokens": 15374,
+        "output_tokens": 6549,
+        "total_tokens": 35114
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Helper 'getRoles' return type mismatch: expected DSL!Role, got Set(DSL!Role)"
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T14:51:47.198+07:00",
+      "elapsed_seconds": 87.198,
+      "error": "SemanticError: Helper 'getRoles' return type mismatch: expected DSL!Role, got Set(DSL!Role)\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 2,
+      "repair_iteration": 1,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T14:51:57.198+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 76.855,
+        "input_tokens": 15442,
+        "output_tokens": 7478,
+        "total_tokens": 33692
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "PASS"
+        },
+        "layer3_formal": {
+          "status": "COUNTEREXAMPLE",
+          "observation_only": true,
+          "feedback_used": false,
+          "violated_postconditions": [
+            "Metamodel::MetamodelHasMainAndPrimitivePackages"
+          ],
+          "result_source": "full_pipeline_attempt_2"
+        }
+      },
+      "outcome": "COUNTEREXAMPLE_NO_FEEDBACK",
+      "finished_at": "2026-10-22T14:54:44.404+07:00",
+      "elapsed_seconds": 167.206
+    }
+  ],
+  "finished_at": "2026-10-22T14:54:44.404+07:00",
+  "summary": {
+    "final_status": "COUNTEREXAMPLE",
+    "termination_reason": "LAYER3_FEEDBACK_DISABLED",
+    "candidate_role": "PRE_L3",
+    "llm_attempts": 2,
+    "repair_iterations": 1,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 264.404,
+    "retry_sleep_seconds": 10,
+    "active_elapsed_seconds": 254.404,
+    "llm_elapsed_seconds": 164.047,
+    "input_tokens": 30816,
+    "output_tokens": 14027,
+    "total_tokens": 68806
+  }
+}

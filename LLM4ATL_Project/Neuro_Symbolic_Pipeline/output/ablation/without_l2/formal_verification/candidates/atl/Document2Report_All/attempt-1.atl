@@ -1,0 +1,25 @@
+module Document2Report_All;
+create OUT : Report from IN : Document;
+
+rule Document2Report {
+    from
+        doc : Document!Document
+    to
+        rep : Report!Report (
+            title <- doc.title,
+            author <- doc.author,
+            sections <- doc.sections
+        )
+}
+
+rule Section2Section {
+    from
+        sec : Document!Section
+    to
+        outSec : Report!Section (
+            title <- sec.title,
+            content <- sec.content,
+            order <- sec.order
+        )
+}
+

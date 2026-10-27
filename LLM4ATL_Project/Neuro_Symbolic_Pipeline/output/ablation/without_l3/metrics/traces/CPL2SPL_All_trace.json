@@ -1,0 +1,233 @@
+{
+  "task": "CPL2SPL_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T14:55:39+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l3",
+    "switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": true,
+      "enable_layer3_generation": false
+    }
+  },
+  "retry_sleep_seconds": 50,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T14:55:39+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 120.243,
+        "input_tokens": 24324,
+        "output_tokens": 9727,
+        "total_tokens": 53914
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Binding for property 'exp' type mismatch: expected SPL!Expression, got Set(CPL!Location)"
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T14:57:39+07:00",
+      "elapsed_seconds": 120.261,
+      "error": "SemanticError: Binding for property 'exp' type mismatch: expected SPL!Expression, got Set(CPL!Location)\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 2,
+      "repair_iteration": 1,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T14:57:49+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 121.463,
+        "input_tokens": 24393,
+        "output_tokens": 12445,
+        "total_tokens": 54006
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Binding for property 'function' type mismatch: expected SPL!FunctionDeclaration, got String"
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T14:59:51+07:00",
+      "elapsed_seconds": 121.473,
+      "error": "SemanticError: Binding for property 'function' type mismatch: expected SPL!FunctionDeclaration, got String\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 3,
+      "repair_iteration": 2,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T15:00:01+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 94.696,
+        "input_tokens": 24388,
+        "output_tokens": 10240,
+        "total_tokens": 47421
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Unknown collection operation 'including'. Supported operations: asBag, asSet, at, count, excludes, excludesAll, first, flatten, includes, includesAll, intersection, isEmpty, last, notEmpty, size, sum, symmetricDifference, union. Use PropertyCall for an Ecore attribute or reference."
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T15:01:36+07:00",
+      "elapsed_seconds": 94.706,
+      "error": "SemanticError: Unknown collection operation 'including'. Supported operations: asBag, asSet, at, count, excludes, excludesAll, first, flatten, includes, includesAll, intersection, isEmpty, last, notEmpty, size, sum, symmetricDifference, union. Use PropertyCall for an Ecore attribute or reference.\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 4,
+      "repair_iteration": 3,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T15:01:46+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 103.686,
+        "input_tokens": 24433,
+        "output_tokens": 11244,
+        "total_tokens": 50024
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Helper 'statement' return type mismatch: expected SPL!Statement, got OclAny"
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T15:03:29+07:00",
+      "elapsed_seconds": 103.704,
+      "error": "SemanticError: Helper 'statement' return type mismatch: expected SPL!Statement, got OclAny\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 5,
+      "repair_iteration": 4,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T15:03:39+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 117.873,
+        "input_tokens": 24388,
+        "output_tokens": 10975,
+        "total_tokens": 54209
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Binding for property 'function' type mismatch: expected SPL!FunctionDeclaration, got String"
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T15:05:37+07:00",
+      "elapsed_seconds": 117.913,
+      "error": "SemanticError: Binding for property 'function' type mismatch: expected SPL!FunctionDeclaration, got String\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 6,
+      "repair_iteration": 5,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T15:05:47+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 102.09,
+        "input_tokens": 24388,
+        "output_tokens": 12199,
+        "total_tokens": 50216
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Unknown collection operation 'including'. Supported operations: asBag, asSet, at, count, excludes, excludesAll, first, flatten, includes, includesAll, intersection, isEmpty, last, notEmpty, size, sum, symmetricDifference, union. Use PropertyCall for an Ecore attribute or reference."
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T15:07:29+07:00",
+      "elapsed_seconds": 102.102,
+      "error": "SemanticError: Unknown collection operation 'including'. Supported operations: asBag, asSet, at, count, excludes, excludesAll, first, flatten, includes, includesAll, intersection, isEmpty, last, notEmpty, size, sum, symmetricDifference, union. Use PropertyCall for an Ecore attribute or reference.\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    }
+  ],
+  "finished_at": "2026-10-22T15:07:29+07:00",
+  "summary": {
+    "final_status": "REPAIR_LIMIT_EXHAUSTED",
+    "termination_reason": "REPAIR_LIMIT_EXHAUSTED",
+    "llm_attempts": 6,
+    "repair_iterations": 5,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": true,
+    "task_elapsed_seconds": 710.208,
+    "retry_sleep_seconds": 50,
+    "active_elapsed_seconds": 660.208,
+    "llm_elapsed_seconds": 660.051,
+    "input_tokens": 146314,
+    "output_tokens": 66830,
+    "total_tokens": 309790
+  }
+}

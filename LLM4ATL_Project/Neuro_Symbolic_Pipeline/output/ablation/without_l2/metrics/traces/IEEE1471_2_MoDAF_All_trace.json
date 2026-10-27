@@ -1,0 +1,66 @@
+{
+  "task": "IEEE1471_2_MoDAF_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T13:22:47+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l2",
+    "switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": false,
+      "enable_layer3_generation": true
+    }
+  },
+  "retry_sleep_seconds": 0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T13:22:47+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 81.221,
+        "input_tokens": 19614,
+        "output_tokens": 8793,
+        "total_tokens": 39784
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "DISABLED"
+        },
+        "layer3_formal": {
+          "status": "ATL2TM_ERROR"
+        }
+      },
+      "outcome": "ATL2TM_ERROR",
+      "finished_at": "2026-10-22T13:24:29+07:00",
+      "elapsed_seconds": 101.765,
+      "error": "ATL2TM_ERROR: ATL2TM could not read the out-pattern of rule 'StakeholderHasConcern'. Check the rule's 'to' section and avoid ATL/OCL keywords as variable names. See IEEE1471_2_MoDAF_All_ATL2TM.atl2tm.log for details. Layer 3 stopped; the LLM will not retry."
+    }
+  ],
+  "finished_at": "2026-10-22T13:24:29+07:00",
+  "summary": {
+    "final_status": "ATL2TM_ERROR",
+    "termination_reason": "LAYER3_STOPPED",
+    "llm_attempts": 1,
+    "repair_iterations": 0,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 101.773,
+    "retry_sleep_seconds": 0,
+    "active_elapsed_seconds": 101.773,
+    "llm_elapsed_seconds": 81.221,
+    "input_tokens": 19614,
+    "output_tokens": 8793,
+    "total_tokens": 39784
+  }
+}
