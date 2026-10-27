@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tm="http://example.org/transformationModel" xsi:schemaLocation="http://example.org/transformationModel file:/D:/KLTN/LLM4ATL/LLM4ATL_Project/Neuro_Symbolic_Pipeline/ouput/formal_verification/BibTeX2DocBook_All/efinder/BibTeX2DocBook_All_ATL2TM__not_Sect1__targetMultiplicity_Sect1_sections_2.ecore">
+  <tm:DocBook Main_d="/3">
+    <books Main_book="/3">
+      <articles title="BibTeXML to DocBook" Main_art="/3">
+        <sections_1 title="Journals List" Main_s4="/3"/>
+        <sections_1 title="Authors list" Main_s2="/3">
+          <paras content="" Author_p="/2"/>
+        </sections_1>
+        <sections_1 title="References List" Main_s1="/3">
+          <paras content=" " UntitledEntry_p="/1"/>
+        </sections_1>
+        <sections_1 title="Titles List" Main_s3="/3"/>
+      </articles>
+    </books>
+  </tm:DocBook>
+  <tm:UntitledEntry e="/5/@entries.0" p="/0/@books.0/@articles.0/@sections_1.2/@paras.0"/>
+  <tm:Author__trace a="/4" p="/0/@books.0/@articles.0/@sections_1.1/@paras.0"/>
+  <tm:Main bib="/5" d="/0" book="/0/@books.0" art="/0/@books.0/@articles.0" s1="/0/@books.0/@articles.0/@sections_1.2" s2="/0/@books.0/@articles.0/@sections_1.1" s3="/0/@books.0/@articles.0/@sections_1.3" s4="/0/@books.0/@articles.0/@sections_1.0"/>
+  <tm:Author__source author="" Author_a="/2"/>
+  <tm:BibTeXFile Main_bib="/3">
+    <entries xsi:type="tm:Booklet" id=" " UntitledEntry_e="/1" year=""/>
+  </tm:BibTeXFile>
+</xmi:XMI>

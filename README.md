@@ -2,7 +2,7 @@
 
 This project presents a neuro-symbolic pipeline for generating ATL model transformations from metamodels and natural-language requirements, then progressively improving their correctness through structural checking, static analysis, and formal verification with violation-driven feedback.
 
-The `LLM4ATL` branch contains the primary project code.
+The `LLM4ATL` branch contains the primary project code. For a stable and reproducible snapshot, use the `v1.0.0` tag.
 
 ## Pipeline Overview
 
@@ -32,7 +32,7 @@ Open `.env`, select one provider, and add the corresponding API key. For example
 
 ```dotenv
 LLM_PROVIDER=gemini
-LLM_MODEL=gemini-3.5-flash
+LLM_MODEL=gemini-3.6-flash
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
@@ -56,11 +56,11 @@ Only the key for the selected provider is required. Keep `.env` private and neve
 
 Set the layer switches in `.env`. If a variable is omitted, its default value is `true`.
 
-| Variable                              | Layer controlled                                                               |
-| ------------------------------------- | ------------------------------------------------------------------------------ |
-| `ABLATION_ENABLE_LAYER1_SCHEMA`     | Layer 1: structural/schema validation of the generated ATL AST                 |
-| `ABLATION_ENABLE_LAYER2_SEMANTIC`   | Layer 2: semantic and static analysis, including all Layer 2 subchecks         |
-| `ABLATION_ENABLE_LAYER3_GENERATION` | Layer 3: ATL generation and formal counterexample checking with ATL2TM/eFinder |
+| Variable | Layer controlled |
+| --- | --- |
+| `ABLATION_ENABLE_LAYER1_SCHEMA` | Layer 1: structural/schema validation of the generated ATL AST |
+| `ABLATION_ENABLE_LAYER2_SEMANTIC` | Layer 2: semantic and static analysis, including all Layer 2 subchecks |
+| `ABLATION_ENABLE_LAYER3_GENERATION` | Layer 3: formal counterexample checking with ATL2TM/eFinder |
 
 Use all three layers for a normal pipeline run:
 
@@ -98,7 +98,7 @@ ABLATION_RUN_LABEL=without_l3
 
 `ABLATION_RUN_LABEL` is required whenever any layer is disabled. Ablation artifacts are isolated under `output/ablation/<label>/`, preventing one configuration from overwriting or causing another run to be skipped. For a full run, remove `ABLATION_RUN_LABEL` or leave it empty.
 
-Layer 3 also reads `EFINDER_SCOPE`, `EFINDER_REFERENCE_SCOPE`, and `EFINDER_TIMEOUT_MS`. Increasing either scope may improve bounded-search coverage but can substantially increase solver time.
+When Layer 3 is disabled, the pipeline still converts the final AST into ATL, but it skips ATL2TM/eFinder verification. Layer 3 also reads `EFINDER_SCOPE`, `EFINDER_REFERENCE_SCOPE`, and `EFINDER_TIMEOUT_MS`. Increasing either scope may improve bounded-search coverage but can substantially increase solver time.
 
 ### 4. Run the main pipeline
 
@@ -129,7 +129,8 @@ LLM4ATL_Project/Neuro_Symbolic_Pipeline/output/
 ├── final_responses/
 │   ├── atl_ast/              # Generated ATL AST files in JSON format
 │   └── atl/                  # Generated ATL transformations
-└── formal_verification/      # Layer 3 candidates, reports, and verification artifacts
+├── formal_verification/      # Layer 3 candidates, reports, and verification artifacts
+└── metrics/                  # Per-task traces and the run summary
 ```
 
 For example, the Families-to-Persons results are:
@@ -145,20 +146,24 @@ Run the parser before the functional tests. The test runner uses the CSV report 
 
 ### 1. Run ATL Parser
 
-From `LLM4ATL_Project/Neuro_Symbolic_Pipeline`, run:
+From `LLM4ATL_Project/Neuro_Symbolic_Pipeline`, move to `LLM4ATL_Project` and run:
 
 ```powershell
-cd ..\ATL_Parser
+cd ..
 python -m pip install fastchrf
-python testATLParsedRate.py
+python .\ATL_Parser\testATLParsedRate.py `
+  --input-dir ".\Neuro_Symbolic_Pipeline\output\final_responses\atl" `
+  --llm "gemini-3-6-flash" `
+  --strategy "neuro_symbolic" `
+  --tag "gemini-3-6-flash-neuro_symbolic_run"
 ```
 
 The parser checks the generated ATL files and writes these reports to `LLM4ATL_Project/ATL_Parser/`:
 
 ```text
-atl_parser_chrf_results_gemini-3-5-flash_neuro_symbolic.csv
-atl_parsed_rate_gemini-3-5-flash_neuro_symbolic.csv
-atl_chrf_similarity_gemini-3-5-flash_neuro_symbolic.csv
+atl_parser_chrf_results_gemini-3-6-flash-neuro_symbolic_run.csv
+atl_parsed_rate_gemini-3-6-flash-neuro_symbolic_run.csv
+atl_chrf_similarity_gemini-3-6-flash-neuro_symbolic_run.csv
 ```
 
 Report fields:
@@ -172,8 +177,9 @@ Report fields:
 After the parser finishes, continue with:
 
 ```powershell
-cd ..\ATL_Tests
-python run_all_tests.py
+python .\ATL_Tests\run_all_tests.py `
+  --input-dir ".\Neuro_Symbolic_Pipeline\output\final_responses\atl" `
+  --tag "gemini-3-6-flash-neuro_symbolic_run"
 ```
 
 The runner executes the mapped JUnit test for each syntactically valid transformation and records its functional-test result.
@@ -181,8 +187,8 @@ The runner executes the mapped JUnit test for each syntactically valid transform
 The results are written to:
 
 ```text
-LLM4ATL_Project/ATL_Tests/atl_test_results_gemini-3-5-flash_neuro_symbolic.csv
-LLM4ATL_Project/ATL_Tests/atl_pass_rate_summary_gemini-3-5-flash_neuro_symbolic.csv
+LLM4ATL_Project/ATL_Tests/atl_test_results_gemini-3-6-flash-neuro_symbolic_run.csv
+LLM4ATL_Project/ATL_Tests/atl_pass_rate_summary_gemini-3-6-flash-neuro_symbolic_run.csv
 ```
 
 In `atl_test_results_*.csv`, `test_pass=True` means that the transformation was parsed successfully and passed its associated functional test.

@@ -1,0 +1,578 @@
+{
+  "type": "Module",
+  "name": "PetriNet2Grafcet",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "PetriNet"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "Grafcet"
+    }
+  ],
+  "elements": [
+    {
+      "type": "MatchedRule",
+      "name": "Grafcet",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Grafcet!Grafcet"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "location",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "location"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "elements",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "elements"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "connections",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "arcs"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "PetriNet!PetriNet"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Step",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Grafcet!Step"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "location",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "location"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "grafcet",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "net"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "incomingConnections",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "incomingArc"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "outgoingConnections",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "outgoingArc"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isInitial",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": false,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isActive",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": false,
+                  "literal_type": "Boolean"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "action",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "PetriNet!Place"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Transition",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Grafcet!Transition"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "location",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "location"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "grafcet",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "net"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "incomingConnections",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "incomingArc"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "outgoingConnections",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "outgoingArc"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "condition",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "",
+                  "literal_type": "String"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "PetriNet!Transition"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "StepToTransition",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Grafcet!StepToTransition"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "location",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "location"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "grafcet",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "net"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "from",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "from"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "to",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "to"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "PetriNet!PlaceToTransition"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "TransitionToStep",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "Grafcet!TransitionToStep"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "location",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "location"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "name"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "grafcet",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "net"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "from",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "from"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "to",
+                "value": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "s",
+                    "declared_type": null
+                  },
+                  "property_name": "to"
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": null
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "s",
+              "declared_type": "PetriNet!TransitionToPlace"
+            },
+            "model": null
+          }
+        ],
+        "filter": null
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    }
+  ]
+}

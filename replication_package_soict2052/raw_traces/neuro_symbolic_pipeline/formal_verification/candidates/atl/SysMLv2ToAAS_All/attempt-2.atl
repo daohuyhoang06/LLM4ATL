@@ -1,0 +1,357 @@
+module SysMLv2ToAAS_All;
+create OUT : AAS from IN : SysMLv2;
+
+helper context sysml!Element def: getOwnedElements() : Set(sysml!Element) =
+    self.ownedRelationship->collect(r | r.ownedRelatedElement)->asSet();
+
+rule Package2AasModelRoot {
+    from
+        p : sysml!Package
+    to
+        root : AAS!AasModelRoot (
+            name <- if p.declaredName.oclIsUndefined() then
+    'Package'
+else
+    p.declaredName
+endif,
+            assetadministrationshells <- Bag{aas}
+        ),
+        aas : AAS!AssetAdministrationShell (
+            idShort <- if p.declaredName.oclIsUndefined() then
+    'Package'
+else
+    p.declaredName
+endif,
+            assetInformation <- info,
+            asset <- asset,
+            submodel <- Bag{sm}
+        ),
+        info : AAS!AssetInformation (
+            assetKind <- #Instance
+        ),
+        asset : AAS!Asset (
+            idShort <- if p.declaredName.oclIsUndefined() then
+    'Asset'
+else
+    (p.declaredName + '_Asset')
+endif,
+            kind <- #Instance,
+            identification <- assetId
+        ),
+        assetId : AAS!Identifier (
+            id <- if p.declaredName.oclIsUndefined() then
+    'Asset'
+else
+    (p.declaredName + '_Asset')
+endif,
+            idType <- #Custom
+        ),
+        sm : AAS!Submodel (
+            idShort <- 'Hierarchical Structures',
+            identification <- smId,
+            submodelelement <- p.getOwnedElements()
+        ),
+        smId : AAS!Identifier (
+            id <- 'Hierarchical_Structures',
+            idType <- #Custom
+        )
+}
+
+rule PartDefinition2Entity {
+    from
+        e : sysml!PartDefinition
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'PartDefinition'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'PartDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule PartUsage2Entity {
+    from
+        e : sysml!PartUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'PartUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'PartUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule PortDefinition2Entity {
+    from
+        e : sysml!PortDefinition
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'PortDefinition'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'PortDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule PortUsage2Entity {
+    from
+        e : sysml!PortUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'PortUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'PortUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule InterfaceDefinition2Entity {
+    from
+        e : sysml!InterfaceDefinition
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'InterfaceDefinition'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'InterfaceDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule InterfaceUsage2Entity {
+    from
+        e : sysml!InterfaceUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'InterfaceUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'InterfaceUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule OccurrenceDefinition2Entity {
+    from
+        e : sysml!OccurrenceDefinition
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'OccurrenceDefinition'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'OccurrenceDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule OccurrenceUsage2Entity {
+    from
+        e : sysml!OccurrenceUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'OccurrenceUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'OccurrenceUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule EventOccurrenceUsage2Entity {
+    from
+        e : sysml!EventOccurrenceUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'EventOccurrenceUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'EventOccurrenceUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule FlowConnectionUsage2Entity {
+    from
+        e : sysml!FlowConnectionUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'FlowConnectionUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'FlowConnectionUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule SuccessionAsUsage2Entity {
+    from
+        e : sysml!SuccessionAsUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'SuccessionAsUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'SuccessionAsUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule ItemDefinition2Entity {
+    from
+        e : sysml!ItemDefinition
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'ItemDefinition'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'ItemDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule ItemUsage2Entity {
+    from
+        e : sysml!ItemUsage
+    to
+        ent : AAS!Entity (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'ItemUsage'
+else
+    e.declaredName
+endif,
+            entityType <- #SelfManagedEntity,
+            qualifier <- q,
+            submodelelement <- e.getOwnedElements()
+        ),
+        q : AAS!Qualifier (
+            type <- 'ItemUsage',
+            value <- 'SysMLv2'
+        )
+}
+
+rule AttributeDefinition2Property {
+    from
+        e : sysml!AttributeDefinition
+    to
+        prop : AAS!Property (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'AttributeDefinition'
+else
+    e.declaredName
+endif,
+            value <- '',
+            qualifier <- q
+        ),
+        q : AAS!Qualifier (
+            type <- 'AttributeDefinition',
+            value <- 'SysMLv2'
+        )
+}
+
+rule AttributeUsage2Property {
+    from
+        e : sysml!AttributeUsage
+    to
+        prop : AAS!Property (
+            idShort <- if e.declaredName.oclIsUndefined() then
+    'AttributeUsage'
+else
+    e.declaredName
+endif,
+            value <- '',
+            qualifier <- q
+        ),
+        q : AAS!Qualifier (
+            type <- 'AttributeUsage',
+            value <- 'SysMLv2'
+        )
+}
+

@@ -1,0 +1,33 @@
+module Item2Product_All;
+create OUT : Product from IN : Item;
+
+rule ItemModel2ProductModel {
+    from
+        s : Item!ItemModel
+    to
+        t : Product!ProductModel (
+            products <- s.items
+        )
+}
+
+rule Item2Product {
+    from
+        s : Item!Item
+    to
+        t : Product!Product (
+            name <- s.name,
+            price <- s.price,
+            description <- s.description,
+            inStock <- (s.quantity > 0),
+            category <- if (s.type = 'Electronics') then
+    'Tech'
+else
+    if (s.type = 'Clothing') then
+    'Apparel'
+else
+    'General'
+endif
+endif
+        )
+}
+

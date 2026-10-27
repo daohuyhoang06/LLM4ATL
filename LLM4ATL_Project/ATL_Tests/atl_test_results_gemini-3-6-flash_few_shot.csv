@@ -6,7 +6,7 @@ gemini-3-6-flash,few_shot,CPL2SPL_All,False,1,59.8631,False
 gemini-3-6-flash,few_shot,Document2Report_All,True,0,57.7197,True
 gemini-3-6-flash,few_shot,DSL2KM3_All,True,0,40.021,True
 gemini-3-6-flash,few_shot,FamiliesToPersons_All,True,0,90.8194,True
-gemini-3-6-flash,few_shot,Grafcet2PetriNet_All,True,0,36.0661,False
+gemini-3-6-flash,few_shot,Grafcet2PetriNet_All,True,0,36.0661,True
 gemini-3-6-flash,few_shot,IEEE1471_2_MoDAF_All,True,0,51.6784,True
 gemini-3-6-flash,few_shot,Item2Product_All,True,0,64.6387,False
 gemini-3-6-flash,few_shot,Make2Ant_All,True,0,48.8259,True

@@ -1,5 +1,5 @@
 LLM,Strategy,File,CHRF_Score
-gemini-3-6-flash,few_shots_AND_grammar,AmaltheaToAscet_All,73.2417
+gemini-3-6-flash,few_shots_AND_grammar,AmaltheaToAscet_All,94.2707
 gemini-3-6-flash,few_shots_AND_grammar,BibTeX2DocBook_All,54.8988
 gemini-3-6-flash,few_shots_AND_grammar,Class2Interface_All,55.1908
 gemini-3-6-flash,few_shots_AND_grammar,CPL2SPL_All,62.5355

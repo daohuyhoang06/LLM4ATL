@@ -1,0 +1,149 @@
+module IEEE1471_2_MoDAF;
+create OUT : MoDAF from IN : IEEE1471;
+
+helper context IEEE1471!IEEE1471Model def : rationale : String =
+	let firstRationale : IEEE1471!Rationale = IEEE1471!Rationale.allInstances()->first() in
+	if firstRationale.oclIsUndefined() then
+		''
+	else
+		firstRationale.name + firstRationale.content
+	endif;
+
+rule IEEE1471Model2MoDAFModel {
+	from
+		s : IEEE1471!IEEE1471Model
+	to
+		t : MoDAF!MoDAFModel (
+			name <- s.name,
+			system <- s.system,
+			environment <- s.environment,
+			missions <- s.missions,
+			architecture <- s.architecture,
+			architecturalDescription <- s.architecturalDescription,
+			stakeholders <- s.stakeholders,
+			viewpoints <- s.viewpoints,
+			views <- s.views,
+			models <- s.models,
+			concerns <- s.concerns,
+			architecturalFrameworks <- s.libraryViewpoints->union(Sequence{af})
+		),
+		af : MoDAF!ArchitecturalFramework (
+			name <- 'Default Framework',
+			views <- IEEE1471!Viewpoint.allInstances()->select(vp | vp.source.oclIsUndefined() and not vp.oclIsKindOf(IEEE1471!LibraryViewpoint))
+		)
+}
+
+rule System2Enterprise {
+	from
+		s : IEEE1471!System
+	to
+		t : MoDAF!Enterprise (
+			name <- s.name
+		)
+}
+
+rule Environment2Environment {
+	from
+		s : IEEE1471!Environment
+	to
+		t : MoDAF!Environment (
+			name <- s.name
+		)
+}
+
+rule Mission2OperationalMission {
+	from
+		s : IEEE1471!Mission
+	to
+		t : MoDAF!OperationalMission (
+			name <- s.name
+		)
+}
+
+rule Architecture2Architecture {
+	from
+		s : IEEE1471!Architecture
+	to
+		t : MoDAF!Architecture (
+			name <- s.name
+		)
+}
+
+rule AD2AD {
+	from
+		s : IEEE1471!AD
+	to
+		t : MoDAF!AD (
+			name <- s.name
+		)
+}
+
+rule Stakeholder2Stakeholder {
+	from
+		s : IEEE1471!Stakeholder
+	to
+		t : MoDAF!Stakeholder (
+			name <- s.name
+		)
+}
+
+rule Viewpoint2View {
+	from
+		s : IEEE1471!Viewpoint (
+			not s.oclIsKindOf(IEEE1471!LibraryViewpoint)
+		)
+	to
+		t : MoDAF!View (
+			name <- s.name
+		)
+}
+
+rule View2ArchitecturalProduct {
+	from
+		s : IEEE1471!View
+	to
+		t : MoDAF!ArchitecturalProduct (
+			name <- s.name
+		)
+}
+
+rule Model2Element {
+	from
+		s : IEEE1471!Model
+	to
+		t : MoDAF!Element (
+			name <- s.name
+		)
+}
+
+rule Concern2Concern {
+	from
+		s : IEEE1471!Concern
+	to
+		t : MoDAF!Concern (
+			name <- s.name
+		)
+}
+
+rule LibraryViewpoint2ArchitecturalFramework {
+	from
+		s : IEEE1471!LibraryViewpoint
+	to
+		t : MoDAF!ArchitecturalFramework (
+			name <- s.name
+		)
+}
+
+rule StakeholderHasConcern {
+	from
+		s : IEEE1471!Stakeholder,
+		c : IEEE1471!Concern (
+			s.concerns->includes(c)
+		)
+	to
+		t : MoDAF!StakeholderHasConcern (
+			stakeholder <- s,
+			concern <- c,
+			owner <- IEEE1471!IEEE1471Model.allInstances()->first()
+		)
+}
