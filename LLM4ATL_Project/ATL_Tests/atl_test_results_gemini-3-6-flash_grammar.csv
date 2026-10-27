@@ -6,7 +6,7 @@ gemini-3-6-flash,grammar,CPL2SPL_All,False,1,60.5193,False
 gemini-3-6-flash,grammar,Document2Report_All,True,0,57.7197,True
 gemini-3-6-flash,grammar,DSL2KM3_All,True,0,42.1882,True
 gemini-3-6-flash,grammar,FamiliesToPersons_All,True,0,90.8194,True
-gemini-3-6-flash,grammar,Grafcet2PetriNet_All,True,0,36.0895,True
+gemini-3-6-flash,grammar,Grafcet2PetriNet_All,True,0,36.0895,False
 gemini-3-6-flash,grammar,IEEE1471_2_MoDAF_All,True,0,50.175,True
 gemini-3-6-flash,grammar,Item2Product_All,True,0,59.5907,False
 gemini-3-6-flash,grammar,Make2Ant_All,True,0,47.2876,True

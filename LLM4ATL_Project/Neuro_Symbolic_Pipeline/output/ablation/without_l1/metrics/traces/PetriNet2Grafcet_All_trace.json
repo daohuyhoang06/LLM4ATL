@@ -1,0 +1,65 @@
+{
+  "task": "PetriNet2Grafcet_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T11:09:55+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l1",
+    "switches": {
+      "enable_layer1_schema": false,
+      "enable_layer2_semantic": true,
+      "enable_layer3_generation": true
+    }
+  },
+  "retry_sleep_seconds": 0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T11:09:55+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 31.195,
+        "input_tokens": 14908,
+        "output_tokens": 3202,
+        "total_tokens": 22598
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "DISABLED"
+        },
+        "layer2_semantic": {
+          "status": "PASS"
+        },
+        "layer3_formal": {
+          "status": "VERIFIED"
+        }
+      },
+      "outcome": "VERIFIED",
+      "finished_at": "2026-10-22T11:12:57+07:00",
+      "elapsed_seconds": 182.109
+    }
+  ],
+  "finished_at": "2026-10-22T11:12:57+07:00",
+  "summary": {
+    "final_status": "VERIFIED",
+    "termination_reason": "BOUNDED_VERIFICATION_PASSED",
+    "llm_attempts": 1,
+    "repair_iterations": 0,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 182.115,
+    "retry_sleep_seconds": 0,
+    "active_elapsed_seconds": 182.115,
+    "llm_elapsed_seconds": 31.195,
+    "input_tokens": 14908,
+    "output_tokens": 3202,
+    "total_tokens": 22598
+  }
+}

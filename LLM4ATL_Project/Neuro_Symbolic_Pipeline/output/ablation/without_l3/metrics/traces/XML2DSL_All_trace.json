@@ -1,0 +1,98 @@
+{
+  "task": "XML2DSL_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T14:45:37+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l3",
+    "switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": true,
+      "enable_layer3_generation": false
+    }
+  },
+  "retry_sleep_seconds": 10,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T14:45:37+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 116.647,
+        "input_tokens": 14597,
+        "output_tokens": 19167,
+        "total_tokens": 46006
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "FAIL",
+          "detail": "Helper 'getSeq' return type cannot be bare 'Set'. Use 'Set(ElementType)'."
+        },
+        "layer3_formal": {
+          "status": "NOT_RUN"
+        }
+      },
+      "outcome": "LAYER2_SEMANTIC_ERROR",
+      "repair_trigger": "LAYER2_SEMANTIC_ERROR",
+      "finished_at": "2026-10-22T14:47:34+07:00",
+      "elapsed_seconds": 116.662,
+      "error": "SemanticError: Helper 'getSeq' return type cannot be bare 'Set'. Use 'Set(ElementType)'.\n\nNote: Repair semantic errors related to the type environment and UML constraints."
+    },
+    {
+      "attempt": 2,
+      "repair_iteration": 1,
+      "attempt_type": "REPAIR",
+      "started_at": "2026-10-22T14:47:44+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 99.785,
+        "input_tokens": 14664,
+        "output_tokens": 16094,
+        "total_tokens": 41100
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "PASS"
+        },
+        "layer3_formal": {
+          "status": "SKIPPED"
+        }
+      },
+      "outcome": "SKIPPED",
+      "finished_at": "2026-10-22T14:49:24+07:00",
+      "elapsed_seconds": 99.819
+    }
+  ],
+  "finished_at": "2026-10-22T14:49:24+07:00",
+  "summary": {
+    "final_status": "SKIPPED",
+    "termination_reason": "LAYER3_SKIPPED",
+    "llm_attempts": 2,
+    "repair_iterations": 1,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 226.501,
+    "retry_sleep_seconds": 10,
+    "active_elapsed_seconds": 216.501,
+    "llm_elapsed_seconds": 216.432,
+    "input_tokens": 29261,
+    "output_tokens": 35261,
+    "total_tokens": 87106
+  }
+}

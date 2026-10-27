@@ -1,0 +1,87 @@
+{
+  "backend": "efinder",
+  "status": "BATCH_COMPLETED",
+  "verification_formula": "Sem AND Pre AND NOT Post_i",
+  "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+  "checks": [
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Report__ReportPreservesTitle.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ReportPreservesTitle",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Report Document2Report",
+      "check": "Report::ReportPreservesTitle",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Report",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Report__ReportPreservesAuthor.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ReportPreservesAuthor",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Report Document2Report",
+      "check": "Report::ReportPreservesAuthor",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Report",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Report__ReportPreservesSectionCount.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_ReportPreservesSectionCount",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Report Document2Report",
+      "check": "Report::ReportPreservesSectionCount",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Report",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Section__SectionPreservesTitle.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_SectionPreservesTitle",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Section__target Section2Section",
+      "check": "Section::SectionPreservesTitle",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Section__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Section__SectionPreservesContent.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_SectionPreservesContent",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Section__target Section2Section",
+      "check": "Section::SectionPreservesContent",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Section__target",
+      "status": "UNSAT"
+    },
+    {
+      "prepared_ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\efinder\\Document2Report_All_ATL2TM__not_Section__SectionPreservesOrder.ecore",
+      "verification_formula": "Sem AND Pre AND NOT Post_i",
+      "generated_negation": "__efinder_NOT_SectionPreservesOrder",
+      "ecore": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\output\\ablation\\without_l1\\formal_verification\\pipeline_attempts\\Document2Report_All\\attempt-1\\Document2Report_All\\Document2Report_All_ATL2TM.ecore",
+      "backend": "efinder",
+      "bounded_witness_classes": "Section__target Section2Section",
+      "check": "Section::SectionPreservesOrder",
+      "constraints": "D:\\KLTN\\LLM4ATL\\LLM4ATL_Project\\Neuro_Symbolic_Pipeline\\input\\constraints\\Document2Report_All",
+      "bounded_witness_context": "Section__target",
+      "status": "UNSAT"
+    }
+  ],
+  "counts": {
+    "UNSAT": 6
+  },
+  "skipped_checks": [
+    "Report::targetMultiplicity_Report_title",
+    "Section::targetMultiplicity_Section_title"
+  ]
+}

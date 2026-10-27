@@ -1,0 +1,1892 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="transformationModel" nsPrefix="tm" nsURI="http://example.org/transformationModel" xmi:version="2.0">
+          
+    
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                    
+        
+        <details key="validationDelegates" value="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eAnnotations source="urn:llm4atl:provenance">
+                    
+        
+        <details key="schemaVersion" value="2"/>
+                    
+        
+        <details key="atlModule" value="XML2DSL"/>
+                    
+        
+        <details key="constraintLists" value="space-separated-names"/>
+                  
+    
+    </eAnnotations>
+          
+    
+    <eClassifiers abstract="true" name="Node" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Node"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="startLine" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="startColumn" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="endLine" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="endColumn" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="1" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/children" eType="//Element" name="parent" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="value__int" ordered="false" xsi:type="ecore:EAttribute"/>
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Node" name="Attribute" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Attribute"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Node" name="Text" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Text"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Node" name="Element" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Element"/>
+                              
+            
+            <details key="atlRules" value="DomainModel Class Relationship Role ValueProperty Enumeration EnumerationLiteral"/>
+                              
+            
+            <details key="preConstraints" value="SourceDomainModelHasNameAttribute"/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="match_DomainModel match_Class match_Relationship match_Role match_ValueProperty match_Enumeration match_EnumerationLiteral mutex_DomainModel_Class mutex_DomainModel_Relationship mutex_DomainModel_Role mutex_DomainModel_ValueProperty mutex_DomainModel_Enumeration mutex_DomainModel_EnumerationLiteral mutex_Class_Relationship mutex_Class_Role mutex_Class_ValueProperty mutex_Class_Enumeration mutex_Class_EnumerationLiteral mutex_Relationship_Role mutex_Relationship_ValueProperty mutex_Relationship_Enumeration mutex_Relationship_EnumerationLiteral mutex_Role_ValueProperty mutex_Role_Enumeration mutex_Role_EnumerationLiteral mutex_ValueProperty_Enumeration mutex_ValueProperty_EnumerationLiteral mutex_Enumeration_EnumerationLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_DomainModel match_Class match_Relationship match_Role match_ValueProperty match_Enumeration match_EnumerationLiteral mutex_DomainModel_Class mutex_DomainModel_Relationship mutex_DomainModel_Role mutex_DomainModel_ValueProperty mutex_DomainModel_Enumeration mutex_DomainModel_EnumerationLiteral mutex_Class_Relationship mutex_Class_Role mutex_Class_ValueProperty mutex_Class_Enumeration mutex_Class_EnumerationLiteral mutex_Relationship_Role mutex_Relationship_ValueProperty mutex_Relationship_Enumeration mutex_Relationship_EnumerationLiteral mutex_Role_ValueProperty mutex_Role_Enumeration mutex_Role_EnumerationLiteral mutex_ValueProperty_Enumeration mutex_ValueProperty_EnumerationLiteral mutex_Enumeration_EnumerationLiteral SourceDomainModelHasNameAttribute"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_DomainModel" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'DomainModel') implies DomainModel__trace.allInstances()-&gt;one(z : DomainModel__trace | z.s = s))"/>
+                              
+            
+            <details key="match_Class" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'Class') implies Class__trace.allInstances()-&gt;one(z : Class__trace | z.s = s))"/>
+                              
+            
+            <details key="match_Relationship" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'Relationship') implies Relationship__trace.allInstances()-&gt;one(z : Relationship__trace | z.s = s))"/>
+                              
+            
+            <details key="match_Role" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'Role') implies Role__trace.allInstances()-&gt;one(z : Role__trace | z.s = s))"/>
+                              
+            
+            <details key="match_ValueProperty" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'ValueProperty') implies ValueProperty__trace.allInstances()-&gt;one(z : ValueProperty__trace | z.s = s))"/>
+                              
+            
+            <details key="match_Enumeration" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'Enumeration') implies Enumeration__trace.allInstances()-&gt;one(z : Enumeration__trace | z.s = s))"/>
+                              
+            
+            <details key="match_EnumerationLiteral" value="Element.allInstances()-&gt;forAll(s : Element | (s.name = 'EnumerationLiteral') implies EnumerationLiteral__trace.allInstances()-&gt;one(z : EnumerationLiteral__trace | z.s = s))"/>
+                              
+            
+            <details key="mutex_DomainModel_Class" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Class__trace.allInstances()-&gt;exists(z2 : Class__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Class__trace.allInstances()-&gt;exists(z2 : Class__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_DomainModel_Relationship" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Relationship__trace.allInstances()-&gt;exists(z2 : Relationship__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Relationship__trace.allInstances()-&gt;exists(z2 : Relationship__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_DomainModel_Role" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_DomainModel_ValueProperty" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_DomainModel_Enumeration" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_DomainModel_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (DomainModel__trace.allInstances()-&gt;exists(z1 : DomainModel__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Class_Relationship" value="(Element.allInstances()-&gt;forAll(s : Element | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Relationship__trace.allInstances()-&gt;exists(z2 : Relationship__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Relationship__trace.allInstances()-&gt;exists(z2 : Relationship__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Class_Role" value="(Element.allInstances()-&gt;forAll(s : Element | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Class_ValueProperty" value="(Element.allInstances()-&gt;forAll(s : Element | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Class_Enumeration" value="(Element.allInstances()-&gt;forAll(s : Element | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Class_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Class__trace.allInstances()-&gt;exists(z1 : Class__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Relationship_Role" value="(Element.allInstances()-&gt;forAll(s : Element | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and Role__trace.allInstances()-&gt;exists(z2 : Role__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Relationship_ValueProperty" value="(Element.allInstances()-&gt;forAll(s : Element | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Relationship_Enumeration" value="(Element.allInstances()-&gt;forAll(s : Element | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Relationship_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Relationship__trace.allInstances()-&gt;exists(z1 : Relationship__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Role_ValueProperty" value="(Element.allInstances()-&gt;forAll(s : Element | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and ValueProperty__trace.allInstances()-&gt;exists(z2 : ValueProperty__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Role_Enumeration" value="(Element.allInstances()-&gt;forAll(s : Element | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Role_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Role__trace.allInstances()-&gt;exists(z1 : Role__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_ValueProperty_Enumeration" value="(Element.allInstances()-&gt;forAll(s : Element | not (ValueProperty__trace.allInstances()-&gt;exists(z1 : ValueProperty__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (ValueProperty__trace.allInstances()-&gt;exists(z1 : ValueProperty__trace | z1.s = s) and Enumeration__trace.allInstances()-&gt;exists(z2 : Enumeration__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_ValueProperty_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (ValueProperty__trace.allInstances()-&gt;exists(z1 : ValueProperty__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (ValueProperty__trace.allInstances()-&gt;exists(z1 : ValueProperty__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                              
+            
+            <details key="mutex_Enumeration_EnumerationLiteral" value="(Element.allInstances()-&gt;forAll(s : Element | not (Enumeration__trace.allInstances()-&gt;exists(z1 : Enumeration__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s)))) and (Root.allInstances()-&gt;forAll(s : Root | not (Enumeration__trace.allInstances()-&gt;exists(z1 : Enumeration__trace | z1.s = s) and EnumerationLiteral__trace.allInstances()-&gt;exists(z2 : EnumerationLiteral__trace | z2.s = s))))"/>
+                            
+        
+            <details key="SourceDomainModelHasNameAttribute" value="self.name &lt;&gt; 'DomainModel' or&#13;&#10;  self.children-&gt;exists(a |&#13;&#10;    a.oclIsKindOf(Attribute) and a.name = 'name' and a.value &lt;&gt; ''&#13;&#10;  )"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Node/parent" eType="//Node" name="children" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/s" eType="//DomainModel__trace" name="DomainModel_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__trace/s" eType="//Class__trace" name="Class_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship__trace/s" eType="//Relationship__trace" name="Relationship_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Role__trace/s" eType="//Role__trace" name="Role_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ValueProperty__trace/s" eType="//ValueProperty__trace" name="ValueProperty_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__trace/s" eType="//Enumeration__trace" name="Enumeration_s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumerationLiteral__trace/s" eType="//EnumerationLiteral__trace" name="EnumerationLiteral_s" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Element" name="Root" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Root"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" name="NamedElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="NamedElement"/>
+                              
+            
+            <details key="atlRules" value="DomainModel DomainModel DomainModel DomainModel DomainModel Class Relationship Role ValueProperty Enumeration EnumerationLiteral"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_NamedElement_name targetMultiplicity_NamedElement_identity"/>
+                              
+            
+            <details key="semConstraints" value="create_NamedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_NamedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_NamedElement" value="(if self.oclIsKindOf(DomainModel__target) then (if self.oclAsType(DomainModel__target).DomainModel_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stString.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stBoolean.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stInteger.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stReal.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Relationship__target) then (if self.oclAsType(Relationship__target).Relationship_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Role__target) then (if self.oclAsType(Role__target).Role_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(ValueProperty__target) then (if self.oclAsType(ValueProperty__target).ValueProperty_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(EnumerationLiteral__target) then (if self.oclAsType(EnumerationLiteral__target).EnumerationLiteral_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="name" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="identity" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Namespace" name="LoadedElement" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="LoadedElement"/>
+                              
+            
+            <details key="atlRules" value="DomainModel Class Relationship"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_LoadedElement_isLoaded"/>
+                              
+            
+            <details key="semConstraints" value="create_LoadedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_LoadedElement"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_LoadedElement" value="(if self.oclIsKindOf(DomainModel__target) then (if self.oclAsType(DomainModel__target).DomainModel_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Relationship__target) then (if self.oclAsType(Relationship__target).Relationship_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isLoaded" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//NamedElement" name="Namespace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Namespace"/>
+                              
+            
+            <details key="atlRules" value="DomainModel DomainModel DomainModel DomainModel DomainModel Class Relationship Enumeration"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Namespace_namespace"/>
+                              
+            
+            <details key="semConstraints" value="create_Namespace"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Namespace"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Namespace" value="(if self.oclIsKindOf(DomainModel__target) then (if self.oclAsType(DomainModel__target).DomainModel_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stString.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stBoolean.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stInteger.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stReal.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Relationship__target) then (if self.oclAsType(Relationship__target).Relationship_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="namespace" ordered="false" xsi:type="ecore:EAttribute"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//LoadedElement" name="DomainModel__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="DomainModel"/>
+                              
+            
+            <details key="atlRules" value="DomainModel"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="DomainModelHasRequiredPrimitiveTypes DomainModelDoesNotUseXmlWrapperName"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_DomainModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_DomainModel"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_DomainModel" value="(if self.DomainModel_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Classifier/domainModel" eType="//Classifier" name="classifiers" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//Type" name="types" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/t" eType="//DomainModel__trace" name="DomainModel_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//LoadedElement" name="Classifier" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Classifier"/>
+                              
+            
+            <details key="atlRules" value="Class Relationship"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Classifier_domainModel"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Classifier_domainModel"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Classifier_isAbstract"/>
+                              
+            
+            <details key="semConstraints" value="create_Classifier"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Classifier_domainModel" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Classifier"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Classifier" value="(if self.oclIsKindOf(Class__target) then (if self.oclAsType(Class__target).Class_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Relationship__target) then (if self.oclAsType(Relationship__target).Relationship_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isAbstract" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//ValueProperty__target/owner" eType="//ValueProperty__target" name="properties" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier/subTypes" eType="//Classifier" name="superType" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier/superType" eType="//Classifier" name="subTypes" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__target/classifiers" eType="//DomainModel__target" name="domainModel" ordered="false" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier" name="Class__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Class"/>
+                              
+            
+            <details key="atlRules" value="Class"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Class"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Class" value="(if self.Class_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__trace/t" eType="//Class__trace" name="Class_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Classifier" name="Relationship__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Relationship"/>
+                              
+            
+            <details key="atlRules" value="Relationship"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Relationship_roles"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Relationship_roles"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Relationship_isEmbedding"/>
+                              
+            
+            <details key="semConstraints" value="create_Relationship"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Relationship_roles" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Relationship"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Relationship" value="(if self.Relationship_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isEmbedding" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures containment="true" eOpposite="//Role__target/relation" eType="//Role__target" name="roles" ordered="false" upperBound="2" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship__trace/t" eType="//Relationship__trace" name="Relationship_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="Role__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Role"/>
+                              
+            
+            <details key="atlRules" value="Role"/>
+                              
+            
+            <details key="preConstraints" value="SourceXmlDomainModelExists"/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_Role_source targetMultiplicity_Role_type targetMultiplicity_Role_relation"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_Role_source targetMultiplicity_Role_type targetMultiplicity_Role_relation"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_Role_min targetMultiplicity_Role_max targetMultiplicity_Role_isUnbounded targetMultiplicity_Role_accepts targetMultiplicity_Role_isOrdered targetMultiplicity_Role_isNavigableFrom targetMultiplicity_Role_isPropertyGenerator"/>
+                              
+            
+            <details key="semConstraints" value="create_Role"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Role_source" value="POST / TARGET_MULTIPLICITY"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Role_type" value="POST / TARGET_MULTIPLICITY"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_Role_relation" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Role SourceXmlDomainModelExists __efinder_NOT_targetMultiplicity_Role_source"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Role" value="(if self.Role_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                  
+            
+                  
+            
+                
+        
+            <details key="SourceXmlDomainModelExists" value="Element.allInstances()-&gt;exists(e |&#13;&#10;    e.name = 'DomainModel' and&#13;&#10;    e.children-&gt;exists(a |&#13;&#10;      a.oclIsKindOf(Attribute) and a.name = 'name' and a.value &lt;&gt; ''&#13;&#10;    )&#13;&#10;  ) and&#13;&#10;  Element.allInstances()-&gt;forAll(e |&#13;&#10;    e.name &lt;&gt; 'DomainModel' or&#13;&#10;    e.children-&gt;exists(a |&#13;&#10;      a.oclIsKindOf(Attribute) and a.name = 'name' and a.value &lt;&gt; ''&#13;&#10;    )&#13;&#10;  )"/>
+            <details key="__efinder_NOT_targetMultiplicity_Role_source" value="Role__trace.allInstances()-&gt;exists(r | not (not r.t.source.oclIsUndefined()))"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="min" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="max" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isUnbounded" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" name="accepts" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isOrdered" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isNavigableFrom" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" name="isPropertyGenerator" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eType="//Classifier" name="source" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eType="//Classifier" name="type" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship__target/roles" eType="//Relationship__target" name="relation" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Role__trace/t" eType="//Role__trace" name="Role_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="ValueProperty__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="ValueProperty"/>
+                              
+            
+            <details key="atlRules" value="ValueProperty"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value="targetMultiplicity_ValueProperty_owner targetMultiplicity_ValueProperty_type"/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value="targetMultiplicity_ValueProperty_owner targetMultiplicity_ValueProperty_type"/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_ValueProperty"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_ValueProperty_owner" value="POST / TARGET_MULTIPLICITY"/>
+                              
+            
+            <details key="constraintRole.targetMultiplicity_ValueProperty_type" value="POST / TARGET_MULTIPLICITY"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_ValueProperty"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_ValueProperty" value="(if self.ValueProperty_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                              
+            
+                  
+            
+                
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Classifier/properties" eType="//Classifier" name="owner" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eType="//Type" name="type" ordered="false" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ValueProperty__trace/t" eType="//ValueProperty__trace" name="ValueProperty_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers abstract="true" eSuperTypes="//Namespace" name="Type" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Type"/>
+                              
+            
+            <details key="atlRules" value="DomainModel DomainModel DomainModel DomainModel Enumeration"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Type"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Type"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Type" value="(if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stString.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stBoolean.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stInteger.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(SimpleType) then (if self.oclAsType(SimpleType).DomainModel_stReal.oclIsUndefined() then 0 else 1 endif) else 0 endif) + (if self.oclIsKindOf(Enumeration__target) then (if self.oclAsType(Enumeration__target).Enumeration_t.oclIsUndefined() then 0 else 1 endif) else 0 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Type" name="SimpleType" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="SimpleType"/>
+                              
+            
+            <details key="atlRules" value="DomainModel DomainModel DomainModel DomainModel"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_SimpleType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_SimpleType"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_SimpleType" value="(if self.DomainModel_stString.oclIsUndefined() then 0 else 1 endif) + (if self.DomainModel_stBoolean.oclIsUndefined() then 0 else 1 endif) + (if self.DomainModel_stInteger.oclIsUndefined() then 0 else 1 endif) + (if self.DomainModel_stReal.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/stString" eType="//DomainModel__trace" name="DomainModel_stString" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/stBoolean" eType="//DomainModel__trace" name="DomainModel_stBoolean" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/stInteger" eType="//DomainModel__trace" name="DomainModel_stInteger" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__trace/stReal" eType="//DomainModel__trace" name="DomainModel_stReal" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//NamedElement" name="EnumerationLiteral__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="EnumerationLiteral"/>
+                              
+            
+            <details key="atlRules" value="EnumerationLiteral"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value="targetMultiplicity_EnumerationLiteral_value"/>
+                              
+            
+            <details key="semConstraints" value="create_EnumerationLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_EnumerationLiteral"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_EnumerationLiteral" value="(if self.EnumerationLiteral_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" name="value" ordered="false" xsi:type="ecore:EAttribute"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumerationLiteral__trace/t" eType="//EnumerationLiteral__trace" name="EnumerationLiteral_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers eSuperTypes="//Type" name="Enumeration__target" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Enumeration"/>
+                              
+            
+            <details key="atlRules" value="Enumeration"/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="targetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="unsupportedPrimitiveTargetMultiplicityConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value="create_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="create_Enumeration"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="create_Enumeration" value="(if self.Enumeration_t.oclIsUndefined() then 0 else 1 endif) = 1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures containment="true" eType="//EnumerationLiteral__target" name="literals" ordered="false" upperBound="-1" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__trace/t" eType="//Enumeration__trace" name="Enumeration_t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Boolean" name="Boolean__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Boolean"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Integer" name="Integer__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="Integer"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__source" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="source"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Boolean" name="Boolean__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Boolean"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.Integer" name="Integer__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="Integer"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers instanceClassName="java.lang.String" name="String__target" xsi:type="ecore:EDataType">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="target"/>
+                              
+            
+            <details key="originalName" value="String"/>
+                              
+            
+            <details key="atlRules" value=""/>
+                              
+            
+            <details key="preConstraints" value=""/>
+                              
+            
+            <details key="postConstraints" value=""/>
+                              
+            
+            <details key="semConstraints" value=""/>
+                            
+        
+        </eAnnotations>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="DomainModel__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="DomainModel"/>
+                              
+            
+            <details key="semConstraints" value="match_DomainModel_cond bind_DomainModel_t_name bind_DomainModel_t_identity bind_DomainModel_t_namespace bind_DomainModel_t_isLoaded bind_DomainModel_t_classifiers bind_DomainModel_t_types bind_DomainModel_stString_name bind_DomainModel_stString_identity bind_DomainModel_stString_namespace bind_DomainModel_stBoolean_name bind_DomainModel_stBoolean_identity bind_DomainModel_stBoolean_namespace bind_DomainModel_stInteger_name bind_DomainModel_stInteger_identity bind_DomainModel_stInteger_namespace bind_DomainModel_stReal_name bind_DomainModel_stReal_identity bind_DomainModel_stReal_namespace"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_DomainModel_cond bind_DomainModel_t_name bind_DomainModel_t_identity bind_DomainModel_t_namespace bind_DomainModel_t_isLoaded bind_DomainModel_t_classifiers bind_DomainModel_t_types bind_DomainModel_stString_name bind_DomainModel_stString_identity bind_DomainModel_stString_namespace bind_DomainModel_stBoolean_name bind_DomainModel_stBoolean_identity bind_DomainModel_stBoolean_namespace bind_DomainModel_stInteger_name bind_DomainModel_stInteger_identity bind_DomainModel_stInteger_namespace bind_DomainModel_stReal_name bind_DomainModel_stReal_identity bind_DomainModel_stReal_namespace"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_DomainModel_cond" value="(self.s.name = 'DomainModel')"/>
+                              
+            
+            <details key="bind_DomainModel_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_DomainModel_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_DomainModel_t_namespace" value="self.t.namespace = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'namespace')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_DomainModel_t_isLoaded" value="self.t.isLoaded = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isLoaded')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_DomainModel_t_classifiers" value="self.t.classifiers = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'Class'))-&gt;asSet()-&gt;union(self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'Relationship'))-&gt;asSet())"/>
+                              
+            
+            <details key="bind_DomainModel_t_types" value="self.t.types = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'Enumeration'))-&gt;asSet()-&gt;union(Set { self.stString, self.stBoolean, self.stInteger, self.stReal })"/>
+                              
+            
+            <details key="bind_DomainModel_stString_name" value="self.stString.name = 'String'"/>
+                              
+            
+            <details key="bind_DomainModel_stString_identity" value="self.stString.identity = 'String'"/>
+                              
+            
+            <details key="bind_DomainModel_stString_namespace" value="self.stString.namespace = 'PrimitiveTypes'"/>
+                              
+            
+            <details key="bind_DomainModel_stBoolean_name" value="self.stBoolean.name = 'Boolean'"/>
+                              
+            
+            <details key="bind_DomainModel_stBoolean_identity" value="self.stBoolean.identity = 'Boolean'"/>
+                              
+            
+            <details key="bind_DomainModel_stBoolean_namespace" value="self.stBoolean.namespace = 'PrimitiveTypes'"/>
+                              
+            
+            <details key="bind_DomainModel_stInteger_name" value="self.stInteger.name = 'Integer'"/>
+                              
+            
+            <details key="bind_DomainModel_stInteger_identity" value="self.stInteger.identity = 'Integer'"/>
+                              
+            
+            <details key="bind_DomainModel_stInteger_namespace" value="self.stInteger.namespace = 'PrimitiveTypes'"/>
+                              
+            
+            <details key="bind_DomainModel_stReal_name" value="self.stReal.name = 'Real'"/>
+                              
+            
+            <details key="bind_DomainModel_stReal_identity" value="self.stReal.identity = 'Real'"/>
+                              
+            
+            <details key="bind_DomainModel_stReal_namespace" value="self.stReal.namespace = 'PrimitiveTypes'"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/DomainModel_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//DomainModel__target/DomainModel_t" eType="//DomainModel__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleType/DomainModel_stString" eType="//SimpleType" lowerBound="1" name="stString" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleType/DomainModel_stBoolean" eType="//SimpleType" lowerBound="1" name="stBoolean" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleType/DomainModel_stInteger" eType="//SimpleType" lowerBound="1" name="stInteger" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//SimpleType/DomainModel_stReal" eType="//SimpleType" lowerBound="1" name="stReal" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Class__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Class"/>
+                              
+            
+            <details key="semConstraints" value="match_Class_cond bind_Class_t_name bind_Class_t_identity bind_Class_t_namespace bind_Class_t_isLoaded bind_Class_t_isAbstract bind_Class_t_properties bind_Class_t_superType null_Class_t_subTypes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Class_cond bind_Class_t_name bind_Class_t_identity bind_Class_t_namespace bind_Class_t_isLoaded bind_Class_t_isAbstract bind_Class_t_properties bind_Class_t_superType null_Class_t_subTypes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Class_cond" value="(self.s.name = 'Class')"/>
+                              
+            
+            <details key="bind_Class_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Class_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Class_t_namespace" value="self.t.namespace = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'namespace')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Class_t_isLoaded" value="self.t.isLoaded = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isLoaded')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Class_t_isAbstract" value="self.t.isAbstract = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isAbstract')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Class_t_properties" value="self.t.properties = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'ValueProperty'))-&gt;asSet()"/>
+                              
+            
+            <details key="bind_Class_t_superType" value="self.t.superType = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;any(c | (c.oclAsType(Element).name = 'superType'))"/>
+                              
+            
+            <details key="null_Class_t_subTypes" value="self.t.subTypes-&gt;isEmpty()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/Class_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Class__target/Class_t" eType="//Class__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Relationship__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Relationship"/>
+                              
+            
+            <details key="semConstraints" value="match_Relationship_cond bind_Relationship_t_name bind_Relationship_t_identity bind_Relationship_t_namespace bind_Relationship_t_isLoaded bind_Relationship_t_isAbstract bind_Relationship_t_isEmbedding bind_Relationship_t_roles bind_Relationship_t_properties bind_Relationship_t_superType null_Relationship_t_subTypes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Relationship_cond bind_Relationship_t_name bind_Relationship_t_identity bind_Relationship_t_namespace bind_Relationship_t_isLoaded bind_Relationship_t_isAbstract bind_Relationship_t_isEmbedding bind_Relationship_t_roles bind_Relationship_t_properties bind_Relationship_t_superType null_Relationship_t_subTypes"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Relationship_cond" value="(self.s.name = 'Relationship')"/>
+                              
+            
+            <details key="bind_Relationship_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Relationship_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Relationship_t_namespace" value="self.t.namespace = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'namespace')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Relationship_t_isLoaded" value="self.t.isLoaded = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isLoaded')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Relationship_t_isAbstract" value="self.t.isAbstract = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isAbstract')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Relationship_t_isEmbedding" value="self.t.isEmbedding = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isEmbedding')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Relationship_t_roles" value="self.t.roles = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'Role'))-&gt;asSet()"/>
+                              
+            
+            <details key="bind_Relationship_t_properties" value="self.t.properties = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'ValueProperty'))-&gt;asSet()"/>
+                              
+            
+            <details key="bind_Relationship_t_superType" value="self.t.superType = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;any(c | (c.oclAsType(Element).name = 'superType'))"/>
+                              
+            
+            <details key="null_Relationship_t_subTypes" value="self.t.subTypes-&gt;isEmpty()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/Relationship_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Relationship__target/Relationship_t" eType="//Relationship__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Role__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Role"/>
+                              
+            
+            <details key="semConstraints" value="match_Role_cond bind_Role_t_name bind_Role_t_identity bind_Role_t_min bind_Role_t_max bind_Role_t_isUnbounded bind_Role_t_accepts bind_Role_t_isOrdered bind_Role_t_isNavigableFrom bind_Role_t_isPropertyGenerator bind_Role_t_source bind_Role_t_type __efinder_numeric_input_bind_Role_t_min_1 __efinder_numeric_input_bind_Role_t_max_1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Role_cond bind_Role_t_name bind_Role_t_identity bind_Role_t_min bind_Role_t_max bind_Role_t_isUnbounded bind_Role_t_accepts bind_Role_t_isOrdered bind_Role_t_isNavigableFrom bind_Role_t_isPropertyGenerator bind_Role_t_source bind_Role_t_type __efinder_numeric_input_bind_Role_t_min_1 __efinder_numeric_input_bind_Role_t_max_1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Role_cond" value="(self.s.name = 'Role')"/>
+                              
+            
+            <details key="bind_Role_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Role_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Role_t_min" value="self.t.min = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'min')) in (if attr.oclIsUndefined() then 0 else attr.value__int endif))"/>
+                              
+            
+            <details key="bind_Role_t_max" value="self.t.max = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'max')) in (if attr.oclIsUndefined() then 0 else attr.value__int endif))"/>
+                              
+            
+            <details key="bind_Role_t_isUnbounded" value="self.t.isUnbounded = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isUnbounded')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Role_t_accepts" value="self.t.accepts = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'accepts')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Role_t_isOrdered" value="self.t.isOrdered = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isOrdered')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Role_t_isNavigableFrom" value="self.t.isNavigableFrom = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isNavigableFrom')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Role_t_isPropertyGenerator" value="self.t.isPropertyGenerator = ((let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'isPropertyGenerator')) in (if attr.oclIsUndefined() then '' else attr.value endif)) = 'true')"/>
+                              
+            
+            <details key="bind_Role_t_source" value="self.t.source = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;any(c | (c.oclAsType(Element).name = 'source'))"/>
+                              
+            
+            <details key="bind_Role_t_type" value="self.t.type = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;any(c | (c.oclAsType(Element).name = 'type'))"/>
+                            
+        
+            <details key="__efinder_numeric_input_bind_Role_t_min_1" value="let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'min')) in if attr.oclIsUndefined() then false else not attr.value.oclIsUndefined() and attr.value &lt;&gt; '' endif"/>
+            <details key="__efinder_numeric_input_bind_Role_t_max_1" value="let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'max')) in if attr.oclIsUndefined() then false else not attr.value.oclIsUndefined() and attr.value &lt;&gt; '' endif"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/Role_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Role__target/Role_t" eType="//Role__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="ValueProperty__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="ValueProperty"/>
+                              
+            
+            <details key="semConstraints" value="match_ValueProperty_cond bind_ValueProperty_t_name bind_ValueProperty_t_identity bind_ValueProperty_t_type null_ValueProperty_t_owner"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_ValueProperty_cond bind_ValueProperty_t_name bind_ValueProperty_t_identity bind_ValueProperty_t_type null_ValueProperty_t_owner"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_ValueProperty_cond" value="(self.s.name = 'ValueProperty')"/>
+                              
+            
+            <details key="bind_ValueProperty_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_ValueProperty_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_ValueProperty_t_type" value="self.t.type = Type.allInstances()-&gt;any(t | (t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'type')) in (if attr.oclIsUndefined() then '' else attr.value endif))))"/>
+                              
+            
+            <details key="null_ValueProperty_t_owner" value="self.t.owner.oclIsUndefined()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/ValueProperty_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//ValueProperty__target/ValueProperty_t" eType="//ValueProperty__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="Enumeration__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="Enumeration"/>
+                              
+            
+            <details key="semConstraints" value="match_Enumeration_cond bind_Enumeration_t_name bind_Enumeration_t_identity bind_Enumeration_t_namespace bind_Enumeration_t_literals"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_Enumeration_cond bind_Enumeration_t_name bind_Enumeration_t_identity bind_Enumeration_t_namespace bind_Enumeration_t_literals"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_Enumeration_cond" value="(self.s.name = 'Enumeration')"/>
+                              
+            
+            <details key="bind_Enumeration_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Enumeration_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Enumeration_t_namespace" value="self.t.namespace = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'namespace')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_Enumeration_t_literals" value="self.t.literals = self.s.children-&gt;select(c | c.oclIsKindOf(Element))-&gt;select(c | (c.oclAsType(Element).name = 'EnumerationLiteral'))-&gt;asSet()"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/Enumeration_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//Enumeration__target/Enumeration_t" eType="//Enumeration__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+          
+    
+    <eClassifiers name="EnumerationLiteral__trace" xsi:type="ecore:EClass">
+                    
+        
+        <eAnnotations source="urn:llm4atl:provenance">
+                              
+            
+            <details key="origin" value="trace"/>
+                              
+            
+            <details key="atlRule" value="EnumerationLiteral"/>
+                              
+            
+            <details key="semConstraints" value="match_EnumerationLiteral_cond bind_EnumerationLiteral_t_name bind_EnumerationLiteral_t_identity bind_EnumerationLiteral_t_value __efinder_numeric_input_bind_EnumerationLiteral_t_value_1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+                              
+            
+            <details key="constraints" value="match_EnumerationLiteral_cond bind_EnumerationLiteral_t_name bind_EnumerationLiteral_t_identity bind_EnumerationLiteral_t_value __efinder_numeric_input_bind_EnumerationLiteral_t_value_1"/>
+                            
+        
+        </eAnnotations>
+                    
+        
+        <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+                              
+            
+            <details key="match_EnumerationLiteral_cond" value="(self.s.name = 'EnumerationLiteral')"/>
+                              
+            
+            <details key="bind_EnumerationLiteral_t_name" value="self.t.name = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'name')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_EnumerationLiteral_t_identity" value="self.t.identity = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'identity')) in (if attr.oclIsUndefined() then '' else attr.value endif))"/>
+                              
+            
+            <details key="bind_EnumerationLiteral_t_value" value="self.t.value = (let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'value')) in (if attr.oclIsUndefined() then 0 else attr.value__int endif))"/>
+                            
+        
+            <details key="__efinder_numeric_input_bind_EnumerationLiteral_t_value_1" value="let attr = self.s.children-&gt;select(c | c.oclIsKindOf(Attribute))-&gt;any(c | (c.oclAsType(Attribute).name = 'value')) in if attr.oclIsUndefined() then false else not attr.value.oclIsUndefined() and attr.value &lt;&gt; '' endif"/>
+        </eAnnotations>
+                    
+        
+        <eStructuralFeatures eOpposite="//Element/EnumerationLiteral_s" eType="//Element" lowerBound="1" name="s" xsi:type="ecore:EReference"/>
+                    
+        
+        <eStructuralFeatures eOpposite="//EnumerationLiteral__target/EnumerationLiteral_t" eType="//EnumerationLiteral__target" lowerBound="1" name="t" xsi:type="ecore:EReference"/>
+                  
+    
+    </eClassifiers>
+        
+
+</ecore:EPackage>

@@ -1,0 +1,65 @@
+{
+  "task": "FamiliesToPersons_All",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "started_at": "2026-10-22T12:33:30+07:00",
+  "max_repair_iterations": 5,
+  "max_llm_attempts": 6,
+  "ablation": {
+    "run_label": "without_l2",
+    "switches": {
+      "enable_layer1_schema": true,
+      "enable_layer2_semantic": false,
+      "enable_layer3_generation": true
+    }
+  },
+  "retry_sleep_seconds": 0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "repair_iteration": 0,
+      "attempt_type": "INITIAL_GENERATION",
+      "started_at": "2026-10-22T12:33:30+07:00",
+      "llm": {
+        "status": "SUCCESS",
+        "elapsed_seconds": 23.041,
+        "input_tokens": 13340,
+        "output_tokens": 2522,
+        "total_tokens": 19242
+      },
+      "layers": {
+        "layer0_json": {
+          "status": "PASS"
+        },
+        "layer1_schema": {
+          "status": "PASS"
+        },
+        "layer2_semantic": {
+          "status": "DISABLED"
+        },
+        "layer3_formal": {
+          "status": "VERIFIED"
+        }
+      },
+      "outcome": "VERIFIED",
+      "finished_at": "2026-10-22T12:34:32+07:00",
+      "elapsed_seconds": 61.259
+    }
+  ],
+  "finished_at": "2026-10-22T12:34:32+07:00",
+  "summary": {
+    "final_status": "VERIFIED",
+    "termination_reason": "BOUNDED_VERIFICATION_PASSED",
+    "llm_attempts": 1,
+    "repair_iterations": 0,
+    "max_repair_iterations": 5,
+    "repair_limit_exhausted": false,
+    "task_elapsed_seconds": 61.263,
+    "retry_sleep_seconds": 0,
+    "active_elapsed_seconds": 61.263,
+    "llm_elapsed_seconds": 23.041,
+    "input_tokens": 13340,
+    "output_tokens": 2522,
+    "total_tokens": 19242
+  }
+}

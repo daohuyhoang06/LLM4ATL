@@ -1,0 +1,2312 @@
+{
+  "type": "Module",
+  "name": "XML2DSL",
+  "input_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "IN",
+      "metamodel": "XML"
+    }
+  ],
+  "output_models": [
+    {
+      "type": "ModelDeclaration",
+      "alias": "OUT",
+      "metamodel": "DSL"
+    }
+  ],
+  "elements": [
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getAttrBool",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "attr",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "Boolean",
+      "body": {
+        "type": "BinaryExpression",
+        "operator": "=",
+        "left": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "self",
+            "declared_type": "XML!Element"
+          },
+          "operation_name": "getAttrVal",
+          "arguments": [
+            {
+              "type": "Variable",
+              "name": "attr",
+              "declared_type": "String"
+            }
+          ]
+        },
+        "right": {
+          "type": "LiteralExpression",
+          "value": "true",
+          "literal_type": "String"
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getAttrVal",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "attr",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "String",
+      "body": {
+        "type": "PropertyCall",
+        "source": {
+          "type": "CollectionOperation",
+          "source": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "XML!Element"
+              },
+              "property_name": "children"
+            },
+            "iterator_type": "select",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "XML!Node"
+              }
+            ],
+            "body": {
+              "type": "BinaryExpression",
+              "operator": "and",
+              "left": {
+                "type": "OperationCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "XML!Node"
+                },
+                "operation_name": "oclIsKindOf",
+                "arguments": [
+                  {
+                    "type": "Variable",
+                    "name": "XML!Attribute",
+                    "declared_type": null
+                  }
+                ]
+              },
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "=",
+                "left": {
+                  "type": "PropertyCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "c",
+                    "declared_type": "XML!Node"
+                  },
+                  "property_name": "name"
+                },
+                "right": {
+                  "type": "Variable",
+                  "name": "attr",
+                  "declared_type": "String"
+                }
+              }
+            }
+          },
+          "operation_name": "first",
+          "arguments": []
+        },
+        "property_name": "value"
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "get",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "XML!Element",
+      "body": {
+        "type": "CollectionOperation",
+        "source": {
+          "type": "IteratorExpression",
+          "source": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "children"
+          },
+          "iterator_type": "select",
+          "iterators": [
+            {
+              "type": "Variable",
+              "name": "c",
+              "declared_type": "XML!Node"
+            }
+          ],
+          "body": {
+            "type": "BinaryExpression",
+            "operator": "and",
+            "left": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "XML!Node"
+              },
+              "operation_name": "oclIsKindOf",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "XML!Element",
+                  "declared_type": null
+                }
+              ]
+            },
+            "right": {
+              "type": "BinaryExpression",
+              "operator": "=",
+              "left": {
+                "type": "PropertyCall",
+                "source": {
+                  "type": "Variable",
+                  "name": "c",
+                  "declared_type": "XML!Node"
+                },
+                "property_name": "name"
+              },
+              "right": {
+                "type": "Variable",
+                "name": "name",
+                "declared_type": "String"
+              }
+            }
+          }
+        },
+        "operation_name": "first",
+        "arguments": []
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getType",
+      "parameters": [],
+      "return_type": "DSL!Type",
+      "body": {
+        "type": "OperationCall",
+        "source": {
+          "type": "Variable",
+          "name": "thisModule",
+          "declared_type": null
+        },
+        "operation_name": "findType",
+        "arguments": [
+          {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "XML!Element"
+            },
+            "operation_name": "getAttrVal",
+            "arguments": [
+              {
+                "type": "LiteralExpression",
+                "value": "type",
+                "literal_type": "String"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getEnumId",
+      "parameters": [],
+      "return_type": "String",
+      "body": {
+        "type": "OperationCall",
+        "source": {
+          "type": "Variable",
+          "name": "self",
+          "declared_type": "XML!Element"
+        },
+        "operation_name": "getAttrVal",
+        "arguments": [
+          {
+            "type": "LiteralExpression",
+            "value": "identity",
+            "literal_type": "String"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getText",
+      "parameters": [],
+      "return_type": "String",
+      "body": {
+        "type": "PropertyCall",
+        "source": {
+          "type": "CollectionOperation",
+          "source": {
+            "type": "IteratorExpression",
+            "source": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "self",
+                "declared_type": "XML!Element"
+              },
+              "property_name": "children"
+            },
+            "iterator_type": "select",
+            "iterators": [
+              {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "XML!Node"
+              }
+            ],
+            "body": {
+              "type": "OperationCall",
+              "source": {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "XML!Node"
+              },
+              "operation_name": "oclIsKindOf",
+              "arguments": [
+                {
+                  "type": "Variable",
+                  "name": "XML!Text",
+                  "declared_type": null
+                }
+              ]
+            }
+          },
+          "operation_name": "first",
+          "arguments": []
+        },
+        "property_name": "value"
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "getSeq",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "Set(XML!Element)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "PropertyCall",
+          "source": {
+            "type": "Variable",
+            "name": "self",
+            "declared_type": "XML!Element"
+          },
+          "property_name": "children"
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "c",
+            "declared_type": "XML!Node"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "and",
+          "left": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "c",
+              "declared_type": "XML!Node"
+            },
+            "operation_name": "oclIsKindOf",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "XML!Element",
+                "declared_type": null
+              }
+            ]
+          },
+          "right": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "c",
+                "declared_type": "XML!Node"
+              },
+              "property_name": "name"
+            },
+            "right": {
+              "type": "Variable",
+              "name": "name",
+              "declared_type": "String"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "hasChildren",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "Boolean",
+      "body": {
+        "type": "CollectionOperation",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "self",
+            "declared_type": "XML!Element"
+          },
+          "operation_name": "getSeq",
+          "arguments": [
+            {
+              "type": "Variable",
+              "name": "name",
+              "declared_type": "String"
+            }
+          ]
+        },
+        "operation_name": "notEmpty",
+        "arguments": []
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "hasAttr",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "attr",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "Boolean",
+      "body": {
+        "type": "UnaryExpression",
+        "operator": "not",
+        "expression": {
+          "type": "OperationCall",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "self",
+              "declared_type": "XML!Element"
+            },
+            "operation_name": "getAttrVal",
+            "arguments": [
+              {
+                "type": "Variable",
+                "name": "attr",
+                "declared_type": "String"
+              }
+            ]
+          },
+          "operation_name": "oclIsUndefined",
+          "arguments": []
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": "XML!Element",
+      "name": "isAbstract",
+      "parameters": [],
+      "return_type": "Boolean",
+      "body": {
+        "type": "OperationCall",
+        "source": {
+          "type": "Variable",
+          "name": "self",
+          "declared_type": "XML!Element"
+        },
+        "operation_name": "getAttrBool",
+        "arguments": [
+          {
+            "type": "LiteralExpression",
+            "value": "isAbstract",
+            "literal_type": "String"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "attribute",
+      "context_type": null,
+      "name": "dslElementsById",
+      "parameters": [],
+      "return_type": "Set(XML!Element)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "XML!Element",
+            "declared_type": null
+          },
+          "operation_name": "allInstances",
+          "arguments": []
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "e",
+            "declared_type": "XML!Element"
+          }
+        ],
+        "body": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "e",
+            "declared_type": "XML!Element"
+          },
+          "operation_name": "hasAttr",
+          "arguments": [
+            {
+              "type": "LiteralExpression",
+              "value": "identity",
+              "literal_type": "String"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": null,
+      "name": "getSubTypes",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "elem",
+          "declared_type": "XML!Element"
+        }
+      ],
+      "return_type": "Set(XML!Element)",
+      "body": {
+        "type": "IteratorExpression",
+        "source": {
+          "type": "OperationCall",
+          "source": {
+            "type": "Variable",
+            "name": "XML!Element",
+            "declared_type": null
+          },
+          "operation_name": "allInstances",
+          "arguments": []
+        },
+        "iterator_type": "select",
+        "iterators": [
+          {
+            "type": "Variable",
+            "name": "e",
+            "declared_type": "XML!Element"
+          }
+        ],
+        "body": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "operation_name": "getAttrVal",
+            "arguments": [
+              {
+                "type": "LiteralExpression",
+                "value": "superType",
+                "literal_type": "String"
+              }
+            ]
+          },
+          "right": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "elem",
+              "declared_type": "XML!Element"
+            },
+            "operation_name": "getAttrVal",
+            "arguments": [
+              {
+                "type": "LiteralExpression",
+                "value": "identity",
+                "literal_type": "String"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Helper",
+      "kind": "operation",
+      "context_type": null,
+      "name": "findType",
+      "parameters": [
+        {
+          "type": "Parameter",
+          "name": "name",
+          "declared_type": "String"
+        }
+      ],
+      "return_type": "DSL!Type",
+      "body": {
+        "type": "CollectionOperation",
+        "source": {
+          "type": "IteratorExpression",
+          "source": {
+            "type": "OperationCall",
+            "source": {
+              "type": "Variable",
+              "name": "DSL!Type",
+              "declared_type": null
+            },
+            "operation_name": "allInstances",
+            "arguments": []
+          },
+          "iterator_type": "select",
+          "iterators": [
+            {
+              "type": "Variable",
+              "name": "t",
+              "declared_type": "DSL!Type"
+            }
+          ],
+          "body": {
+            "type": "BinaryExpression",
+            "operator": "=",
+            "left": {
+              "type": "PropertyCall",
+              "source": {
+                "type": "Variable",
+                "name": "t",
+                "declared_type": "DSL!Type"
+              },
+              "property_name": "name"
+            },
+            "right": {
+              "type": "Variable",
+              "name": "name",
+              "declared_type": "String"
+            }
+          }
+        },
+        "operation_name": "first",
+        "arguments": []
+      }
+    },
+    {
+      "type": "MatchedRule",
+      "name": "DomainModel",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "dm",
+              "declared_type": "DSL!DomainModel"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isLoaded",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isLoaded",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "classifiers",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "XML!Element"
+                    },
+                    "operation_name": "getSeq",
+                    "arguments": [
+                      {
+                        "type": "LiteralExpression",
+                        "value": "Class",
+                        "literal_type": "String"
+                      }
+                    ]
+                  },
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "e",
+                        "declared_type": "XML!Element"
+                      },
+                      "operation_name": "getSeq",
+                      "arguments": [
+                        {
+                          "type": "LiteralExpression",
+                          "value": "Relationship",
+                          "literal_type": "String"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "types",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "CollectionLiteral",
+                    "collection_kind": "Set",
+                    "elements": [
+                      {
+                        "type": "Variable",
+                        "name": "stString",
+                        "declared_type": "DSL!SimpleType"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "stInt",
+                        "declared_type": "DSL!SimpleType"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "stBool",
+                        "declared_type": "DSL!SimpleType"
+                      },
+                      {
+                        "type": "Variable",
+                        "name": "stReal",
+                        "declared_type": "DSL!SimpleType"
+                      }
+                    ]
+                  },
+                  "operation_name": "union",
+                  "arguments": [
+                    {
+                      "type": "OperationCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "e",
+                        "declared_type": "XML!Element"
+                      },
+                      "operation_name": "getSeq",
+                      "arguments": [
+                        {
+                          "type": "LiteralExpression",
+                          "value": "Enumeration",
+                          "literal_type": "String"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "stString",
+              "declared_type": "DSL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "String",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "String",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "stInt",
+              "declared_type": "DSL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Integer",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Integer",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "stBool",
+              "declared_type": "DSL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Boolean",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Boolean",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          },
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "stReal",
+              "declared_type": "DSL!SimpleType"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Real",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "LiteralExpression",
+                  "value": "Real",
+                  "literal_type": "String"
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "DomainModel",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Class",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "c",
+              "declared_type": "DSL!Class"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isLoaded",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isLoaded",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isAbstract",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "isAbstract",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "properties",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getSeq",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "properties",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "superType",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule",
+                        "declared_type": null
+                      },
+                      "property_name": "dslElementsById"
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "x",
+                        "declared_type": "XML!Element"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "x",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "identity",
+                            "literal_type": "String"
+                          }
+                        ]
+                      },
+                      "right": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "e",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "superType",
+                            "literal_type": "String"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "Class",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Relationship",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "DSL!Relationship"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isLoaded",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isLoaded",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isAbstract",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "isAbstract",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isEmbedding",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isEmbedding",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "properties",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getSeq",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "properties",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "roles",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getSeq",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "roles",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "Relationship",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Role",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "r",
+              "declared_type": "DSL!Role"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "min",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "XML!Element"
+                    },
+                    "operation_name": "getAttrVal",
+                    "arguments": [
+                      {
+                        "type": "LiteralExpression",
+                        "value": "min",
+                        "literal_type": "String"
+                      }
+                    ]
+                  },
+                  "operation_name": "toInteger",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "max",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "XML!Element"
+                    },
+                    "operation_name": "getAttrVal",
+                    "arguments": [
+                      {
+                        "type": "LiteralExpression",
+                        "value": "max",
+                        "literal_type": "String"
+                      }
+                    ]
+                  },
+                  "operation_name": "toInteger",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isUnbounded",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isUnbounded",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "accepts",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "accepts",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isOrdered",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isOrdered",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isNavigableFrom",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isNavigableFrom",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "isPropertyGenerator",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrBool",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "isPropertyGenerator",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "source",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule",
+                        "declared_type": null
+                      },
+                      "property_name": "dslElementsById"
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "x",
+                        "declared_type": "XML!Element"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "x",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "identity",
+                            "literal_type": "String"
+                          }
+                        ]
+                      },
+                      "right": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "e",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "source",
+                            "literal_type": "String"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "CollectionOperation",
+                  "source": {
+                    "type": "IteratorExpression",
+                    "source": {
+                      "type": "PropertyCall",
+                      "source": {
+                        "type": "Variable",
+                        "name": "thisModule",
+                        "declared_type": null
+                      },
+                      "property_name": "dslElementsById"
+                    },
+                    "iterator_type": "select",
+                    "iterators": [
+                      {
+                        "type": "Variable",
+                        "name": "x",
+                        "declared_type": "XML!Element"
+                      }
+                    ],
+                    "body": {
+                      "type": "BinaryExpression",
+                      "operator": "=",
+                      "left": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "x",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "identity",
+                            "literal_type": "String"
+                          }
+                        ]
+                      },
+                      "right": {
+                        "type": "OperationCall",
+                        "source": {
+                          "type": "Variable",
+                          "name": "e",
+                          "declared_type": "XML!Element"
+                        },
+                        "operation_name": "getAttrVal",
+                        "arguments": [
+                          {
+                            "type": "LiteralExpression",
+                            "value": "type",
+                            "literal_type": "String"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "operation_name": "first",
+                  "arguments": []
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "Role",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "ValueProperty",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "p",
+              "declared_type": "DSL!ValueProperty"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "type",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getType",
+                  "arguments": []
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "ValueProperty",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "Enumeration",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "enum",
+              "declared_type": "DSL!Enumeration"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "namespace",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "namespace",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "literals",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getSeq",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "literals",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "Enumeration",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    },
+    {
+      "type": "MatchedRule",
+      "name": "EnumerationLiteral",
+      "using": [],
+      "out_pattern": {
+        "type": "OutPattern",
+        "elements": [
+          {
+            "type": "SimpleOutPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "el",
+              "declared_type": "DSL!EnumerationLiteral"
+            },
+            "bindings": [
+              {
+                "type": "Binding",
+                "property_name": "name",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "name",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "identity",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "Variable",
+                    "name": "e",
+                    "declared_type": "XML!Element"
+                  },
+                  "operation_name": "getAttrVal",
+                  "arguments": [
+                    {
+                      "type": "LiteralExpression",
+                      "value": "identity",
+                      "literal_type": "String"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Binding",
+                "property_name": "value",
+                "value": {
+                  "type": "OperationCall",
+                  "source": {
+                    "type": "OperationCall",
+                    "source": {
+                      "type": "Variable",
+                      "name": "e",
+                      "declared_type": "XML!Element"
+                    },
+                    "operation_name": "getAttrVal",
+                    "arguments": [
+                      {
+                        "type": "LiteralExpression",
+                        "value": "value",
+                        "literal_type": "String"
+                      }
+                    ]
+                  },
+                  "operation_name": "toInteger",
+                  "arguments": []
+                }
+              }
+            ],
+            "maps_to": null,
+            "model": "OUT"
+          }
+        ]
+      },
+      "action_block": null,
+      "in_pattern": {
+        "type": "InPattern",
+        "elements": [
+          {
+            "type": "InPatternElement",
+            "variable": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "model": "IN"
+          }
+        ],
+        "filter": {
+          "type": "BinaryExpression",
+          "operator": "=",
+          "left": {
+            "type": "PropertyCall",
+            "source": {
+              "type": "Variable",
+              "name": "e",
+              "declared_type": "XML!Element"
+            },
+            "property_name": "name"
+          },
+          "right": {
+            "type": "LiteralExpression",
+            "value": "EnumerationLiteral",
+            "literal_type": "String"
+          }
+        }
+      },
+      "extends": null,
+      "is_abstract": false,
+      "is_nodefault": false,
+      "is_refining": false
+    }
+  ]
+}
