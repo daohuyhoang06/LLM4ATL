@@ -1,0 +1,16 @@
+LLM,Strategy,File,Parsed,ProblemCount,CHRF_Score,test_pass
+gemini-3-6-flash,without_l2_feedback,AmaltheaToAscet_All,True,0,58.6858,True
+gemini-3-6-flash,without_l2_feedback,BibTeX2DocBook_All,True,0,42.7454,True
+gemini-3-6-flash,without_l2_feedback,Class2Interface_All,True,0,60.7888,True
+gemini-3-6-flash,without_l2_feedback,CPL2SPL_All,True,0,55.733,False
+gemini-3-6-flash,without_l2_feedback,Document2Report_All,True,0,57.0474,True
+gemini-3-6-flash,without_l2_feedback,DSL2KM3_All,True,0,36.5095,False
+gemini-3-6-flash,without_l2_feedback,FamiliesToPersons_All,True,0,89.3316,True
+gemini-3-6-flash,without_l2_feedback,Grafcet2PetriNet_All,True,0,39.013,True
+gemini-3-6-flash,without_l2_feedback,IEEE1471_2_MoDAF_All,False,1,44.3902,False
+gemini-3-6-flash,without_l2_feedback,Item2Product_All,True,0,59.6782,True
+gemini-3-6-flash,without_l2_feedback,Make2Ant_All,True,0,48.2842,True
+gemini-3-6-flash,without_l2_feedback,NetworkToGraph_All,True,0,98.997,True
+gemini-3-6-flash,without_l2_feedback,PetriNet2Grafcet_All,True,0,37.1686,True
+gemini-3-6-flash,without_l2_feedback,User2Account_All,True,0,61.3061,True
+gemini-3-6-flash,without_l2_feedback,XML2DSL_All,True,0,38.7309,False
