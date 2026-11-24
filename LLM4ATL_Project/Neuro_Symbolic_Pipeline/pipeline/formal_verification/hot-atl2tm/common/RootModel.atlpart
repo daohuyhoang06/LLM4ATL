@@ -1,0 +1,74 @@
+-- @hot-atl2tm-part 0014
+-- Create the root EPackage and configure TM validation.
+rule Module2EPackage {
+    from 
+        m : ATL!Module
+    to 
+        p : ECORE!EPackage (
+            name <- 'transformationModel',
+            nsPrefix <- 'tm',
+            nsURI <- 'http://example.org/transformationModel',
+
+            eClassifiers <-
+                -- Include only classifiers belonging to the source/target packages in the TM.
+                -- Do not use ECORE!EClass.allInstances() here because that expression
+                -- can include classifiers from other Ecore models.
+                ECORE!EClass.allInstancesFrom('SRC')
+                ->union(
+                    ECORE!EClass.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('SRC')
+                )
+                ->union(
+                    ECORE!EEnum.allInstancesFrom('TGT')
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('SRC')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('SRC')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    ECORE!EDataType.allInstancesFrom('TGT')
+                        ->select(d |
+                            not d.oclIsKindOf(ECORE!EEnum)
+                            and
+                            ECORE!EPackage.allInstancesFrom('TGT')
+                                ->includes(d.ePackage)
+                        )
+                )
+                ->union(
+                    -- Trace classes are generated from matched rules.
+                    -- Keep this union to preserve the current semantics.
+                    m.elements
+                        ->select(e | e.oclIsKindOf(ATL!MatchedRule))
+                ),
+            eAnnotations <- Sequence {
+                validationAnnotation,
+                thisModule.TransformationProvenanceAnnotation(m)
+            }
+        ),
+
+        validationAnnotation : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                validationDetail
+            }
+        ),
+
+        validationDetail : ECORE!EStringToStringMapEntry (
+            key <- 'validationDelegates',
+            value <- 'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+}
+
+helper def : hasSourceConstraints(
+    c : ECORE!EClass
+) : Boolean =
+
+    thisModule.sourceConstraintNames(c) <> '';
+

@@ -1,0 +1,64 @@
+-- @hot-atl2tm-part 0020
+-- Steps 2/4: declare source-side match and mutex constraint names.
+unique lazy rule MatchingConstraintNamesAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.sourceConstraintNames(c)
+        )
+}
+
+-- Steps 2/4: store source-side match and mutex OCL expressions.
+unique lazy rule MatchingOclAnnotation {
+    from
+        c : ECORE!EClass
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: original OCL of SRC.
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 2: match constraint
+                ->union(
+                    thisModule.rulesForMatchConstraint(c)
+                        ->collect(r |
+                            thisModule.MatchConstraintDetail(r)
+                        )
+                )
+
+                -- Step 4: mutex constraint
+                ->union(
+
+                    thisModule.mutexRulesForContext(c)
+                        ->collect(r1 |
+
+                            thisModule.laterOverlappingRules(r1)
+                                ->collect(r2 |
+                                    thisModule.MutexConstraintDetail(
+                                        r1,
+                                        r2
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+

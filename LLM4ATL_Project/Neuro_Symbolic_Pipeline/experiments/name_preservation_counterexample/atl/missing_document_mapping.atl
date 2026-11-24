@@ -1,0 +1,15 @@
+-- Fault: source Documents are never mapped to Reports.
+module Document2Report_All;
+
+create OUT : Report from IN : Document;
+
+rule Section2Section {
+  from
+    s : Document!Section
+  to
+    targetSection : Report!Section (
+      title <- s.title,
+      content <- s.content,
+      order <- s.order
+    )
+}

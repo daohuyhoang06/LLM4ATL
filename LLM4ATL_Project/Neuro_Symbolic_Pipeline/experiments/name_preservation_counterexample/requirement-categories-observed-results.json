@@ -1,0 +1,35 @@
+{
+  "case": "Document2Report_All",
+  "formula": "Sem AND Pre AND NOT Inv_i",
+  "bounds": {
+    "scope": 3,
+    "reference_scope": 6
+  },
+  "categories": {
+    "binding_correctness": {
+      "check": "Document::NamePreservation",
+      "faulty_status": "SAT",
+      "correct_status": "UNSAT"
+    },
+    "mapping_completeness": {
+      "check": "Document::MappingCompleteness",
+      "faulty_status": "SAT",
+      "correct_status": "UNSAT"
+    },
+    "mapping_cardinality": {
+      "check": "Document::MappingCardinality",
+      "faulty_status": "SAT",
+      "correct_status": "UNSAT"
+    },
+    "relationship_preservation": {
+      "check": "Document::RelationshipPreservation",
+      "faulty_status": "SAT",
+      "correct_status": "UNSAT"
+    },
+    "mapping_conditions": {
+      "check": "Document::MappingCondition",
+      "faulty_status": "SAT",
+      "correct_status": "UNSAT"
+    }
+  }
+}

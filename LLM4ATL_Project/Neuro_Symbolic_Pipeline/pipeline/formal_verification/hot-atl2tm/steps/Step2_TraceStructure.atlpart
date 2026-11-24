@@ -1,0 +1,129 @@
+-- @hot-atl2tm-part 0016
+-- Step 2: create one trace EClass for each matched rule.
+rule MatchRule2EClass {
+    from 
+        r : ATL!MatchedRule
+    to
+        c : ECORE!EClass (
+            name <- r.name,
+
+            eStructuralFeatures <-
+                r.inPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleInPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                ->union(
+                r.outPattern.elements
+                    ->select(e |
+                        e.oclIsTypeOf(
+                            ATL!SimpleOutPatternElement
+                        )
+                    )
+                    ->collect(e |
+                        thisModule.resolveTemp(
+                            e,
+                            'forward'
+                        )
+                    )
+                ), 
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.TraceProvenanceAnnotation(r)
+                }
+                ->union(
+                    if thisModule.hasTraceConstraints(r)
+                    then
+                        Sequence {
+                            thisModule.TraceConstraintNamesAnnotation(r),
+                            thisModule.TraceOclAnnotation(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
+        )
+}
+
+
+-- Step 2: connect a trace class to a source input element.
+rule InPatternElement2SourceAssociation {
+    from
+        s : ATL!SimpleInPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- thisModule.matchInputVarName(s),
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('SRC')
+                    ->select(c | c.name = s.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                s.inPattern.rule.name
+                + '_'
+                + s.varName,
+
+            lowerBound <- 0,
+
+            upperBound <-
+                if s.inPattern.elements->size() = 1
+                then 1
+                else -1
+                endif,
+
+            eType <- s.inPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+
+-- Step 2: connect a trace class to a target output element.
+rule OutPatternElement2TargetAssociation {
+    from
+        o : ATL!SimpleOutPatternElement
+    to
+        forward : ECORE!EReference (
+            name <- o.varName,
+
+            lowerBound <- 1,
+            upperBound <- 1,
+
+            eType <-
+                ECORE!EClass.allInstancesFrom('TGT')
+                    ->select(c | c.name = o.type.name)
+                    ->first(),
+
+            eOpposite <- inverse
+        ),
+
+        inverse : ECORE!EReference (
+            name <-
+                o.outPattern.rule.name
+                + '_'
+                + o.varName,
+
+            lowerBound <- 0,
+            upperBound <- 1,
+
+            eType <- o.outPattern.rule,
+
+            eOpposite <- forward
+        )
+}
+

@@ -1,0 +1,103 @@
+-- @hot-atl2tm-part 0010
+-- ================================================================
+-- Step 2: frame conditions for unbound target properties.
+-- ================================================================
+
+-- Find the target EClass of an output pattern element.
+helper def : targetEClassOf(
+    o : ATL!SimpleOutPatternElement
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c |
+            c.name = o.type.name
+        )
+        ->first();
+
+-- Get target properties that do not occur in an output pattern.
+-- An eReference is also considered bound when its eOpposite is bound directly
+-- on another target object (EMF synchronizes both ends).
+helper def : isBoundThroughOpposite(
+    p : ECORE!EStructuralFeature
+) : Boolean =
+
+    ECORE!EReference.allInstancesFrom('TGT')
+        ->select(ref |
+            ref.name = p.name
+            and ref.eContainingClass.name = p.eContainingClass.name
+            and not ref.eOpposite.oclIsUndefined()
+        )
+        ->exists(ref |
+            ATL!Binding.allInstancesFrom('IN')
+                ->exists(b |
+                    b.propertyName = ref.eOpposite.name
+
+                    and
+
+                    b.outPatternElement.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+
+                    and
+
+                    thisModule.targetEClassOf(
+                        b.outPatternElement
+                    ).name = ref.eOpposite.eContainingClass.name
+                )
+        );
+
+-- Get target properties that are not bound directly or through an eOpposite.
+helper def : unboundPropertiesOf(
+    o : ATL!SimpleOutPatternElement
+) : Sequence(ECORE!EStructuralFeature) =
+
+    thisModule.targetEClassOf(o)
+        .eAllStructuralFeatures
+        ->select(p |
+            not o.bindings->exists(b |
+                b.propertyName = p.name
+            )
+
+            and
+
+            not thisModule.isBoundThroughOpposite(p)
+        )
+        ->asSequence();
+
+-- Create a frame-condition name.
+helper def : nullConstraintName(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'null_'
+    + o.outPattern.rule.name
+    + '_'
+    + o.varName
+    + '_'
+    + p.name;
+
+-- Require an unbound single-valued property/reference to be empty.
+helper def : nullConstraintExpr(
+    o : ATL!SimpleOutPatternElement,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '.oclIsUndefined()'
+
+    else
+
+        'self.'
+        + o.varName
+        + '.'
+        + p.name
+        + '->isEmpty()'
+
+    endif;
+

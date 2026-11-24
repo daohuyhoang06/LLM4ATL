@@ -1,0 +1,220 @@
+-- @hot-atl2tm-part 0021
+-- Step 2: store a matched-rule filter on a trace class.
+unique lazy rule FilterConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                'match_'
+                + r.name
+                + '_cond',
+
+            value <-
+                thisModule.filterExpr(r)
+        )
+}
+
+-- Step 2: preserve ATL's fresh-object semantics for multi-output rules.
+unique lazy rule OutputDistinctConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.outputDistinctConstraintName(r),
+            value <- thisModule.outputDistinctConstraintExpr(r)
+        )
+}
+
+-- Step 2: declare names of constraints attached to a trace class.
+unique lazy rule TraceConstraintNamesAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <- 'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+            value <- thisModule.traceConstraintNames(r)
+        )
+}
+
+
+-- Step 2: store the primary equality invariant of a binding.
+unique lazy rule BindingConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <-
+                thisModule.bindingConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.bindingConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                )
+        )
+}
+
+-- Step 2: collect filter, binding, resolution, and frame invariants.
+unique lazy rule TraceOclAnnotation {
+    from
+        r : ATL!MatchedRule
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+                (
+                    if r.inPattern.filter.oclIsUndefined()
+                    then
+                        Sequence {}
+                    else
+                        Sequence {
+                            thisModule.FilterConstraintDetail(r)
+                        }
+                    endif
+                )
+                ->union(
+                    if thisModule.simpleOutputsOf(r)->size() > 1
+                    then
+                        Sequence {
+                            thisModule.OutputDistinctConstraintDetail(r)
+                        }
+                    else
+                        Sequence {}
+                    endif
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->collect(b |
+                            thisModule.BindingConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeIV(r, b)
+                        )
+                        ->collect(b |
+                            thisModule.ShapeIVDefinedConstraintDetail(b)
+                        )
+                )
+                ->union(
+                    thisModule.bindingsOf(r)
+                        ->select(b |
+                            thisModule.isShapeV(
+                                r,
+                                b
+                            )
+                        )
+                        ->collect(b |
+                            thisModule.ShapeVSizeConstraintDetail(
+                                b
+                            )
+                        )
+                )
+                ->union(
+                    r.outPattern.elements
+                        ->select(o |
+                            o.oclIsTypeOf(
+                                ATL!SimpleOutPatternElement
+                            )
+                        )
+                        ->collect(o |
+                            thisModule.unboundPropertiesOf(o)
+                                ->collect(p |
+                                    thisModule.NullConstraintDetail(
+                                        o,
+                                        p
+                                    )
+                                )
+                        )
+                        ->flatten()
+                )
+        )
+}
+
+-- Step 2: store the Shape IV definedness-preservation constraint.
+unique lazy rule ShapeIVDefinedConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeIVDefinedConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeIVDefinedConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: store the Shape V cardinality-preservation constraint.
+unique lazy rule ShapeVSizeConstraintDetail {
+    from
+        b : ATL!Binding
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.shapeVSizeConstraintName(
+                    b.outPatternElement.outPattern.rule,
+                    b.outPatternElement,
+                    b
+                ),
+
+            value <-
+                thisModule.shapeVSizeConstraintExpr(
+                    b.outPatternElement.outPattern.rule,
+                    b
+                )
+        )
+}
+
+-- Step 2: store a frame invariant for an unbound property.
+-- One detail is required for every (out-pattern element, unbound feature)
+-- pair. A unique lazy rule reused the first detail for the other features.
+lazy rule NullConstraintDetail {
+
+    from
+        o : ATL!SimpleOutPatternElement,
+        p : ECORE!EStructuralFeature
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+                thisModule.nullConstraintName(
+                    o,
+                    p
+                ),
+
+            value <-
+                thisModule.nullConstraintExpr(
+                    o,
+                    p
+                )
+        )
+}
+

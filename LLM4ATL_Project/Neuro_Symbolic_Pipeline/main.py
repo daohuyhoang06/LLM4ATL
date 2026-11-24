@@ -16,6 +16,7 @@ PROJECT_DIR = Path(__file__).resolve().parent
 PIPELINE_DIR = PROJECT_DIR / "pipeline"
 from config.ablation_config import AblationConfig
 from pipeline.generation.llm_client import LLMConfigurationError, create_llm_client
+from pipeline.generation.prompt_builder import build_prompt, load_system_prompt
 from pipeline.static_analysis.ecore_registry import ATLEcoreRegistry
 from pipeline.static_analysis.type_environment import TypeEnvironment
 from pipeline.static_analysis.atl_semantic_checker import ATLSemanticChecker
@@ -108,17 +109,7 @@ AST2ATL_DIR = ATL_OUTPUT_DIR
 for output_dir in (AST_OUTPUT_DIR, ATL_OUTPUT_DIR, FORMAL_VERIFICATION_OUTPUT_DIR, METRICS_DIR):
     output_dir.mkdir(parents=True, exist_ok=True)
 
-# Load System Prompt
-with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
-    system_prompt_template = f.read()
-
-# Load Schema JSON string directly from Pydantic definition
-schema_json = json.dumps(
-    Module.model_json_schema(),
-    ensure_ascii=False,
-    separators=(",", ":"),
-)
-system_prompt = system_prompt_template.replace('<INSERT_SCHEMA_HERE>', schema_json)
+system_prompt = load_system_prompt(SYSTEM_PROMPT_PATH, Module.model_json_schema())
 
 # Load Mapping
 with open(MAPPING_PATH, 'r', encoding='utf-8') as f:
@@ -131,15 +122,6 @@ def resolve_metamodel_path(relative_path):
     if path.parts and path.parts[0] == 'ATL_model':
         path = Path(*path.parts[1:])
     return METAMODELS_DIR / path
-
-def build_prompt(prompt_content, model_content, validation_error=""):
-    """Build the user-level input; system guidance is sent separately."""
-    prompt = f"=== ECORE MODELS ===\n{model_content}\n\n=== TRANSFORMATION REQUEST ===\n{prompt_content}"
-    if validation_error:
-        prompt += ("\n\n=== PREVIOUS ATTEMPT FAILED VALIDATION OR FORMAL VERIFICATION ===\n"
-                   "Repair the AST and return JSON only. Details:\n"
-                   f"{validation_error}")
-    return prompt
 
 def extract_json(response_text):
     text = response_text.strip()

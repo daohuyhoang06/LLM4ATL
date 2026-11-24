@@ -1,0 +1,76 @@
+-- @hot-atl2tm-part 0004
+-- ================================================================
+-- General support: render ATL/OCL as Pivot OCL strings.
+-- ================================================================
+
+-- Concatenate two Sequences while preserving order and duplicate elements. This is
+-- important when a local variable/iterator shadows a formal parameter with the same name.
+helper def : appendStrings(
+    base : Sequence(String),
+    additions : Sequence(String)
+) : Sequence(String) =
+
+    additions->iterate(
+        value;
+        acc : Sequence(String) = base |
+        acc->append(value)
+    );
+
+-- Get the replacement in the nearest scope (searching from right to left).
+helper def : replacementOfAt(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String),
+    pos : Integer
+) : String =
+
+    if pos = 0 then
+        name
+    else
+        if varNames->at(pos) = name then
+            replacements->at(pos)
+        else
+            thisModule.replacementOfAt(
+                name,
+                varNames,
+                replacements,
+                pos - 1
+            )
+        endif
+    endif;
+
+-- Get the replacement value when rendering a variable.
+helper def : replacementOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    thisModule.replacementOfAt(
+        name,
+        varNames,
+        replacements,
+        varNames->size()
+    );
+
+-- A refinement is kept in the ordinary rendering environment under a
+-- reserved marker.  This keeps subtype knowledge lexical: an inner iterator
+-- with the same variable name shadows the refinement of an outer iterator.
+helper def : refinedTypeMarker(name : String) : String =
+
+    '__ATL2TM_REFINED_TYPE__' + name;
+
+helper def : refinedTypeOf(
+    name : String,
+    varNames : Sequence(String),
+    replacements : Sequence(String)
+) : String =
+
+    let marker : String = thisModule.refinedTypeMarker(name)
+    in
+    if varNames->includes(marker) then
+        thisModule.replacementOf(marker, varNames, replacements)
+    else
+        ''
+    endif;
+

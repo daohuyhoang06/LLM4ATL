@@ -41,6 +41,7 @@ OUTPUT_DIR = PIPELINE_PROJECT_DIR / "output"
 
 ATL_DIR = OUTPUT_DIR / "final_responses" / "atl"
 ATL2TM_ATL = FORMAL_DIR / "ATL2TM.atl"
+ATL2TM_BUILDER = FORMAL_DIR / "hot-atl2tm" / "build.py"
 ATL2TM_RUNTIME = PROJECT_ROOT / "ATL2TM_Runtime"
 ATL_TESTS = PROJECT_ROOT / "ATL_Tests"
 EFINDER_DIR = PROJECT_ROOT / "eFinder_Validator"
@@ -182,6 +183,7 @@ def resolve_case(case: str, mapping: dict[str, list[str]]) -> tuple[Path, Path, 
 def run_atl2tm(case: str, atl: Path, source: Path, target: Path,
                output_ecore: Path, work_dir: Path, *, verbose: bool = True) -> None:
     """Compile and invoke ATL2TMRunnerMain through the runtime Maven project."""
+    subprocess.run([sys.executable, str(ATL2TM_BUILDER)], check=True)
     work_dir.mkdir(parents=True, exist_ok=True)
     output_ecore.parent.mkdir(parents=True, exist_ok=True)
     exec_args = " ".join(quoted_exec_arg(path) for path in (

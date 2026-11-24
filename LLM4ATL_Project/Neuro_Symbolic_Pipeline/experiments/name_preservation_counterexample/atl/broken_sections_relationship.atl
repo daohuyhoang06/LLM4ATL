@@ -1,0 +1,25 @@
+-- Fault: Sections are created but the generated Report does not reference them.
+module Document2Report_All;
+
+create OUT : Report from IN : Document;
+
+rule Document2Report {
+  from
+    d : Document!Document
+  to
+    report : Report!Report (
+      title <- d.title,
+      author <- d.author
+    )
+}
+
+rule Section2Section {
+  from
+    s : Document!Section
+  to
+    targetSection : Report!Section (
+      title <- s.title,
+      content <- s.content,
+      order <- s.order
+    )
+}

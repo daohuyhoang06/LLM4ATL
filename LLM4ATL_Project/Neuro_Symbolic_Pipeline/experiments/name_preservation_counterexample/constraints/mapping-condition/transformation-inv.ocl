@@ -1,0 +1,11 @@
+context Document
+inv MappingCondition:
+  if self.author = 'publish' then
+    Report.allInstances()->exists(r |
+      r.title = self.title and r.author = self.author
+    )
+  else
+    Report.allInstances()->forAll(r |
+      r.title <> self.title or r.author <> self.author
+    )
+  endif

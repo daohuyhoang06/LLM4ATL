@@ -1,0 +1,274 @@
+-- @hot-atl2tm-part 0001
+-- ================================================================
+-- Step 1: preserve the existing OCL of the source/target metamodels.
+-- ================================================================
+
+-- Get the original constraint-name string from an Ecore annotation.
+helper def : originalConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->select(d |
+            d.key = 'constraints'
+        )
+        ->iterate(
+            d;
+            acc : String = '' |
+
+            if acc = '' then
+                d.value
+            else
+                acc + ' ' + d.value
+            endif
+        );
+
+-- Get the original Pivot OCL details to copy into the TM.
+helper def : originalOclDetails(
+    c : ECORE!EClass
+) : Sequence(ECORE!EStringToStringMapEntry) =
+
+    c.eAnnotations
+        ->select(a |
+            a.source =
+            'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot'
+        )
+        ->collect(a | a.details)
+        ->flatten()
+        ->asSequence();
+
+-- @hot-atl2tm-part 0015
+-- Step 1: copy the source EClass and original OCL; Steps 2/4: attach match and mutex constraints.
+rule SourceEClass2Eclass {
+    from
+        c : ECORE!EClass in SRC
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleInPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(s |
+                                s.type.name = c.name
+                            )
+                            ->collect(s |
+                                thisModule.resolveTemp(
+                                    s,
+                                    'inverse'
+                                )
+                            )
+                    ),
+
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <-
+                Sequence {
+                    thisModule.EClassProvenanceAnnotation(c)
+                }
+                ->union(
+                    if thisModule.hasSourceConstraints(c) then
+
+                        Sequence {
+                            thisModule.MatchingConstraintNamesAnnotation(c),
+                            thisModule.MatchingOclAnnotation(c)
+                        }
+
+                    else
+
+                        Sequence {}
+
+                    endif
+                )
+
+        )
+}
+
+-- Step 1: copy the target EClass and original OCL; Step 3: attach the creator constraint.
+rule TargetEClass2EClass {
+    from
+        c : ECORE!EClass in TGT
+    to
+        out : ECORE!EClass (
+            name <- c.name,
+            "abstract" <- c."abstract",
+            "interface" <- c."interface",
+            eStructuralFeatures <-
+                c.eStructuralFeatures
+                    ->union(
+                        ATL!SimpleOutPatternElement
+                            .allInstancesFrom('IN')
+                            ->select(o |
+                                o.type.name = c.name
+                            )
+                            ->collect(o |
+                                thisModule.resolveTemp(
+                                    o,
+                                    'inverse'
+                                )
+                            )
+                    ),
+            eSuperTypes <- c.eSuperTypes,
+
+            eAnnotations <- Sequence {
+                thisModule.EClassProvenanceAnnotation(c),
+                thisModule.CreationConstraintNamesAnnotation(c),
+                thisModule.CreationOclAnnotation(c)
+            }
+        )
+}
+
+-- Step 1: copy EAttributes and their Ecore properties.
+rule EAttribute2EAttribute {
+    from
+        a : ECORE!EAttribute
+    to
+        out : ECORE!EAttribute (
+            name <- a.name,
+
+            -- Keep source multiplicities intact. Target bounds are relaxed;
+            -- required references become selectable postconditions, while
+            -- primitive multiplicities are reported as unsupported.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(a.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    a.lowerBound
+                endif,
+            upperBound <- a.upperBound,
+            ordered <- a.ordered,
+            unique <- a.unique,
+            eType <- a.eType,
+
+            changeable <- a.changeable,
+            volatile <- a.volatile,
+            transient <- a.transient,
+            defaultValueLiteral <- a.defaultValueLiteral,
+            unsettable <- a.unsettable,
+            derived <- a.derived,
+
+            iD <- a.iD
+        )
+}
+
+-- Step 1: copy EReferences and their Ecore properties.
+rule EReference2EReference {
+    from
+        r : ECORE!EReference
+    to
+        out : ECORE!EReference (
+            name <- r.name,
+
+            -- See EAttribute2EAttribute: target lower bounds must not make
+            -- Sem inconsistent before a target Post_i is selected.
+            lowerBound <-
+                if ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(r.eContainingClass.ePackage)
+                then
+                    0
+                else
+                    r.lowerBound
+                endif,
+            upperBound <- r.upperBound,
+            ordered <- r.ordered,
+            unique <- r.unique,
+            eType <- r.eType,
+
+            changeable <- r.changeable,
+            volatile <- r.volatile,
+            transient <- r.transient,
+            defaultValueLiteral <- r.defaultValueLiteral,
+            unsettable <- r.unsettable,
+            derived <- r.derived,
+
+            containment <- r.containment,
+            resolveProxies <- r.resolveProxies,
+            eOpposite <- r.eOpposite,
+            eKeys <- r.eKeys
+        )
+}
+
+-- Step 1: copy EEnums and their literals.
+rule EEnum2EEnum {
+    from
+        e : ECORE!EEnum
+    to
+        out : ECORE!EEnum (
+            name <- e.name,
+            instanceClassName <- e.instanceClassName,
+            serializable <- e.serializable,
+            eLiterals <- e.eLiterals,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(e)
+            }
+        )
+}
+
+rule EEnumLiteral2EEnumLiteral {
+    from
+        l : ECORE!EEnumLiteral
+    to
+        out : ECORE!EEnumLiteral (
+            name <- l.name,
+            value <- l.value,
+            literal <- l.literal
+        )
+}
+
+-- Step 1: copy custom EDataType.  EEnum is also an EDataType, therefore it
+-- is excluded here and handled by EEnum2EEnum above.  The ePackage guard
+-- prevents Ecore built-in datatypes (EString, EInt, ...) from being copied
+-- into the transformation-model package.
+rule CustomEDataType2EDataType {
+    from
+        d : ECORE!EDataType (
+            not d.oclIsKindOf(ECORE!EEnum)
+            and
+            (
+                ECORE!EPackage.allInstancesFrom('SRC')
+                    ->includes(d.ePackage)
+                or
+                ECORE!EPackage.allInstancesFrom('TGT')
+                    ->includes(d.ePackage)
+            )
+        )
+    to
+        out : ECORE!EDataType (
+            name <- d.name,
+            instanceClassName <- d.instanceClassName,
+            serializable <- d.serializable,
+            eAnnotations <- Sequence {
+                thisModule.EDataTypeProvenanceAnnotation(d)
+            }
+        )
+}
+
+-- @hot-atl2tm-part 0017
+-- Step 1: copy an original Pivot OCL detail key/value unchanged.
+unique lazy rule CopyOriginalOclDetail {
+
+    from
+        d : ECORE!EStringToStringMapEntry
+
+    to
+        out : ECORE!EStringToStringMapEntry (
+            key <- d.key,
+            value <- d.value
+        )
+}
+
+-- Preserve every original required target reference as a Post property.
+-- Primitive EAttribute multiplicities are emitted only as unsupported
+-- provenance, not as OCL details, because EFinder/USE cannot model their
+-- absent-value state soundly.

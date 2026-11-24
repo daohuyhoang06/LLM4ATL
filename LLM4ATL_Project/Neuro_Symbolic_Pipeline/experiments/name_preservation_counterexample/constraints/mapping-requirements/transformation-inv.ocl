@@ -1,0 +1,26 @@
+context Document
+inv MappingCompleteness:
+  Report.allInstances()->exists(r |
+    r.title = self.title and r.author = self.author
+  )
+
+context Document
+inv MappingCardinality:
+  Report.allInstances()->select(r |
+    r.title = self.title and r.author = self.author
+  )->size() = 1
+
+context Document
+inv RelationshipPreservation:
+  Report.allInstances()->exists(r |
+    r.title = self.title and
+    r.author = self.author and
+    r.sections->size() = self.sections->size() and
+    self.sections->forAll(s |
+      r.sections->exists(t |
+        t.title = s.title and
+        t.content = s.content and
+        t.order = s.order
+      )
+    )
+  )

@@ -1,0 +1,135 @@
+-- @hot-atl2tm-part 0003
+-- Combine original constraint names with the Step 3 creator constraint.
+helper def : targetConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let creation : String =
+        thisModule.creationConstraintName(c)
+
+    in
+
+    if original = '' then
+        creation
+    else
+        original + ' ' + creation
+    endif;
+
+-- Reference-valued target multiplicities are properties to verify, rather
+-- than assumptions of the transformation semantics. Primitive EAttributes
+-- are intentionally excluded: USE/EFinder cannot soundly represent an
+-- unbound primitive value. Their names are recorded as unsupported metadata.
+helper def : targetMultiplicityConstraintName(
+    c : ECORE!EClass,
+    p : ECORE!EStructuralFeature
+) : String =
+
+    'targetMultiplicity_'
+    + c.name
+    + '_'
+    + p.name;
+
+helper def : targetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : unsupportedPrimitiveTargetMultiplicityConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    c.eStructuralFeatures
+        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EAttribute))
+        ->iterate(
+            p;
+            acc : String = '' |
+
+            let name : String =
+                thisModule.targetMultiplicityConstraintName(c, p)
+
+            in
+
+            if acc = '' then
+                name
+            else
+                acc + ' ' + name
+            endif
+        );
+
+helper def : targetPostConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    let original : String =
+        thisModule.originalConstraintNames(c)
+
+    in
+
+    let multiplicities : String =
+        thisModule.targetMultiplicityConstraintNames(c)
+
+    in
+
+    if original = '' then
+        multiplicities
+    else
+        if multiplicities = '' then
+            original
+        else
+            original + ' ' + multiplicities
+        endif
+    endif;
+
+helper def : targetMultiplicityConstraintExpr(
+    p : ECORE!EStructuralFeature
+) : String =
+
+    if p.upperBound = 1 then
+        'not self.'
+        + p.name
+        + '.oclIsUndefined()'
+    else
+        'self.'
+        + p.name
+        + '->size() >= '
+        + p.lowerBound.toString()
+    endif;
+
+-- @hot-atl2tm-part 0018
+lazy rule TargetMultiplicityConstraintDetail {
+    from
+        c : ECORE!EClass,
+        p : ECORE!EStructuralFeature
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.targetMultiplicityConstraintName(c, p),
+            value <- thisModule.targetMultiplicityConstraintExpr(p)
+        )
+}
+
+-- ================================================================
+-- Rules for creating OCL annotations for Steps 2, 3, and 4.
+-- ================================================================
+

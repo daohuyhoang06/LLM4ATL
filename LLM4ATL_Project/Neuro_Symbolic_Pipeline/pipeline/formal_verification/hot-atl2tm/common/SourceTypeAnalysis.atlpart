@@ -1,0 +1,207 @@
+-- @hot-atl2tm-part 0008
+-- ================================================================
+-- Step 2: analyze the source metamodel for bindings/resolution.
+-- ================================================================
+
+-- Find a source EClass by name.
+helper def : sourceEClass(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Infer the EClass name of a source expression.
+helper def : sourceExprTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        let name : String =
+            e.referredVariable.varName
+
+        in
+
+        let candidates : Sequence(ATL!SimpleInPatternElement) =
+            r.inPattern.elements
+                ->select(s |
+                    s.varName = name
+                )
+
+        in
+
+        if candidates->notEmpty()
+        then
+            candidates->first().type.name
+        else
+            ''
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let sourceTypeName : String =
+                thisModule.sourceExprTypeName(
+                    e.source,
+                    r
+                )
+
+            in
+
+            if sourceTypeName = ''
+            then
+                ''
+            else
+
+                let sourceClass : ECORE!EClass =
+                    thisModule.sourceEClass(
+                        sourceTypeName
+                    )
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    sourceClass.eAllStructuralFeatures
+                        ->select(f |
+                            f.name = e.name
+                        )
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            sourceTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+            -- first()/any() obtain one element from a source collection, so the
+            -- result remains a source object that Shape IV can resolve.
+            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+                if e.operationName = 'first' or e.operationName = 'any' then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Check whether a source navigation is multivalued.
+helper def : sourceExprIsCollection(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(
+        ATL!NavigationOrAttributeCallExp
+    ) then
+
+        let ownerTypeName : String =
+            thisModule.sourceExprTypeName(
+                e.source,
+                r
+            )
+
+        in
+
+        if ownerTypeName = '' then
+            false
+        else
+
+            let ownerClass : ECORE!EClass =
+                thisModule.sourceEClass(
+                    ownerTypeName
+                )
+
+            in
+
+            let features : Sequence(ECORE!EStructuralFeature) =
+                ownerClass.eAllStructuralFeatures
+                    ->select(f | f.name = e.name)
+
+            in
+
+            if features->notEmpty() then
+                features->first().upperBound <> 1
+            else
+                let helpers : Sequence(ATL!Helper) =
+                    thisModule.contextHelperAttributeCandidates(
+                        ownerTypeName,
+                        e.name
+                    )
+                in
+                if helpers->size() = 1 then
+                    thisModule.helperAttributeIsCollection(
+                        helpers->first()
+                    )
+                else
+                    false
+                endif
+            endif
+        endif
+
+    else
+        false
+    endif;
+
+-- Find a source class by name to check inheritance.
+helper def : sourceEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('SRC')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Check whether two source types are equal or inheritance-compatible.
+helper def : sourceTypesCompatible(
+    leftName : String,
+    rightName : String
+) : Boolean =
+
+    let left : ECORE!EClass =
+        thisModule.sourceEClassByName(leftName)
+
+    in
+
+    let right : ECORE!EClass =
+        thisModule.sourceEClassByName(rightName)
+
+    in
+
+    left = right
+    or
+    left.eAllSuperTypes->includes(right)
+    or
+    right.eAllSuperTypes->includes(left);
+

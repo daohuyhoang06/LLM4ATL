@@ -1,0 +1,9 @@
+global inv OneNonEmptyDocumentWithSection:
+  Document.allInstances()->size() = 1 and
+  Document.allInstances()->forAll(d |
+    d.title <> '' and d.author <> '' and
+    d.sections->size() = 1 and
+    d.sections->forAll(s |
+      s.title <> '' and s.content <> '' and s.order > 0
+    )
+  )

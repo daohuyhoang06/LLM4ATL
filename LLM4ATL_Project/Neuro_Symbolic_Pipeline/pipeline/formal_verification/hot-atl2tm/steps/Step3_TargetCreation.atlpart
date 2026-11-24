@@ -1,0 +1,224 @@
+-- @hot-atl2tm-part 0011
+-- ================================================================
+-- Step 3: creator constraints cho target class
+-- ================================================================
+
+-- Find a target EClass by name.
+helper def : targetEClassByName(
+    name : String
+) : ECORE!EClass =
+
+    ECORE!EClass.allInstancesFrom('TGT')
+        ->select(c | c.name = name)
+        ->first();
+
+-- Check whether target types are equal or inheritance-compatible.
+helper def : isTargetSubtypeOrSame(
+    childName : String,
+    parentName : String
+) : Boolean =
+
+    let child : ECORE!EClass =
+        thisModule.targetEClassByName(childName)
+
+    in
+
+    let parent : ECORE!EClass =
+        thisModule.targetEClassByName(parentName)
+
+    in
+
+    child = parent
+    or
+    child.eAllSuperTypes->includes(parent);
+
+-- Get output patterns that can create objects of the target class.
+helper def : creatorsOf(
+    c : ECORE!EClass
+) : Sequence(ATL!SimpleOutPatternElement) =
+
+    ATL!SimpleOutPatternElement
+        .allInstancesFrom('IN')
+        ->select(o |
+            thisModule.isTargetSubtypeOrSame(
+                o.type.name,
+                c.name
+            )
+        )
+        ->asSequence();
+
+-- Create a term that counts creator traces.
+helper def : creationTerm(
+    c : ECORE!EClass,
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    if o.type.name = c.name then
+
+        '(if self.'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif)'
+
+    else
+
+        '(if self.oclIsKindOf('
+        + o.type.name
+        + ') then (if self.oclAsType('
+        + o.type.name
+        + ').'
+        + thisModule.creatorRefName(o)
+        + '.oclIsUndefined() then 0 else 1 endif) else 0 endif)'
+
+    endif;
+
+-- Create the name of an inverse reference from a target object to its creator trace.
+helper def : creatorRefName(
+    o : ATL!SimpleOutPatternElement
+) : String =
+
+    o.outPattern.rule.name
+    + '_'
+    + o.varName;
+
+-- Sum the traces of all applicable creators.
+helper def : creationSum(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+
+        '0'
+
+    else
+
+        creators->iterate(
+            o;
+            acc : String = '' |
+
+            let term : String =
+                thisModule.creationTerm(
+                    c,
+                    o
+                )
+
+            in
+
+            if acc = '' then
+                term
+            else
+                acc + ' + ' + term
+            endif
+        )
+
+    endif;
+
+-- Create the Step 3 constraint name for a target class.
+helper def : creationConstraintName(
+    c : ECORE!EClass
+) : String =
+
+    'create_' + c.name;
+
+-- Encode: a target object has exactly one creator, or false if none exists.
+helper def : creationConstraintExpr(
+    c : ECORE!EClass
+) : String =
+
+    let creators : Sequence(ATL!SimpleOutPatternElement) =
+        thisModule.creatorsOf(c)
+
+    in
+
+    if creators->isEmpty() then
+        'false'
+    else
+        thisModule.creationSum(c)
+        + ' = 1'
+    endif;
+
+-- @hot-atl2tm-part 0022
+-- Step 3: declare the creator constraint name on a target class.
+unique lazy rule CreationConstraintNamesAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore',
+
+            details <- Sequence {
+                detail
+            }
+        ),
+
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'constraints',
+
+            value <- thisModule.targetConstraintNames(c)
+        )
+}
+
+-- Step 3: store the OCL expression for "exactly one creator".
+unique lazy rule CreationConstraintDetail {
+
+    from
+        c : ECORE!EClass
+
+    to
+        detail : ECORE!EStringToStringMapEntry (
+
+            key <-
+
+                thisModule.creationConstraintName(c),
+
+            value <-
+                thisModule.creationConstraintExpr(c)
+        )
+}
+
+-- Step 3: attach the creator constraint to a target class.
+unique lazy rule CreationOclAnnotation {
+
+    from
+        c : ECORE!EClass
+
+    to
+        ann : ECORE!EAnnotation (
+
+            source <-
+                'http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot',
+
+            details <-
+
+                -- Step 1: original OCL of TGT.
+                thisModule.originalOclDetails(c)
+                    ->collect(d |
+                        thisModule.CopyOriginalOclDetail(d)
+                    )
+
+                -- Step 3: creator constraint
+                ->union(
+                    Sequence {
+                        thisModule.CreationConstraintDetail(c)
+                    }
+                )
+
+                -- Do not add these names to CreationConstraintNamesAnnotation:
+                -- USE/eFinder must not treat them as semantic assumptions.
+                ->union(
+                    c.eStructuralFeatures
+                        ->select(p | p.lowerBound > 0 and p.oclIsKindOf(ECORE!EReference))
+                        ->collect(p |
+                            thisModule.TargetMultiplicityConstraintDetail(c, p)
+                        )
+                )
+        )
+}
+

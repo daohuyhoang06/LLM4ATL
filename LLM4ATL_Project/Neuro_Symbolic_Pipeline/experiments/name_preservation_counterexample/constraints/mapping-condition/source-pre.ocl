@@ -1,0 +1,10 @@
+global inv PublishAndSkipDocumentsExist:
+  Document.allInstances()->exists(d |
+    d.author = 'publish' and d.title <> ''
+  ) and
+  Document.allInstances()->exists(d |
+    d.author = 'skip' and d.title <> ''
+  ) and
+  Document.allInstances()->forAll(d |
+    d.author = 'publish' or d.author = 'skip'
+  )

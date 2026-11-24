@@ -1,0 +1,703 @@
+-- @hot-atl2tm-part 0009
+-- ================================================================
+-- Step 2: implicit resolution (Shapes IV and V).
+-- ================================================================
+
+-- Recognize a single-valued source-object binding (Shape IV).
+helper def : isShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    thisModule.sourceExprTypeName(
+        b.value,
+        r
+    ) <> ''
+
+    and not thisModule.sourceExprIsCollection(
+        b.value,
+        r
+    );
+
+-- Find unary matched rules that can resolve a source object.
+helper def : resolverRules(
+    sourceTypeName : String
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+
+            r.inPattern.elements->size() = 1
+
+            and
+
+            thisModule.sourceTypesCompatible(
+                sourceTypeName,
+                r.inPattern.elements
+                    ->first()
+                    .type.name
+            )
+
+            and
+
+            r.outPattern.elements
+                ->select(o |
+                    o.oclIsTypeOf(
+                        ATL!SimpleOutPatternElement
+                    )
+                )
+                ->notEmpty()
+        )
+        ->asSequence();
+
+-- Create a trace path for a single-valued resolver.
+helper def : resolverPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    exprText
+    + '.oclAsType('
+    + input.type.name
+    + ').'
+    + resolver.name
+    + '_'
+    + input.varName
+    + '.'
+    + output.varName;
+
+-- Obtain resolver targets from traces that actually exist.
+-- The input-type condition prevents undefined navigation when the resolver
+-- does not apply to the current object.
+helper def : resolverTraceTargetCollection(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        resolver.outPattern.elements->first()
+
+    in
+
+    '(if '
+    + exprText
+    + '.oclIsKindOf('
+    + input.type.name
+    + ') then '
+    + resolver.name
+    + '.allInstances()->select(z : '
+    + resolver.name
+    + ' | z.'
+    + thisModule.matchInputVarName(input)
+    + ' = '
+    + exprText
+    + '.oclAsType('
+    + input.type.name
+    + '))->collect(z | z.'
+    + output.varName
+    + ') else Sequence {} endif)';
+
+-- Combine single-valued resolver paths when q > 1.
+helper def : resolverPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverTraceTargetCollection(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Resolve a single-valued source object through trace links.
+helper def : resolveShapeIV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceExprTypeName(
+            b.value,
+            r
+        )
+
+    in
+
+    let exprText : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolvers : Sequence(ATL!MatchedRule) =
+        thisModule.resolverRules(
+            sourceTypeName
+        )
+
+    in
+
+    if resolvers->isEmpty() then
+
+        'null'
+
+    else
+        if resolvers->size() = 1 then
+
+            -- q = 1
+            thisModule.resolverPath(
+                exprText,
+                resolvers->first()
+            )
+
+        else
+
+            -- q > 1
+            'Set { '
+            + thisModule.resolverPaths(
+                exprText,
+                resolvers
+            )
+            + ' }->flatten()->any(true)'
+
+        endif
+    endif;
+
+-- Name the Shape IV definedness-preservation constraint.
+helper def : shapeIVDefinedConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r, o, b
+    )
+    + '_defined';
+
+-- Preserve definedness before and after Shape IV resolution.
+helper def : shapeIVDefinedConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeIV(
+            r,
+            b
+        )
+
+    in
+
+    '(not '
+    + original
+    + '.oclIsUndefined())'
+    + ' = '
+    + '(not '
+    + resolved
+    + '.oclIsUndefined())';
+
+-- Obtain the EClass type of an expression in an iterator body. This is currently
+-- used for collect(x | x.referenceToSourceObject), where x is an element of a source
+-- collection and the collect result is still a source object that requires resolution.
+helper def : iteratorBodySourceTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule,
+    iteratorName : String,
+    iteratorTypeName : String
+) : String =
+
+    if e.oclIsTypeOf(ATL!VariableExp) then
+
+        if e.referredVariable.varName = iteratorName then
+            iteratorTypeName
+        else
+            thisModule.sourceExprTypeName(e, r)
+        endif
+
+    else
+
+        if e.oclIsTypeOf(
+            ATL!NavigationOrAttributeCallExp
+        ) then
+
+            let ownerTypeName : String =
+                thisModule.iteratorBodySourceTypeName(
+                    e.source,
+                    r,
+                    iteratorName,
+                    iteratorTypeName
+                )
+
+            in
+
+            if ownerTypeName = '' then
+                ''
+            else
+
+                let ownerClass : ECORE!EClass =
+                    thisModule.sourceEClass(ownerTypeName)
+
+                in
+
+                let features : Sequence(ECORE!EStructuralFeature) =
+                    ownerClass.eAllStructuralFeatures
+                        ->select(f | f.name = e.name)
+
+                in
+
+                if features->notEmpty() then
+                    if features->first().eType
+                        .oclIsKindOf(ECORE!EClass)
+                    then
+                        features->first().eType.name
+                    else
+                        ''
+                    endif
+                else
+                    let helpers : Sequence(ATL!Helper) =
+                        thisModule.contextHelperAttributeCandidates(
+                            ownerTypeName,
+                            e.name
+                        )
+                    in
+                    if helpers->size() = 1 then
+                        thisModule.helperAttributeElementTypeName(
+                            helpers->first()
+                        )
+                    else
+                        ''
+                    endif
+                endif
+
+            endif
+
+        else
+
+            -- first()/any() obtain one element from a source collection, so the
+            -- result remains a source object that Shape IV can resolve.
+            if e.oclIsTypeOf(
+                ATL!CollectionOperationCallExp
+            )
+            or e.oclIsKindOf(
+                ATL!OperationCallExp
+            ) then
+
+                if e.operationName = 'first'
+                   or e.operationName = 'any'
+                then
+                    thisModule.sourceCollectionElementTypeName(
+                        e.source,
+                        r
+                    )
+                else
+                    ''
+                endif
+
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- If select uses oclIsTypeOf(T), the result contains only T. This information helps
+-- select the correct T -> target resolver instead of every subtype of the original collection.
+helper def : selectedElementTypeName(
+    e : ATL!IteratorExp
+) : String =
+
+    if e.name <> 'select' then
+        ''
+    else
+
+        if not e.body.oclIsTypeOf(ATL!OperationCallExp) then
+            ''
+        else
+
+            let body : ATL!OperationCallExp =
+                e.body
+
+            in
+
+            if (body.operationName <> 'oclIsTypeOf'
+                and body.operationName <> 'oclIsKindOf')
+               or body.arguments->isEmpty()
+               or e.iterators->size() <> 1
+            then
+                ''
+            else
+                if not body.source.oclIsTypeOf(ATL!VariableExp) then
+                    ''
+                else
+                    if body.source.referredVariable.varName
+                        <> e.iterators->first().varName
+                    then
+                        ''
+                    else
+                        let typeArgument : ATL!OclExpression =
+                            body.arguments->first()
+
+                        in
+
+                        if typeArgument.oclIsTypeOf(
+                            ATL!OclModelElement
+                        ) then
+                            let modelType : ATL!OclModelElement =
+                                typeArgument
+                            in
+                            modelType.name
+                        else
+                            ''
+                        endif
+                    endif
+                endif
+            endif
+
+        endif
+
+    endif;
+
+-- A collection produced directly by select(x | x.oclIsTypeOf/KindOf(T))
+-- contains values safely castable to T.  The next iterator receives that
+-- type fact in its lexical rendering environment.
+helper def : refinedElementTypeName(
+    e : ATL!OclExpression
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+        thisModule.selectedElementTypeName(e)
+    else
+        ''
+    endif;
+
+-- Infer the element type of a source collection after select/reject/collect.
+-- collect is treated as Shape V only when its body returns a source EClass; a collect
+-- returning a primitive such as x.name is not subject to implicit resolution.
+helper def : sourceCollectionElementTypeName(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!IteratorExp) then
+
+        let iteratorExpr : ATL!IteratorExp = e
+
+        in
+
+        if iteratorExpr.name = 'select' then
+
+            let selectedType : String =
+                thisModule.selectedElementTypeName(iteratorExpr)
+
+            in
+
+            if selectedType = '' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+                selectedType
+            endif
+
+        else
+
+            if iteratorExpr.name = 'reject' then
+                thisModule.sourceCollectionElementTypeName(
+                    iteratorExpr.source,
+                    r
+                )
+            else
+
+                if iteratorExpr.name = 'collect'
+                   and iteratorExpr.iterators->notEmpty()
+                then
+
+                    let inputType : String =
+                        thisModule.sourceCollectionElementTypeName(
+                            iteratorExpr.source,
+                            r
+                        )
+
+                    in
+
+                    if inputType = '' then
+                        ''
+                    else
+                        thisModule.iteratorBodySourceTypeName(
+                            iteratorExpr.body,
+                            r,
+                            iteratorExpr.iterators->first().varName,
+                            inputType
+                        )
+                    endif
+
+                else
+                    ''
+                endif
+
+            endif
+
+        endif
+
+    else
+
+        if thisModule.sourceExprIsCollection(e, r) then
+            thisModule.sourceExprTypeName(e, r)
+        else
+            if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+                if e.operationName = 'first' or e.operationName = 'any' then
+                    thisModule.sourceCollectionElementTypeName(e.source, r)
+                else
+                    ''
+                endif
+            else
+                ''
+            endif
+        endif
+
+    endif;
+
+-- Recognize source collections, including direct navigation, select/reject,
+-- collect returning source objects, and unions of those collections.
+helper def : isShapeVExpr(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : Boolean =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            thisModule.isShapeVExpr(e.source, r)
+            or
+            thisModule.isShapeVExpr(e.arguments->first(), r)
+        else
+            false
+        endif
+
+    else
+
+        thisModule.sourceCollectionElementTypeName(e, r) <> ''
+
+    endif;
+
+-- Recognize a Shape V binding.
+helper def : isShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : Boolean =
+
+    thisModule.isShapeVExpr(b.value, r);
+
+-- Create a trace path for each element.
+helper def : resolverCollectPath(
+    exprText : String,
+    resolver : ATL!MatchedRule
+) : String =
+
+    let input : ATL!SimpleInPatternElement =
+        resolver.inPattern.elements->first()
+
+    in
+
+    let outputs : Sequence(ATL!OutPatternElement) =
+        resolver.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+
+    in
+
+    let output : ATL!SimpleOutPatternElement =
+        outputs->first()
+
+    in
+
+    exprText
+    + '->collect(x | '
+    + thisModule.resolverTraceTargetCollection(
+        'x',
+        resolver
+    )
+    + ')->flatten()';
+
+-- Combine collection-resolver paths when q > 1.
+helper def : resolverCollectPaths(
+    exprText : String,
+    resolvers : Sequence(ATL!MatchedRule)
+) : String =
+
+    resolvers->iterate(
+        rr;
+        acc : String = '' |
+
+        let path : String =
+            thisModule.resolverCollectPath(
+                exprText,
+                rr
+            )
+
+        in
+
+        if acc = '' then
+            path
+        else
+            acc + ', ' + path
+        endif
+    );
+
+-- Resolve a source collection, including collections processed by select/reject/collect.
+helper def : resolveShapeVDirectParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    let sourceTypeName : String =
+        thisModule.sourceCollectionElementTypeName(e, r)
+
+    in
+
+    if sourceTypeName = '' then
+        ''
+    else
+
+        let resolvers : Sequence(ATL!MatchedRule) =
+            thisModule.resolverRules(sourceTypeName)
+
+        in
+
+        thisModule.resolverCollectPaths(
+            thisModule.ruleExpr(r, e),
+            resolvers
+        )
+
+    endif;
+
+-- Return the resolved collect branches of a Shape V expression.
+helper def : resolveShapeVParts(
+    e : ATL!OclExpression,
+    r : ATL!MatchedRule
+) : String =
+
+    if e.oclIsTypeOf(ATL!CollectionOperationCallExp) then
+
+        if e.operationName = 'union'
+           and e.arguments->notEmpty()
+        then
+            let left : String =
+                thisModule.resolveShapeVParts(e.source, r)
+            in
+            let right : String =
+                thisModule.resolveShapeVParts(e.arguments->first(), r)
+            in
+            if left = '' then
+                right
+            else
+                if right = '' then
+                    left
+                else
+                    left + ', ' + right
+                endif
+            endif
+        else
+            thisModule.resolveShapeVDirectParts(e, r)
+        endif
+
+    else
+        thisModule.resolveShapeVDirectParts(e, r)
+    endif;
+
+-- Resolve a source collection, including a union, through trace links.
+helper def : resolveShapeV(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    'Set { '
+    + thisModule.resolveShapeVParts(b.value, r)
+    + ' }->flatten()';
+
+-- Name the Shape V cardinality-preservation constraint.
+helper def : shapeVSizeConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    thisModule.bindingConstraintName(
+        r,
+        o,
+        b
+    )
+    + '_size';
+
+-- Preserve collection size after Shape V resolution.
+helper def : shapeVSizeConstraintExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    let original : String =
+        thisModule.bindingExpr(
+            r,
+            b
+        )
+
+    in
+
+    let resolved : String =
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    in
+
+    '('
+    + original
+    + ')->size() = ('
+    + resolved
+    + ')->size()';
+

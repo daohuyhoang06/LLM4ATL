@@ -41,3 +41,21 @@ pipeline prompt and AST schema, and checks the returned ATL against
 and reference scope 6. Generated files stay under ignored `results/`.
 The observed one-attempt repair result is recorded in
 `llm-repair-observed-results.json`.
+
+## Requirement-category counterexamples
+
+Run the five independent transformation-requirement checks without invoking
+an LLM:
+
+```powershell
+python experiments/name_preservation_counterexample/run_requirement_categories.py
+```
+
+The experiment covers binding correctness, mapping completeness, mapping
+cardinality, relationship preservation, and mapping conditions. Each category
+checks one deliberately faulty ATL and one correct ATL using
+`Sem AND Pre AND NOT Inv_i`, object scope 3, and reference scope 6. The run
+passes only when every faulty ATL returns `SAT` with a counterexample and every
+correct ATL returns `UNSAT`. The compact observed result is stored in
+`requirement-categories-observed-results.json`; detailed generated Ecore,
+result JSON, and counterexample XMI files stay under ignored `results/`.

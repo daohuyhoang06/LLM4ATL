@@ -1,0 +1,30 @@
+-- Fault: each source Document is mapped to two Reports.
+module Document2Report_All;
+
+create OUT : Report from IN : Document;
+
+rule Document2Report {
+  from
+    d : Document!Document
+  to
+    first : Report!Report (
+      title <- d.title,
+      author <- d.author,
+      sections <- d.sections
+    ),
+    second : Report!Report (
+      title <- d.title,
+      author <- d.author
+    )
+}
+
+rule Section2Section {
+  from
+    s : Document!Section
+  to
+    targetSection : Report!Section (
+      title <- s.title,
+      content <- s.content,
+      order <- s.order
+    )
+}

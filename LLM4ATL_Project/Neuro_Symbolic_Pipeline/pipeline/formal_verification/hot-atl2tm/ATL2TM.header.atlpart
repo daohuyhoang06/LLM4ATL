@@ -1,0 +1,15 @@
+-- @hot-atl2tm-part 0000
+module ATL2TM;
+
+create OUT: ECORE 
+from 
+    IN :  ATL,
+    SRC : ECORE,
+    TGT : ECORE;
+
+-- Mapping of the ATL -> Transformation Model algorithm steps:
+-- Step 1: copy the source/target metamodels into the TM.
+-- Step 2: create trace classes and encode matching, bindings, and frame conditions.
+-- Step 3: every target object must be created by exactly one creator.
+-- Step 4: overlapping matched rules must be mutually exclusive.
+

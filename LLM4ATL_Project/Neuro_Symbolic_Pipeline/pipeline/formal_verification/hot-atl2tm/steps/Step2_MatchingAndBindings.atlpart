@@ -1,0 +1,532 @@
+-- @hot-atl2tm-part 0007
+-- ================================================================
+-- Step 2: match patterns, bindings, and trace constraints.
+-- ================================================================
+
+-- Render a matched-rule filter in the trace context.
+helper def : filterExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+
+    in
+
+    thisModule.renderExpr(
+        r.inPattern.filter,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Get rules whose first input has the given type.
+helper def : rulesForMatchConstraint(
+    c : ECORE!EClass
+) : Sequence(ATL!MatchedRule) =
+
+    ATL!MatchedRule.allInstancesFrom('IN')
+        ->select(r |
+            r.inPattern.elements->notEmpty()
+            and
+            r.inPattern.elements->first().type.name = c.name
+        )
+        ->asSequence();
+
+-- Create equality predicates between a trace and its inputs.
+-- OCL reserves "self" for the context object. ATL input variables may also
+-- use that legal ATL name, so render them with a fresh generated identifier.
+helper def : matchInputVarName(
+    s : ATL!SimpleInPatternElement
+) : String =
+
+    if s.varName = 'self' then
+        '__efinder_src_self'
+    else
+        s.varName
+    endif;
+
+helper def : traceMatchCondition(
+    r : ATL!MatchedRule
+) : String =
+
+    r.inPattern.elements
+        ->iterate(
+            s;
+            acc : String = '' |
+
+            if acc = '' then
+
+                'z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            else
+
+                acc
+                + ' and z.'
+                + thisModule.matchInputVarName(s)
+                + ' = '
+                + thisModule.matchInputVarName(s)
+
+            endif
+        );
+
+-- Recursively wrap an expression in input quantifiers.
+helper def : wrapForAllAt(
+    inputs : Sequence(ATL!SimpleInPatternElement),
+    pos : Integer,
+    inner : String
+) : String =
+
+    if pos > inputs->size() then
+        inner
+    else
+        let s : ATL!SimpleInPatternElement = inputs->at(pos)
+        in
+            s.type.name
+            + '.allInstances()->forAll('
+            + thisModule.matchInputVarName(s)
+            + ' : '
+            + s.type.name
+            + ' | '
+            + thisModule.wrapForAllAt(
+                inputs,
+                pos + 1,
+                inner
+            )
+            + ')'
+    endif;
+
+-- Quantify all input pattern elements of a rule.
+helper def : wrapForAll(
+    r : ATL!MatchedRule,
+    inner : String
+) : String =
+
+    thisModule.wrapForAllAt(
+        r.inPattern.elements->asSequence(),
+        1,
+        inner
+    );
+
+-- List the names of match constraints for a source class.
+helper def : matchConstraintNames(
+    c : ECORE!EClass
+) : String =
+
+    thisModule.rulesForMatchConstraint(c)
+        ->iterate(
+            r;
+            acc : String = '' |
+
+            if acc = ''
+            then
+                'match_' + r.name
+            else
+                acc + ' match_' + r.name
+            endif
+        );
+
+-- Implement the matchExpr(r) function.
+-- Encode matchExpr(r): every matching input tuple has exactly one trace.
+helper def : matchExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+
+    in
+
+    -- in Step 2(d), use the iterator name itself:
+    -- a -> a
+    -- b -> b
+    let replacements : Sequence(String) =
+        inputs->collect(s | thisModule.matchInputVarName(s))
+
+    in
+
+    let traceExpr : String =
+        r.name
+        + '.allInstances()->one(z : '
+        + r.name
+        + ' | '
+        + thisModule.traceMatchCondition(r)
+        + ')'
+
+    in
+
+    let body : String =
+
+        if r.inPattern.filter.oclIsUndefined() then
+
+            traceExpr
+
+        else
+
+            thisModule.renderExpr(
+                r.inPattern.filter,
+                varNames,
+                replacements,
+                'self'
+            )
+            + ' implies '
+            + traceExpr
+
+        endif
+
+    in
+
+    thisModule.wrapForAll(
+        r,
+        body
+    );
+
+
+-- Render an ATL expression in the trace context of a rule.
+helper def : ruleExpr(
+    r : ATL!MatchedRule,
+    e : ATL!OclExpression
+) : String =
+
+    let inputs : Sequence(ATL!SimpleInPatternElement) =
+        r.inPattern.elements->asSequence()
+
+    in
+
+    let outputs : Sequence(ATL!SimpleOutPatternElement) =
+        r.outPattern.elements
+            ->select(o |
+                o.oclIsTypeOf(
+                    ATL!SimpleOutPatternElement
+                )
+            )
+            ->asSequence()
+
+    in
+
+    let varNames : Sequence(String) =
+        inputs->collect(s | s.varName)
+            ->union(
+                outputs->collect(o | o.varName)
+            )
+
+    in
+
+    let replacements : Sequence(String) =
+        inputs->collect(s |
+            'self.' + thisModule.matchInputVarName(s)
+        )
+        ->union(
+            outputs->collect(o |
+                'self.' + o.varName
+            )
+        )
+
+    in
+
+    thisModule.renderExpr(
+        e,
+        varNames,
+        replacements,
+        'self'
+    );
+
+-- Render the right-hand side of an ATL binding.
+helper def : bindingExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    thisModule.ruleExpr(
+        r,
+        b.value
+    );
+
+-- Create a stable OCL constraint name for a binding.
+helper def : bindingConstraintName(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'bind_'
+    + r.name
+    + '_'
+    + o.varName
+    + '_'
+    + b.propertyName;
+
+-- Select a direct binding representation, Shape IV, or Shape V.
+helper def : bindingResolvedExpr(
+    r : ATL!MatchedRule,
+    b : ATL!Binding
+) : String =
+
+    if thisModule.isShapeV(r, b) then
+
+        thisModule.resolveShapeV(
+            r,
+            b
+        )
+
+    else
+        if thisModule.isShapeIV(r, b) then
+
+            thisModule.resolveShapeIV(
+                r,
+                b
+            )
+
+        else
+
+            thisModule.bindingExpr(
+                r,
+                b
+            )
+
+        endif
+    endif;
+
+-- Encode the equality constraint for a target property.
+helper def : bindingConstraintExpr(
+    r : ATL!MatchedRule,
+    o : ATL!SimpleOutPatternElement,
+    b : ATL!Binding
+) : String =
+
+    'self.'
+    + o.varName
+    + '.'
+    + b.propertyName
+    + ' = '
+    + thisModule.bindingResolvedExpr(
+        r,
+        b
+    );
+
+-- Collect the simple output elements of a matched rule.
+helper def : simpleOutputsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!SimpleOutPatternElement) =
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->asSequence();
+
+-- ATL allocates a fresh, distinct object for every output-pattern element.
+helper def : outputDistinctConstraintName(
+    r : ATL!MatchedRule
+) : String =
+
+    'distinct_' + r.name + '_outputs';
+
+helper def : outputDistinctConstraintExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    'Set { '
+    + thisModule.simpleOutputsOf(r)
+        ->iterate(
+            o;
+            acc : String = '' |
+            if acc = ''
+            then 'self.' + o.varName
+            else acc + ', self.' + o.varName
+            endif
+        )
+    + ' }->size() = '
+    + thisModule.simpleOutputsOf(r)->size().toString();
+
+-- Collect bindings from all simple output elements.
+helper def : bindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.simpleOutputsOf(r)
+        ->collect(o | o.bindings)
+        ->flatten()
+        ->asSequence();
+
+-- List all OCL constraints attached to a trace class.
+helper def : traceConstraintNames(
+    r : ATL!MatchedRule
+) : String =
+
+    let filterName : String =
+        if r.inPattern.filter.oclIsUndefined()
+        then ''
+        else 'match_' + r.name + '_cond'
+        endif
+
+    in
+
+    let distinctName : String =
+        if thisModule.simpleOutputsOf(r)->size() > 1
+        then thisModule.outputDistinctConstraintName(r)
+        else ''
+        endif
+
+    in
+
+    let initialNames : String =
+        if filterName = ''
+        then distinctName
+        else
+            if distinctName = ''
+            then filterName
+            else filterName + ' ' + distinctName
+            endif
+        endif
+
+    in
+
+    let bindingNames : String =
+
+        thisModule.bindingsOf(r)
+            ->iterate(
+                b;
+                acc : String = initialNames |
+
+                let mainName : String =
+                    thisModule.bindingConstraintName(
+                        r,
+                        b.outPatternElement,
+                        b
+                    )
+
+                in
+
+                let names : String =
+
+                    if thisModule.isShapeV(r, b) then
+
+                        mainName
+                        + ' '
+                        + mainName
+                        + '_size'
+
+                    else
+
+                        if thisModule.isShapeIV(r, b) then
+
+                            mainName
+                            + ' '
+                            + mainName
+                            + '_defined'
+
+                        else
+
+                            mainName
+
+                        endif
+
+                    endif
+
+                in
+
+                if acc = ''
+                then
+                    names
+                else
+                    acc + ' ' + names
+                endif
+            )
+
+    in
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->iterate(
+            o;
+            accOut : String = bindingNames |
+
+            thisModule.unboundPropertiesOf(o)
+                ->iterate(
+                    p;
+                    accProp : String = accOut |
+
+                    let name : String =
+                        thisModule.nullConstraintName(
+                            o,
+                            p
+                        )
+
+                    in
+
+                    if accProp = ''
+                    then
+                        name
+                    else
+                        accProp + ' ' + name
+                    endif
+                )
+        );
+
+-- Check whether a trace class requires an OCL annotation.
+helper def : hasTraceConstraints(
+    r : ATL!MatchedRule
+) : Boolean =
+
+    not r.inPattern.filter.oclIsUndefined()
+
+    or
+
+    thisModule.bindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.simpleOutputsOf(r)->size() > 1
+
+    or
+
+    r.outPattern.elements
+        ->select(o |
+            o.oclIsTypeOf(
+                ATL!SimpleOutPatternElement
+            )
+        )
+        ->exists(o |
+            thisModule.unboundPropertiesOf(o)
+                ->notEmpty()
+        );
+
+-- @hot-atl2tm-part 0019
+-- Step 2: store a source-side match invariant.
+unique lazy rule MatchConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- 'match_' + r.name,
+            value <- thisModule.matchExpr(r)
+        )
+}
+
