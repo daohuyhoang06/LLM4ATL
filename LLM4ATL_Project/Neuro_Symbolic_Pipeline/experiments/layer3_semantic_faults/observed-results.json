@@ -1,0 +1,40 @@
+{
+  "case": "Document2Report_All",
+  "formula": "Sem AND Pre AND NOT Post_i",
+  "bounds": {
+    "scope": 3,
+    "reference_scope": 6
+  },
+  "syntax": {
+    "baseline.atl": "PASS",
+    "E1_wrong_attribute.atl": "PASS",
+    "E2_missing_target.atl": "PASS",
+    "E3_extra_target.atl": "PASS"
+  },
+  "atl2tm": {
+    "baseline.atl": "RESULT:OK",
+    "E1_wrong_attribute.atl": "RESULT:OK",
+    "E2_missing_target.atl": "RESULT:OK",
+    "E3_extra_target.atl": "RESULT:OK"
+  },
+  "layer3": {
+    "baseline": {
+      "Report::E1NamePreservation": "UNSAT",
+      "Report::E2MappingCompleteness": "UNSAT",
+      "Report::E3MappingCardinality": "UNSAT"
+    },
+    "E1_wrong_attribute": {
+      "Report::E1NamePreservation": "SAT"
+    },
+    "E2_missing_target": {
+      "Report::E2MappingCompleteness": "SAT"
+    },
+    "E3_extra_target": {
+      "Report::E3MappingCardinality": "SAT"
+    }
+  },
+  "interpretation": {
+    "UNSAT": "No counterexample was found within the configured bounds.",
+    "SAT": "A bounded counterexample was found; the semantic fault was detected."
+  }
+}

@@ -1,0 +1,6 @@
+-- Each source DomainModel has a target package carrying its name.
+context DomainModel
+inv DomainModelMapsToNamedPackage:
+  Package.allInstances()->exists(p |
+    p.name = self.name
+  )

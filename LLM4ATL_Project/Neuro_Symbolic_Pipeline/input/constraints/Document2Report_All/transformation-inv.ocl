@@ -1,0 +1,6 @@
+-- Cross-model mapping requirement: each input Document keeps its title.
+context Document
+inv NamePreservation:
+  Report.allInstances()->exists(r |
+    r.title = self.title
+  )

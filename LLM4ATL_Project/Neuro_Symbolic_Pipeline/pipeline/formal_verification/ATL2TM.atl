@@ -1621,10 +1621,10 @@ helper def : bindingConstraintExpr(
         b
     );
 
--- Collect bindings from all simple output elements.
-helper def : bindingsOf(
+-- Collect the simple output elements of a matched rule.
+helper def : simpleOutputsOf(
     r : ATL!MatchedRule
-) : Sequence(ATL!Binding) =
+) : Sequence(ATL!SimpleOutPatternElement) =
 
     r.outPattern.elements
         ->select(o |
@@ -1632,6 +1632,38 @@ helper def : bindingsOf(
                 ATL!SimpleOutPatternElement
             )
         )
+        ->asSequence();
+
+-- ATL allocates a fresh, distinct object for every output-pattern element.
+helper def : outputDistinctConstraintName(
+    r : ATL!MatchedRule
+) : String =
+
+    'distinct_' + r.name + '_outputs';
+
+helper def : outputDistinctConstraintExpr(
+    r : ATL!MatchedRule
+) : String =
+
+    'Set { '
+    + thisModule.simpleOutputsOf(r)
+        ->iterate(
+            o;
+            acc : String = '' |
+            if acc = ''
+            then 'self.' + o.varName
+            else acc + ', self.' + o.varName
+            endif
+        )
+    + ' }->size() = '
+    + thisModule.simpleOutputsOf(r)->size().toString();
+
+-- Collect bindings from all simple output elements.
+helper def : bindingsOf(
+    r : ATL!MatchedRule
+) : Sequence(ATL!Binding) =
+
+    thisModule.simpleOutputsOf(r)
         ->collect(o | o.bindings)
         ->flatten()
         ->asSequence();
@@ -1649,12 +1681,32 @@ helper def : traceConstraintNames(
 
     in
 
+    let distinctName : String =
+        if thisModule.simpleOutputsOf(r)->size() > 1
+        then thisModule.outputDistinctConstraintName(r)
+        else ''
+        endif
+
+    in
+
+    let initialNames : String =
+        if filterName = ''
+        then distinctName
+        else
+            if distinctName = ''
+            then filterName
+            else filterName + ' ' + distinctName
+            endif
+        endif
+
+    in
+
     let bindingNames : String =
 
         thisModule.bindingsOf(r)
             ->iterate(
                 b;
-                acc : String = filterName |
+                acc : String = initialNames |
 
                 let mainName : String =
                     thisModule.bindingConstraintName(
@@ -1745,6 +1797,10 @@ helper def : hasTraceConstraints(
     or
 
     thisModule.bindingsOf(r)->notEmpty()
+
+    or
+
+    thisModule.simpleOutputsOf(r)->size() > 1
 
     or
 
@@ -4142,6 +4198,17 @@ unique lazy rule FilterConstraintDetail {
         )
 }
 
+-- Step 2: preserve ATL's fresh-object semantics for multi-output rules.
+unique lazy rule OutputDistinctConstraintDetail {
+    from
+        r : ATL!MatchedRule
+    to
+        detail : ECORE!EStringToStringMapEntry (
+            key <- thisModule.outputDistinctConstraintName(r),
+            value <- thisModule.outputDistinctConstraintExpr(r)
+        )
+}
+
 -- Step 2: declare names of constraints attached to a trace class.
 unique lazy rule TraceConstraintNamesAnnotation {
     from
@@ -4202,6 +4269,16 @@ unique lazy rule TraceOclAnnotation {
                         Sequence {
                             thisModule.FilterConstraintDetail(r)
                         }
+                    endif
+                )
+                ->union(
+                    if thisModule.simpleOutputsOf(r)->size() > 1
+                    then
+                        Sequence {
+                            thisModule.OutputDistinctConstraintDetail(r)
+                        }
+                    else
+                        Sequence {}
                     endif
                 )
                 ->union(

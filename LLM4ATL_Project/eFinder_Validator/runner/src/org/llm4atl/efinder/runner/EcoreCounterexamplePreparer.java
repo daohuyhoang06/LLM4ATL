@@ -40,9 +40,9 @@ import org.w3c.dom.NodeList;
  * selected postcondition.</p>
  *
  * <p>For ATL2TM models carrying provenance, the rewrite implements the
- * verification query {@code Sem AND Pre AND NOT Post_i}: all semantic and
- * source-precondition constraints remain enabled, while target postconditions
- * other than the selected one are disabled.</p>
+ * verification query {@code Sem AND Pre AND NOT Post_i} or
+ * {@code Sem AND Pre AND NOT Inv_i}: semantic and source-precondition constraints
+ * remain enabled while unselected obligations are disabled.</p>
  */
 final class EcoreCounterexamplePreparer {
     static final String ECORE_ANNOTATION = "http://www.eclipse.org/emf/2002/Ecore";
@@ -80,7 +80,7 @@ final class EcoreCounterexamplePreparer {
      * absent.
      */
     private static final Pattern EXTERNAL_INVARIANT = Pattern.compile(
-            "(?ms)^\\s*context\\s+(?:[A-Za-z_][A-Za-z0-9_]*::)?([A-Za-z_][A-Za-z0-9_]*)"
+            "(?ms)^\\s*context\\s+([A-Za-z_][A-Za-z0-9_]*)"
                     + "\\s+inv\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(.*?)(?=^\\s*(?:context|global)\\s+|\\z)");
     private static final Pattern EXTERNAL_GLOBAL_INVARIANT = Pattern.compile(
             "(?ms)^\\s*global\\s+inv\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(.*?)(?=^\\s*(?:context|global)\\s+|\\z)");
@@ -123,9 +123,10 @@ final class EcoreCounterexamplePreparer {
         }
     }
 
-    private enum ConstraintRole { TARGET_POST, SOURCE_PRE }
+    private enum ConstraintRole { TARGET_POST, SOURCE_PRE, TRANSFORMATION_INV }
 
-    private record ExternalInvariant(ConstraintRole role, String context, String name, String body, Path source) {}
+    private record ExternalInvariant(ConstraintRole role, String context,
+                                     String name, String body, Path source) {}
 
     private EcoreCounterexamplePreparer() {}
 
@@ -134,12 +135,9 @@ final class EcoreCounterexamplePreparer {
     }
 
     /**
-     * Prepares a model while optionally importing target postconditions and
-     * source preconditions from standalone OCL files. A file named
-     * {@code source-pre.ocl} contributes Pre; all other {@code .ocl} files
-     * contribute target Post. A {@code global inv} in source-pre.ocl is
-     * attached to the selected target context, making the source-domain
-     * assumption active even when no source classifier instance exists. The
+     * Imports source-pre.ocl as Pre, transformation-inv.ocl as cross-model
+     * obligations, and other OCL profiles as target postconditions. A global
+     * source premise is attached to the selected verification context. The
      * original ATL2TM Ecore is never modified.
      */
     static PreparedModel prepare(Path original, Path outputDir, Check check,
@@ -182,8 +180,11 @@ final class EcoreCounterexamplePreparer {
                     + ": " + check.constraint());
         }
 
-        if (atl2tm && !isPostConstraint(context, check.constraint())) {
-            throw new IllegalArgumentException("For Sem AND Pre AND NOT Post_i, --check must select a target postConstraints entry: "
+        boolean transformationInv = atl2tm && words(detailValue(
+                annotation(context, PROVENANCE_ANNOTATION), "transformationConstraints"))
+                .contains(check.constraint());
+        if (atl2tm && !transformationInv && !isPostConstraint(context, check.constraint())) {
+            throw new IllegalArgumentException("--check must select a target postcondition or transformation invariant: "
                     + check.context() + "::" + check.constraint());
         }
 
@@ -194,7 +195,7 @@ final class EcoreCounterexamplePreparer {
         // catalogue of selectable ATL2TM Post_i entries; the rewrite below
         // enables only the generated NOT Post_i query.
         if (!constraints.contains(check.constraint())
-                && !(atl2tm && isPostConstraint(context, check.constraint()))) {
+                && !(atl2tm && (transformationInv || isPostConstraint(context, check.constraint())))) {
             throw new IllegalArgumentException("Constraint " + check.constraint()
                     + " is not enabled by the Ecore constraints annotation");
         }
@@ -203,7 +204,10 @@ final class EcoreCounterexamplePreparer {
         String property = propertyDetail.getAttribute("value");
         String bodyWithVariable = Pattern.compile("\\bself\\b").matcher(property).replaceAll("x");
         String generatedValue = atl2tm
-                ? generatedCounterexampleQuery(document, context, property)
+                ? transformationInv && "source".equals(origin(context))
+                    ? context.getAttribute("name") + ".allInstances()->exists(x | not ("
+                        + Pattern.compile("\\bself\\b").matcher(property).replaceAll("x") + "))"
+                    : generatedCounterexampleQuery(document, context, property)
                 : null;
 
         if (atl2tm) {
@@ -248,7 +252,9 @@ final class EcoreCounterexamplePreparer {
             transformer.transform(new DOMSource(document), new StreamResult(stream));
         }
         return new PreparedModel(rewritten, generated,
-                atl2tm ? "Sem AND Pre AND NOT Post_i" : "NOT selected constraint with remaining constraints enabled",
+                atl2tm ? transformationInv ? "Sem AND Pre AND NOT Inv_i"
+                        : "Sem AND Pre AND NOT Post_i"
+                        : "NOT selected constraint with remaining constraints enabled",
                 List.copyOf(normalizedFeatures), List.copyOf(abstractedFeatures), contextName);
     }
 
@@ -270,9 +276,12 @@ final class EcoreCounterexamplePreparer {
         List<ExternalInvariant> invariants = readExternalInvariants(location);
         for (ExternalInvariant invariant : invariants) {
             if (invariant.context() == null) continue;
-            Element classifier = findClassifierByRole(document, invariant.context(), invariant.role());
+            Element classifier = invariant.role() == ConstraintRole.TRANSFORMATION_INV
+                    ? findUnambiguousClassifier(document, invariant.context())
+                    : findClassifierByRole(document, invariant.context(), invariant.role());
             if (classifier == null) {
-                String role = invariant.role() == ConstraintRole.TARGET_POST ? "target" : "source";
+                String role = invariant.role() == ConstraintRole.TARGET_POST ? "target"
+                        : invariant.role() == ConstraintRole.SOURCE_PRE ? "source" : "source/target";
                 throw new IllegalArgumentException("No " + role + " EClass named " + invariant.context()
                         + " for invariant " + invariant.name() + " in " + invariant.source());
             }
@@ -285,11 +294,14 @@ final class EcoreCounterexamplePreparer {
             }
             Element constraints = ensureDetail(document, ecore, "constraints");
             String provenanceKey = invariant.role() == ConstraintRole.TARGET_POST
-                    ? "postConstraints" : "preConstraints";
+                    ? "postConstraints" : invariant.role() == ConstraintRole.SOURCE_PRE
+                    ? "preConstraints" : "transformationConstraints";
             Element roleConstraints = ensureDetail(document, provenance, provenanceKey);
             Element body = detail(pivot, invariant.name());
-            String rewrittenBody = rewriteExternalInvariantTypes(document, invariant.body(),
-                    invariant.role());
+            String rewrittenBody = invariant.role() == ConstraintRole.TRANSFORMATION_INV
+                    ? restrictTransformationTargets(document,
+                            rewriteTransformationInvariantTypes(document, invariant.body()))
+                    : rewriteExternalInvariantTypes(document, invariant.body(), invariant.role());
 
             if (body != null && !body.getAttribute("value").equals(rewrittenBody)) {
                 throw new IllegalArgumentException("Invariant " + invariant.context() + "::"
@@ -379,6 +391,53 @@ final class EcoreCounterexamplePreparer {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+
+    /** Resolve short class names, rejecting names shared by source and target. */
+    private static String rewriteTransformationInvariantTypes(Document document, String expression) {
+        var matcher = Pattern.compile("\\b([A-Za-z_][A-Za-z0-9_]*)"
+                + "\\.allInstances\\(\\)").matcher(expression);
+        StringBuffer rewritten = new StringBuffer();
+        while (matcher.find()) {
+            Element classifier = findUnambiguousClassifier(document, matcher.group(1));
+            if (classifier == null) {
+                throw new IllegalArgumentException("Unknown type before allInstances(): "
+                        + matcher.group());
+            }
+            matcher.appendReplacement(rewritten, java.util.regex.Matcher.quoteReplacement(
+                    classifier.getAttribute("name") + ".allInstances()"));
+        }
+        matcher.appendTail(rewritten);
+        if (Pattern.compile("\\b[A-Za-z_][A-Za-z0-9_]*::").matcher(rewritten).find()) {
+            throw new IllegalArgumentException("Unsupported qualified type expression in transformation invariant: "
+                    + rewritten);
+        }
+        return rewritten.toString();
+    }
+
+    /** Keep target quantifiers on actual ATL outputs, rather than free solver objects. */
+    private static String restrictTransformationTargets(Document document, String expression) {
+        String result = expression;
+        NodeList classifiers = document.getElementsByTagName("eClassifiers");
+        for (int i = 0; i < classifiers.getLength(); i++) {
+            Element target = (Element) classifiers.item(i);
+            if (!"target".equals(origin(target))) continue;
+            String name = target.getAttribute("name");
+            List<TraceOutput> outputs = traceOutputsFor(document, target);
+            StringBuilder membership = new StringBuilder();
+            for (TraceOutput output : outputs) {
+                if (membership.length() > 0) membership.append(" or ");
+                membership.append(output.trace())
+                        .append(".allInstances()->exists(__efinder_trace | __efinder_trace.")
+                        .append(output.reference()).append(" = __efinder_output)");
+            }
+            String range = name + ".allInstances()->select(__efinder_output | "
+                    + (membership.length() == 0 ? "false" : membership) + ")";
+            result = result.replaceAll("\\b" + Pattern.quote(name)
+                    + "\\.allInstances\\(\\)",
+                    java.util.regex.Matcher.quoteReplacement(range));
+        }
+        return result;
     }
 
     /**
@@ -486,7 +545,7 @@ final class EcoreCounterexamplePreparer {
     static List<Check> externalChecks(Path location) throws IOException {
         List<Check> checks = new ArrayList<>();
         for (ExternalInvariant invariant : readExternalInvariants(location)) {
-            if (invariant.role() != ConstraintRole.TARGET_POST || invariant.context() == null) continue;
+            if (invariant.role() == ConstraintRole.SOURCE_PRE || invariant.context() == null) continue;
             Check check = new Check(invariant.context(), invariant.name());
             if (!checks.contains(check)) checks.add(check);
         }
@@ -514,9 +573,17 @@ final class EcoreCounterexamplePreparer {
 
         List<ExternalInvariant> invariants = new ArrayList<>();
         for (Path file : files) {
-            ConstraintRole role = file.getFileName().toString().equalsIgnoreCase("source-pre.ocl")
-                    ? ConstraintRole.SOURCE_PRE : ConstraintRole.TARGET_POST;
+            String filename = file.getFileName().toString();
+            ConstraintRole role = filename.equalsIgnoreCase("source-pre.ocl")
+                    ? ConstraintRole.SOURCE_PRE : filename.equalsIgnoreCase("transformation-inv.ocl")
+                    ? ConstraintRole.TRANSFORMATION_INV : ConstraintRole.TARGET_POST;
             String text = Files.readString(file, StandardCharsets.UTF_8);
+            if (role == ConstraintRole.TRANSFORMATION_INV
+                    && Pattern.compile("\\b[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*")
+                            .matcher(text).find()) {
+                throw new IllegalArgumentException("Qualified package::Type names are not supported "
+                        + "in transformation-inv.ocl: " + file);
+            }
             var matcher = EXTERNAL_INVARIANT.matcher(text);
             int count = 0;
             while (matcher.find()) {
@@ -561,6 +628,22 @@ final class EcoreCounterexamplePreparer {
             }
         }
         return null;
+    }
+
+    private static Element findUnambiguousClassifier(Document document, String name) {
+        Element found = null;
+        NodeList classifiers = document.getElementsByTagName("eClassifiers");
+        for (int i = 0; i < classifiers.getLength(); i++) {
+            Element candidate = (Element) classifiers.item(i);
+            if (!("source".equals(origin(candidate)) || "target".equals(origin(candidate)))
+                    || !matchesClassifierName(candidate, name)) continue;
+            if (found != null) {
+                throw new IllegalArgumentException("Ambiguous type " + name
+                        + ": the name occurs in both source and target metamodels");
+            }
+            found = candidate;
+        }
+        return found;
     }
 
     private static Element ensureAnnotation(Document document, Element owner, String source) {
@@ -1109,7 +1192,9 @@ final class EcoreCounterexamplePreparer {
     }
 
     private static boolean isPostConstraint(Element classifier, String constraint) {
-        return isTargetPostConstraint(classifier, constraint);
+        return isTargetPostConstraint(classifier, constraint)
+                || words(detailValue(annotation(classifier, PROVENANCE_ANNOTATION),
+                        "transformationConstraints")).contains(constraint);
     }
 
     private static void rewriteAtl2tmConstraintLists(Document document, Element selectedContext,
@@ -1126,6 +1211,7 @@ final class EcoreCounterexamplePreparer {
             List<String> original = words(constraintsDetail.getAttribute("value"));
             Set<String> postConstraints = new LinkedHashSet<>(
                     words(detailValue(provenance, "postConstraints")));
+            postConstraints.addAll(words(detailValue(provenance, "transformationConstraints")));
             Set<String> allowed = new LinkedHashSet<>();
             allowed.addAll(words(detailValue(provenance, "semConstraints")));
             allowed.addAll(words(detailValue(provenance, "preConstraints")));
@@ -1142,7 +1228,7 @@ final class EcoreCounterexamplePreparer {
             constraintsDetail.setAttribute("value", String.join(" ", rewritten));
 
             // Ecore2AS parses every Pivot detail even if it is absent from the
-            // standard constraints list. Remove disabled Post_i bodies by
+            // standard constraints list. Remove disabled Post_i and Inv_i bodies by
             // provenance as well as by the legacy Ecore list: generated
             // TARGET_MULTIPLICITY posts are intentionally never present in
             // that hard-constraint list.
@@ -1179,7 +1265,7 @@ final class EcoreCounterexamplePreparer {
                     firstMatch = candidate;
                 }
                 if (postConstraint != null
-                        && isTargetPostConstraint(candidate, postConstraint)) {
+                        && isPostConstraint(candidate, postConstraint)) {
                     return candidate;
                 }
             }

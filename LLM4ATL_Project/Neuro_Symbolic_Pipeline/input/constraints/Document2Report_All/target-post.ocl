@@ -1,4 +1,4 @@
--- Each invariant checks one copied value or one direct containment property.
+-- Value, containment, and requirement-level obligations checked by Layer 3.
 context Report
 inv ReportPreservesTitle:
   Document.allInstances()->exists(d | self.title = d.title)

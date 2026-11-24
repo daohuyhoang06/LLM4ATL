@@ -1,0 +1,17 @@
+-- Each Member is represented by the appropriate target gender subtype.
+context Member
+inv MemberMapsToPersonByGender:
+  (if not self.familyFather.oclIsUndefined() or not self.familySon.oclIsUndefined()
+   then Male.allInstances()->exists(p |
+     p.fullName = self.firstName + ' ' +
+       (if not self.familyFather.oclIsUndefined() then self.familyFather.lastName
+        else self.familySon.lastName endif))
+   else true endif) and
+  (if not self.familyMother.oclIsUndefined() or not self.familyDaughter.oclIsUndefined()
+   then Female.allInstances()->exists(p |
+     p.fullName = self.firstName + ' ' +
+       (if not self.familyFather.oclIsUndefined() then self.familyFather.lastName
+        else if not self.familyMother.oclIsUndefined() then self.familyMother.lastName
+        else if not self.familySon.oclIsUndefined() then self.familySon.lastName
+        else self.familyDaughter.lastName endif endif endif))
+   else true endif)

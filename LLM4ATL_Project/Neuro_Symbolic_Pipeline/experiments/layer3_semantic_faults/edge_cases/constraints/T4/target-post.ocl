@@ -1,0 +1,16 @@
+context Report
+inv E1NamePreservation:
+  Document.allInstances()->exists(d | self.title = d.title)
+
+context Report
+inv E2MappingCompleteness:
+  Document.allInstances()->exists(d |
+    self.title = d.title and
+    d.sections->forAll(s |
+      self.sections->exists(t | t.title = s.title)
+    )
+  )
+
+context Report
+inv E3MappingCardinality:
+  Report.allInstances()->size() = Document.allInstances()->size()

@@ -22,7 +22,7 @@ PRODUCT_DIR = (HERE / "runtime" / "headless-product" / "target" / "products"
 PROVENANCE_SOURCE = "urn:llm4atl:provenance"
 ECORE_SOURCE = "http://www.eclipse.org/emf/2002/Ecore"
 EXTERNAL_INVARIANT = re.compile(
-    r"(?ms)^\s*context\s+(?:[A-Za-z_][A-Za-z0-9_]*::)?([A-Za-z_][A-Za-z0-9_]*)"
+    r"(?ms)^\s*context\s+([A-Za-z_][A-Za-z0-9_]*)"
     r"\s+inv\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*?)(?=^\s*(?:context|global)\s+|\Z)"
 )
 EXTERNAL_GLOBAL_INVARIANT = re.compile(
@@ -73,14 +73,17 @@ def _external_checks(location: Path) -> list[str]:
         if not file.is_file() or file.suffix.lower() != ".ocl":
             raise ValueError(f"constraints input must be an .ocl file or folder: {file}")
         text = file.read_text(encoding="utf-8")
+        if file.name.lower() == "transformation-inv.ocl" and re.search(
+                r"\b[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*", text):
+            raise ValueError("qualified package::Type names are not supported in " + str(file))
         matches = list(EXTERNAL_INVARIANT.finditer(text))
         global_matches = list(EXTERNAL_GLOBAL_INVARIANT.finditer(text))
         if global_matches and file.name.lower() != "source-pre.ocl":
             raise ValueError("global invariants are allowed only in source-pre.ocl: " + str(file))
         if not matches and not global_matches:
             raise ValueError("no supported 'context <EClass> inv <name>:' or 'global inv <name>:' declaration in " + str(file))
-        # source-pre.ocl constrains the premise only; it must never become a
-        # selectable Post_i query for --check-all.
+        # Source preconditions constrain the premise; transformation invariants
+        # and target postconditions are independently selectable obligations.
         if file.name.lower() != "source-pre.ocl":
             checks.extend(f"{match.group(1)}::{match.group(2)}" for match in matches)
     return checks
@@ -288,9 +291,9 @@ def main(argv: list[str] | None = None) -> int:
     checks.add_argument("--check", metavar="EClass::constraint",
                         help="one Pivot OCL constraint to negate and search")
     checks.add_argument("--check-all", action="store_true",
-                        help="check every ATL2TM target postConstraint (including --constraints)")
+                        help="check every target postcondition and transformation invariant")
     parser.add_argument("--constraints", type=Path,
-                        help="an .ocl file or folder of target-post.ocl and optional source-pre.ocl constraints")
+                        help="an .ocl file or folder with source-pre.ocl, target-post.ocl, and transformation-inv.ocl")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--scope", type=int, default=3, help="maximum instances per EClass")
     parser.add_argument("--reference-scope", type=int, default=6,

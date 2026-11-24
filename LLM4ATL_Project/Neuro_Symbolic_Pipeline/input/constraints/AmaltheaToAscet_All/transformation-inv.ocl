@@ -1,0 +1,9 @@
+-- Each source container maps its tasks into one target module.
+context ComponentContainer
+inv ContainerMapsTasksToModule:
+  AscetModule.allInstances()->exists(m |
+    m.tasks->size() = self.tasks->size() and
+    self.tasks->forAll(s |
+      m.tasks->exists(t | t.name = s.name)
+    )
+  )

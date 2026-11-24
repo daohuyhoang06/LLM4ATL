@@ -8,7 +8,7 @@ performs:
 
 The ATL2TM runtime creates a fresh work/output directory for the selected
 case. eFinder then imports the matching external OCL profile and searches
-``Sem AND Pre AND NOT Post_i``.
+``Sem AND Pre AND NOT Post_i`` or ``Sem AND Pre AND NOT Inv_i``.
 
 Examples (run from this directory or from the repository root)::
 
@@ -351,7 +351,7 @@ def _counterexample_feedback(checks: list[dict], constraints: Path | None) -> st
     ]
     for result in checks:
         check = str(result.get("check", "unknown constraint"))
-        lines.append(f"- Violated postcondition `{check}`.")
+        lines.append(f"- Violated constraint `{check}`.")
         property_text = _postcondition_text(constraints, check)
         if property_text:
             lines.append(f"  Required OCL: {property_text}")
@@ -472,8 +472,23 @@ def verify_atl_for_pipeline(
     if summary.get("status") != "BATCH_COMPLETED" or not isinstance(checks, list) or not checks:
         return Layer3Result(
             "EFINDER_NO_CHECKS",
-            f"EFINDER_NO_CHECKS: eFinder found no postcondition to verify "
+            f"EFINDER_NO_CHECKS: eFinder found no constraint to verify "
             f"(status={summary.get('status')!r}). Layer 3 stopped; the LLM will not retry.",
+            report=report,
+        )
+
+    counterexamples = [item for item in checks if item.get("status") == "SAT"]
+    if counterexamples:
+        stopped_count = sum(item.get("status") in EFINDER_STOP_STATUSES for item in checks)
+        detail = ("eFinder found " + str(len(counterexamples))
+                  + " bounded counterexample(s); the LLM will receive the violated constraint(s).")
+        if stopped_count:
+            detail += (" " + str(stopped_count)
+                       + " other check(s) had verifier errors; see the result report.")
+        return Layer3Result(
+            "COUNTEREXAMPLE",
+            detail,
+            feedback=_counterexample_feedback(counterexamples, constraints),
             report=report,
         )
 
@@ -502,16 +517,6 @@ def verify_atl_for_pipeline(
             report=report,
         )
 
-    counterexamples = [item for item in checks if item.get("status") == "SAT"]
-    if counterexamples:
-        return Layer3Result(
-            "COUNTEREXAMPLE",
-            "eFinder found " + str(len(counterexamples))
-            + " bounded counterexample(s); the LLM will receive the violated postcondition(s).",
-            feedback=_counterexample_feedback(counterexamples, constraints),
-            report=report,
-        )
-
     unexpected = [item for item in checks if item.get("status") != "UNSAT"]
     if unexpected:
         statuses = ", ".join(
@@ -527,7 +532,7 @@ def verify_atl_for_pipeline(
 
     skipped_checks = summary.get("skipped_checks", [])
     skipped_count = len(skipped_checks) if isinstance(skipped_checks, list) else 0
-    detail = f"eFinder found no bounded counterexample for {len(checks)} postcondition(s)."
+    detail = f"eFinder found no bounded counterexample for {len(checks)} constraint(s)."
     if skipped_count:
         detail += (
             f" {skipped_count} primitive target-multiplicity check(s) were "

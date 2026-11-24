@@ -1,0 +1,27 @@
+-- Syntactically and type-correct: title and author are both String.
+-- Semantically wrong: the required title/name is replaced by the author.
+module Document2Report_All;
+
+create OUT : Report from IN : Document;
+
+rule Document2Report {
+  from
+    d : Document!Document
+  to
+    report : Report!Report (
+      title <- d.author,
+      author <- d.author,
+      sections <- d.sections
+    )
+}
+
+rule Section2Section {
+  from
+    s : Document!Section
+  to
+    targetSection : Report!Section (
+      title <- s.title,
+      content <- s.content,
+      order <- s.order
+    )
+}

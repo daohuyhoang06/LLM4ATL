@@ -1,0 +1,13 @@
+-- Deliberately type-correct but semantically wrong.
+module Document2Report_NamePreservation_Fault;
+
+create OUT : Report from IN : Document;
+
+rule Document2Report {
+  from
+    d : Document!Document
+  to
+    r : Report!Report (
+      title <- d.author
+    )
+}

@@ -1,0 +1,6 @@
+-- Product stock status is derived from the corresponding Item quantity.
+context Item
+inv ItemMapsToProductWithStockStatus:
+  Product.allInstances()->exists(p |
+    p.name = self.name and p.inStock = (self.quantity > 0)
+  )

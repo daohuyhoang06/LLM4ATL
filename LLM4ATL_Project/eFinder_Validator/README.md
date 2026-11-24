@@ -66,6 +66,17 @@ normal upstream builds keep their original target platform.
 
 ## Run through Python
 
+Constraint profiles may contain `source-pre.ocl` for source premises,
+`target-post.ocl` for target obligations, and `transformation-inv.ocl` for
+source-target obligations. The latter supports `context` on a source or target
+class and is checked as `Sem AND Pre AND NOT Inv_i`. A source-context check
+requires at least one source witness but does not require a rule trace, so it
+can detect missing outputs. Run one property with `--check Class::Invariant`,
+or enumerate the profile with `--check-all`.
+Transformation invariants use short type names. If both metamodels define the
+same name, verification stops with an ambiguity error. Package-qualified names
+are not supported in this profile.
+
 ```powershell
 Set-Location D:\KLTN\LLM4ATL\LLM4ATL_Project\eFinder_Validator
 python .\efinder_check.py .\smoke\Person.ecore `

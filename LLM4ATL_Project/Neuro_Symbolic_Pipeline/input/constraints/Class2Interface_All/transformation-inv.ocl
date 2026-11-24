@@ -1,0 +1,6 @@
+-- Every source Class has an Interface preserving its name.
+context Class
+inv ClassMapsToNamedInterface:
+  Interface.allInstances()->exists(i |
+    i.name = self.name
+  )

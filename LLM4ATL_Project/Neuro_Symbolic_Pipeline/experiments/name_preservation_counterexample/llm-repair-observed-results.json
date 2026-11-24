@@ -1,0 +1,16 @@
+{
+  "case": "Document2Report_All",
+  "check": "Document::NamePreservation",
+  "formula": "Sem AND Pre AND NOT Inv_i",
+  "bounds": {
+    "scope": 3,
+    "reference_scope": 6
+  },
+  "faulty_binding": "title <- d.author",
+  "initial_status": "SAT",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "repair_attempts": 1,
+  "repaired_binding": "title <- s.title",
+  "repaired_status": "UNSAT"
+}

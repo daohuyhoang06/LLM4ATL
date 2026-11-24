@@ -1,0 +1,30 @@
+{
+  "case": "Document2Report_All",
+  "formula": "Sem AND Pre AND NOT Post_i",
+  "bounds": {
+    "scope": 3,
+    "reference_scope": 6
+  },
+  "syntax": {
+    "T1_missing_all_outputs.atl": "PASS",
+    "T4_balanced_duplication.atl": "PASS"
+  },
+  "atl2tm": {
+    "T1_missing_all_outputs.atl": "RESULT:OK",
+    "T4_balanced_duplication.atl": "RESULT:OK"
+  },
+  "layer3": {
+    "T1_missing_all_outputs": {
+      "Report::E1NamePreservation": "UNSAT",
+      "Report::E2MappingCompleteness": "UNSAT",
+      "Report::E3MappingCardinality": "UNSAT",
+      "verdict": "FALSE_NEGATIVE_BY_VACUITY"
+    },
+    "T4_balanced_duplication": {
+      "Report::E1NamePreservation": "UNSAT",
+      "Report::E2MappingCompleteness": "UNSAT",
+      "Report::E3MappingCardinality": "UNSAT",
+      "verdict": "E3_FALSE_NEGATIVE_BY_BALANCED_COUNTS"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+-- Exactly two Documents: one is duplicated by the ATL rule and one is skipped.
+global inv T4ExactlyTwoBalancedDocuments:
+  DocumentModel.allInstances()->exists(dm |
+    dm.documents->size() = 2 and
+    dm.documents->one(d | d.title = 'double') and
+    dm.documents->one(d | d.title = 'missing') and
+    dm.documents->forAll(d |
+      d.author <> '' and d.sections->isEmpty()
+    )
+  ) and
+  Document.allInstances()->size() = 2 and
+  Document.allInstances()->one(d | d.title = 'double') and
+  Document.allInstances()->one(d | d.title = 'missing')

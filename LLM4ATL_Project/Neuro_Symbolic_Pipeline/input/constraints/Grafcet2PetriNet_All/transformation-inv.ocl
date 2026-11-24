@@ -1,0 +1,6 @@
+-- Each source Grafcet becomes a PetriNet with the same name.
+context Grafcet
+inv GrafcetMapsToNamedPetriNet:
+  PetriNet.allInstances()->exists(p |
+    p.name = self.name
+  )

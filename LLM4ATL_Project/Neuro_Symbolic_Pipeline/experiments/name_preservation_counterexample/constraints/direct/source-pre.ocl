@@ -1,0 +1,5 @@
+global inv NonVacuousDocumentWithDifferentTitleAndAuthor:
+  Document.allInstances()->notEmpty() and
+  Document.allInstances()->forAll(d |
+    d.title <> '' and d.author <> '' and d.title <> d.author
+  )

@@ -197,6 +197,9 @@ public final class EFinderApplication implements IApplication {
         Set<String> result = new LinkedHashSet<>();
         result.add(targetContext);
         if (target == null) return result;
+        // Source-context transformation invariants must also find inputs for
+        // which no rule matched. Requiring a trace would exclude that witness.
+        if ("source".equals(provenanceDetail(target, "origin"))) return result;
 
         for (EClass candidate : classifiers) {
             if (!"trace".equals(provenanceDetail(candidate, "origin"))) continue;

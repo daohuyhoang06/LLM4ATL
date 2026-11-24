@@ -1,0 +1,19 @@
+-- Keep the bounded search away from vacuous/degenerate source models.
+global inv SemanticFaultExperimentInput:
+  DocumentModel.allInstances()->exists(dm |
+    dm.documents->notEmpty() and
+    dm.documents->isUnique(d | d.title) and
+    dm.documents->forAll(d |
+      d.title <> '' and d.author <> '' and d.title <> d.author and
+      d.sections->notEmpty() and
+      d.sections->isUnique(s | s.title) and
+      d.sections->forAll(s |
+        s.title <> '' and s.content <> '' and s.order > 0
+      )
+    )
+  ) and
+  Document.allInstances()->isUnique(d | d.title) and
+  Document.allInstances()->forAll(d |
+    d.title <> '' and d.author <> '' and d.title <> d.author and
+    d.sections->notEmpty()
+  )

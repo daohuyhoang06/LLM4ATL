@@ -1,0 +1,9 @@
+-- Force a non-empty, valid source domain even though the ATL rule never fires.
+global inv T1NonEmptySource:
+  DocumentModel.allInstances()->exists(dm |
+    dm.documents->notEmpty() and
+    dm.documents->forAll(d |
+      d.title <> '' and d.author <> '' and d.sections->notEmpty()
+    )
+  ) and
+  Document.allInstances()->notEmpty()

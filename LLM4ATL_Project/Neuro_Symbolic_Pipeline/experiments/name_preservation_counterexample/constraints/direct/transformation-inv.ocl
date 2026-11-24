@@ -1,0 +1,5 @@
+context Document
+inv NamePreservation:
+  Report.allInstances()->exists(r |
+    r.title = self.title
+  )
