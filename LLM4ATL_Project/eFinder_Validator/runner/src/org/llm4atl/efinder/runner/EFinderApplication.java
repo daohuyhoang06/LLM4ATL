@@ -48,17 +48,22 @@ public final class EFinderApplication implements IApplication {
         Map<String, String> result = new HashMap<>();
         result.put("backend", "efinder");
         result.put("ecore", arguments.ecore.toAbsolutePath().toString());
-        result.put("check", arguments.check.context() + "::" + arguments.check.constraint());
+        result.put("check", arguments.check == null ? "Satisfiability"
+                : arguments.check.context() + "::" + arguments.check.constraint());
         String phase = "prepare";
         try {
             Files.createDirectories(arguments.outDir);
-            EcoreCounterexamplePreparer.PreparedModel prepared = EcoreCounterexamplePreparer.prepare(
-                    arguments.ecore, arguments.outDir, arguments.check, arguments.constraints);
+            EcoreCounterexamplePreparer.PreparedModel prepared = arguments.check == null
+                    ? EcoreCounterexamplePreparer.prepareSatisfiability(
+                        arguments.ecore, arguments.outDir, arguments.constraints)
+                    : EcoreCounterexamplePreparer.prepare(
+                        arguments.ecore, arguments.outDir, arguments.check, arguments.constraints);
             if (arguments.constraints != null) {
                 result.put("constraints", arguments.constraints.toAbsolutePath().toString());
             }
             result.put("prepared_ecore", prepared.ecore().toString());
-            result.put("generated_negation", prepared.generatedConstraint());
+            result.put(arguments.check == null ? "generated_constraint" : "generated_negation",
+                    prepared.generatedConstraint());
             result.put("verification_formula", prepared.verificationFormula());
             if (!prepared.normalizedFeatures().isEmpty()) {
                 result.put("normalized_features", String.join("; ", prepared.normalizedFeatures()));
@@ -104,9 +109,11 @@ public final class EFinderApplication implements IApplication {
             Status status = finding.getStatus();
             result.put("status", status.name());
             if (status == Status.SAT) {
-                Path witness = arguments.outDir.resolve(arguments.stem() + ".counterexample.xmi");
+                Path witness = arguments.outDir.resolve(arguments.stem()
+                        + (arguments.check == null ? ".witness.xmi" : ".counterexample.xmi"));
                 saveWitness(finding, witness);
-                result.put("counterexample_file", witness.toAbsolutePath().toString());
+                result.put(arguments.check == null ? "witness_file" : "counterexample_file",
+                        witness.toAbsolutePath().toString());
             } else if (finding instanceof EFinderRunner.UnsupportedTranslationResult translation) {
                 result.put("detail", translation.getReason());
             } else if (finding instanceof UseMvResult.Unsupported unsupported) {
@@ -300,7 +307,8 @@ public final class EFinderApplication implements IApplication {
                 if (values[i].startsWith("--") && i + 1 < values.length) options.put(values[i], values[++i]);
             }
             Path ecore = path(options, "--ecore");
-            EcoreCounterexamplePreparer.Check check = EcoreCounterexamplePreparer.Check.parse(required(options, "--check"));
+            EcoreCounterexamplePreparer.Check check = "satisfiability".equals(options.get("--mode"))
+                    ? null : EcoreCounterexamplePreparer.Check.parse(required(options, "--check"));
             Path outDir = path(options, "--out-dir");
             Path resultJson = path(options, "--result-json");
             Path constraints = optionalPath(options, "--constraints");
@@ -323,6 +331,7 @@ public final class EFinderApplication implements IApplication {
         }
         String stem() {
             String filename = ecore.getFileName().toString().replaceFirst("(?i)\\.ecore$", "");
+            if (check == null) return filename + "__satisfiability";
             return filename + "__" + EcoreCounterexamplePreparer.sanitize(check.context()) + "__"
                     + EcoreCounterexamplePreparer.sanitize(check.constraint());
         }

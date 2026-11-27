@@ -10,6 +10,22 @@ installation and manually assembled JAR classpaths are therefore not needed.
 
 ## How it works
 
+For ATL2TM models, verification first searches `Pre AND Sem`.
+No source existence requirement is automatically added. Nonemptiness is required
+only when explicitly stated in the supplied premises. Global source premises are
+evaluated on an independent synthetic context with minimum scope 1; this context
+does not require any actual source, target, or trace object to exist.
+Target posts and transformation invariants are disabled in this baseline query.
+`UNSAT` stops verification within the supplied bounds; an error or timeout also
+stops it without requesting an LLM repair. `SAT` saves a `.witness.xmi` and permits
+the property checks to run. Use `--satisfiability` to run only this first step.
+
+`--check-all --progress` prints English progress under `Behavioral Consistency - Inv`
+and `Behavioral Consistency - Post`. Each SAT property is named, while UNSAT results
+are counted in the group summary. Every property is checked even after a SAT result;
+the pipeline sends all counterexamples, with OCL and XMI content, in one LLM repair
+request. Full results, including the baseline, are saved in `.all.result.json`.
+
 ```text
 ATL2TM .ecore
   -> copy model and replace selected property P by exists x | not P(x)
@@ -197,7 +213,8 @@ named `context <EClass> inv <name>:` declaration into the temporary ATL2TM
 Ecore copy. Files named `target-post.ocl` (and a single supplied `.ocl` file)
 become target `postConstraints`; a `source-pre.ocl` file in the supplied folder
 becomes source `preConstraints`. The latter remains enabled in every query,
-whereas `--check-all` selects only target posts. Neither the input ATL2TM Ecore
+whereas `--check-all` selects target posts and transformation invariants after
+the satisfiability gate. Neither the input ATL2TM Ecore
 nor the original target metamodel is modified.
 
 For source assumptions that must not be vacuous when no source classifier

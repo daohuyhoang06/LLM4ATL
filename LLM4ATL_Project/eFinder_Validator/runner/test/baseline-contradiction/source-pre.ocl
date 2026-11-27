@@ -1,0 +1,3 @@
+-- Regression fixture: global premises must be active even without any target.
+global inv ImpossiblePremise:
+  false

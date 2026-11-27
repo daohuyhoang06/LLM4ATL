@@ -32,6 +32,9 @@ EXTERNAL_GLOBAL_INVARIANT = re.compile(
 
 
 def result_paths(ecore: Path, check: str, out_dir: Path) -> tuple[Path, Path]:
+    if check == "Satisfiability":
+        stem = f"{ecore.stem}__satisfiability"
+        return out_dir / f"{stem}.result.json", out_dir / f"{stem}.witness.xmi"
     context, constraint = check.split("::", 1)
     stem = f"{ecore.stem}__{context}__{constraint}"
     return out_dir / f"{stem}.result.json", out_dir / f"{stem}.counterexample.xmi"
@@ -102,7 +105,8 @@ def discover_checks(ecore: Path, constraints: Path | None = None) -> list[str]:
         provenance = _annotation(classifier, PROVENANCE_SOURCE)
         ecore_annotation = _annotation(classifier, ECORE_SOURCE)
         if atl2tm:
-            names = _detail(provenance, "postConstraints").split()
+            names = (_detail(provenance, "postConstraints") + " "
+                     + _detail(provenance, "transformationConstraints")).split()
             # Schema-v2 transformation models persist role-qualified names
             # (for example Step__target). Keep the CLI/profile vocabulary on
             # the original metamodel name, which provenance preserves.
@@ -208,6 +212,8 @@ def run_one(args, check: str) -> tuple[dict, int]:
         "--reference-scope", str(args.reference_scope),
         "--timeout-ms", str(args.timeout_ms),
     ]
+    if check == "Satisfiability":
+        java_args.extend(["--mode", "satisfiability"])
     if args.constraints is not None:
         java_args.extend(["--constraints", str(args.constraints.resolve())])
     command = [str(args.launcher), "-nosplash"] + java_args
@@ -284,6 +290,73 @@ def skipped_primitive_multiplicity_result(args, check: str) -> tuple[dict, int]:
     return result, 0
 
 
+def invariant_checks(ecore: Path, constraints: Path | None) -> set[str]:
+    root = ElementTree.parse(ecore).getroot()
+    checks = set()
+    for node in root.iter():
+        if _local_name(node.tag) != "eClassifiers":
+            continue
+        provenance = _annotation(node, PROVENANCE_SOURCE)
+        name = _detail(provenance, "originalName") or node.get("name", "")
+        checks.update(f"{name}::{inv}" for inv in
+                      _detail(provenance, "transformationConstraints").split())
+    if constraints is not None and constraints.is_dir():
+        for file in constraints.rglob("*.ocl"):
+            if file.name.lower() == "transformation-inv.ocl":
+                checks.update(f"{m.group(1)}::{m.group(2)}" for m in
+                              EXTERNAL_INVARIANT.finditer(file.read_text(encoding="utf-8")))
+    return checks
+
+
+def is_atl2tm(ecore: Path) -> bool:
+    return any(_annotation(node, PROVENANCE_SOURCE) is not None
+               for node in ElementTree.parse(ecore).getroot().iter()
+               if _local_name(node.tag) == "eClassifiers")
+
+
+def run_verification(args, discovered: list[str]) -> dict:
+    """Gate property queries on satisfiability, then collect every counterexample."""
+    log = lambda message: print(message, flush=True) if args.progress else None
+    summary = {"backend": "efinder", "ecore": str(args.ecore.resolve()),
+               "checks": []}
+    if is_atl2tm(args.ecore):
+        log("[Layer 3] Satisfiability")
+        baseline, _ = run_one(args, "Satisfiability")
+        summary["satisfiability"] = baseline
+        status = baseline.get("status", "ERROR")
+        if status != "SAT":
+            log(f"  {status}: " + ("No instance satisfies Pre and Sem within the bounds. Stopping."
+                                   if status == "UNSAT" else "Satisfiability could not be determined. Stopping."))
+            summary["status"] = "BASELINE_UNSAT" if status == "UNSAT" else "BASELINE_ERROR"
+            return summary
+        log("  PASS (SAT): Pre and Sem have a satisfying instance within the bounds.")
+    invs = invariant_checks(args.ecore, args.constraints)
+    results = []
+    for label, group in (("Inv", [c for c in discovered if c in invs]),
+                         ("Post", [c for c in discovered if c not in invs])):
+        log(f"[Layer 3] Behavioral Consistency - {label}")
+        counts = {}
+        for check in group:
+            result, _ = run_one(args, check)
+            result["property_kind"] = label
+            results.append(result)
+            status = result.get("status", "ERROR")
+            counts[status] = counts.get(status, 0) + 1
+            if status == "SAT":
+                log(f"  SAT: {check} - counterexample found.")
+            elif status != "UNSAT":
+                log(f"  {status}: {check} - {result.get('detail', 'Check could not be completed.')}")
+        if not group:
+            log("  No properties to verify.")
+        else:
+            log(f"  Results: {counts.get('SAT', 0)} SAT, {counts.get('UNSAT', 0)} UNSAT, "
+                f"{len(group) - counts.get('SAT', 0) - counts.get('UNSAT', 0)} unresolved.")
+    summary.update(status="BATCH_COMPLETED" if results else "NO_POSTCONSTRAINTS", checks=results)
+    summary["counts"] = {s: sum(r.get("status", "ERROR") == s for r in results)
+                         for s in {r.get("status", "ERROR") for r in results}}
+    return summary
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("ecore", type=Path, help="ATL2TM-generated .ecore transformation model")
@@ -292,6 +365,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="one Pivot OCL constraint to negate and search")
     checks.add_argument("--check-all", action="store_true",
                         help="check every target postcondition and transformation invariant")
+    checks.add_argument("--satisfiability", action="store_true",
+                        help="check Pre and Sem without adding source existence requirements")
+    parser.add_argument("--progress", action="store_true", help="print grouped verification progress")
     parser.add_argument("--constraints", type=Path,
                         help="an .ocl file or folder with source-pre.ocl, target-post.ocl, and transformation-inv.ocl")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
@@ -320,9 +396,19 @@ def main(argv: list[str] | None = None) -> int:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     unsupported_primitive_checks = set(
         discover_unsupported_primitive_multiplicities(args.ecore))
+    if args.satisfiability:
+        result, returncode = run_one(args, "Satisfiability")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return returncode
     if not args.check_all:
         if "::" not in args.check or not all(args.check.split("::", 1)):
             parser.error("--check must be EClass::constraint")
+        baseline, _ = (run_one(args, "Satisfiability") if is_atl2tm(args.ecore)
+                       else ({"status": "SAT"}, 0))
+        if baseline.get("status") != "SAT":
+            print(json.dumps({"status": "BASELINE_UNSAT" if baseline.get("status") == "UNSAT"
+                              else "BASELINE_ERROR", "satisfiability": baseline, "checks": []}, indent=2))
+            return 0
         result, returncode = (skipped_primitive_multiplicity_result(args, args.check)
                               if args.check in unsupported_primitive_checks
                               else run_one(args, args.check))
@@ -333,42 +419,15 @@ def main(argv: list[str] | None = None) -> int:
         discovered = discover_checks(args.ecore, args.constraints)
     except ValueError as error:
         parser.error(str(error))
-    if not discovered:
-        summary = {
-            "backend": "efinder",
-            "status": "NO_POSTCONSTRAINTS",
-            "ecore": str(args.ecore.resolve()),
-            "checks": [],
-            "skipped_checks": sorted(unsupported_primitive_checks),
-            "detail": (
-                "No supported target postConstraints were found in the "
-                "ATL2TM provenance annotation"
-            ),
-        }
-    else:
-        results = []
-        for check in discovered:
-            result, _ = run_one(args, check)
-            results.append(result)
-        statuses = {}
-        for result in results:
-            status = result.get("status", "ERROR")
-            statuses[status] = statuses.get(status, 0) + 1
-        summary = {
-            "backend": "efinder",
-            "status": "BATCH_COMPLETED",
-            "verification_formula": "Sem AND Pre AND NOT Post_i",
-            "ecore": str(args.ecore.resolve()),
-            "checks": results,
-            "counts": statuses,
-            # Primitive target-multiplicity checks are intentionally not sent
-            # to EFinder.  They must not turn an otherwise supported batch
-            # into UNSUPPORTED_FEATURE, but remain visible in the report.
-            "skipped_checks": sorted(unsupported_primitive_checks),
-        }
+    summary = run_verification(args, discovered)
+    summary["skipped_checks"] = sorted(unsupported_primitive_checks)
+    if args.progress and unsupported_primitive_checks:
+        print(f"[Layer 3] Skipped {len(unsupported_primitive_checks)} unsupported primitive "
+              "target-multiplicity checks; see the result report.", flush=True)
     aggregate = args.out_dir / f"{args.ecore.stem}.all.result.json"
     aggregate.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(json.dumps(summary, indent=2, ensure_ascii=False))
+    if not args.progress:
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
     return 0
 
 

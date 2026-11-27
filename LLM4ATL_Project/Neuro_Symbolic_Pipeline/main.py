@@ -281,19 +281,15 @@ def run_layer3(basename, data, model_full_paths, attempt, ablation_config):
         print(f"[Layer 3] {detail}")
         return "EFINDER_ERROR", detail, None
 
-    if not result.status.startswith("ATL2TM_") \
-            and result.status != "LAYER3_CONFIGURATION_ERROR":
-        print(f"[{basename}] Generated ATL -> ATL2TM successfully.", flush=True)
-        print(f"[{basename}] Running eFinder...", flush=True)
-
     if result.status == "VERIFIED":
-        print(f"[{basename}] Layer 3: PASS - no counterexample found.", flush=True)
+        print(f"[{basename}] Layer 3: PASS - satisfiability is SAT; no bounded counterexamples found.", flush=True)
         final_atl = Path(AST2ATL_DIR) / f'{basename}.atl'
         final_atl.parent.mkdir(parents=True, exist_ok=True)
         final_atl.write_text(atl_code, encoding='utf-8')
         return "VERIFIED", "", final_atl
     if result.status == "COUNTEREXAMPLE":
-        print(f"[{basename}] Layer 3: SAT - counterexample found; sending it to the LLM for repair.", flush=True)
+        print(f"[{basename}] Layer 3: {result.detail}", flush=True)
+        print(f"[{basename}] Sending all counterexamples (OCL and XMI content) to the LLM in one repair request.", flush=True)
         return "COUNTEREXAMPLE", result.feedback, candidate_atl
     print(f"[{basename}] Layer 3 stopped: {result.detail}", flush=True)
     return result.status, result.detail, candidate_atl

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    name="emptySourceOnly" nsURI="urn:test:empty-source-only" nsPrefix="tm">
+  <eClassifiers xsi:type="ecore:EClass" name="Input">
+    <eAnnotations source="urn:llm4atl:provenance">
+      <details key="origin" value="source"/>
+      <details key="semConstraints" value="NoInputAllowed"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="NoInputAllowed"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <details key="NoInputAllowed" value="false"/>
+    </eAnnotations>
+  </eClassifiers>
+</ecore:EPackage>

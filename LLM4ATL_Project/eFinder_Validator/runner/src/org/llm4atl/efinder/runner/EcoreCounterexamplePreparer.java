@@ -130,6 +130,57 @@ final class EcoreCounterexamplePreparer {
 
     private EcoreCounterexamplePreparer() {}
 
+    /** Prepare only Pre and Sem, with an always-present carrier for global premises. */
+    static PreparedModel prepareSatisfiability(Path original, Path outputDir,
+                                              Path externalConstraints) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        Document document = factory.newDocumentBuilder().parse(original.toFile());
+        if (!hasAtl2tmProvenance(document)) {
+            throw new IllegalArgumentException("Satisfiability requires ATL2TM provenance");
+        }
+        List<ExternalInvariant> external = externalConstraints == null ? List.of()
+                : injectExternalConstraints(document, externalConstraints);
+        removeDanglingConstraintNames(document);
+        rewriteAtl2tmConstraintLists(document, null, null, null);
+
+        // Only this independent carrier has minimum scope 1. It evaluates
+        // explicit global premises without forcing any source/target/trace.
+        Element carrier = document.createElement("eClassifiers");
+        carrier.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", "ecore:EClass");
+        String carrierName = "__efinder_Satisfiability";
+        while (findClassifierByName(document, carrierName) != null) carrierName += "_";
+        carrier.setAttribute("name", carrierName);
+        document.getDocumentElement().appendChild(carrier);
+        Element provenance = ensureAnnotation(document, carrier, PROVENANCE_ANNOTATION);
+        ensureDetail(document, provenance, "origin").setAttribute("value", "verification");
+        injectGlobalPreconditions(document, carrier, external);
+        normalizeDuplicateClassifierNames(document);
+
+        String baseline = "__efinder_Baseline";
+        Element ecore = ensureAnnotation(document, carrier, ECORE_ANNOTATION);
+        appendWord(ensureDetail(document, ecore, "constraints"), baseline);
+        Element pivot = ensureAnnotation(document, carrier, PIVOT_ANNOTATION);
+        ensureDetail(document, pivot, baseline).setAttribute("value", "true");
+        List<String> normalized = mapPrimitiveDataTypes(document);
+        normalized.addAll(normalizeStringToIntegerConversions(document));
+        List<String> abstracted = abstractIrrelevantUnsupportedFeatures(document);
+        Files.createDirectories(outputDir);
+        Path rewritten = outputDir.resolve(original.getFileName().toString().replaceFirst("(?i)\\.ecore$", "")
+                + "__satisfiability.ecore");
+        TransformerFactory transformers = TransformerFactory.newInstance();
+        transformers.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        Transformer transformer = transformers.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        try (OutputStream stream = Files.newOutputStream(rewritten)) {
+            transformer.transform(new DOMSource(document), new StreamResult(stream));
+        }
+        return new PreparedModel(rewritten, baseline, "Sem AND Pre",
+                List.copyOf(normalized), List.copyOf(abstracted), carrierName);
+    }
+
     static PreparedModel prepare(Path original, Path outputDir, Check check) throws Exception {
         return prepare(original, outputDir, check, null);
     }

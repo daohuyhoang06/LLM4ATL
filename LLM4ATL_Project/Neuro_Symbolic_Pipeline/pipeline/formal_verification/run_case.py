@@ -7,8 +7,9 @@ performs:
     ATL transformation -> ATL2TM TransformationModel.ecore -> eFinder
 
 The ATL2TM runtime creates a fresh work/output directory for the selected
-case. eFinder then imports the matching external OCL profile and searches
-``Sem AND Pre AND NOT Post_i`` or ``Sem AND Pre AND NOT Inv_i``.
+case. eFinder imports the matching external OCL profile and first checks
+``Sem AND Pre``. Only a SAT baseline permits the searches
+``Sem AND Pre AND NOT Inv_i`` and ``Sem AND Pre AND NOT Post_i``.
 
 Examples (run from this directory or from the repository root)::
 
@@ -313,6 +314,7 @@ def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path | None,
         command.extend(["--check", check])
     else:
         command.append("--check-all")
+    command.append("--progress")
 
     if verbose:
         print("[2/2] ATL2TM -> eFinder", flush=True)
@@ -320,7 +322,7 @@ def run_efinder(case: str, atl2tm_ecore: Path, constraints: Path | None,
         print("      result :", out_dir, flush=True)
     completed = subprocess.run(
         command, cwd=EFINDER_DIR, text=True,
-        capture_output=not verbose,
+        capture_output=False,
     )
     return completed.returncode
 
@@ -471,6 +473,18 @@ def verify_atl_for_pipeline(
         )
 
     checks = summary.get("checks", [])
+    baseline = summary.get("satisfiability", {})
+    if summary.get("status") in {"BASELINE_UNSAT", "BASELINE_ERROR"}:
+        if baseline.get("status") == "UNSAT":
+            return Layer3Result(
+                "SATISFIABILITY_UNSAT",
+                "Satisfiability: UNSAT - no instance satisfies Pre and Sem within "
+                "the search bounds. Layer 3 stopped; the LLM will not retry.", report=report)
+        return Layer3Result(
+            "EFINDER_ERROR",
+            f"Satisfiability: {baseline.get('status', 'ERROR')} - "
+            f"{baseline.get('detail', 'Could not determine satisfiability.')} "
+            "Layer 3 stopped; the LLM will not retry.", report=report)
     if summary.get("status") != "BATCH_COMPLETED" or not isinstance(checks, list) or not checks:
         return Layer3Result(
             "EFINDER_NO_CHECKS",
